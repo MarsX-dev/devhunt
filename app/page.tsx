@@ -11,8 +11,8 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-  <>
-    <section className="max-w-4xl mt-12 mx-auto px-4 md:px-8">
+<>
+    <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
         <h1 className="text-slate-50 text-lg font-semibold xl:px-4">
           Find your next favorite product
         </h1>
