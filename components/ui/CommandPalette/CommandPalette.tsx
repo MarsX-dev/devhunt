@@ -53,23 +53,11 @@ export default ({
                                         <ul className="text-sm">
                                             {
                                                 trend.map((item, idx) => (
-                                                    <>
                                                     <li key={idx}>
                                                         <button onClick={() => setSearch(item.name)} className="block w-full px-3 py-2 rounded-lg text-left text-slate-400 from-indigo-900/20 to-indigo-800/10 hover:bg-gradient-to-l duration-150">
                                                             {item.name}
                                                         </button>
                                                     </li>
-                                                    <li key={idx}>
-                                                        <button onClick={() => setSearch(item.name)} className="block w-full px-3 py-2 rounded-lg text-left text-slate-400 from-indigo-900/20 to-indigo-800/10 hover:bg-gradient-to-l duration-150">
-                                                            {item.name}
-                                                        </button>
-                                                    </li>
-                                                    <li key={idx}>
-                                                        <button onClick={() => setSearch(item.name)} className="block w-full px-3 py-2 rounded-lg text-left text-slate-400 from-indigo-900/20 to-indigo-800/10 hover:bg-gradient-to-l duration-150">
-                                                            {item.name}
-                                                        </button>
-                                                    </li>
-                                                    </>
                                                 ))
                                             }
                                         </ul>
