@@ -1,21 +1,55 @@
 "use client";
 
-import { useState } from 'react'
+import { ChangeEventHandler, useState } from 'react'
 import Brand from '../Brand';
 import Link from 'next/link';
 import ButtonMenu from './ButtonMenu';
 import { IconSearch } from '@/components/Icons';
 import LinkShiny from '../LinkShiny/LinkShiny';
+import CommandPalette from '../CommandPalette/CommandPalette';
+import BlurBackground from '../BlurBackground/BlurBackground';
+import { IProductResult } from '@/type';
+import mockproducts from '@/mockproducts';
 
 export default () => {
 
     const [isActive, setActive] = useState(false)
+    const [isCommandActive, setCommandActive] = useState(false)
+    const [searchValue, setSearchValue] = useState("")
+    const [searchResult, setSearchResult] = useState<IProductResult[]>([])
 
     const navigation = [
         { title: "Products", path: "/" },
         { title: "About", path: "/about" },
         { title: "Learn how to post", path: "/learn-how-to-post" },
     ]
+
+    const trend = [
+        {
+            name: "Resend",
+            href: "/"
+        },
+        {
+            name: "Marsx",
+            href: "/"
+        },
+        {
+            name: "Float UI",
+            href: "/"
+        },
+        {
+            name: "Lost Pixel",
+            href: "/"
+        },
+    ]
+
+    const handleSearch = (value: string) => {
+        setSearchValue(value);
+        const getResults = mockproducts.filter((item) =>
+          item.name.toLocaleLowerCase().includes(value.toLowerCase())
+        );
+        setSearchResult(getResults);
+      };
 
     return (
         <>
@@ -26,10 +60,10 @@ export default () => {
                         <Brand />
                     </Link>
                     <div className="flex gap-x-4 items-center md:hidden">
-                    <button className='text-slate-400 hover:text-slate-200'>
+                    <button onClick={() => setCommandActive(true)} className='text-slate-400 hover:text-slate-200'>
                         <IconSearch />
                     </button>
-                        <ButtonMenu isActive={isActive} setState={() => setActive(!isActive)} />
+                        <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
                     </div>
                 </div>
                 <div className={`flex-1 md:static  ${isActive ? 'w-full fixed inset-x-0 px-4 md:px-0' : 'hidden md:block'}`}>
@@ -47,7 +81,7 @@ export default () => {
                             })
                         }
                         <li>
-                            <button className='hover:text-slate-200 hidden md:block'>
+                            <button onClick={() => setCommandActive(true)} className='hover:text-slate-200 hidden md:block'>
                                 <IconSearch />
                             </button>
                         </li>
@@ -65,11 +99,18 @@ export default () => {
                 </div>
             </div>
         </nav>
-        <div
-        className={`${
-            isActive ? "opacity-100" : "opacity-0 pointer-events-none"
-        } transform duration-200 z-10 fixed top-0 w-screen h-screen bg-black/20 backdrop-blur-sm md:hidden`}
-        onClick={() => setActive(false)}></div>
+        <CommandPalette
+            isCommandActive={isCommandActive}
+            trend={trend} 
+            setCommandActive={() => {
+                setCommandActive(false)
+                setSearchValue("")
+            }}
+            searchValue={searchValue} 
+            setSearch={handleSearch} 
+            searchResult={searchResult} 
+        />
+        <BlurBackground className='md:hidden' isActive={isActive} setActive={() => setActive(false)} />
         </>
     )
 }

@@ -1,9 +1,9 @@
 export default ({
     isActive, 
-    setState
-}: {isActive: boolean, setState: () => void}) => (
+    setActive
+}: {isActive: boolean, setActive: () => void}) => (
     <button className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 active:bg-slate-700 rounded-md duration-150"
-    onClick={setState}
+    onClick={setActive}
 >
     {
         isActive ? (
