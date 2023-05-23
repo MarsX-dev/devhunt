@@ -4,23 +4,19 @@ import Tags from "@/components/ui/ProductCard/Product.Tags";
 import Title from "@/components/ui/ProductCard/Product.Title";
 import Votes from "@/components/ui/ProductCard/Product.Votes";
 import ProductCard from "@/components/ui/ProductCard/ProductCard";
-import LinkShiny from '@/components/ui/LinkShiny/LinkShiny';
 import mockproducts from "@/mockproducts";
 
-import Link from 'next/link'
-
-export default function Home() {
+export default function Products() {
+  
   return (
-  <>
     <section className="max-w-4xl mt-12 mx-auto px-4 md:px-8">
         <h1 className="text-slate-50 text-lg font-semibold xl:px-4">
-          Find your next favorite product
+          Browse Products
         </h1>
-
         <div className="mt-10">
           <ul className="divide-y divide-slate-800/60">
             {
-              mockproducts.slice(0,5).map((item, idx) => (
+              mockproducts.map((item, idx) => (
               <li key={idx} className="py-3">
                 <ProductCard href={item.slug}>
                   <Logo src={item.logo} alt={item.title} />
@@ -43,11 +39,6 @@ export default function Home() {
           </ul>
         </div>
     </section>
-    <section className="max-w-4xl py-12 mx-auto px-4 md:px-8">
-          <LinkShiny href='/products' className='block'>
-            View all products
-          </LinkShiny>
-    </section>
-  </>
   )
 }
+

@@ -5,7 +5,7 @@ const mockproducts: IProduct[] = [
       logo: "/images/thirdWeb.jpeg",
       name: "Thirdweb",
       title: "The fastest way to build web3 apps.",
-      tags: ["Free", "Developer Tools"],
+      tags: ["Free", "Developer Tools", "Web3"],
       votes: 530,
       slug: "/post/wundergraph"
     },
@@ -13,7 +13,7 @@ const mockproducts: IProduct[] = [
       logo: "/images/resend.png",
       name: "Resend",
       title: "The best API to reach humans instead of spam folders",
-      tags: ["Free", "Developer Tools"],
+      tags: ["Free", "Developer Tools", "Email Marketing"],
       votes: 521,
       slug: "/post/wundergraph"
     },
@@ -21,7 +21,7 @@ const mockproducts: IProduct[] = [
       logo: "/images/wundergraph.png",
       name: "WunderGraph",
       title: "WunderGraph the next generation Backend For Frontend framework",
-      tags: ["Free", "Developer Tools"],
+      tags: ["Free", "Developer Tools", "Web Development"],
       votes: 490,
       slug: "/post/wundergraph"
     },
@@ -29,7 +29,7 @@ const mockproducts: IProduct[] = [
       logo: "/images/lostpixed.png",
       name: "Lost Pixel",
       title: "Visual Testing for Your Frontend",
-      tags: ["Free", "Developer Tools"],
+      tags: ["Free", "Developer Tools", "Web Development", "Testing"],
       votes: 478,
       slug: "/post/wundergraph"
     },
@@ -37,7 +37,7 @@ const mockproducts: IProduct[] = [
       logo: "/images/webstudio.jpeg",
       name: "Webstudio",
       title: "Open visual development for the open web",
-      tags: ["Free", "Node Code"],
+      tags: ["Free", "No Code"],
       votes: 470,
       slug: "/post/wundergraph"
     },

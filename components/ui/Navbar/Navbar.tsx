@@ -13,13 +13,13 @@ import mockproducts from '@/mockproducts';
 
 export default () => {
 
-    const [isActive, setActive] = useState(false)
-    const [isCommandActive, setCommandActive] = useState(false)
-    const [searchValue, setSearchValue] = useState("")
+    const [isActive, setActive] = useState<boolean>(false)
+    const [isCommandActive, setCommandActive] = useState<boolean>(false)
+    const [searchValue, setSearchValue] = useState<string>("")
     const [searchResult, setSearchResult] = useState<IProductResult[]>([])
 
     const navigation = [
-        { title: "Products", path: "/" },
+        { title: "Products", path: "/products" },
         { title: "About", path: "/about" },
         { title: "Learn how to post", path: "/learn-how-to-post" },
     ]
@@ -30,7 +30,7 @@ export default () => {
             href: "/"
         },
         {
-            name: "Marsx",
+            name: "MarsX",
             href: "/"
         },
         {
