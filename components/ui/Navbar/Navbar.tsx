@@ -66,7 +66,7 @@ export default () => {
                         <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
                     </div>
                 </div>
-                <div className={`flex-1 md:static  ${isActive ? 'w-full fixed inset-x-0 px-4 md:px-0' : 'hidden md:block'}`}>
+                <div className={`flex-1 md:static  ${isActive ? 'w-full fixed top-20 inset-x-0 px-4 md:px-0' : 'hidden md:block'}`}>
                 <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg md:block md:mt-0 md:p-0 md:bg-transparent">
                     <ul className="justify-end items-center space-y-6 text-slate-400 md:flex md:space-x-6 md:space-y-0">
                         {
