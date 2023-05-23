@@ -3,6 +3,7 @@ import BlurBackground from "../BlurBackground/BlurBackground"
 import { IProductResult } from "@/type"
 import SearchItem from "./SearchItem"
 import EmptyState from "./EmptyState"
+import { useEffect } from "react"
 
 type ITrend = {
     name: string,
@@ -26,6 +27,13 @@ export default ({
     setSearch = () => "", 
     trend = [] 
 }: Props) => {
+
+    useEffect(() => {
+        isCommandActive ?
+            document.body.classList.add("overflow-hidden")
+        :
+            document.body.classList.remove("overflow-hidden")
+    }, [isCommandActive])
     return (
             isCommandActive ? (
                 <div className="fixed z-30 w-full h-full inset-0 rounded-xl flex items-center justify-center px-4">

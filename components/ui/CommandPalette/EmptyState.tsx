@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default () => (
     <div className="space-y-2 text-center text-sm py-10 text-slate-300">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 mx-auto">
@@ -7,8 +5,8 @@ export default () => (
         </svg>
         <h4 className="font-medium">No results found</h4>
         <p className="text-slate-400">No products found for this search term.</p>
-        <Link href="/" className="inline-block bg-slate-800/70 hover:bg-slate-800 rounded-md px-4 py-2 duration-150">
+        <a href="/" className="inline-block bg-slate-800/70 hover:bg-slate-800 rounded-md px-4 py-2 duration-150">
             Find more tools 
-        </Link>
+        </a>
     </div>
 )
