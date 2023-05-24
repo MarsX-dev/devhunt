@@ -2,10 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+    scroll-behavior: smooth;
+}
+
 .custom-screen {
     @apply max-w-screen-xl mx-auto px-4 md:px-8;
 }
 
 .container-custom-screen {
-    @apply max-w-2xl mx-auto;
+    @apply max-w-3xl mx-auto px-4 md:px-8;
 }
