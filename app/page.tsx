@@ -17,7 +17,7 @@ export default async function Home() {
         <ul className="divide-y divide-slate-800/60">
           {products.map((product, idx) => (
             <li key={idx} className="py-3">
-              <ProductCard href={product.slug}>
+              <ProductCard href={'/product/' + product.slug}>
                 <Logo src={product.logo_url} alt={product.name} />
                 <div className="space-y-1">
                   <Name>{product.name}</Name>
