@@ -4,7 +4,6 @@ import Tags from '@/components/ui/ProductCard/Product.Tags'
 import Title from '@/components/ui/ProductCard/Product.Title'
 import Votes from '@/components/ui/ProductCard/Product.Votes'
 import ProductCard from '@/components/ui/ProductCard/ProductCard'
-import LinkShiny from '@/components/ui/LinkShiny/LinkShiny'
 import mockproducts from '@/mockproducts'
 
 import Link from 'next/link'
