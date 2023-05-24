@@ -1,2 +1,2 @@
-export * from "./Tabs"
-export * from "./TabLink"
+export * from './Tabs'
+export * from './TabLink'

@@ -1,2 +1,2 @@
-export * from "./IconSearch"
-export * from "./IconVote"
+export * from './IconSearch'
+export * from './IconVote'
