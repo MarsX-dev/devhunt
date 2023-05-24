@@ -1,1 +1,1 @@
-export { default } from "./ButtonUpvote"
+export { default } from './ButtonUpvote'

@@ -1,1 +1,1 @@
-export { default } from "./CommandPalette"
+export { default } from './CommandPalette'

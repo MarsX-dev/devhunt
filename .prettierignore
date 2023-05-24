@@ -1,0 +1,8 @@
+.serverless
+__generated__
+CHANGELOG.md
+coverage
+dist
+pnpm-lock.yaml
+prisma/migrations
+**/translations/*.json

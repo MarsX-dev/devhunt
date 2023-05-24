@@ -1,1 +1,1 @@
-export { default } from "./BlurBackground"
+export { default } from './BlurBackground'
