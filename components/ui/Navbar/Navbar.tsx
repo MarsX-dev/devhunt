@@ -5,6 +5,7 @@ import Brand from '../Brand'
 import Link from 'next/link'
 import ButtonMenu from './ButtonMenu'
 import { IconSearch } from '@/components/Icons'
+import Auth from '../Auth'
 import LinkShiny from '../LinkShiny/LinkShiny'
 import CommandPalette from '../CommandPalette/CommandPalette'
 import BlurBackground from '../BlurBackground/BlurBackground'
@@ -86,15 +87,7 @@ export default () => {
                 </li>
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
                 <li className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
-                  <Link
-                    href="/"
-                    className="block py-2.5 text-center hover:text-slate-200 border border-slate-800 hover:border-slate-600 rounded-lg md:border-none duration-150"
-                  >
-                    Log in
-                  </Link>
-                  <LinkShiny href="/" className="block">
-                    Sign in
-                  </LinkShiny>
+                  <Auth />
                 </li>
               </ul>
             </div>
