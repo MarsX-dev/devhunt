@@ -1,61 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
 
 interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  hash: string;
-  className?: string;
-  linkClassName?: string;
-  isActive?: boolean;
+  hash: string
+  className?: string
+  linkClassName?: string
+  isActive?: boolean
 }
 
-export const TabLink = ({
-  children,
-  hash,
-  className = "",
-  linkClassName,
-  isActive,
-  ...props
-}: Props) => {
-  const [isLinkActive, setLinkActive] = useState(isActive);
+export const TabLink = ({ children, hash, className = '', linkClassName, isActive, ...props }: Props) => {
+  const [isLinkActive, setLinkActive] = useState(isActive)
 
   const handlehashUpdate = () => {
-    const currentHash = window.location.hash;
-    console.log(currentHash);
-    
+    const currentHash = window.location.hash
+    console.log(currentHash)
+
     if (!currentHash) {
-      if (hash === "#") {
-        setLinkActive(true);
+      if (hash === '#') {
+        setLinkActive(true)
       } else {
-        setLinkActive(false);
+        setLinkActive(false)
       }
     } else {
       if (currentHash === hash) {
-        setLinkActive(true);
+        setLinkActive(true)
       } else {
-        setLinkActive(false);
+        setLinkActive(false)
       }
     }
   }
 
   useEffect(() => {
     handlehashUpdate()
-    window.addEventListener("hashchange", handlehashUpdate)
-  }, []);
+    window.addEventListener('hashchange', handlehashUpdate)
+  }, [])
 
   return (
     <li
       className={`flex-none inline-block py-2 border-b ${
-        isLinkActive ? "border-slate-600 text-slate-200" : " border-transparent"
+        isLinkActive ? 'border-slate-600 text-slate-200' : ' border-transparent'
       } ${className}`}
     >
       <a
         {...props}
         href={`${window.location.pathname}${hash}`}
         className={`inline-block rounded-full py-2 px-3 target:bg-slate-800 ${
-          isLinkActive ? "bg-slate-800" : ""
+          isLinkActive ? 'bg-slate-800' : ''
         } hover:bg-slate-800 duration-150 ${linkClassName}`}
       >
         {children}
       </a>
     </li>
-  );
-};
+  )
+}

@@ -1,1 +1,1 @@
-export { default } from "./LinkShiny"
+export { default } from './LinkShiny'
