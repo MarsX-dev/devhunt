@@ -1,1 +1,1 @@
-export { default } from "./LinkItem"
+export { default } from './LinkItem'
