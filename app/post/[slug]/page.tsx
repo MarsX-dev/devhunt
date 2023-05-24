@@ -1,16 +1,16 @@
 'use client'
 
-import { IconArrowTopRight } from "@/components/Icons/IconArrowTopRight";
-import Button from "@/components/ui/Button/Button";
-import ButtonUpvote from "@/components/ui/ButtonUpvote";
-import { CommentForm, CommentTextarea, CommentUserAvatar, CommentWrapper } from "@/components/ui/CommentForm";
-import { Gallery, GalleryImage } from "@/components/ui/Gallery";
-import LinkShiny from "@/components/ui/LinkShiny";
-import ProductLogo from "@/components/ui/ProductCard/Product.Logo";
-import ProductTitle from "@/components/ui/ProductCard/Product.Title";
-import { TabLink, Tabs } from "@/components/ui/TabsLink";
-import { Tag, TagsGroup } from "@/components/ui/TagsGroup";
-import Link from "next/link";
+import { IconArrowTopRight } from '@/components/Icons/IconArrowTopRight'
+import Button from '@/components/ui/Button/Button'
+import ButtonUpvote from '@/components/ui/ButtonUpvote'
+import { CommentForm, CommentTextarea, CommentUserAvatar, CommentWrapper } from '@/components/ui/CommentForm'
+import { Gallery, GalleryImage } from '@/components/ui/Gallery'
+import LinkShiny from '@/components/ui/LinkShiny'
+import ProductLogo from '@/components/ui/ProductCard/Product.Logo'
+import ProductTitle from '@/components/ui/ProductCard/Product.Title'
+import { TabLink, Tabs } from '@/components/ui/TabsLink'
+import { Tag, TagsGroup } from '@/components/ui/TagsGroup'
+import Link from 'next/link'
 
 export default function Page() {
   const product_images = [
@@ -99,17 +99,15 @@ export default function Page() {
       </div>
       <div className="container-custom-screen" id="comments">
         <h3 className="text-slate-50 font-medium">Support and give a Feedback</h3>
-            <CommentForm className="mt-12">
-                <CommentWrapper>
-                    <CommentUserAvatar src="/images/random-user.jpg" />
-                    <CommentTextarea placeholder="Write your feedback" />
-                </CommentWrapper>
-                <div className="mt-3 flex justify-end">                        
-                    <Button className="text-sm bg-slate-800 hover:bg-slate-700">
-                        Comment
-                    </Button>
-                </div>
-            </CommentForm>
+        <CommentForm className="mt-12">
+          <CommentWrapper>
+            <CommentUserAvatar src="/images/random-user.jpg" />
+            <CommentTextarea placeholder="Write your feedback" />
+          </CommentWrapper>
+          <div className="mt-3 flex justify-end">
+            <Button className="text-sm bg-slate-800 hover:bg-slate-700">Comment</Button>
+          </div>
+        </CommentForm>
       </div>
     </section>
   )

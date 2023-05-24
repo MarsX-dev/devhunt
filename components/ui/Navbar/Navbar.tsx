@@ -19,31 +19,6 @@ export default () => {
   const [searchResult, setSearchResult] = useState<IProductResult[]>([])
 
   const navigation = [
-        { title: "Products", path: "/products" },
-        { title: "About", path: "/about" },
-        { title: "Learn how to post", path: "/learn-how-to-post" },
-    ]
-
-  const trend = [
-        {
-            name: "Resend",
-            href: "/"
-        },
-        {
-            name: "MarsX",
-            href: "/"
-        },
-        {
-            name: "Float UI",
-            href: "/"
-        },
-        {
-            name: "Lost Pixel",
-            href: "/"
-        },
-    ]
-
-  const navigation = [
     { title: 'Products', path: '/' },
     { title: 'About', path: '/about' },
     { title: 'Learn how to post', path: '/learn-how-to-post' },
@@ -73,7 +48,6 @@ export default () => {
     const getResults = mockproducts.filter(item => item.name.toLocaleLowerCase().includes(value.toLowerCase()))
     setSearchResult(getResults)
   }
-
 
   return (
     <>
