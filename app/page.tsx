@@ -7,7 +7,7 @@ import ProductCard from '@/components/ui/ProductCard/ProductCard'
 import { getTopProducts } from '@/libs/supabase/services/products';
 
 export default async function Home() {
-  const products = await getTopProducts();
+  const products = await getTopProducts('votes_counter', false);
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
@@ -22,7 +22,7 @@ export default async function Home() {
                 <div className="space-y-1">
                   <Name>{product.name}</Name>
                   <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
-                  <Tags items={[product.product_pricing_types.title, ...product.product_categories.map(c => c.name)]} />
+                  <Tags items={[product.product_pricing_types?.title || 'Free', ...product.product_categories.map(c => c.name)]} />
                 </div>
                 <div className="flex-1 self-center flex justify-end">
                   <Votes count={product.votes_counter} />
@@ -32,7 +32,6 @@ export default async function Home() {
           ))}
         </ul>
       </div>
-      {/*<pre style={{"color": "white"}}>{ JSON.stringify(products, null, 2)}</pre>*/}
     </section>
   )
 }
