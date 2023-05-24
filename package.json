@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+
+    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > libs/database.types.ts"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.6.1",
@@ -36,6 +38,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
     "prettier": "^2.8.8",
+    "supabase": "^1.63.1",
     "typescript": "5.0.4"
   }
 }
