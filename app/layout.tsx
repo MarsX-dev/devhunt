@@ -20,15 +20,11 @@ export const metadata = {
 // do not cache this layout
 export const revalidate = 0;
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const supabase = createServerClient();
   const { data: { session } } = await supabase.auth.getSession();
   return (
-    <html lang="en" className='bg-slate-900'>
+    <html lang="en" className="bg-slate-900">
       <body className={inter.className}>
         <main>
         <SupabaseProvider session={session}>
