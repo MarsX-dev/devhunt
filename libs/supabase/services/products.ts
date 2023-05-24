@@ -4,6 +4,8 @@ import { createServerClient } from '@/libs/supabase/server';
 function getProducts(sortBy: string = 'votes_counter', ascending: boolean = false) {
   const supabase = createServerClient();
 
+  // there is error in types? foreignTable is required for order options, while it's not
+  //@ts-ignore
   return supabase
     .from('products')
     .select("*, product_pricing_types(*), product_categories(name)")
