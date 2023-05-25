@@ -1,24 +1,30 @@
 'use client'
 
 import { useSupabase } from '@/components/supabase/provider'
-
+import Button from '../Button'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 // Supabase auth needs to be triggered client-side
 export default function Auth() {
   const { supabase, session } = useSupabase()
+  const router = useRouter()
+  const [isLoad, setLoad] = useState(false)
 
   const handleGitHubLogin = async () => {
+    setLoad(true)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
     })
 
     if (error != null) {
       console.log({ error })
+      setLoad(false)
     }
   }
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
-
+    router.push('/')
     if (error != null) {
       console.log({ error })
     }
@@ -31,19 +37,13 @@ export default function Auth() {
   return session != null ? (
     <div>
       <span className="px-2">{session.user.email}</span>
-      <button
-        onClick={handleLogout}
-        className="py-3 px-4 font-medium text-center text-white active:shadow-none rounded-lg shadow bg-slate-800 md:bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-700 duration-150"
-      >
+      <Button isLoad={isLoad} variant="shiny" className="justify-center w-full md:w-auto" onClick={handleLogout}>
         Logout
-      </button>
+      </Button>
     </div>
   ) : (
-    <button
-      onClick={handleGitHubLogin}
-      className="block w-full py-3 px-4 font-medium text-center text-white active:shadow-none rounded-lg shadow bg-slate-800 md:bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-700 duration-150"
-    >
+    <Button isLoad={isLoad} variant="shiny" className="justify-center w-full md:w-auto" onClick={handleGitHubLogin}>
       Sign In
-    </button>
+    </Button>
   )
 }
