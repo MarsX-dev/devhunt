@@ -1,6 +1,7 @@
 'use client'
 
 import { useSupabase } from '@/components/supabase/provider'
+import Button from '../Button'
 
 // Supabase auth needs to be triggered client-side
 export default function Auth() {
@@ -31,19 +32,13 @@ export default function Auth() {
   return session != null ? (
     <div>
       <span className="px-2">{session.user.email}</span>
-      <button
-        onClick={handleLogout}
-        className="py-3 px-4 font-medium text-center text-white active:shadow-none rounded-lg shadow bg-slate-800 md:bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-700 duration-150"
-      >
-        Logout
-      </button>
+      <Button variant='shiny' onClick={handleLogout}>
+      L ogout
+      </Button>
     </div>
   ) : (
-    <button
-      onClick={handleGitHubLogin}
-      className="block w-full py-3 px-4 font-medium text-center text-white active:shadow-none rounded-lg shadow bg-slate-800 md:bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-700 duration-150"
-    >
+    <Button variant='shiny' onClick={handleGitHubLogin}>
       Sign In
-    </button>
+    </Button>
   )
 }
