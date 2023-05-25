@@ -139,7 +139,7 @@ export default function Page() {
           <ButtonUpvote count={490} />
         </div>
       </div>
-      <Tabs className="mt-20 sticky top-[3.75rem] z-30 bg-slate-900 md:top-[4.3rem]">
+      <Tabs className="mt-20 sticky top-[3.75rem] z-20 bg-slate-900 md:top-[4.3rem]">
         {tabs.map((item, idx) => (
           <TabLink hash={item.hash} key={idx}>
             {item.name}
