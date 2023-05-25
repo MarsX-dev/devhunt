@@ -215,11 +215,3 @@ export default async function Page({
     </section>
   )
 }
-
-export async function getServerProps({ params }: GetServerSidePropsContext) {
-  return {
-    props: {
-      params,
-    },
-  }
-}
