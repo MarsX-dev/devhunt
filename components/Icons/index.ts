@@ -1,2 +1,5 @@
 export * from './IconSearch'
 export * from './IconVote'
+export * from './IconArrowTopRight'
+export * from './IconChartBar'
+export * from './IconChatBubbleLeft'
