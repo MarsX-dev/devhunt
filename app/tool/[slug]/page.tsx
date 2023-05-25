@@ -13,6 +13,7 @@ import {
   CommentUserName,
   CommentDate,
   CommentContext,
+  CommentLike,
 } from '@/components/ui/Comment'
 import { Gallery, GalleryImage } from '@/components/ui/Gallery'
 import LinkShiny from '@/components/ui/LinkShiny'
@@ -163,9 +164,9 @@ export default function Page() {
             <div className="mt-6 flex flex-wrap gap-3 items-center">
               <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
               <TagsGroup>
-                <Tag href="/">Dev Tools</Tag>
-                <Tag href="/">Open Source</Tag>
-                <Tag href="/">Framework</Tag>
+                <Tag>Dev Tools</Tag>
+                <Tag>Open Source</Tag>
+                <Tag>Framework</Tag>
               </TagsGroup>
             </div>
           </div>
@@ -197,7 +198,8 @@ export default function Page() {
                 <div>
                   <CommentUserName>{item.user.name}</CommentUserName>
                   <CommentDate>{item.date}</CommentDate>
-                  <CommentContext className="mt-3 pb-6">{item.context}</CommentContext>
+                  <CommentContext className="mt-3">{item.context}</CommentContext>
+                  <CommentLike className="mt-2" count={1} />
                 </div>
               </Comment>
             ))}
