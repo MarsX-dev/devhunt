@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import Brand from '../Brand/Brand'
 
-/*eslint-disable */
 export default () => {
   const footerNavs = [
     {
