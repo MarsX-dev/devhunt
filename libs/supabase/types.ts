@@ -109,6 +109,23 @@ export interface Database {
           updated_at?: string | null
         }
       }
+      product_votes: {
+        Row: {
+          created_at: string | null
+          product_id: number
+          user_id: number
+        }
+        Insert: {
+          created_at?: string | null
+          product_id: number
+          user_id?: number
+        }
+        Update: {
+          created_at?: string | null
+          product_id?: number
+          user_id?: number
+        }
+      }
       products: {
         Row: {
           asset_urls: string[] | null
@@ -127,6 +144,7 @@ export interface Database {
           slogan: string | null
           slug: string
           updated_at: string
+          votes_count: number
           votes_counter: number
         }
         Insert: {
@@ -146,6 +164,7 @@ export interface Database {
           slogan?: string | null
           slug: string
           updated_at?: string
+          votes_count?: number
           votes_counter: number
         }
         Update: {
@@ -165,7 +184,34 @@ export interface Database {
           slogan?: string | null
           slug?: string
           updated_at?: string
+          votes_count?: number
           votes_counter?: number
+        }
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+          website_url: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+          website_url?: string | null
         }
       }
     }
@@ -176,6 +222,13 @@ export interface Database {
       upvoteComment: {
         Args: {
           _comment_id: number
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      upvoteProduct: {
+        Args: {
+          _product_id: number
           _user_id: string
         }
         Returns: boolean
@@ -198,18 +251,26 @@ export type CommentVote = Database['public']['Tables']['comment_vote']['Row']
 export type InsertCommentVote = Database['public']['Tables']['comment_vote']['Insert']
 export type UpdateCommentVote = Database['public']['Tables']['comment_vote']['Update']
 
-export type ProductCategories = Database['public']['Tables']['product_categories']['Row']
-export type InsertProductCategories = Database['public']['Tables']['product_categories']['Insert']
-export type UpdateProductCategories = Database['public']['Tables']['product_categories']['Update']
+export type ProductCategory = Database['public']['Tables']['product_categories']['Row']
+export type InsertProductCategory = Database['public']['Tables']['product_categories']['Insert']
+export type UpdateProductCategory = Database['public']['Tables']['product_categories']['Update']
 
 export type ProductCategoryProduct = Database['public']['Tables']['product_category_product']['Row']
 export type InsertProductCategoryProduct = Database['public']['Tables']['product_category_product']['Insert']
 export type UpdateProductCategoryProduct = Database['public']['Tables']['product_category_product']['Update']
 
-export type ProductPricingTypes = Database['public']['Tables']['product_pricing_types']['Row']
-export type InsertProductPricingTypes = Database['public']['Tables']['product_pricing_types']['Insert']
-export type UpdateProductPricingTypes = Database['public']['Tables']['product_pricing_types']['Update']
+export type ProductPricingType = Database['public']['Tables']['product_pricing_types']['Row']
+export type InsertProductPricingType = Database['public']['Tables']['product_pricing_types']['Insert']
+export type UpdateProductPricingType = Database['public']['Tables']['product_pricing_types']['Update']
 
-export type Products = Database['public']['Tables']['products']['Row']
-export type InsertProducts = Database['public']['Tables']['products']['Insert']
-export type UpdateProducts = Database['public']['Tables']['products']['Update']
+export type ProductVote = Database['public']['Tables']['product_votes']['Row']
+export type InsertProductVote = Database['public']['Tables']['product_votes']['Insert']
+export type UpdateProductVote = Database['public']['Tables']['product_votes']['Update']
+
+export type Product = Database['public']['Tables']['products']['Row']
+export type InsertProduct = Database['public']['Tables']['products']['Insert']
+export type UpdateProduct = Database['public']['Tables']['products']['Update']
+
+export type Profile = Database['public']['Tables']['profiles']['Row']
+export type InsertProfile = Database['public']['Tables']['profiles']['Insert']
+export type UpdateProfile = Database['public']['Tables']['profiles']['Update']
