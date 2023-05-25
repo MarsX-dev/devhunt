@@ -1,6 +1,3 @@
-'use client'
-
-import { useRouter } from 'next/router'
 import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons'
 import Button from '@/components/ui/Button/Button'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
@@ -33,12 +30,19 @@ import ProductCard from '@/components/ui/ProductCard/ProductCard'
 import mockproducts from '@/mockproducts'
 import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
+import { GetServerSidePropsContext } from 'next'
 
-export default async function Page() {
+export default async function Page({
+  params: { slug },
+}: {
+  params: {
+    slug: string
+  }
+}) {
   const productsService = new ProductsService(false)
 
-  const router = useRouter()
-  const product = await productsService.getById(1) //router.query.slug
+  // This is the: slug
+  const product = await productsService.getById(1) // Now it's: slug
   // const commentService = new CommentService(false);
 
   if (!product) {
@@ -46,7 +50,7 @@ export default async function Page() {
   }
 
   // const comments = (await commentService.getByProductId(product.id)) || [];
-  const comments = []
+  const comments: [] = []
 
   const tabs = [
     {
@@ -98,11 +102,11 @@ export default async function Page() {
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
-        <ProductLogo src={product?.logo_url} alt={product?.slogan} />
+        <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <ProductTitle className="mt-1">{product?.slogan}</ProductTitle>
         <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny href={product?.demo_url} target="_balnk" className="flex items-center gap-x-2">
+          <LinkShiny href={product?.demo_url as string} target="_balnk" className="flex items-center gap-x-2">
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
@@ -133,7 +137,7 @@ export default async function Page() {
             </div>
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
               <Gallery>
-                {getImagesOnly(product?.asset_urls || []).map((item, idx) => (
+                {getImagesOnly(product?.asset_urls || []).map((item: string, idx: number) => (
                   <GalleryImage key={idx} src={item} alt="" />
                 ))}
               </Gallery>
@@ -210,4 +214,12 @@ export default async function Page() {
       </div>
     </section>
   )
+}
+
+export async function getServerProps({ params }: GetServerSidePropsContext) {
+  return {
+    props: {
+      params,
+    },
+  }
 }
