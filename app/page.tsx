@@ -4,10 +4,10 @@ import Tags from '@/components/ui/ProductCard/Product.Tags'
 import Title from '@/components/ui/ProductCard/Product.Title'
 import Votes from '@/components/ui/ProductCard/Product.Votes'
 import ProductCard from '@/components/ui/ProductCard/ProductCard'
-import { getTopProducts } from '@/libs/supabase/services/products'
+import ProductsService from '@/libs/supabase/services/products'
 
 export default async function Home() {
-  const products = await getTopProducts('votes_counter', false)
+  const products = await new ProductsService(true).getTopProducts('votes_counter', false)
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">

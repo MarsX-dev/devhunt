@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/router'
 import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons'
 import Button from '@/components/ui/Button/Button'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
@@ -28,19 +29,25 @@ import Logo from '@/components/ui/ProductCard/Product.Logo'
 import Name from '@/components/ui/ProductCard/Product.Name'
 import Tags from '@/components/ui/ProductCard/Product.Tags'
 import Title from '@/components/ui/ProductCard/Product.Title'
-import Votes from '@/components/ui/ProductCard/Product.Votes'
 import ProductCard from '@/components/ui/ProductCard/ProductCard'
 import mockproducts from '@/mockproducts'
+import ProductsService from '@/libs/supabase/services/products'
+import CommentService from '@/libs/supabase/services/comments'
 
-export default function Page() {
-  const product_images = [
-    '/product/maxresdefault-1.jpg',
-    '/product/maxresdefault-2.jpg',
-    '/product/maxresdefault.jpg',
-    '/product/wundergraph-opengraph.png',
-    '/product/neonwundergraph-1.webp',
-    '/product/wunderGraphtt.jpeg',
-  ]
+export default async function Page() {
+  const productsService = new ProductsService(false)
+
+  const router = useRouter()
+  const product = await productsService.getById(1) //router.query.slug
+  // const commentService = new CommentService(false);
+
+  if (!product) {
+    return '<div> Not found </div>'
+  }
+
+  // const comments = (await commentService.getByProductId(product.id)) || [];
+  const comments = []
+
   const tabs = [
     {
       name: 'About product',
@@ -60,56 +67,18 @@ export default function Page() {
     },
   ]
 
-  const comments = [
-    {
-      user: {
-        name: 'Andreas',
-        avatar: '/images/random-user.jpg',
-      },
-      date: 'Commented May 21',
-      context:
-        "Kudos to the team behind WunderGraph for crafting a tool that strikes the perfect balance between simplicity and sophistication. It's refreshing to use a graphing tool that doesn't overwhelm with unnecessary complexity, yet still delivers stunning results.",
-    },
-    {
-      user: {
-        name: 'Sidi jeddou',
-        avatar: '/images/sidi.jpeg',
-      },
-      date: 'Commented May 21',
-      context:
-        'WunderGraph has become my go-to tool for visualizing complex data sets. Its ability to handle large datasets without compromising performance is impressive. I can explore and analyze my data effortlessly, thanks to its robust capabilities.',
-    },
-    {
-      user: {
-        name: 'Steven landor',
-        avatar: '/images/random-user-3.jpg',
-      },
-      date: 'Commented May 21',
-      context:
-        "WunderGraph's customer support is top-notch. Whenever I've had a question or needed assistance, their team has been quick to respond and incredibly helpful. It's refreshing to know that they genuinely care about their users' experience.",
-    },
-    {
-      user: {
-        name: 'Karim',
-        avatar: '/images/random-user-2.jpg',
-      },
-      date: 'Commented May 21',
-      context:
-        "WunderGraph has revolutionized the way I present data. The customization options are mind-blowing, allowing me to tailor every aspect of my graphs to match my branding or desired style. It's like having a personal graphic designer at my fingertips!",
-    },
-  ]
-
   const stats = [
     {
-      count: 490,
+      count: product.votes_count,
       icon: <IconVote />,
       label: 'Upvotes',
     },
     {
-      count: 70,
+      count: comments?.length || 0,
       icon: <IconChatBubbleLeft />,
       label: 'Comments',
     },
+    // TODO add calculation of rank in week and day
     {
       count: '#3',
       icon: <IconChartBar />,
@@ -122,17 +91,18 @@ export default function Page() {
     },
   ]
 
+  function getImagesOnly(urls) {
+    return urls.filter(u => /\.(?:jpg|gif|png)/.test(u))
+  }
+
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
-        <ProductLogo
-          src="/images/wundergraph.png"
-          alt="WunderGraph the next generation Backend For Frontend framework"
-        />
-        <h1 className="mt-3 text-slate-100 font-medium">WunderGraph</h1>
-        <ProductTitle className="mt-1">WunderGraph the next generation Backend For Frontend framework</ProductTitle>
+        <ProductLogo src={product?.logo_url} alt={product?.slogan} />
+        <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
+        <ProductTitle className="mt-1">{product?.slogan}</ProductTitle>
         <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny href="" target="_balnk" className="flex items-center gap-x-2">
+          <LinkShiny href={product?.demo_url} target="_balnk" className="flex items-center gap-x-2">
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
@@ -151,30 +121,19 @@ export default function Page() {
           <div className="relative overflow-hidden pb-12">
             <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
             <div className="relative container-custom-screen mt-12">
-              <div className="prose text-slate-100">
-                <p>
-                  WunderGraph is an open source API developer platform with a focus on developer experience. At its
-                  core, WunderGraph combines the API gateway pattern with the Backend for Frontend (BFF) patternto
-                  create the perfect developer experience for working with APIs.
-                </p>
-                <p>
-                  WunderGraph can combine all of your services, databases such as Fauna, file storage, identity
-                  providers (IdPs), and third-party APIs into your own developer toolkit without experiencing vendor
-                  lock-in.
-                </p>
-              </div>
+              <div className="prose text-slate-100">{product?.description}</div>
               <div className="mt-6 flex flex-wrap gap-3 items-center">
                 <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                 <TagsGroup>
-                  <Tag>Dev Tools</Tag>
-                  <Tag>Open Source</Tag>
-                  <Tag>Framework</Tag>
+                  {product?.product_categories.map(pc => (
+                    <Tag>{pc.name}</Tag>
+                  ))}
                 </TagsGroup>
               </div>
             </div>
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
               <Gallery>
-                {product_images.map((item, idx) => (
+                {getImagesOnly(product?.asset_urls || []).map((item, idx) => (
                   <GalleryImage key={idx} src={item} alt="" />
                 ))}
               </Gallery>
@@ -192,22 +151,25 @@ export default function Page() {
               <Button className="text-sm bg-slate-800 hover:bg-slate-700">Comment</Button>
             </div>
           </CommentForm>
+          {/*TODO move comments in a separate component to make them laze loaded */}
           <div className="mt-6">
             <Comments>
-              {comments.map((item, idx) => (
+              {comments.map((comment, idx) => (
                 <Comment key={idx}>
-                  <CommentUserAvatar src={item.user.avatar} />
+                  {/*TODO add First Letters Like avatars if there is no avatar */}
+                  <CommentUserAvatar src={comment.user.profile.avatar_url} />
                   <div>
-                    <CommentUserName>{item.user.name}</CommentUserName>
-                    <CommentDate>{item.date}</CommentDate>
-                    <CommentContext className="mt-3">{item.context}</CommentContext>
-                    <CommentLike className="mt-2" count={1} />
+                    <CommentUserName>{comment.user.profile.full_name}</CommentUserName>
+                    <CommentDate>{comment.created_at}</CommentDate>
+                    <CommentContext className="mt-3">{comment.content}</CommentContext>
+                    <CommentLike className="mt-2" count={comment.votes_count} />
                   </div>
                 </Comment>
               ))}
             </Comments>
           </div>
         </div>
+        {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
           <p className="text-slate-300 mt-6">

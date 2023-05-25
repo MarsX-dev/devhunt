@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "format:better-supabase-types": "npx better-supabase-types -i ./libs/supabase/types.ts -f",
+    "format:better-supabase-types": "npx better-supabase-types -i ./libs/supabase/types.ts -f -s",
     "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > libs/supabase/types.ts && npm run format:better-supabase-types"
   },
   "dependencies": {
