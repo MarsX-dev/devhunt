@@ -28,7 +28,6 @@ import Logo from '@/components/ui/ProductCard/Product.Logo'
 import Name from '@/components/ui/ProductCard/Product.Name'
 import Tags from '@/components/ui/ProductCard/Product.Tags'
 import Title from '@/components/ui/ProductCard/Product.Title'
-import Votes from '@/components/ui/ProductCard/Product.Votes'
 import ProductCard from '@/components/ui/ProductCard/ProductCard'
 import mockproducts from '@/mockproducts'
 

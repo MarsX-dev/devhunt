@@ -30,6 +30,8 @@ export default function Auth() {
     }
   }
 
+  console.log(session && session.user)
+
   // this `session` is from the root loader - server-side
   // therefore, it can safely be used to conditionally render
   // SSR pages without issues with hydration
