@@ -32,12 +32,12 @@ export default function Auth() {
   return session != null ? (
     <div>
       <span className="px-2">{session.user.email}</span>
-      <Button variant='shiny' onClick={handleLogout}>
-      L ogout
+      <Button variant='shiny' className=' w-full md:w-auto' onClick={handleLogout}>
+        Logout
       </Button>
     </div>
   ) : (
-    <Button variant='shiny' onClick={handleGitHubLogin}>
+    <Button variant='shiny' className=' w-full md:w-auto' onClick={handleGitHubLogin}>
       Sign In
     </Button>
   )
