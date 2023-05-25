@@ -2,7 +2,7 @@
 
 import { useSupabase } from '@/components/supabase/provider'
 import Button from '../Button'
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 // Supabase auth needs to be triggered client-side
 export default function Auth() {
@@ -24,8 +24,7 @@ export default function Auth() {
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
-    setLoad(false)
-    router.push("/")
+    router.push('/')
     if (error != null) {
       console.log({ error })
     }
@@ -38,12 +37,12 @@ export default function Auth() {
   return session != null ? (
     <div>
       <span className="px-2">{session.user.email}</span>
-      <Button isLoad={isLoad} variant='shiny' className='justify-center w-full md:w-auto' onClick={handleLogout}>
+      <Button isLoad={isLoad} variant="shiny" className="justify-center w-full md:w-auto" onClick={handleLogout}>
         Logout
       </Button>
     </div>
   ) : (
-    <Button isLoad={isLoad} variant='shiny' className='justify-center w-full md:w-auto' onClick={handleGitHubLogin}>
+    <Button isLoad={isLoad} variant="shiny" className="justify-center w-full md:w-auto" onClick={handleGitHubLogin}>
       Sign In
     </Button>
   )
