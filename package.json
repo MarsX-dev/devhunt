@@ -9,8 +9,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-
-    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > libs/database.types.ts"
+    "format:better-supabase-types": "npx better-supabase-types -i ./libs/supabase/types.ts -f",
+    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > libs/supabase/types.ts && npm run format:better-supabase-types"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.6.1",
@@ -29,6 +29,7 @@
     "autoprefixer": "10.4.14",
     "postcss": "8.4.23",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "better-supabase-types": "^2.3.0",
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.3",
     "eslint-config-prettier": "^8.8.0",

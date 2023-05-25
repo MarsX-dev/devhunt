@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google';
 import SupabaseListener from '@/components/supabase/listener';
 import SupabaseProvider from '@/components/supabase/provider';
 import { createServerClient } from '@/libs/supabase/server';
-import type { Database } from '@/libs/database.types';
+import type { Database } from '@/libs/supabase/types';
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs';
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
