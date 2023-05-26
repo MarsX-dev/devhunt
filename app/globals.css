@@ -1,18 +1,22 @@
 @tailwind base;
-/* width */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-
-::-webkit-scrollbar-thumb {
-  background: #0F172A ;
-}
 @tailwind components;
 @tailwind utilities;
 
 * {
   scroll-behavior: smooth;
+}
+
+/* Customize scrollbar */
+*::-webkit-scrollbar {
+  @apply w-2.5 h-2.5 bg-slate-900 duration-150;
+}
+
+*::-webkit-scrollbar:hover {
+  @apply bg-slate-800;
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded-full;
 }
 
 .custom-screen {
