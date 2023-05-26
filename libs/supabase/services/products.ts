@@ -1,5 +1,7 @@
 import { ExtendedProduct } from '@/libs/supabase/CustomTypes'
 import BaseDbService from '@/libs/supabase/services/BaseDbService'
+import { InsertProduct, Product, UpdateProduct } from '@/libs/supabase/types';
+import { omit } from '@/libs/helpers';
 
 export default class ProductsService extends BaseDbService {
   constructor(isServer: boolean) {
@@ -11,7 +13,8 @@ export default class ProductsService extends BaseDbService {
     //@ts-ignore
     return this.supabase
       .from('products')
-      .select('*, product_pricing_types(*), product_categories(name)')
+      .select('*, product_pricing_types(*), product_categories(name), profiles (full_name)')
+      .eq('deleted', false)
       .order(sortBy, { ascending })
   }
 
@@ -30,12 +33,13 @@ export default class ProductsService extends BaseDbService {
     return this._getOne('id', id)
   }
 
-  getBySlug(slug: number): Promise<ExtendedProduct | null> {
+  getBySlug(slug: string): Promise<ExtendedProduct | null> {
     return this._getOne('slug', slug)
   }
 
   async voteUnvote(productId: number, userId: string): Promise<boolean | null> {
-    const { data, error } = await this.supabase.rpc('upvoteProduct', { _product_id: productId, _user_id: userId })
+    const { data, error } = await this.supabase.rpc('triggerProductVote', { _product_id: productId, _user_id: userId })
+
     if (error !== null) {
       throw new Error(error.message)
     }
@@ -43,10 +47,36 @@ export default class ProductsService extends BaseDbService {
     return data
   }
 
+  async update(id: number, updates: UpdateProduct): Promise<Product> {
+    const cleanUpdates = omit(updates, ['deleted_at', 'deleted']);
+
+    const { data, error } = await this.supabase.from('products').update(cleanUpdates).eq('id', id).single()
+
+    if (error != null) throw new Error(error.message)
+
+    return data as Product
+  }
+
+  async delete(id: number): Promise<void> {
+    const { error } = await this.supabase.from('products').update({ deleted: true, deleted_at: new Date() }).eq('id', id)
+
+    if (error !== null) throw new Error(error.message)
+  }
+
+  async insert(product: InsertProduct): Promise<Product | null> {
+    const { data, error } = await this.supabase.from('products').insert(product).select().single()
+
+    if (error !== null) {
+      throw new Error(error.message)
+    }
+    return data
+  }
+
   private async _getOne(column: string, value: unknown) {
     const { data: products, error } = await this.supabase
       .from('products')
       .select('*, product_pricing_types(*), product_categories(name)')
+      .eq('deleted', false)
       .eq(column, value)
       .limit(1)
 

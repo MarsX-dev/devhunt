@@ -31,6 +31,7 @@ import mockproducts from '@/mockproducts'
 import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
 import { GetServerSidePropsContext } from 'next'
+import { useSupabase } from '@/components/supabase/provider';
 
 export default async function Page({
   params: { slug },
@@ -39,18 +40,25 @@ export default async function Page({
     slug: string
   }
 }) {
+
+
   const productsService = new ProductsService(false)
 
-  // This is the: slug
-  const product = await productsService.getById(1) // Now it's: slug
-  // const commentService = new CommentService(false);
+  const product = await productsService.getBySlug(slug);
 
   if (!product) {
     return '<div> Not found </div>'
   }
 
-  // const comments = (await commentService.getByProductId(product.id)) || [];
-  const comments: [] = []
+  // call to trigger a vote
+  // client only -- move to client component for Voting
+  // const { supabase, session } = useSupabase()
+  // if(session) {
+  //   await productsService.voteUnvote(product.id, session.user.id);
+  // }
+
+  const commentService = new CommentService(false);
+  const comments = (await commentService.getByProductId(product.id)) || [];
 
   const tabs = [
     {
@@ -106,11 +114,11 @@ export default async function Page({
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <ProductTitle className="mt-1">{product?.slogan}</ProductTitle>
         <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny href={product?.demo_url as string} target="_balnk" className="flex items-center gap-x-2">
+          <LinkShiny href={product?.demo_url || ''} target="_balnk" className="flex items-center gap-x-2">
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
-          <ButtonUpvote count={490} />
+          <ButtonUpvote count={product?.votes_count} />
         </div>
       </div>
       <Tabs className="mt-20 sticky top-[3.75rem] z-20 bg-slate-900 md:top-[4.3rem]">
@@ -161,9 +169,9 @@ export default async function Page({
               {comments.map((comment: any, idx) => (
                 <Comment key={idx}>
                   {/*TODO add First Letters Like avatars if there is no avatar */}
-                  <CommentUserAvatar src={comment.user.profile.avatar_url} />
+                  <CommentUserAvatar src={comment.profiles.avatar_url} />
                   <div>
-                    <CommentUserName>{comment.user.profile.full_name}</CommentUserName>
+                    <CommentUserName>{comment.profiles.full_name}</CommentUserName>
                     <CommentDate>{comment.created_at}</CommentDate>
                     <CommentContext className="mt-3">{comment.content}</CommentContext>
                     <CommentLike className="mt-2" count={comment.votes_count} />

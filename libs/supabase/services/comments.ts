@@ -1,6 +1,7 @@
 import type { Comment, InsertComment, UpdateComment } from '@/libs/supabase/types'
 import { createServerClient } from '@/libs/supabase/server'
 import BaseDbService from './BaseDbService'
+import { ExtendedComment } from '@/libs/supabase/CustomTypes';
 
 export type ProductComment = Comment & { children?: ProductComment[] }
 
@@ -18,7 +19,10 @@ export default class CommentService extends BaseDbService {
     const { data, error } = await this.supabase.from('comment').insert(comment).select().single()
 
     console.log(error)
-    if (error !== null) throw new Error(error.message)
+    if (error !== null) {
+      throw new Error(error.message)
+    }
+
     return data
   }
 
@@ -35,10 +39,10 @@ export default class CommentService extends BaseDbService {
     }
   }
 
-  async getByProductId (productId: number): Promise<ProductComment[] | null> {
+  async getByProductId (productId: number): Promise<ExtendedComment[] | null> {
     const { data, error } = await this.supabase
       .from('comment')
-      .select('*, users ( profiles (full_name, avatar_url ) )')
+      .select('*, profiles ( full_name, avatar_url ) )')
       .eq('product_id', productId)
       // .eq('deleted', false)    // we can hide removed comment content but we may still want to show its replies
       .order('created_at')
@@ -70,6 +74,6 @@ export default class CommentService extends BaseDbService {
     const supabase = createServerClient()
     const { data, error } = await supabase.rpc('toggleCommentVote', { _comment_id: commentId, _user_id: userId })
     if (error !== null) throw new Error(error.message)
-    return data
+    return data;
   }
 }
