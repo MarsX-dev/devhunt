@@ -6,7 +6,5 @@ export type ExtendedProduct = Product & {
 }
 
 export type ExtendedComment = Comment & {
-  user: {
-    profile: Profile
-  }
+  profiles: Profile
 }

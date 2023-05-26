@@ -225,17 +225,17 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      toggleCommentVote: {
+       toggleCommentVote: {
         Args: {
           _comment_id: number
           _user_id: string
         }
         Returns: boolean
       }
-      upvoteProduct: {
+      triggerProductVote: {
         Args: {
-          _product_id: number
           _user_id: string
+          _product_id: number
         }
         Returns: boolean
       }
