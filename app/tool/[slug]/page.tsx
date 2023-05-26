@@ -95,7 +95,7 @@ export default async function Page({
     },
   ]
 
-  function getImagesOnly(urls) {
+  function getImagesOnly(urls: []) {
     return urls.filter(u => /\.(?:jpg|gif|png)/.test(u))
   }
 
@@ -137,7 +137,7 @@ export default async function Page({
             </div>
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
               <Gallery>
-                {getImagesOnly(product?.asset_urls || []).map((item: string, idx: number) => (
+                {getImagesOnly((product?.asset_urls as []) || []).map((item: string, idx: number) => (
                   <GalleryImage key={idx} src={item} alt="" />
                 ))}
               </Gallery>
@@ -158,7 +158,7 @@ export default async function Page({
           {/*TODO move comments in a separate component to make them laze loaded */}
           <div className="mt-6">
             <Comments>
-              {comments.map((comment, idx) => (
+              {comments.map((comment: any, idx) => (
                 <Comment key={idx}>
                   {/*TODO add First Letters Like avatars if there is no avatar */}
                   <CommentUserAvatar src={comment.user.profile.avatar_url} />
