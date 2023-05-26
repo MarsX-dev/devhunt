@@ -1,4 +1,4 @@
-export default ({ items }: { items: string[] }) => (
+export default ({ items }: { items: any[] }) => (
   <div className="flex flex-wrap items-center gap-x-3 pt-1 text-sm text-slate-400">
     {items.slice(0, 3).map((item, idx) => (
       <>
