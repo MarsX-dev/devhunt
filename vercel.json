@@ -1,0 +1,16 @@
+{
+  "builds": [
+    {
+      "src": "next.config.js",
+      "use": "@vercel/next"
+    }
+  ],
+  "framework": {
+    "name": "nextjs",
+    "config": {
+      "buildCommand": "next build",
+      "devCommand": "next dev",
+      "skipTypeCheck": true
+    }
+  }
+}
