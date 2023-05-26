@@ -6,7 +6,6 @@
     }
   ],
   "framework": {
-    "name": "nextjs",
     "config": {
       "buildCommand": "next build",
       "devCommand": "next dev",
