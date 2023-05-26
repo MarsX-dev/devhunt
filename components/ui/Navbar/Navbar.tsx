@@ -6,17 +6,31 @@ import Link from 'next/link'
 import ButtonMenu from './ButtonMenu'
 import { IconSearch } from '@/components/Icons'
 import Auth from '../Auth'
-import LinkShiny from '../LinkShiny/LinkShiny'
+import { useRouter } from 'next/navigation'
 import CommandPalette from '../CommandPalette/CommandPalette'
 import BlurBackground from '../BlurBackground/BlurBackground'
 import { IProductResult } from '@/type'
 import mockproducts from '@/mockproducts'
+import AvatarMenu from '../AvatarMenu'
+import { useSupabase } from '@/components/supabase/provider'
 
 export default () => {
   const [isActive, setActive] = useState(false)
   const [isCommandActive, setCommandActive] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [searchResult, setSearchResult] = useState<IProductResult[]>([])
+
+  const router = useRouter()
+
+  const { supabase, session } = useSupabase()
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut()
+    router.push('/')
+    if (error != null) {
+      console.log({ error })
+    }
+  }
 
   const navigation = [
     { title: 'Products', path: '/' },
@@ -61,6 +75,9 @@ export default () => {
               <button onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
                 <IconSearch />
               </button>
+              <div className="hidden md:block">
+                <AvatarMenu avatar_url={session && session.user.user_metadata.avatar_url} onLogout={handleLogout} />
+              </div>
               <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
             </div>
           </div>
@@ -86,8 +103,8 @@ export default () => {
                   </button>
                 </li>
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
-                <li className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
-                  <Auth />
+                <li className="hidden space-y-3 items-center gap-x-6 md:flex md:space-y-0">
+                  <Auth onLogout={handleLogout} />
                 </li>
               </ul>
             </div>
