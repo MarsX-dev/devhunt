@@ -1,4 +1,4 @@
-import { Product, ProductCategory, ProductPricingType, Profile } from '@/libs/supabase/types'
+import { type Product, type ProductCategory, type ProductPricingType, type Profile } from '@/libs/supabase/types'
 
 export type ExtendedProduct = Product & {
   product_pricing_types: ProductPricingType

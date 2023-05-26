@@ -113,17 +113,17 @@ export interface Database {
         Row: {
           created_at: string | null
           product_id: number
-          user_id: number
+          user_id: string
         }
         Insert: {
           created_at?: string | null
-          product_id: number
-          user_id?: number
+          product_id?: number
+          user_id: string
         }
         Update: {
           created_at?: string | null
           product_id?: number
-          user_id?: number
+          user_id?: string
         }
       }
       products: {
@@ -131,6 +131,8 @@ export interface Database {
           asset_urls: string[] | null
           comments_count: number
           created_at: string
+          deleted: boolean
+          deleted_at: string | null
           demo_url: string | null
           description: string | null
           github_url: string | null
@@ -139,7 +141,7 @@ export interface Database {
           launch_date: string
           logo_url: string
           name: string
-          owner_id: string
+          owner_id: string | null
           pricing_type: number
           slogan: string | null
           slug: string
@@ -151,6 +153,8 @@ export interface Database {
           asset_urls?: string[] | null
           comments_count: number
           created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
           demo_url?: string | null
           description?: string | null
           github_url?: string | null
@@ -159,7 +163,7 @@ export interface Database {
           launch_date: string
           logo_url: string
           name: string
-          owner_id: string
+          owner_id?: string | null
           pricing_type: number
           slogan?: string | null
           slug: string
@@ -171,6 +175,8 @@ export interface Database {
           asset_urls?: string[] | null
           comments_count?: number
           created_at?: string
+          deleted?: boolean
+          deleted_at?: string | null
           demo_url?: string | null
           description?: string | null
           github_url?: string | null
@@ -179,7 +185,7 @@ export interface Database {
           launch_date?: string
           logo_url?: string
           name?: string
-          owner_id?: string
+          owner_id?: string | null
           pricing_type?: number
           slogan?: string | null
           slug?: string
@@ -219,7 +225,7 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      upvoteComment: {
+      toggleCommentVote: {
         Args: {
           _comment_id: number
           _user_id: string
