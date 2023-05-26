@@ -11,6 +11,12 @@ import Footer from '@/components/ui/Footer/Footer'
 
 export type TypedSupabaseClient = SupabaseClient<Database>
 
+declare global {
+  interface Window {
+    usermavenQ: any // Replace 'any' with the appropriate type of 'usermavenQ'
+  }
+}
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -29,6 +35,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className="bg-slate-900">
+      <head>
+        {/* <script
+          src="https://t.usermaven.com/lib.js"
+          data-key="UMuqbdiCeT"
+          data-tracking-host="https://events.usermaven.com"
+          data-autocapture="true"
+          data-privacy-policy="strict"
+          defer
+        ></script>
+        <script>
+          window.usermaven = window.usermaven || (function()
+          {(window.usermavenQ = window.usermavenQ || []).push(arguments)})
+        </script> */}
+      </head>
       <body className={inter.className}>
         <main>
           <SupabaseProvider session={session}>
