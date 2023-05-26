@@ -23,7 +23,6 @@ export default async function Home() {
                   <div className="space-y-1">
                     <Name>{product.name}</Name>
                     <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
-                    {/* @ts-expect-error */}
                     <Tags
                       items={[
                         product.product_pricing_types?.title || 'Free',
