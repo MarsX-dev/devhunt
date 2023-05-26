@@ -196,24 +196,30 @@ export interface Database {
       }
       profiles: {
         Row: {
+          about: string | null
           avatar_url: string | null
           full_name: string | null
+          headline: string | null
           id: string
           updated_at: string | null
           username: string | null
           website_url: string | null
         }
         Insert: {
+          about?: string | null
           avatar_url?: string | null
           full_name?: string | null
+          headline?: string | null
           id: string
           updated_at?: string | null
           username?: string | null
           website_url?: string | null
         }
         Update: {
+          about?: string | null
           avatar_url?: string | null
           full_name?: string | null
+          headline?: string | null
           id?: string
           updated_at?: string | null
           username?: string | null
@@ -225,7 +231,7 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-       toggleCommentVote: {
+      toggleCommentVote: {
         Args: {
           _comment_id: number
           _user_id: string
@@ -236,6 +242,13 @@ export interface Database {
         Args: {
           _user_id: string
           _product_id: number
+        }
+        Returns: boolean
+      }
+      upvoteProduct: {
+        Args: {
+          _product_id: number
+          _user_id: string
         }
         Returns: boolean
       }
