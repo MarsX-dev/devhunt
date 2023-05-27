@@ -1,8 +1,8 @@
 import { IProductResult } from '@/type'
 import Link from 'next/link'
-import ProductName from '../ProductCard/Product.Name'
-import ProductTitle from '../ProductCard/Product.Title'
-import ProductLogo from '../ProductCard/Product.Logo'
+import ProductName from '../ToolCard/Tool.Name'
+import ProductTitle from '../ToolCard/Tool.Title'
+import ProductLogo from '../ToolCard/Tool.Logo'
 
 export default ({ item }: { item: IProductResult }) => (
   <Link

@@ -1,24 +1,19 @@
 import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons'
-import Button from '@/components/ui/Button/Button'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
 import { Gallery, GalleryImage } from '@/components/ui/Gallery'
 import LinkShiny from '@/components/ui/LinkShiny'
-import ProductLogo from '@/components/ui/ProductCard/Product.Logo'
-import ProductTitle from '@/components/ui/ProductCard/Product.Title'
+import ProductLogo from '@/components/ui/ToolCard/Tool.Logo'
 import { Stat, StatsWrapper, StatCountItem, StatItem } from '@/components/ui/Stats'
 import { TabLink, Tabs } from '@/components/ui/TabsLink'
 import { Tag, TagsGroup } from '@/components/ui/TagsGroup'
-import Link from 'next/link'
-//
-import Logo from '@/components/ui/ProductCard/Product.Logo'
-import Name from '@/components/ui/ProductCard/Product.Name'
-import Tags from '@/components/ui/ProductCard/Product.Tags'
-import Title from '@/components/ui/ProductCard/Product.Title'
-import ProductCard from '@/components/ui/ProductCard/ProductCard'
+import Logo from '@/components/ui/ToolCard/Tool.Logo'
+import ToolName from '@/components/ui/ToolCard/Tool.Name'
+import Tags from '@/components/ui/ToolCard/Tool.Tags'
+import Title from '@/components/ui/ToolCard/Tool.Title'
+import ToolCard from '@/components/ui/ToolCard/ToolCard'
 import mockproducts from '@/mockproducts'
 import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
-import { GetServerSidePropsContext } from 'next'
 import { useSupabase } from '@/components/supabase/provider'
 import CommentSection from '@/components/ui/Client/CommentSection'
 
@@ -98,7 +93,7 @@ export default async function Page({
       <div className="container-custom-screen" id="about">
         <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
-        <ProductTitle className="mt-1">{product?.slogan}</ProductTitle>
+        <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
           <LinkShiny href={product?.demo_url || ''} target="_balnk" className="flex items-center gap-x-2">
             Live preview
@@ -165,14 +160,14 @@ export default async function Page({
           <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
             {mockproducts.map((item, idx) => (
               <li key={idx} className="py-3">
-                <ProductCard href={item.slug}>
+                <ToolCard href={item.slug}>
                   <Logo src={item.logo} alt={item.title} imgClassName="w-14 h-14" />
                   <div className="space-y-1">
-                    <Name>{item.name}</Name>
+                    <ToolName>{item.name}</ToolName>
                     <Title className="line-clamp-1 sm:line-clamp-2">{item.title}</Title>
                     <Tags items={['Free', 'Developer Tools']} />
                   </div>
-                </ProductCard>
+                </ToolCard>
               </li>
             ))}
           </ul>
