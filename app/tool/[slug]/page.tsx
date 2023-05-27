@@ -16,6 +16,7 @@ import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
 import { useSupabase } from '@/components/supabase/provider'
 import CommentSection from '@/components/ui/Client/CommentSection'
+import { createServerClient } from '@/libs/supabase/server'
 
 export default async function Page({
   params: { slug },
@@ -24,7 +25,9 @@ export default async function Page({
     slug: string
   }
 }) {
-  const productsService = new ProductsService(false)
+  const supabaseClient = createServerClient()
+  const productsService = new ProductsService(supabaseClient)
+
   const product = await productsService.getBySlug(slug)
 
   if (!product) {
@@ -38,7 +41,7 @@ export default async function Page({
   //   await productsService.voteUnvote(product.id, session.user.id);
   // }
 
-  const commentService = new CommentService(true)
+  const commentService = new CommentService(supabaseClient)
   const comments = (await commentService.getByProductId(product.id)) || []
 
   const tabs = [
@@ -99,7 +102,7 @@ export default async function Page({
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
-          <ButtonUpvote count={product?.votes_count} />
+          <ButtonUpvote productId={product?.id} count={product?.votes_count} />
         </div>
       </div>
       <Tabs className="mt-20 sticky top-[4.2rem] z-10 bg-slate-900">

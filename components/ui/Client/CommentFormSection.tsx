@@ -2,12 +2,13 @@
 
 import { CommentForm, CommentTextarea, CommentUserAvatar, CommentFormWrapper } from '@/components/ui/Comment'
 import { useSupabase } from '@/components/supabase/provider'
-
 import Button from '@/components/ui/Button/Button'
 import { FormEvent, useState } from 'react'
 import LabelError from '../LabelError'
 import LinkShiny from '../LinkShiny/LinkShiny'
-import axios from 'axios'
+import ProductsService from '@/libs/supabase/services/products'
+import CommentService from '@/libs/supabase/services/comments'
+import { createBrowserClient } from '@/libs/supabase/browser'
 
 export default ({
   slug,
@@ -20,6 +21,9 @@ export default ({
 }) => {
   const { session } = useSupabase()
   const user = session && session.user
+  const supabase = createBrowserClient()
+  const productsService = new ProductsService(supabase)
+
   const [comment, setComment] = useState<string>('')
   const [fieldError, setFieldError] = useState<string>('')
   const [isLoad, setLoad] = useState(false)
@@ -34,8 +38,15 @@ export default ({
     setFieldError('')
     if (formValidator(comment)) {
       setLoad(true)
-      axios.post('/api/comment/create', { user_id: user?.id, comment, slug }).then(res => {
-        setCommentsCollection([...comments, res.data.res])
+      const product = await productsService.getBySlug(slug)
+      const commentService = new CommentService(supabase)
+      const res = await commentService.insert({
+        content: comment,
+        user_id: user?.id as string,
+        product_id: product?.id as number,
+      })
+      commentService.getById(res?.id as number).then(newComment => {
+        setCommentsCollection([...comments, newComment])
         setComment('')
         setLoad(false)
       })

@@ -22,7 +22,7 @@ export const CommentActionMenu = ({ children }: { children: ReactNode }) => {
         <IconEllipsisVertical className="" />
       </button>
       <ul
-        className={`bg-slate-800 top-10 right-0 absolute rounded-lg w-44 shadow-md space-y-0 overflow-hidden ${
+        className={`bg-slate-800 top-10 right-0 absolute rounded-lg w-32 shadow-md space-y-0 overflow-hidden ${
           state ? '' : 'hidden'
         }`}
       >
