@@ -9,26 +9,28 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-
-    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > libs/database.types.ts"
+    "format:better-supabase-types": "npx better-supabase-types -i ./libs/supabase/types.ts -f -s",
+    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > libs/supabase/types.ts && npm run format:better-supabase-types"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.6.1",
     "@supabase/supabase-js": "^2.22.0",
-    "@types/node": "20.2.3",
-    "@types/react": "18.2.6",
-    "@types/react-dom": "18.2.4",
-    "autoprefixer": "10.4.14",
+    "axios": "^1.4.0",
+    "moment": "^2.29.4",
     "next": "13.4.3",
-    "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tailwind-merge": "^1.12.0",
-    "tailwindcss": "3.3.2"
+    "tailwind-merge": "^1.12.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.9",
+    "@types/node": "20.2.3",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "18.2.4",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "autoprefixer": "10.4.14",
+    "better-supabase-types": "^2.3.0",
+    "encoding": "^0.1.13",
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.3",
     "eslint-config-prettier": "^8.8.0",
@@ -37,8 +39,10 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
+    "postcss": "8.4.23",
     "prettier": "^2.8.8",
     "supabase": "^1.63.1",
+    "tailwindcss": "3.3.2",
     "typescript": "5.0.4"
   }
 }

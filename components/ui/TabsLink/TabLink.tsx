@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
 
 interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -8,7 +10,7 @@ interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 export const TabLink = ({ children, hash, className = '', linkClassName, isActive, ...props }: Props) => {
-  const [isLinkActive, setLinkActive] = useState(isActive)
+  const [isLinkActive, setLinkActive] = useState(isActive);
 
   const handlehashUpdate = () => {
     const currentHash = window.location.hash
@@ -32,7 +34,12 @@ export const TabLink = ({ children, hash, className = '', linkClassName, isActiv
   useEffect(() => {
     handlehashUpdate()
     window.addEventListener('hashchange', handlehashUpdate)
-  }, [])
+  }, []);
+
+  let url = '';
+  if(typeof window !== 'undefined'){
+    url = `${window.location.pathname}${hash}`;
+  }
 
   return (
     <li
@@ -42,7 +49,7 @@ export const TabLink = ({ children, hash, className = '', linkClassName, isActiv
     >
       <a
         {...props}
-        href={`${window.location.pathname}${hash}`}
+        href={url}
         className={`inline-block rounded-full py-2 px-3 target:bg-slate-800 ${
           isLinkActive ? 'bg-slate-800' : ''
         } hover:bg-slate-800 duration-150 ${linkClassName}`}

@@ -6,10 +6,27 @@
   scroll-behavior: smooth;
 }
 
+/* Customize scrollbar */
+*::-webkit-scrollbar {
+  @apply w-2.5 h-2.5 bg-slate-900 duration-150;
+}
+
+*::-webkit-scrollbar:hover {
+  @apply bg-slate-800;
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded-full;
+}
+
 .custom-screen {
   @apply max-w-screen-xl mx-auto px-4 md:px-8;
 }
 
 .container-custom-screen {
   @apply max-w-3xl mx-auto px-4 md:px-8;
+}
+
+ul > li:last-child:last-of-type .comment-divided-bar {
+  display: none;
 }
