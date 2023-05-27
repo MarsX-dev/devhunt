@@ -1,13 +1,9 @@
 import { ExtendedProduct } from '@/libs/supabase/CustomTypes'
 import BaseDbService from '@/libs/supabase/services/BaseDbService'
-import { InsertProduct, Product, UpdateProduct } from '@/libs/supabase/types';
-import { omit } from '@/libs/helpers';
+import { InsertProduct, Product, UpdateProduct } from '@/libs/supabase/types'
+import { omit } from '@/libs/helpers'
 
 export default class ProductsService extends BaseDbService {
-  constructor(isServer: boolean) {
-    super(isServer)
-  }
-
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // there is error in types? foreignTable is required for order options, while it's not
     //@ts-ignore
@@ -37,18 +33,20 @@ export default class ProductsService extends BaseDbService {
     return this._getOne('slug', slug)
   }
 
-  async voteUnvote(productId: number, userId: string): Promise<boolean | null> {
+  async voteUnvote(productId: number, userId: string): Promise<number> {
     const { data, error } = await this.supabase.rpc('triggerProductVote', { _product_id: productId, _user_id: userId })
 
     if (error !== null) {
       throw new Error(error.message)
     }
 
-    return data
+    const product = await this._getOne('id', productId, 'votes_count')
+
+    return product?.votes_count || 0
   }
 
   async update(id: number, updates: UpdateProduct): Promise<Product> {
-    const cleanUpdates = omit(updates, ['deleted_at', 'deleted']);
+    const cleanUpdates = omit(updates, ['deleted_at', 'deleted'])
 
     const { data, error } = await this.supabase.from('products').update(cleanUpdates).eq('id', id).single()
 
@@ -58,7 +56,10 @@ export default class ProductsService extends BaseDbService {
   }
 
   async delete(id: number): Promise<void> {
-    const { error } = await this.supabase.from('products').update({ deleted: true, deleted_at: new Date() }).eq('id', id)
+    const { error } = await this.supabase
+      .from('products')
+      .update({ deleted: true, deleted_at: new Date() })
+      .eq('id', id)
 
     if (error !== null) throw new Error(error.message)
   }
@@ -72,10 +73,14 @@ export default class ProductsService extends BaseDbService {
     return data
   }
 
-  private async _getOne(column: string, value: unknown) {
+  private async _getOne(
+    column: string,
+    value: unknown,
+    select = '*, product_pricing_types(*), product_categories(name)'
+  ) {
     const { data: products, error } = await this.supabase
       .from('products')
-      .select('*, product_pricing_types(*), product_categories(name)')
+      .select(select)
       .eq('deleted', false)
       .eq(column, value)
       .limit(1)
