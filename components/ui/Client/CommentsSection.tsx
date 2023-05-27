@@ -20,7 +20,13 @@ interface CommentTypeProp extends CommentType {
   }
 }
 
-export default ({ comments }: { comments: CommentTypeProp[] }) => {
+export default ({
+  comments,
+  handleCommentLike,
+}: {
+  comments: CommentTypeProp[]
+  handleCommentLike: (val: CommentTypeProp) => void
+}) => {
   return (
     <Comments>
       {comments.map((comment: CommentTypeProp, idx) => (
@@ -31,7 +37,7 @@ export default ({ comments }: { comments: CommentTypeProp[] }) => {
             <CommentUserName>{comment.profiles.full_name}</CommentUserName>
             <CommentDate>Commented {moment(comment.created_at).format('LL')}</CommentDate>
             <CommentContext className="mt-3">{comment.content}</CommentContext>
-            <CommentLike className="mt-2" count={comment.votes_count} />
+            <CommentLike onClick={() => handleCommentLike(comment)} className="mt-2" count={comment.votes_count} />
           </div>
         </Comment>
       ))}

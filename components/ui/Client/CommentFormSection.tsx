@@ -18,7 +18,7 @@ export default ({
   comments: any
   setCommentsCollection?: (val: any) => void
 }) => {
-  const { supabase, session } = useSupabase()
+  const { session } = useSupabase()
   const user = session && session.user
   const [comment, setComment] = useState<string>('')
   const [fieldError, setFieldError] = useState<string>('')

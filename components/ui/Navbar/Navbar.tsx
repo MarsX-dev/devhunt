@@ -65,7 +65,7 @@ export default () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-20 bg-slate-900 border-b border-slate-800 w-full">
+      <nav className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 w-full">
         <div className="custom-screen items-center py-3 md:flex">
           <div className="flex items-center justify-between md:block">
             <Link href="/">
@@ -126,7 +126,7 @@ export default () => {
         setSearch={handleSearch}
         searchResult={searchResult}
       />
-      <BlurBackground className="md:hidden" isActive={isActive} setActive={() => setActive(false)} />
+      <BlurBackground className="md:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
     </>
   )
 }
