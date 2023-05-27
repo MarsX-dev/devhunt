@@ -12,5 +12,6 @@ export async function POST(request: Request) {
     user_id,
     product_id: product?.id as number,
   })
-  return NextResponse.json({ res })
+  const commentRes = await commentService.getById(res?.id as number)
+  return NextResponse.json({ res: commentRes })
 }

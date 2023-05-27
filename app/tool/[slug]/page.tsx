@@ -1,15 +1,6 @@
 import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons'
 import Button from '@/components/ui/Button/Button'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
-import {
-  CommentUserAvatar,
-  Comments,
-  Comment,
-  CommentUserName,
-  CommentDate,
-  CommentContext,
-  CommentLike,
-} from '@/components/ui/Comment'
 import { Gallery, GalleryImage } from '@/components/ui/Gallery'
 import LinkShiny from '@/components/ui/LinkShiny'
 import ProductLogo from '@/components/ui/ProductCard/Product.Logo'
@@ -29,7 +20,7 @@ import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
 import { GetServerSidePropsContext } from 'next'
 import { useSupabase } from '@/components/supabase/provider'
-import CommentFormSection from '@/components/ui/Client/CommentFormSection'
+import CommentSection from '@/components/ui/Client/CommentSection'
 
 export default async function Page({
   params: { slug },
@@ -147,27 +138,7 @@ export default async function Page({
             </div>
           </div>
         </div>
-        <div className="container-custom-screen" id="comments">
-          <h3 className="text-slate-50 font-medium">Support and give a Feedback</h3>
-          <CommentFormSection slug={slug} />
-          {/*TODO move comments in a separate component to make them laze loaded */}
-          <div className="mt-6">
-            <Comments>
-              {comments.map((comment: any, idx) => (
-                <Comment key={idx}>
-                  {/*TODO add First Letters Like avatars if there is no avatar */}
-                  <CommentUserAvatar src={comment.profiles.avatar_url} />
-                  <div>
-                    <CommentUserName>{comment.profiles.full_name}</CommentUserName>
-                    <CommentDate>{comment.created_at}</CommentDate>
-                    <CommentContext className="mt-3">{comment.content}</CommentContext>
-                    <CommentLike className="mt-2" count={comment.votes_count} />
-                  </div>
-                </Comment>
-              ))}
-            </Comments>
-          </div>
-        </div>
+        <CommentSection comments={comments as any} slug={slug} />
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>

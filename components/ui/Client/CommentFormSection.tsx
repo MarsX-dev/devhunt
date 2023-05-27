@@ -9,11 +9,20 @@ import LabelError from '../LabelError'
 import LinkShiny from '../LinkShiny/LinkShiny'
 import axios from 'axios'
 
-export default ({ slug }: { slug: string }) => {
+export default ({
+  slug,
+  comments,
+  setCommentsCollection = () => '',
+}: {
+  slug: string
+  comments: any
+  setCommentsCollection?: (val: any) => void
+}) => {
   const { supabase, session } = useSupabase()
   const user = session && session.user
   const [comment, setComment] = useState<string>('')
   const [fieldError, setFieldError] = useState<string>('')
+  const [isLoad, setLoad] = useState(false)
 
   const formValidator = (value: string) => {
     if (value) return true
@@ -22,10 +31,13 @@ export default ({ slug }: { slug: string }) => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setFieldError('')
     if (formValidator(comment)) {
-      setFieldError('')
+      setLoad(true)
       axios.post('/api/comment', { user_id: user?.id, comment, slug }).then(res => {
+        setCommentsCollection([...comments, res.data.res])
         setComment('')
+        setLoad(false)
       })
     } else setFieldError('Please write a comment')
   }
@@ -43,7 +55,12 @@ export default ({ slug }: { slug: string }) => {
       </CommentFormWrapper>
       <div className="mt-3 flex justify-end">
         {user ? (
-          <Button className="text-sm bg-slate-800 hover:bg-slate-700">Comment</Button>
+          <Button
+            isLoad={isLoad}
+            className={`text-sm bg-slate-800 hover:bg-slate-700 ${isLoad ? 'pointer-events-none opacity-60' : ''}`}
+          >
+            Comment
+          </Button>
         ) : (
           <LinkShiny href="/login" className="text-sm bg-slate-800 hover:bg-slate-700">
             Login to comment
