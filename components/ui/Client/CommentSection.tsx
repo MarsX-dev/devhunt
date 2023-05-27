@@ -14,6 +14,9 @@ interface CommentTypeProp extends CommentType {
 
 export default ({ comments, slug }: { comments: CommentTypeProp[]; slug: string }) => {
   const [commentsCollection, setCommentsCollection] = useState<CommentTypeProp[]>(comments)
+  useEffect(() => {
+    setCommentsCollection(comments)
+  }, [comments])
 
   return (
     <div className="container-custom-screen" id="comments">

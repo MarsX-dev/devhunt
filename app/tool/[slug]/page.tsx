@@ -43,7 +43,7 @@ export default async function Page({
   //   await productsService.voteUnvote(product.id, session.user.id);
   // }
 
-  const commentService = new CommentService(false)
+  const commentService = new CommentService(true)
   const comments = (await commentService.getByProductId(product.id)) || []
 
   const tabs = [

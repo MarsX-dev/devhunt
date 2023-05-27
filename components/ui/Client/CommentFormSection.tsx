@@ -34,7 +34,7 @@ export default ({
     setFieldError('')
     if (formValidator(comment)) {
       setLoad(true)
-      axios.post('/api/comment', { user_id: user?.id, comment, slug }).then(res => {
+      axios.post('/api/comment/create', { user_id: user?.id, comment, slug }).then(res => {
         setCommentsCollection([...comments, res.data.res])
         setComment('')
         setLoad(false)
