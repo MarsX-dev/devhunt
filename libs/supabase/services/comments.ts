@@ -71,9 +71,11 @@ export default class CommentService extends BaseDbService {
     if (error !== null) throw new Error(error.message)
   }
 
-  async toggleVote(commentId: number, userId: string): Promise<boolean> {
+  async toggleVote(commentId: number, userId: string): Promise<number> {
     const { data, error } = await this.supabase.rpc('toggleCommentVote', { _comment_id: commentId, _user_id: userId })
     if (error !== null) throw new Error(error.message)
-    return data
+
+    const comment = await this.getById(commentId)
+    return comment?.votes_count || 0
   }
 }

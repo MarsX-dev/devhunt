@@ -15,7 +15,13 @@ interface SupabaseContext {
 // @ts-expect-error disable args error
 const Context = createContext<SupabaseContext>()
 
-export default function SupabaseProvider ({ children, session }: { children: React.ReactNode, session: MaybeSession }): JSX.Element {
+export default function SupabaseProvider({
+  children,
+  session,
+}: {
+  children: React.ReactNode
+  session: MaybeSession
+}): JSX.Element {
   const [supabase] = useState(() => createBrowserClient())
 
   return (

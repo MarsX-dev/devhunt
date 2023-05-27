@@ -15,7 +15,7 @@ export default async ({ count, productId, className = '', ...props }: Props) => 
   // call to trigger a vote
   // client only -- move to client component for Voting
   const { supabase, session } = useSupabase()
-  const [votesCount, setVotesCount] = useState(0)
+  const [votesCount, setVotesCount] = useState(count)
 
   async function toggleVote(): Promise<void> {
     if (session !== null) {
