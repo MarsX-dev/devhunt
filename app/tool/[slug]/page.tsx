@@ -107,7 +107,7 @@ export default async function Page({
           <ButtonUpvote count={product?.votes_count} />
         </div>
       </div>
-      <Tabs className="mt-20 sticky top-[4.3rem] z-10 bg-slate-900">
+      <Tabs className="mt-20 sticky top-[4.2rem] z-10 bg-slate-900">
         {tabs.map((item, idx) => (
           <TabLink hash={item.hash} key={idx}>
             {item.name}
