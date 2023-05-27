@@ -18,11 +18,11 @@ export default ({
   comments: any
   setCommentsCollection?: (val: any) => void
 }) => {
-  const { session } = useSupabase()
+  const { supabase, session } = useSupabase()
   const user = session && session.user
   const [comment, setComment] = useState<string>('')
   const [fieldError, setFieldError] = useState<string>('')
-  const [isLoad, setLoad] = useState(false)
+  const [isLoad, setLoad] = useState(true)
 
   const formValidator = (value: string) => {
     if (value) return true
@@ -34,7 +34,7 @@ export default ({
     setFieldError('')
     if (formValidator(comment)) {
       setLoad(true)
-      axios.post('/api/comment/create', { user_id: user?.id, comment, slug }).then(res => {
+      axios.post('/api/comment', { user_id: user?.id, comment, slug }).then(res => {
         setCommentsCollection([...comments, res.data.res])
         setComment('')
         setLoad(false)
