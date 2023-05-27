@@ -75,10 +75,10 @@ export default () => {
               <button onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
                 <IconSearch />
               </button>
-              <div className="hidden md:block">
-                <AvatarMenu avatar_url={session && session.user.user_metadata.avatar_url} onLogout={handleLogout} />
-              </div>
               <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
+              <div className="md:hidden">
+                <AvatarMenu session={session} onLogout={handleLogout} />
+              </div>
             </div>
           </div>
           <div
@@ -97,13 +97,17 @@ export default () => {
                     </li>
                   )
                 })}
-                <li>
-                  <button onClick={() => setCommandActive(true)} className="hover:text-slate-200 hidden md:block">
+                <li className="hidden md:block">
+                  <button onClick={() => setCommandActive(true)} className="hover:text-slate-200">
                     <IconSearch />
                   </button>
                 </li>
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
-                <li className="hidden space-y-3 items-center gap-x-6 md:flex md:space-y-0">
+                <li
+                  className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${
+                    session && session.user ? 'hidden md:flex' : ''
+                  }`}
+                >
                   <Auth onLogout={handleLogout} />
                 </li>
               </ul>

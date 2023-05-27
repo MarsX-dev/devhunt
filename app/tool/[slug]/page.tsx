@@ -2,10 +2,7 @@ import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@
 import Button from '@/components/ui/Button/Button'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
 import {
-  CommentForm,
-  CommentTextarea,
   CommentUserAvatar,
-  CommentFormWrapper,
   Comments,
   Comment,
   CommentUserName,
@@ -31,7 +28,8 @@ import mockproducts from '@/mockproducts'
 import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
 import { GetServerSidePropsContext } from 'next'
-import { useSupabase } from '@/components/supabase/provider';
+import { useSupabase } from '@/components/supabase/provider'
+import CommentFormSection from '@/components/ui/Client/CommentFormSection'
 
 export default async function Page({
   params: { slug },
@@ -40,11 +38,8 @@ export default async function Page({
     slug: string
   }
 }) {
-
-
   const productsService = new ProductsService(false)
-
-  const product = await productsService.getBySlug(slug);
+  const product = await productsService.getBySlug(slug)
 
   if (!product) {
     return '<div> Not found </div>'
@@ -57,8 +52,8 @@ export default async function Page({
   //   await productsService.voteUnvote(product.id, session.user.id);
   // }
 
-  const commentService = new CommentService(false);
-  const comments = (await commentService.getByProductId(product.id)) || [];
+  const commentService = new CommentService(false)
+  const comments = (await commentService.getByProductId(product.id)) || []
 
   const tabs = [
     {
@@ -121,7 +116,7 @@ export default async function Page({
           <ButtonUpvote count={product?.votes_count} />
         </div>
       </div>
-      <Tabs className="mt-20 sticky top-[3.75rem] z-20 bg-slate-900 md:top-[4.3rem]">
+      <Tabs className="mt-20 sticky top-[4.3rem] z-10 bg-slate-900">
         {tabs.map((item, idx) => (
           <TabLink hash={item.hash} key={idx}>
             {item.name}
@@ -154,15 +149,7 @@ export default async function Page({
         </div>
         <div className="container-custom-screen" id="comments">
           <h3 className="text-slate-50 font-medium">Support and give a Feedback</h3>
-          <CommentForm className="mt-12">
-            <CommentFormWrapper>
-              <CommentUserAvatar src="/images/random-user.jpg" />
-              <CommentTextarea placeholder="Write your feedback" />
-            </CommentFormWrapper>
-            <div className="mt-3 flex justify-end">
-              <Button className="text-sm bg-slate-800 hover:bg-slate-700">Comment</Button>
-            </div>
-          </CommentForm>
+          <CommentFormSection slug={slug} />
           {/*TODO move comments in a separate component to make them laze loaded */}
           <div className="mt-6">
             <Comments>
