@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Button from '../Button/Button'
 import LinkItem from '../Link/LinkItem'
 import { Session } from '@supabase/supabase-js'
+import Avatar from '../Avatar/Avatar'
 
 type Props = {
   onLogout?: () => void
@@ -30,11 +31,11 @@ export default ({ onLogout, session }: Props) => {
     <div className="relative">
       <button
         ref={profileRef}
-        className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
+        className=" outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
         onClick={() => setState(!state)}
       >
         {session.user.user_metadata.avatar_url ? (
-          <img src={session.user.user_metadata.avatar_url} className="w-full h-full rounded-full" />
+          <Avatar src={session.user.user_metadata.avatar_url} />
         ) : (
           <div className="w-10 h-10 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>
         )}

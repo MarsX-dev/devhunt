@@ -1,5 +1,3 @@
-'use client'
-
 import type { Comment as CommentType } from '@/libs/supabase/types'
 import { useSupabase } from '@/components/supabase/provider'
 import CommentSingle from './CommentSingle'
@@ -13,13 +11,10 @@ interface CommentTypeProp extends CommentType {
 }
 
 export default ({ comments, productId }: { comments: CommentTypeProp[]; productId: string }) => {
-  const { session } = useSupabase()
-  const user = session && session.user
-
   return (
     <Comments>
       {comments.map((comment: CommentTypeProp, idx) => (
-        <CommentSingle key={idx} user={user as any} comment={comment} productId={productId} />
+        <CommentSingle key={idx} comment={comment} productId={productId} />
       ))}
     </Comments>
   )

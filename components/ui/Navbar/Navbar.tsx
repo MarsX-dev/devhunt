@@ -33,7 +33,7 @@ export default () => {
   }
 
   const navigation = [
-    { title: 'Products', path: '/' },
+    { title: 'Tools', path: '/' },
     { title: 'About', path: '/about' },
     { title: 'Learn how to post', path: '/learn-how-to-post' },
   ]

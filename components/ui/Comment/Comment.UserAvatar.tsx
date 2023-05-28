@@ -1,4 +1,5 @@
 import mergeTW from '@/libs/mergeTW'
+import Avatar from '../Avatar/Avatar'
 
 export const CommentUserAvatar = ({
   src = '',
@@ -11,7 +12,7 @@ export const CommentUserAvatar = ({
 }) => (
   <div className="flex-none relative">
     {src ? (
-      <img src={src} alt={alt} className={mergeTW(`w-10 h-10 object-cover rounded-full ${className}`)} />
+      <Avatar src={src} alt={alt} className={className} />
     ) : (
       <div
         className={mergeTW(

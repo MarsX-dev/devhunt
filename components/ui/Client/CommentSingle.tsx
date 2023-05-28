@@ -17,6 +17,7 @@ import { FormEventHandler, useState } from 'react'
 import Button from '../Button/Button'
 import CommentService from '@/libs/supabase/services/comments'
 import { createBrowserClient } from '@/libs/supabase/browser'
+import { useSupabase } from '@/components/supabase/provider'
 
 interface CommentTypeProp extends CommentType {
   profiles: {
@@ -27,13 +28,14 @@ interface CommentTypeProp extends CommentType {
 
 type Props = {
   comment: CommentTypeProp
-  user: Profile
   productId: string
 }
 
-export default ({ user, comment, productId }: Props) => {
-  const supabase = createBrowserClient()
-  const commentService = new CommentService(supabase)
+export default ({ comment, productId }: Props) => {
+  const { session } = useSupabase()
+  const user = session && session.user
+  const supabaseService = createBrowserClient()
+  const commentService = new CommentService(supabaseService)
   const [newComment, setNewComment] = useState(comment)
   const [isEditorActive, setEditorActive] = useState(false)
   const [isLoad, setLoad] = useState(false)
