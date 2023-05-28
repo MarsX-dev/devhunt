@@ -28,9 +28,10 @@ interface CommentTypeProp extends CommentType {
 type Props = {
   comment: CommentTypeProp
   user: Profile
+  productId: string
 }
 
-export default ({ user, comment }: Props) => {
+export default ({ user, comment, productId }: Props) => {
   const supabase = createBrowserClient()
   const commentService = new CommentService(supabase)
   const [newComment, setNewComment] = useState(comment)
@@ -93,7 +94,16 @@ export default ({ user, comment }: Props) => {
       {/*TODO add First Letters Like avatars if there is no avatar */}
       <CommentUserAvatar src={newComment.profiles.avatar_url} />
       <div className="flex-1">
-        <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
+        <div className="flex items-center gap-x-3">
+          <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
+          {productId === user.id ? (
+            <div className="text-xs px-2 py-0.5 rounded-full bg-indigo-400 border-indigo-600 text-white font-medium">
+              Maker
+            </div>
+          ) : (
+            ''
+          )}
+        </div>
         <CommentDate className="mt-1">Commented {moment(newComment.created_at).format('LL')}</CommentDate>
         {isEditorActive ? (
           <CommentForm onSubmit={handleEdit}>

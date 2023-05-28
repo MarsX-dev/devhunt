@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import CommentFormSection from './CommentFormSection'
 import CommentsSection from './CommentsSection'
-import type { Comment as CommentType } from '@/libs/supabase/types'
+import type { Comment as CommentType, Product } from '@/libs/supabase/types'
 
 interface CommentTypeProp extends CommentType {
   profiles: {
@@ -12,7 +12,7 @@ interface CommentTypeProp extends CommentType {
   }
 }
 
-export default ({ comments, slug }: { comments: CommentTypeProp[]; slug: string }) => {
+export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; slug: string; productId: string }) => {
   const [commentsCollection, setCommentsCollection] = useState<CommentTypeProp[]>(comments)
   useEffect(() => {
     setCommentsCollection(comments)
@@ -24,7 +24,7 @@ export default ({ comments, slug }: { comments: CommentTypeProp[]; slug: string 
       <CommentFormSection comments={commentsCollection} setCommentsCollection={setCommentsCollection} slug={slug} />
       {/*TODO move comments in a separate component to make them laze loaded */}
       <div className="mt-6">
-        <CommentsSection setCommentsCollection={setCommentsCollection} comments={commentsCollection as any} />
+        <CommentsSection productId={productId} comments={commentsCollection as any} />
       </div>
     </div>
   )

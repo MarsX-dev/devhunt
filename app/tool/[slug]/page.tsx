@@ -136,7 +136,7 @@ export default async function Page({
             </div>
           </div>
         </div>
-        <CommentSection comments={comments as any} slug={slug} />
+        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>

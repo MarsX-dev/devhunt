@@ -12,14 +12,14 @@ interface CommentTypeProp extends CommentType {
   }
 }
 
-export default ({ comments }: { comments: CommentTypeProp[] }) => {
+export default ({ comments, productId }: { comments: CommentTypeProp[]; productId: string }) => {
   const { session } = useSupabase()
   const user = session && session.user
 
   return (
     <Comments>
       {comments.map((comment: CommentTypeProp, idx) => (
-        <CommentSingle key={idx} user={user as any} comment={comment} />
+        <CommentSingle key={idx} user={user as any} comment={comment} productId={productId} />
       ))}
     </Comments>
   )
