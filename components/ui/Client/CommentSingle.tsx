@@ -96,7 +96,7 @@ export default ({ user, comment, productId }: Props) => {
       <div className="flex-1">
         <div className="flex items-center gap-x-3">
           <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
-          {productId === user.id ? (
+          {user && user.id == productId ? (
             <div className="text-xs px-2 py-0.5 rounded-full bg-indigo-400 border-indigo-600 text-white font-medium">
               Maker
             </div>
@@ -138,7 +138,7 @@ export default ({ user, comment, productId }: Props) => {
           </>
         )}
       </div>
-      {user.id == newComment.user_id && !comment.deleted ? (
+      {user && user.id == newComment.user_id && !comment.deleted ? (
         <CommentActionMenu>
           <li>
             <Button

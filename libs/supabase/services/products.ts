@@ -25,6 +25,11 @@ export default class ProductsService extends BaseDbService {
     return products as ExtendedProduct[]
   }
 
+  async getUserVoteById(userId: string) {
+    const { data } = await this.supabase.from('product_votes').select().eq('user_id', userId).single()
+    return data || null
+  }
+
   getById(id: number): Promise<ExtendedProduct | null> {
     return this._getOne('id', id)
   }
