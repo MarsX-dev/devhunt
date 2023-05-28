@@ -9,20 +9,20 @@ import { createBrowserClient } from '@/libs/supabase/browser'
 interface Props extends React.HTMLAttributes<HTMLButtonElement> {
   count: number
   className?: string
+  productId?: number
 }
 
-export default async ({ count, productId, className = '', ...props }: Props) => {
+export default ({ count, productId, className = '', ...props }: Props) => {
   // call to trigger a vote
   // client only -- move to client component for Voting
-  const { supabase, session } = useSupabase()
-  const [votesCount, setVotesCount] = useState(0)
+  const { session } = useSupabase()
+  const [votesCount, setVotesCount] = useState(count)
 
-  async function toggleVote(): Promise<void> {
-    if (session !== null) {
+  const toggleVote = async () => {
+    if (session && session.user) {
       const productsService = new ProductsService(createBrowserClient())
-      const newVotesCount = await productsService.voteUnvote(productId, session.user.id)
-      console.log(newVotesCount)
-      // setVotesCount(newVotesCount)
+      const newVotesCount = await productsService.voteUnvote(productId as number, session.user.id)
+      setVotesCount(newVotesCount)
     }
   }
 
