@@ -25,8 +25,13 @@ export default class ProductsService extends BaseDbService {
     return products as ExtendedProduct[]
   }
 
-  async getUserVoteById(userId: string) {
-    const { data } = await this.supabase.from('product_votes').select().eq('user_id', userId).single()
+  async getUserVoteById(userId: string, productId: number) {
+    const { data } = await this.supabase
+      .from('product_votes')
+      .select()
+      .eq('user_id', userId)
+      .eq('product_id', productId)
+      .single()
     return data || null
   }
 

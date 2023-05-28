@@ -32,7 +32,7 @@ export default ({ count, productId, className = '', ...props }: Props) => {
 
   useEffect(() => {
     session && session.user
-      ? productsService.getUserVoteById(session.user.id).then(data => {
+      ? productsService.getUserVoteById(session.user.id, productId as number).then(data => {
           if (data?.user_id) setUpvoted(true)
           else setUpvoted(false)
         })
