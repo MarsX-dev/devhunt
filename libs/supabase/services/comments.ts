@@ -61,7 +61,12 @@ export default class CommentService extends BaseDbService {
   }
 
   async update(id: number, updates: UpdateComment): Promise<Comment> {
-    const { data, error } = await this.supabase.from('comment').update(updates).eq('id', id).select().single()
+    const { data, error } = await this.supabase
+      .from('comment')
+      .update(updates)
+      .eq('id', id)
+      .select('*, profiles (full_name, avatar_url)')
+      .single()
     if (error != null) throw new Error(error.message)
     return data
   }

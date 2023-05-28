@@ -33,7 +33,11 @@ export default ({ onLogout, session }: Props) => {
         className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
         onClick={() => setState(!state)}
       >
-        <img src={session.user.user_metadata.avatar_url} className="w-full h-full rounded-full" />
+        {session.user.user_metadata.avatar_url ? (
+          <img src={session.user.user_metadata.avatar_url} className="w-full h-full rounded-full" />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>
+        )}
       </button>
       <ul
         className={`bg-slate-800 top-14 right-0 absolute rounded-lg w-52 shadow-md space-y-0 overflow-hidden ${
