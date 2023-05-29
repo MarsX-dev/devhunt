@@ -3,6 +3,7 @@ import { HTMLAttributes } from 'react'
 
 interface Props extends HTMLAttributes<HTMLInputElement> {
   className?: string
+  value?: string
 }
 
 export default ({ className, ...props }: Props) => (
