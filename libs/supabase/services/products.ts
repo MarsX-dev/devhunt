@@ -25,6 +25,26 @@ export default class ProductsService extends BaseDbService {
     return products as ExtendedProduct[]
   }
 
+  async getRelatedProducts(
+    productId: number,
+    categoryNames: { name: string }[],
+    sortBy: string,
+    ascending: boolean
+  ): Promise<ExtendedProduct[]> {
+    const { data: products, error } = await this.getProducts(sortBy, ascending).neq('id', productId)
+
+    if (error) {
+      console.error(error)
+      return []
+    }
+
+    const filteredProducts = products.filter(item =>
+      item.product_categories?.some(category => categoryNames.includes(category.name))
+    )
+
+    return filteredProducts as ExtendedProduct[]
+  }
+
   async getUserVoteById(userId: string, productId: number) {
     const { data } = await this.supabase
       .from('product_votes')

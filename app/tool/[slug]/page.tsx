@@ -1,4 +1,4 @@
-import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons'
+import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight, IconArrowLongLeft } from '@/components/Icons'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
 import { Gallery, GalleryImage } from '@/components/ui/Gallery'
 import LinkShiny from '@/components/ui/LinkShiny'
@@ -11,12 +11,14 @@ import ToolName from '@/components/ui/ToolCard/Tool.Name'
 import Tags from '@/components/ui/ToolCard/Tool.Tags'
 import Title from '@/components/ui/ToolCard/Tool.Title'
 import ToolCard from '@/components/ui/ToolCard/ToolCard'
-import mockproducts from '@/mockproducts'
 import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
 import { useSupabase } from '@/components/supabase/provider'
 import CommentSection from '@/components/ui/Client/CommentSection'
 import { createServerClient } from '@/libs/supabase/server'
+import { createBrowserClient } from '@/libs/supabase/browser'
+import Link from 'next/link'
+import LinkItem from '@/components/ui/Link/LinkItem'
 
 export default async function Page({
   params: { slug },
@@ -26,9 +28,17 @@ export default async function Page({
   }
 }) {
   const supabaseClient = createServerClient()
+  const supabaseBrowserClient = createBrowserClient()
   const productsService = new ProductsService(supabaseClient)
-
+  const productsServiceBrowser = new ProductsService(supabaseBrowserClient)
   const product = await productsService.getBySlug(slug)
+  const pc_names = product?.product_categories.map(item => item.name)
+  const relatedProducts = await productsServiceBrowser.getRelatedProducts(
+    product?.id as number,
+    pc_names as [],
+    'votes_count',
+    false
+  )
 
   if (!product) {
     return '<div> Not found </div>'
@@ -160,20 +170,37 @@ export default async function Page({
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Related launches</h3>
-          <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
-            {mockproducts.map((item, idx) => (
-              <li key={idx} className="py-3">
-                <ToolCard href={item.slug}>
-                  <Logo src={item.logo} alt={item.title} imgClassName="w-14 h-14" />
-                  <div className="space-y-1">
-                    <ToolName>{item.name}</ToolName>
-                    <Title className="line-clamp-1 sm:line-clamp-2">{item.title}</Title>
-                    <Tags items={['Free', 'Developer Tools']} />
-                  </div>
-                </ToolCard>
-              </li>
-            ))}
-          </ul>
+          {relatedProducts.length > 0 ? (
+            <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
+              {relatedProducts.map((item, idx) => (
+                <li key={idx} className="py-3">
+                  <ToolCard href={item.name}>
+                    <Logo src={item.logo_url} alt={item.slogan as string} imgClassName="w-14 h-14" />
+                    <div className="space-y-1">
+                      <ToolName>{item.name}</ToolName>
+                      <Title className="line-clamp-1 sm:line-clamp-2">{item.slogan}</Title>
+                      <Tags
+                        items={[
+                          item.product_pricing_types?.title || 'Free',
+                          ...item.product_categories.map(c => c.name),
+                        ]}
+                      />
+                    </div>
+                  </ToolCard>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="mb-20">
+              <LinkItem
+                href="/"
+                className="mt-6 py-2 inline-flex items-center gap-x-2 bg-orange-500 hover:bg-orange-400 active:bg-orange-600"
+              >
+                <IconArrowLongLeft />
+                Browse other tools
+              </LinkItem>
+            </div>
+          )}
         </div>
       </div>
     </section>
