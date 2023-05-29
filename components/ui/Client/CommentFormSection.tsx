@@ -12,10 +12,12 @@ import { createBrowserClient } from '@/libs/supabase/browser'
 
 export default ({
   slug,
+  userAvatar,
   comments,
   setCommentsCollection = () => '',
 }: {
   slug: string
+  userAvatar: string
   comments: any
   setCommentsCollection?: (val: any) => void
 }) => {
@@ -56,7 +58,7 @@ export default ({
   return (
     <CommentForm onSubmit={handleSubmit} className="mt-12">
       <CommentFormWrapper>
-        {user ? <CommentUserAvatar src={user.user_metadata.avatar_url} /> : <CommentUserAvatar src="/user.svg" />}
+        {user ? <CommentUserAvatar src={userAvatar} /> : <CommentUserAvatar src="/user.svg" />}
         <CommentTextarea
           value={comment}
           onChange={e => setComment((e.target as HTMLTextAreaElement).value)}

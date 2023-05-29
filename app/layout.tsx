@@ -5,9 +5,10 @@ import { Inter } from 'next/font/google'
 import SupabaseListener from '@/components/supabase/listener'
 import SupabaseProvider from '@/components/supabase/provider'
 import { createServerClient } from '@/libs/supabase/server'
-import type { Database } from '@/libs/supabase/types'
+import type { Database, Profile } from '@/libs/supabase/types'
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs'
 import Footer from '@/components/ui/Footer/Footer'
+import ProfileService from '@/libs/supabase/services/profile'
 
 export type TypedSupabaseClient = SupabaseClient<Database>
 
@@ -32,6 +33,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const {
     data: { session },
   } = await supabase.auth.getSession()
+  const user = session && session.user
+  const profileService = new ProfileService(createServerClient())
+  const profile = user ? await profileService.getById(user?.id as string) : null
 
   return (
     <html lang="en" className="bg-slate-900">
@@ -51,7 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={inter.className}>
         <main>
-          <SupabaseProvider session={session}>
+          <SupabaseProvider user={profile as Profile} session={session}>
             <SupabaseListener serverAccessToken={session?.access_token} />
             <Navbar />
             {children}

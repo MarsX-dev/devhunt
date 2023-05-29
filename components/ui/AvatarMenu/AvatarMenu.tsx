@@ -3,6 +3,7 @@ import Button from '../Button/Button'
 import LinkItem from '../Link/LinkItem'
 import { Session } from '@supabase/supabase-js'
 import Avatar from '../Avatar/Avatar'
+import { useSupabase } from '@/components/supabase/provider'
 
 type Props = {
   onLogout?: () => void
@@ -13,6 +14,8 @@ type Props = {
 export default ({ onLogout, session }: Props) => {
   const [state, setState] = useState(false)
   const profileRef = useRef<HTMLButtonElement>(null)
+
+  const { user } = useSupabase()
 
   const navigation = [
     { title: 'Profile', path: '/profile' },
@@ -34,8 +37,8 @@ export default ({ onLogout, session }: Props) => {
         className=" outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
         onClick={() => setState(!state)}
       >
-        {session.user.user_metadata.avatar_url ? (
-          <Avatar src={session.user.user_metadata.avatar_url} />
+        {user.avatar_url ? (
+          <Avatar src={user.avatar_url} />
         ) : (
           <div className="w-10 h-10 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>
         )}

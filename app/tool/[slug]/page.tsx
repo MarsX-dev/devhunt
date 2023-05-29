@@ -29,9 +29,11 @@ export default async function Page({
 }) {
   const supabaseClient = createServerClient()
   const supabaseBrowserClient = createBrowserClient()
+
   const productsService = new ProductsService(supabaseClient)
   const productsServiceBrowser = new ProductsService(supabaseBrowserClient)
   const product = await productsService.getBySlug(slug)
+
   const pc_names = product?.product_categories.map(item => item.name)
   const relatedProducts = await productsServiceBrowser.getRelatedProducts(
     product?.id as number,
@@ -174,7 +176,7 @@ export default async function Page({
             <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
               {relatedProducts.map((item, idx) => (
                 <li key={idx} className="py-3">
-                  <ToolCard href={item.name}>
+                  <ToolCard href={`/tool/${item.name.toLowerCase()}`}>
                     <Logo src={item.logo_url} alt={item.slogan as string} imgClassName="w-14 h-14" />
                     <div className="space-y-1">
                       <ToolName>{item.name}</ToolName>

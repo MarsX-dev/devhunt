@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import CommentFormSection from './CommentFormSection'
 import CommentsSection from './CommentsSection'
 import type { Comment as CommentType, Product } from '@/libs/supabase/types'
+import { useSupabase } from '@/components/supabase/provider'
 
 interface CommentTypeProp extends CommentType {
   profiles: {
@@ -13,6 +14,7 @@ interface CommentTypeProp extends CommentType {
 }
 
 export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; slug: string; productId: string }) => {
+  const { user } = useSupabase()
   const [commentsCollection, setCommentsCollection] = useState<CommentTypeProp[]>(comments)
   useEffect(() => {
     setCommentsCollection(comments)
@@ -21,7 +23,12 @@ export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; sl
   return (
     <div className="container-custom-screen" id="comments">
       <h3 className="text-slate-50 font-medium">Support and give a Feedback</h3>
-      <CommentFormSection comments={commentsCollection} setCommentsCollection={setCommentsCollection} slug={slug} />
+      <CommentFormSection
+        comments={commentsCollection}
+        setCommentsCollection={setCommentsCollection}
+        userAvatar={user?.avatar_url as string}
+        slug={slug}
+      />
       {/*TODO move comments in a separate component to make them laze loaded */}
       <div className="mt-6">
         <CommentsSection productId={productId} comments={commentsCollection as any} />

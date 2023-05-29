@@ -22,8 +22,10 @@ export default ({ avatarUrl, avatarPreview, setSelectedImage = () => '', setAvat
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const file = e.target.files[0]
-    setSelectedImage(file)
-    setAvatarPreview(URL.createObjectURL(file))
+    if (file) {
+      setSelectedImage(file)
+      setAvatarPreview(URL.createObjectURL(file))
+    }
   }
 
   const handleCancel = () => {

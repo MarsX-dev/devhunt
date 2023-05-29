@@ -16,7 +16,6 @@ type FileBody =
 export default class ProfileService extends BaseDbService {
   async getById(id: string): Promise<Profile | null> {
     const { data, error } = await this.supabase.from('profiles').select().eq('id', id).single()
-    if (error !== null) throw new Error(error.message)
     return data
   }
 
@@ -28,12 +27,14 @@ export default class ProfileService extends BaseDbService {
 
   async updateAvatar(userId: string, avatarFile: FileBody): Promise<string | null> {
     const { data, error } = await this.supabase.storage.from('avatars').upload(`${userId}/picture`, avatarFile, {
-      cacheControl: '3600',
+      cacheControl: '0',
       upsert: true,
     })
 
     if (error != null) throw new Error(error.message)
-    await this.update(userId, { avatar_url: this.supabase.storage.from('avatars').getPublicUrl(`${userId}/picture`).data.publicUrl })
+    await this.update(userId, {
+      avatar_url: this.supabase.storage.from('avatars').getPublicUrl(`${userId}/picture`).data.publicUrl,
+    })
     return data.path
   }
 }

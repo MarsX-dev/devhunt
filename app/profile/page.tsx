@@ -13,10 +13,10 @@ import ProfileService from '@/libs/supabase/services/profile'
 import LabelError from '@/components/ui/LabelError/LabelError'
 
 function Profile() {
-  const { session } = useSupabase()
-  const user = session && session.user
+  const { session, user } = useSupabase()
+  const userSession = session && session.user
   const profileService = new ProfileService(createBrowserClient())
-  const profile = profileService.getById(user?.id as string)
+  const profile = profileService.getById(userSession?.id as string)
 
   const [isLoad, setLoad] = useState(false)
   const [fullName, setUsername] = useState('')
@@ -33,8 +33,8 @@ function Profile() {
     profile.then(res => {
       setUsername(res?.full_name || '')
       setAbout(res?.about || '')
-      setEmail(user?.user_metadata.email || '')
-      setAvatar(res?.avatar_url as string)
+      setEmail(userSession?.user_metadata.email || '')
+      setAvatar((user?.avatar_url as string) || '/user.svg')
     })
   }, [])
 
@@ -44,14 +44,14 @@ function Profile() {
     else return true
   }
 
-  const handleSubmit: FormEventHandler = e => {
+  const handleSubmit: FormEventHandler = async e => {
     e.preventDefault()
     if (formValidator()) {
       setLoad(true)
 
-      selectedImage ? profileService.updateAvatar(user?.id as string, selectedImage) : null
+      selectedImage ? await profileService.updateAvatar(userSession?.id as string, selectedImage) : null
       profileService
-        .update(user?.id as string, {
+        .update(userSession?.id as string, {
           full_name: fullName,
           about,
         })
