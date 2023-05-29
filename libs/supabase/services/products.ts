@@ -38,9 +38,9 @@ export default class ProductsService extends BaseDbService {
       return []
     }
 
-    const filteredProducts = products.filter(item =>
-      item.product_categories?.some(category => categoryNames.includes(category.name))
-    )
+    const filteredProducts = products
+      .filter(item => item.product_categories?.some(category => categoryNames.includes(category.name)))
+      .slice(0, 8)
 
     return filteredProducts as ExtendedProduct[]
   }
