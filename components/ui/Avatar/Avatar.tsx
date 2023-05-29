@@ -8,5 +8,5 @@ interface Props extends HTMLAttributes<HTMLImageElement> {
 }
 
 export default ({ src, className, ...props }: Props) => (
-  <img {...props} src={src} className={mergeTW(`w-10 h-10 rounded-full ${className}`)} />
+  <img {...props} src={src} className={mergeTW(`w-10 h-10 rounded-full object-cover ${className}`)} />
 )
