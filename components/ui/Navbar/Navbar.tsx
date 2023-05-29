@@ -6,11 +6,13 @@ import Link from 'next/link'
 import ButtonMenu from './ButtonMenu'
 import { IconSearch } from '@/components/Icons'
 import Auth from '../Auth'
-import LinkShiny from '../LinkShiny/LinkShiny'
+import { useRouter } from 'next/navigation'
 import CommandPalette from '../CommandPalette/CommandPalette'
 import BlurBackground from '../BlurBackground/BlurBackground'
 import { IProductResult } from '@/type'
 import mockproducts from '@/mockproducts'
+import AvatarMenu from '../AvatarMenu'
+import { useSupabase } from '@/components/supabase/provider'
 
 export default () => {
   const [isActive, setActive] = useState(false)
@@ -18,8 +20,20 @@ export default () => {
   const [searchValue, setSearchValue] = useState('')
   const [searchResult, setSearchResult] = useState<IProductResult[]>([])
 
+  const router = useRouter()
+
+  const { supabase, session } = useSupabase()
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut()
+    router.push('/')
+    if (error != null) {
+      console.log({ error })
+    }
+  }
+
   const navigation = [
-    { title: 'Products', path: '/' },
+    { title: 'Tools', path: '/' },
     { title: 'About', path: '/about' },
     { title: 'Learn how to post', path: '/learn-how-to-post' },
   ]
@@ -51,7 +65,7 @@ export default () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-20 bg-slate-900 border-b border-slate-800 w-full">
+      <nav className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 w-full">
         <div className="custom-screen items-center py-3 md:flex">
           <div className="flex items-center justify-between md:block">
             <Link href="/">
@@ -62,6 +76,9 @@ export default () => {
                 <IconSearch />
               </button>
               <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
+              <div className="md:hidden">
+                <AvatarMenu session={session} onLogout={handleLogout} />
+              </div>
             </div>
           </div>
           <div
@@ -80,14 +97,18 @@ export default () => {
                     </li>
                   )
                 })}
-                <li>
-                  <button onClick={() => setCommandActive(true)} className="hover:text-slate-200 hidden md:block">
+                <li className="hidden md:block">
+                  <button onClick={() => setCommandActive(true)} className="hover:text-slate-200">
                     <IconSearch />
                   </button>
                 </li>
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
-                <li className="space-y-3 items-center gap-x-6 md:flex md:space-y-0">
-                  <Auth />
+                <li
+                  className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${
+                    session && session.user ? 'hidden md:flex' : ''
+                  }`}
+                >
+                  <Auth onLogout={handleLogout} />
                 </li>
               </ul>
             </div>
@@ -105,7 +126,7 @@ export default () => {
         setSearch={handleSearch}
         searchResult={searchResult}
       />
-      <BlurBackground className="md:hidden" isActive={isActive} setActive={() => setActive(false)} />
+      <BlurBackground className="md:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
     </>
   )
 }

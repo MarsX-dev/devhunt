@@ -14,29 +14,26 @@ type FileBody =
   | string
 
 export default class ProfileService extends BaseDbService {
-  async getById (id: string): Promise<Profile | null> {
+  async getById(id: string): Promise<Profile | null> {
     const { data, error } = await this.supabase.from('profiles').select().eq('id', id).single()
     if (error !== null) throw new Error(error.message)
     return data
   }
 
-  async update (id: string, updates: UpdateProfile): Promise<UpdateProfile> {
+  async update(id: string, updates: UpdateProfile): Promise<UpdateProfile> {
     const { data, error } = await this.supabase.from('profiles').update(updates).eq('id', id).select().single()
     if (error != null) throw new Error(error.message)
     return data
   }
 
-  async updateAvatar (userId: string, avatarFile: FileBody): Promise<string | null> {
-    const { data, error } = await this.supabase
-      .storage
-      .from('avatars')
-      .upload(`public/${userId}`, avatarFile, {
-        cacheControl: '3600',
-        upsert: true
-      })
+  async updateAvatar(userId: string, avatarFile: FileBody): Promise<string | null> {
+    const { data, error } = await this.supabase.storage.from('avatars').upload(`${userId}/picture`, avatarFile, {
+      cacheControl: '3600',
+      upsert: true,
+    })
 
     if (error != null) throw new Error(error.message)
-    await this.update(userId, { avatar_url: data.path })
+    await this.update(userId, { avatar_url: this.supabase.storage.from('avatars').getPublicUrl(`${userId}/picture`).data.publicUrl })
     return data.path
   }
 }

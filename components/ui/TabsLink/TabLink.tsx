@@ -10,11 +10,10 @@ interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 export const TabLink = ({ children, hash, className = '', linkClassName, isActive, ...props }: Props) => {
-  const [isLinkActive, setLinkActive] = useState(isActive);
+  const [isLinkActive, setLinkActive] = useState(isActive)
 
   const handlehashUpdate = () => {
     const currentHash = window.location.hash
-    console.log(currentHash)
 
     if (!currentHash) {
       if (hash === '#') {
@@ -34,11 +33,11 @@ export const TabLink = ({ children, hash, className = '', linkClassName, isActiv
   useEffect(() => {
     handlehashUpdate()
     window.addEventListener('hashchange', handlehashUpdate)
-  }, []);
+  }, [])
 
-  let url = '';
-  if(typeof window !== 'undefined'){
-    url = `${window.location.pathname}${hash}`;
+  let url = ''
+  if (typeof window !== 'undefined') {
+    url = `${window.location.pathname}${hash}`
   }
 
   return (

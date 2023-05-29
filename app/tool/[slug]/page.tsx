@@ -1,37 +1,24 @@
-import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons'
-import Button from '@/components/ui/Button/Button'
+import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight, IconArrowLongLeft } from '@/components/Icons'
 import ButtonUpvote from '@/components/ui/ButtonUpvote'
-import {
-  CommentForm,
-  CommentTextarea,
-  CommentUserAvatar,
-  CommentFormWrapper,
-  Comments,
-  Comment,
-  CommentUserName,
-  CommentDate,
-  CommentContext,
-  CommentLike,
-} from '@/components/ui/Comment'
 import { Gallery, GalleryImage } from '@/components/ui/Gallery'
 import LinkShiny from '@/components/ui/LinkShiny'
-import ProductLogo from '@/components/ui/ProductCard/Product.Logo'
-import ProductTitle from '@/components/ui/ProductCard/Product.Title'
+import ProductLogo from '@/components/ui/ToolCard/Tool.Logo'
 import { Stat, StatsWrapper, StatCountItem, StatItem } from '@/components/ui/Stats'
 import { TabLink, Tabs } from '@/components/ui/TabsLink'
 import { Tag, TagsGroup } from '@/components/ui/TagsGroup'
-import Link from 'next/link'
-//
-import Logo from '@/components/ui/ProductCard/Product.Logo'
-import Name from '@/components/ui/ProductCard/Product.Name'
-import Tags from '@/components/ui/ProductCard/Product.Tags'
-import Title from '@/components/ui/ProductCard/Product.Title'
-import ProductCard from '@/components/ui/ProductCard/ProductCard'
-import mockproducts from '@/mockproducts'
+import Logo from '@/components/ui/ToolCard/Tool.Logo'
+import ToolName from '@/components/ui/ToolCard/Tool.Name'
+import Tags from '@/components/ui/ToolCard/Tool.Tags'
+import Title from '@/components/ui/ToolCard/Tool.Title'
+import ToolCard from '@/components/ui/ToolCard/ToolCard'
 import ProductsService from '@/libs/supabase/services/products'
 import CommentService from '@/libs/supabase/services/comments'
-import { GetServerSidePropsContext } from 'next'
-import { useSupabase } from '@/components/supabase/provider';
+import { useSupabase } from '@/components/supabase/provider'
+import CommentSection from '@/components/ui/Client/CommentSection'
+import { createServerClient } from '@/libs/supabase/server'
+import { createBrowserClient } from '@/libs/supabase/browser'
+import Link from 'next/link'
+import LinkItem from '@/components/ui/Link/LinkItem'
 
 export default async function Page({
   params: { slug },
@@ -40,11 +27,18 @@ export default async function Page({
     slug: string
   }
 }) {
-
-
-  const productsService = new ProductsService(false)
-
-  const product = await productsService.getBySlug(slug);
+  const supabaseClient = createServerClient()
+  const supabaseBrowserClient = createBrowserClient()
+  const productsService = new ProductsService(supabaseClient)
+  const productsServiceBrowser = new ProductsService(supabaseBrowserClient)
+  const product = await productsService.getBySlug(slug)
+  const pc_names = product?.product_categories.map(item => item.name)
+  const relatedProducts = await productsServiceBrowser.getRelatedProducts(
+    product?.id as number,
+    pc_names as [],
+    'votes_count',
+    false
+  )
 
   if (!product) {
     return '<div> Not found </div>'
@@ -57,8 +51,8 @@ export default async function Page({
   //   await productsService.voteUnvote(product.id, session.user.id);
   // }
 
-  const commentService = new CommentService(false);
-  const comments = (await commentService.getByProductId(product.id)) || [];
+  const commentService = new CommentService(supabaseClient)
+  const comments = (await commentService.getByProductId(product.id)) || []
 
   const tabs = [
     {
@@ -112,16 +106,16 @@ export default async function Page({
       <div className="container-custom-screen" id="about">
         <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
-        <ProductTitle className="mt-1">{product?.slogan}</ProductTitle>
+        <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
           <LinkShiny href={product?.demo_url || ''} target="_balnk" className="flex items-center gap-x-2">
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
-          <ButtonUpvote count={product?.votes_count} />
+          <ButtonUpvote productId={product?.id} count={product?.votes_count} />
         </div>
       </div>
-      <Tabs className="mt-20 sticky top-[3.75rem] z-20 bg-slate-900 md:top-[4.3rem]">
+      <Tabs className="mt-20 sticky top-[4.2rem] z-10 bg-slate-900">
         {tabs.map((item, idx) => (
           <TabLink hash={item.hash} key={idx}>
             {item.name}
@@ -152,35 +146,7 @@ export default async function Page({
             </div>
           </div>
         </div>
-        <div className="container-custom-screen" id="comments">
-          <h3 className="text-slate-50 font-medium">Support and give a Feedback</h3>
-          <CommentForm className="mt-12">
-            <CommentFormWrapper>
-              <CommentUserAvatar src="/images/random-user.jpg" />
-              <CommentTextarea placeholder="Write your feedback" />
-            </CommentFormWrapper>
-            <div className="mt-3 flex justify-end">
-              <Button className="text-sm bg-slate-800 hover:bg-slate-700">Comment</Button>
-            </div>
-          </CommentForm>
-          {/*TODO move comments in a separate component to make them laze loaded */}
-          <div className="mt-6">
-            <Comments>
-              {comments.map((comment: any, idx) => (
-                <Comment key={idx}>
-                  {/*TODO add First Letters Like avatars if there is no avatar */}
-                  <CommentUserAvatar src={comment.profiles.avatar_url} />
-                  <div>
-                    <CommentUserName>{comment.profiles.full_name}</CommentUserName>
-                    <CommentDate>{comment.created_at}</CommentDate>
-                    <CommentContext className="mt-3">{comment.content}</CommentContext>
-                    <CommentLike className="mt-2" count={comment.votes_count} />
-                  </div>
-                </Comment>
-              ))}
-            </Comments>
-          </div>
-        </div>
+        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
@@ -204,20 +170,37 @@ export default async function Page({
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Related launches</h3>
-          <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
-            {mockproducts.map((item, idx) => (
-              <li key={idx} className="py-3">
-                <ProductCard href={item.slug}>
-                  <Logo src={item.logo} alt={item.title} imgClassName="w-14 h-14" />
-                  <div className="space-y-1">
-                    <Name>{item.name}</Name>
-                    <Title className="line-clamp-1 sm:line-clamp-2">{item.title}</Title>
-                    <Tags items={['Free', 'Developer Tools']} />
-                  </div>
-                </ProductCard>
-              </li>
-            ))}
-          </ul>
+          {relatedProducts.length > 0 ? (
+            <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
+              {relatedProducts.map((item, idx) => (
+                <li key={idx} className="py-3">
+                  <ToolCard href={item.name}>
+                    <Logo src={item.logo_url} alt={item.slogan as string} imgClassName="w-14 h-14" />
+                    <div className="space-y-1">
+                      <ToolName>{item.name}</ToolName>
+                      <Title className="line-clamp-1 sm:line-clamp-2">{item.slogan}</Title>
+                      <Tags
+                        items={[
+                          item.product_pricing_types?.title || 'Free',
+                          ...item.product_categories.map(c => c.name),
+                        ]}
+                      />
+                    </div>
+                  </ToolCard>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="mb-20">
+              <LinkItem
+                href="/"
+                className="mt-6 py-2 inline-flex items-center gap-x-2 bg-orange-500 hover:bg-orange-400 active:bg-orange-600"
+              >
+                <IconArrowLongLeft />
+                Browse other tools
+              </LinkItem>
+            </div>
+          )}
         </div>
       </div>
     </section>

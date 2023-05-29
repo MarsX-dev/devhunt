@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3009",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -15,6 +15,8 @@
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.6.1",
     "@supabase/supabase-js": "^2.22.0",
+    "axios": "^1.4.0",
+    "moment": "^2.29.4",
     "next": "13.4.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",

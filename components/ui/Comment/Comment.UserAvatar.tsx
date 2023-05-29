@@ -1,7 +1,24 @@
-import mergeTW from "@/libs/mergeTW";
+import mergeTW from '@/libs/mergeTW'
+import Avatar from '../Avatar/Avatar'
 
-export const CommentUserAvatar = ({ src="", alt="", className = "" }: {src: string, alt?: string, className?: string}) => (
-    <div className="flex-none">
-        <img src={src} alt={alt} className={mergeTW(`w-10 h-10 object-cover rounded-full ${className}`)} />
-    </div>
+export const CommentUserAvatar = ({
+  src = '',
+  alt = '',
+  className = '',
+}: {
+  src: string
+  alt?: string
+  className?: string
+}) => (
+  <div className="flex-none relative">
+    {src ? (
+      <Avatar src={src} alt={alt} className={className} />
+    ) : (
+      <div
+        className={mergeTW(
+          `w-10 h-10 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500 ${className}`
+        )}
+      ></div>
+    )}
+  </div>
 )
