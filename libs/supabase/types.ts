@@ -139,6 +139,8 @@ export interface Database {
           id: number
           is_draft: boolean
           launch_date: string
+          launch_end: string | null
+          launch_start: string | null
           logo_url: string
           name: string
           owner_id: string | null
@@ -161,6 +163,8 @@ export interface Database {
           id?: number
           is_draft: boolean
           launch_date: string
+          launch_end?: string | null
+          launch_start?: string | null
           logo_url: string
           name: string
           owner_id?: string | null
@@ -183,6 +187,8 @@ export interface Database {
           id?: number
           is_draft?: boolean
           launch_date?: string
+          launch_end?: string | null
+          launch_start?: string | null
           logo_url?: string
           name?: string
           owner_id?: string | null
@@ -228,7 +234,65 @@ export interface Database {
       }
     }
     Views: {
-      [_ in never]: never
+      product_awards: {
+        Row: {
+          award_type: string | null
+          launch_date: string | null
+          month: number | null
+          product_id: number | null
+          rank: number | null
+          week: number | null
+          year: number | null
+        }
+      }
+      winner_of_the_day: {
+        Row: {
+          day: string | null
+          description: string | null
+          launch_date: string | null
+          launch_votes_count: number | null
+          logo_url: string | null
+          name: string | null
+          product_id: number | null
+          rank: number | null
+          slug: string | null
+          votes_count: number | null
+        }
+      }
+      winner_of_the_month: {
+        Row: {
+          description: string | null
+          end: string | null
+          launch_date: string | null
+          launch_votes_count: number | null
+          logo_url: string | null
+          month: number | null
+          name: string | null
+          product_id: number | null
+          rank: number | null
+          slug: string | null
+          start: string | null
+          votes_count: number | null
+          year: number | null
+        }
+      }
+      winner_of_the_week: {
+        Row: {
+          description: string | null
+          end: string | null
+          launch_date: string | null
+          launch_votes_count: number | null
+          logo_url: string | null
+          name: string | null
+          product_id: number | null
+          rank: number | null
+          slug: string | null
+          start: string | null
+          votes_count: number | null
+          week: number | null
+          year: number | null
+        }
+      }
     }
     Functions: {
       toggleCommentVote: {
@@ -242,13 +306,6 @@ export interface Database {
         Args: {
           _user_id: string
           _product_id: number
-        }
-        Returns: boolean
-      }
-      upvoteProduct: {
-        Args: {
-          _product_id: number
-          _user_id: string
         }
         Returns: boolean
       }
