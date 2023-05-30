@@ -27,7 +27,7 @@ const DahboardLayout = async ({ params: { user }, children }: { params: { user: 
 
   return profile ? (
     <div className="mb-32 min-h-screen">
-      <Tabs ulClassName="container-custom-screen" className="sticky top-[4.2rem] z-10 bg-slate-900">
+      <Tabs ulClassName="container-custom-screen" className="sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
         {tabs.map((item, idx) => (
           <TabLink href={item.href} key={idx}>
             {item.name}
