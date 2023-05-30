@@ -19,6 +19,11 @@ export default class ProfileService extends BaseDbService {
     return data
   }
 
+  async getByUsername(username: string): Promise<Profile | null> {
+    const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single()
+    return data
+  }
+
   async update(id: string, updates: UpdateProfile): Promise<UpdateProfile> {
     const { data, error } = await this.supabase.from('profiles').update(updates).eq('id', id).select().single()
     if (error != null) throw new Error(error.message)

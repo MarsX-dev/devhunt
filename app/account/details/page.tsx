@@ -19,28 +19,35 @@ function Profile() {
   const profile = profileService.getById(userSession?.id as string)
 
   const [isLoad, setLoad] = useState(false)
-  const [fullName, setUsername] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [about, setAbout] = useState('')
+  const [headline, setHeadLine] = useState('')
   const [avatar, setAvatar] = useState('/user.svg')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string>('')
 
-  const [fullNameError, setUsernameError] = useState('')
+  const [fullNameError, setFullNameError] = useState('')
+  const [usernameError, setUsernameError] = useState('')
   const [aboutError, setAboutError] = useState('')
+  const [headlineError, setHeadLineError] = useState('')
 
   useEffect(() => {
     profile.then(res => {
-      setUsername(res?.full_name || '')
+      setAvatar((user?.avatar_url as string) || '/user.svg')
+      setFullName(res?.full_name || '')
+      setUsername(res?.username || '')
       setAbout(res?.about || '')
       setEmail(userSession?.user_metadata.email || '')
-      setAvatar((user?.avatar_url as string) || '/user.svg')
+      setHeadLine(res?.headline || '')
     })
   }, [])
 
   const formValidator = () => {
-    setUsernameError('')
-    if (fullName.length < 2) setUsernameError('Please enter your name')
+    setFullNameError('')
+    if (fullName.length < 2) setFullNameError('Please enter a correct full name')
+    if (username.length < 4) setUsernameError('the username should at least be 4 chars or more')
     else return true
   }
 
@@ -53,7 +60,9 @@ function Profile() {
       profileService
         .update(userSession?.id as string, {
           full_name: fullName,
+          username,
           about,
+          headline,
         })
         .then(() => {
           setLoad(false)
@@ -66,7 +75,7 @@ function Profile() {
 
   return (
     <Protectedroute>
-      <div className="max-w-2xl h-screen mx-auto mt-20 px-4">
+      <div className="container-custom-screen h-screen mt-20">
         <div>
           <h1 className="text-xl text-slate-50 font-semibold">Profile</h1>
           <p className="mt-1 text-sm text-slate-400">
@@ -83,24 +92,42 @@ function Profile() {
           <form onSubmit={handleSubmit} className="mt-4">
             <div className="space-y-4">
               <div>
-                <Label>Username</Label>
+                <Label>Full name</Label>
                 <Input
                   value={fullName}
-                  onChange={e => setUsername((e.target as HTMLInputElement).value)}
+                  onChange={e => setFullName((e.target as HTMLInputElement).value)}
                   className="w-full mt-2"
                 />
                 <LabelError className="mt">{fullNameError}</LabelError>
               </div>
               <div>
+                <Label>Username</Label>
+                <Input
+                  value={username}
+                  onChange={e => setUsername((e.target as HTMLInputElement).value)}
+                  className="w-full mt-2"
+                />
+                <LabelError className="mt">{usernameError}</LabelError>
+              </div>
+              <div>
                 <Label>Email</Label>
-                <Input value={email} className="w-full mt-2" />
+                <Input type="email" value={email} className="w-full mt-2" />
+              </div>
+              <div>
+                <Label>Headline</Label>
+                <Input
+                  value={headline}
+                  onChange={e => setHeadLine((e.target as HTMLInputElement).value)}
+                  className="w-full mt-2"
+                />
+                <LabelError>{headlineError}</LabelError>
               </div>
               <div>
                 <Label>About</Label>
                 <Textarea
                   value={about}
                   onChange={e => setAbout((e.target as HTMLInputElement).value)}
-                  className="w-full h-24 mt-2"
+                  className="w-full h-28 mt-2"
                 />
                 <LabelError className="mt">{aboutError}</LabelError>
               </div>

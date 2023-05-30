@@ -1,16 +1,22 @@
 'use client'
 
+import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
 interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
-  hash: string
+  hash?: string
+  href?: string
   className?: string
   linkClassName?: string
   isActive?: boolean
 }
 
-export const TabLink = ({ children, hash, className = '', linkClassName, isActive, ...props }: Props) => {
+export const TabLink = ({ children, hash, href, className = '', linkClassName, isActive, ...props }: Props) => {
   const [isLinkActive, setLinkActive] = useState(isActive)
+
+  const customClassName = `inline-block rounded-full py-2 px-3 target:bg-slate-800 ${
+    isLinkActive ? 'bg-slate-800' : ''
+  } hover:bg-slate-800 duration-150 ${linkClassName}`
 
   const handlehashUpdate = () => {
     const currentHash = window.location.hash
@@ -30,15 +36,19 @@ export const TabLink = ({ children, hash, className = '', linkClassName, isActiv
     }
   }
 
-  useEffect(() => {
-    handlehashUpdate()
-    window.addEventListener('hashchange', handlehashUpdate)
-  }, [])
-
-  let url = ''
-  if (typeof window !== 'undefined') {
-    url = `${window.location.pathname}${hash}`
+  const handlePathUpdate = () => {
+    const pathname = window.location.pathname
+    if (pathname == href) setLinkActive(true)
   }
+
+  useEffect(() => {
+    if (!href) {
+      handlehashUpdate()
+      window.addEventListener('hashchange', handlehashUpdate)
+    } else {
+      handlePathUpdate()
+    }
+  }, [])
 
   return (
     <li
@@ -46,15 +56,15 @@ export const TabLink = ({ children, hash, className = '', linkClassName, isActiv
         isLinkActive ? 'border-slate-600 text-slate-200' : ' border-transparent'
       } ${className}`}
     >
-      <a
-        {...props}
-        href={url}
-        className={`inline-block rounded-full py-2 px-3 target:bg-slate-800 ${
-          isLinkActive ? 'bg-slate-800' : ''
-        } hover:bg-slate-800 duration-150 ${linkClassName}`}
-      >
-        {children}
-      </a>
+      {href ? (
+        <Link href={href} className={customClassName}>
+          {children}
+        </Link>
+      ) : (
+        <a {...props} href={`${window.location.pathname}${hash}`} className={customClassName}>
+          {children}
+        </a>
+      )}
     </li>
   )
 }

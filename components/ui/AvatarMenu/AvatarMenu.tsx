@@ -18,9 +18,8 @@ export default ({ onLogout, session }: Props) => {
   const { user } = useSupabase()
 
   const navigation = [
-    { title: 'Profile', path: '/profile' },
-    { title: 'Upvotes', path: '/account/upvotes' },
-    { title: 'My tools', path: '/account/tools' },
+    { title: 'Profile', path: `/@${user.username}` },
+    { title: 'Details', path: '/account/details' },
   ]
 
   useEffect(() => {
