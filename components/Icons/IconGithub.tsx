@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 
 export const IconGithub = ({ className = '' }: { className?: string }) => (
   <svg className={mergeTW(`h-5 w-5 ${className}`)} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -14,11 +14,12 @@ type Props = {
 export default ({ onLogout, session }: Props) => {
   const [state, setState] = useState(false)
   const profileRef = useRef<HTMLButtonElement>(null)
+  const isLoggin = session && session.user
 
   const { user } = useSupabase()
 
   const navigation = [
-    { title: 'Profile', path: `/@${user.username}` },
+    { title: 'Profile', path: isLoggin ? `/@${user.username}` : '' },
     { title: 'Details', path: '/account/details' },
   ]
 
@@ -29,7 +30,7 @@ export default ({ onLogout, session }: Props) => {
     document.addEventListener('click', handleDropDown)
   }, [])
 
-  return session && session.user ? (
+  return isLoggin ? (
     <div className="relative">
       <button
         ref={profileRef}

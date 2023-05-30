@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 
 export const IconEllipsisVertical = ({ className = '' }: { className?: string }) => (
   <svg

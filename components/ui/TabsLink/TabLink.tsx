@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   hash?: string
@@ -13,6 +14,7 @@ interface Props extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 
 export const TabLink = ({ children, hash, href, className = '', linkClassName, isActive, ...props }: Props) => {
   const [isLinkActive, setLinkActive] = useState(isActive)
+  const pathname = usePathname()
 
   const customClassName = `inline-block rounded-full py-2 px-3 target:bg-slate-800 ${
     isLinkActive ? 'bg-slate-800' : ''
@@ -37,7 +39,7 @@ export const TabLink = ({ children, hash, href, className = '', linkClassName, i
   }
 
   const handlePathUpdate = () => {
-    const pathname = window.location.pathname
+    setLinkActive(false)
     if (pathname == href) setLinkActive(true)
   }
 
@@ -47,8 +49,10 @@ export const TabLink = ({ children, hash, href, className = '', linkClassName, i
       window.addEventListener('hashchange', handlehashUpdate)
     } else {
       handlePathUpdate()
+      // window.addEventListener('hashchange', handlePathUpdate)
+      console.log(pathname)
     }
-  }, [])
+  }, [pathname])
 
   return (
     <li

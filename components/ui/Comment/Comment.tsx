@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 import { ReactNode } from 'react'
 
 export const Comment = ({ children, className }: { children: ReactNode; className?: string }) => (

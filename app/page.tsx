@@ -4,11 +4,11 @@ import Tags from '@/components/ui/ToolCard/Tool.Tags'
 import Title from '@/components/ui/ToolCard/Tool.Title'
 import Votes from '@/components/ui/ToolCard/Tool.Votes'
 import ToolCard from '@/components/ui/ToolCard/ToolCard'
-import ProductsService from '@/libs/supabase/services/products'
-import { createServerClient } from '@/libs/supabase/server'
+import ProductsService from '@/utils/supabase/services/products'
+import { createServerClient } from '@/utils/supabase/server'
 
 export default async function Home() {
-  const products = await new ProductsService(createServerClient()).getTopProducts('votes_count', false)
+  const tools = await new ProductsService(createServerClient()).getTopProducts('votes_count', false)
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
@@ -16,8 +16,8 @@ export default async function Home() {
 
       <div className="mt-10 mb-12">
         <ul className="divide-y divide-slate-800/60">
-          {products &&
-            products.map((product, idx) => (
+          {tools &&
+            tools.map((product, idx) => (
               <li key={idx} className="py-3">
                 <ToolCard href={'/tool/' + product.slug}>
                   <Logo src={product.logo_url || ''} alt={product.name} />

@@ -1,4 +1,4 @@
-import type { Profile, UpdateProfile } from '@/libs/supabase/types'
+import type { Profile, UpdateProfile } from '@/utils/supabase/types'
 import BaseDbService from './BaseDbService'
 
 type FileBody =

@@ -3,8 +3,8 @@ import { IconVote } from '@/components/Icons'
 import Button from '@/components/ui/Button'
 import React, { useEffect, useState } from 'react'
 import { useSupabase } from '@/components/supabase/provider'
-import ProductsService from '@/libs/supabase/services/products'
-import { createBrowserClient } from '@/libs/supabase/browser'
+import ProductsService from '@/utils/supabase/services/products'
+import { createBrowserClient } from '@/utils/supabase/browser'
 import { useRouter } from 'next/navigation'
 
 interface Props extends React.HTMLAttributes<HTMLButtonElement> {

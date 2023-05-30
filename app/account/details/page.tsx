@@ -8,9 +8,10 @@ import Label from '@/components/ui/Label/Label'
 import Textarea from '@/components/ui/Textarea'
 import { useSupabase } from '@/components/supabase/provider'
 import Protectedroute from '@/components/Protectedroute'
-import { createBrowserClient } from '@/libs/supabase/browser'
-import ProfileService from '@/libs/supabase/services/profile'
+import { createBrowserClient } from '@/utils/supabase/browser'
+import ProfileService from '@/utils/supabase/services/profile'
 import LabelError from '@/components/ui/LabelError/LabelError'
+import validateURL from '@/utils/validateURL'
 
 function Profile() {
   const { session, user } = useSupabase()
@@ -21,15 +22,18 @@ function Profile() {
   const [isLoad, setLoad] = useState(false)
   const [fullName, setFullName] = useState('')
   const [username, setUsername] = useState('')
+  const [websiteUrl, setWebsiteUrl] = useState('')
   const [email, setEmail] = useState('')
   const [about, setAbout] = useState('')
   const [headline, setHeadLine] = useState('')
+
   const [avatar, setAvatar] = useState('/user.svg')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string>('')
 
   const [fullNameError, setFullNameError] = useState('')
   const [usernameError, setUsernameError] = useState('')
+  const [websiteUrlError, setWebsiteUrlError] = useState('')
   const [aboutError, setAboutError] = useState('')
   const [headlineError, setHeadLineError] = useState('')
 
@@ -39,6 +43,7 @@ function Profile() {
       setFullName(res?.full_name || '')
       setUsername(res?.username || '')
       setAbout(res?.about || '')
+      setWebsiteUrl(res?.website_url || '')
       setEmail(userSession?.user_metadata.email || '')
       setHeadLine(res?.headline || '')
     })
@@ -46,8 +51,10 @@ function Profile() {
 
   const formValidator = () => {
     setFullNameError('')
+    setWebsiteUrlError('')
     if (fullName.length < 2) setFullNameError('Please enter a correct full name')
     if (username.length < 4) setUsernameError('the username should at least be 4 chars or more')
+    if (websiteUrl && !validateURL(websiteUrl)) setWebsiteUrlError('Please enter a valid URL')
     else return true
   }
 
@@ -63,6 +70,7 @@ function Profile() {
           username,
           about,
           headline,
+          website_url: websiteUrl,
         })
         .then(() => {
           setLoad(false)
@@ -121,6 +129,15 @@ function Profile() {
                   className="w-full mt-2"
                 />
                 <LabelError>{headlineError}</LabelError>
+              </div>
+              <div>
+                <Label>Website URL</Label>
+                <Input
+                  value={websiteUrl}
+                  onChange={e => setWebsiteUrl((e.target as HTMLInputElement).value)}
+                  className="w-full mt-2"
+                />
+                <LabelError>{websiteUrlError}</LabelError>
               </div>
               <div>
                 <Label>About</Label>

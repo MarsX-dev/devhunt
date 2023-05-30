@@ -11,12 +11,12 @@ import {
   CommentTextarea,
   CommentDeleted,
 } from '@/components/ui/Comment'
-import type { Comment as CommentType, Profile } from '@/libs/supabase/types'
+import type { Comment as CommentType, Profile } from '@/utils/supabase/types'
 import moment from 'moment'
 import { FormEventHandler, useState } from 'react'
 import Button from '../Button/Button'
-import CommentService from '@/libs/supabase/services/comments'
-import { createBrowserClient } from '@/libs/supabase/browser'
+import CommentService from '@/utils/supabase/services/comments'
+import { createBrowserClient } from '@/utils/supabase/browser'
 import { useSupabase } from '@/components/supabase/provider'
 
 interface CommentTypeProp extends CommentType {

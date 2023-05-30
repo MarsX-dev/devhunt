@@ -1,29 +1,32 @@
-'use client'
-
 import { TabLink, Tabs } from '@/components/ui/TabsLink'
-import { parseUrl } from 'next/dist/shared/lib/router/utils/parse-url'
-import { useParams } from 'next/navigation'
 import { ReactNode } from 'react'
+import ProfileService from '@/utils/supabase/services/profile'
+import { createBrowserClient } from '@/utils/supabase/browser'
+import Page404 from '@/components/ui/Page404'
+import Avatar from '@/components/ui/Avatar/Avatar'
 
-const DahboardLayout = ({ children }: { children: ReactNode }) => {
-  const { user } = useParams()
+const DahboardLayout = async ({ params: { user }, children }: { params: { user: string }; children: ReactNode }) => {
+  const username = decodeURIComponent(user).slice(1)
+  const profileService = new ProfileService(createBrowserClient())
+  const profile = await profileService.getByUsername(username)
+
   const tabs = [
     {
       name: 'Profile',
-      href: `${window.location.pathname}`,
+      href: `/${decodeURIComponent(user)}`,
     },
     {
       name: 'Activity',
-      href: '/account/Activity',
+      href: `/${decodeURIComponent(user)}/activity`,
     },
     {
       name: 'Upvotes',
-      href: '/account/upvotes',
+      href: `/${decodeURIComponent(user)}/upvotes`,
     },
   ]
 
-  return (
-    <div className="h-screen">
+  return profile ? (
+    <div className="mb-32 min-h-screen">
       <Tabs ulClassName="container-custom-screen" className="sticky top-[4.2rem] z-10 bg-slate-900">
         {tabs.map((item, idx) => (
           <TabLink href={item.href} key={idx}>
@@ -31,8 +34,23 @@ const DahboardLayout = ({ children }: { children: ReactNode }) => {
           </TabLink>
         ))}
       </Tabs>
-      <section className="mt-20">{children}</section>
+      <section className="container-custom-screen mt-20">
+        <div className="items-center gap-x-6 sm:flex">
+          <Avatar
+            className="w-20 h-20 flex-none"
+            src={profile?.avatar_url as string}
+            alt={profile?.full_name as string}
+          />
+          <div className="mt-4 sm:mt-0">
+            <h1 className="text-2xl text-slate-50 font-medium">{profile?.full_name}</h1>
+            <p className="mt-1 text-sm text-slate-400">{profile?.headline}</p>
+          </div>
+        </div>
+        {children}
+      </section>
     </div>
+  ) : (
+    <Page404 />
   )
 }
 

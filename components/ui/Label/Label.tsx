@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 import { HTMLAttributes, ReactNode } from 'react'
 
 interface Props extends HTMLAttributes<HTMLLabelElement> {

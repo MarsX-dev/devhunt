@@ -1,6 +1,6 @@
-import type { Comment, InsertComment, UpdateComment } from '@/libs/supabase/types'
+import type { Comment, InsertComment, UpdateComment } from '@/utils/supabase/types'
 import BaseDbService from './BaseDbService'
-import { type ExtendedComment } from '@/libs/supabase/CustomTypes'
+import { type ExtendedComment } from '@/utils/supabase/CustomTypes'
 
 export type ProductComment = Comment & { children?: ProductComment[] }
 

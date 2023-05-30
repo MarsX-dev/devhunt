@@ -1,3 +1,3 @@
 export default () => {
-  return <div>Home User page</div>
+  return <div className="mt-12 text-slate-50 font-medium text-2xl">...In progress</div>
 }

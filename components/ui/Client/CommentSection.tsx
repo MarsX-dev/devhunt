@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import CommentFormSection from './CommentFormSection'
 import CommentsSection from './CommentsSection'
-import type { Comment as CommentType, Product } from '@/libs/supabase/types'
+import type { Comment as CommentType, Product } from '@/utils/supabase/types'
 import { useSupabase } from '@/components/supabase/provider'
 
 interface CommentTypeProp extends CommentType {

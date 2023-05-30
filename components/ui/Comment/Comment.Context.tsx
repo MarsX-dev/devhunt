@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 import { ReactNode } from 'react'
 
 export const CommentContext = ({ className, children }: { className?: string; children?: ReactNode }) => (

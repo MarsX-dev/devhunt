@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 import Avatar from '../Avatar/Avatar'
 
 export const CommentUserAvatar = ({

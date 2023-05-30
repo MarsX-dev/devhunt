@@ -1,7 +1,7 @@
-import { ExtendedProduct } from '@/libs/supabase/CustomTypes'
-import BaseDbService from '@/libs/supabase/services/BaseDbService'
-import { InsertProduct, Product, UpdateProduct } from '@/libs/supabase/types'
-import { omit } from '@/libs/helpers'
+import { ExtendedProduct } from '@/utils/supabase/CustomTypes'
+import BaseDbService from '@/utils/supabase/services/BaseDbService'
+import { InsertProduct, Product, UpdateProduct } from '@/utils/supabase/types'
+import { omit } from '@/utils/helpers'
 
 export default class ProductsService extends BaseDbService {
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
@@ -43,6 +43,11 @@ export default class ProductsService extends BaseDbService {
       .slice(0, 8)
 
     return filteredProducts as ExtendedProduct[]
+  }
+
+  async getUserProductsById(userId: string, sortBy: string, ascending: boolean) {
+    const { data } = await this.getProducts(sortBy, ascending).eq('owner_id', userId)
+    return data || null
   }
 
   async getUserVoteById(userId: string, productId: number) {

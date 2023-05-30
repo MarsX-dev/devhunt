@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 
 export const IconArrowLongLeft = ({ className = '' }: { className?: string }) => (
   <svg

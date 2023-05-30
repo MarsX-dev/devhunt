@@ -1,5 +1,5 @@
 import { IconHeart } from '@/components/Icons'
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 import { HTMLAttributes, ReactNode } from 'react'
 
 interface Props extends HTMLAttributes<HTMLButtonElement> {

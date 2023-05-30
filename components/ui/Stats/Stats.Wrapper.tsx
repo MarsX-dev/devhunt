@@ -1,4 +1,4 @@
-import mergeTW from '@/libs/mergeTW'
+import mergeTW from '@/utils/mergeTW'
 import { type ReactNode } from 'react'
 
 export const StatsWrapper = ({ children, className }: { children: ReactNode; className?: string }) => (

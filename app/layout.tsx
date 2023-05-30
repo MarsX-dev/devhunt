@@ -4,11 +4,11 @@ import { Inter } from 'next/font/google'
 
 import SupabaseListener from '@/components/supabase/listener'
 import SupabaseProvider from '@/components/supabase/provider'
-import { createServerClient } from '@/libs/supabase/server'
-import type { Database, Profile } from '@/libs/supabase/types'
+import { createServerClient } from '@/utils/supabase/server'
+import type { Database, Profile } from '@/utils/supabase/types'
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs'
 import Footer from '@/components/ui/Footer/Footer'
-import ProfileService from '@/libs/supabase/services/profile'
+import ProfileService from '@/utils/supabase/services/profile'
 
 export type TypedSupabaseClient = SupabaseClient<Database>
 

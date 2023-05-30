@@ -6,9 +6,9 @@ import Button from '@/components/ui/Button/Button'
 import { FormEvent, useState } from 'react'
 import LabelError from '../LabelError'
 import LinkShiny from '../LinkShiny/LinkShiny'
-import ProductsService from '@/libs/supabase/services/products'
-import CommentService from '@/libs/supabase/services/comments'
-import { createBrowserClient } from '@/libs/supabase/browser'
+import ProductsService from '@/utils/supabase/services/products'
+import CommentService from '@/utils/supabase/services/comments'
+import { createBrowserClient } from '@/utils/supabase/browser'
 
 export default ({
   slug,
