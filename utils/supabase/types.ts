@@ -295,6 +295,12 @@ export interface Database {
       }
     }
     Functions: {
+      get_similar_products: {
+        Args: {
+          _product_id: number
+        }
+        Returns: Record<string, unknown>
+      }
       toggleCommentVote: {
         Args: {
           _comment_id: number

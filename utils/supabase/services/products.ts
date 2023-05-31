@@ -14,6 +14,12 @@ export default class ProductsService extends BaseDbService {
       .order(sortBy, { ascending })
   }
 
+  async getSimilarProducts (productId: number): Promise<Product> {
+    const { data, error } = await this.supabase.rpc('get_similar_products', { _product_id: productId })
+    if (error !== null) throw new Error(error.message)
+    return data
+  }
+
   async getTopProducts(sortBy: string, ascending: boolean): Promise<ExtendedProduct[]> {
     const { data: products, error } = await this.getProducts(sortBy, ascending)
 
