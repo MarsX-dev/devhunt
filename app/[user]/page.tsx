@@ -1,4 +1,3 @@
-'use client'
 import Logo from '@/components/ui/ToolCard/Tool.Logo'
 import Name from '@/components/ui/ToolCard/Tool.Name'
 import Tags from '@/components/ui/ToolCard/Tool.Tags'

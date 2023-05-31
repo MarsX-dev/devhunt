@@ -1,3 +1,5 @@
+'use client'
+
 import { IconEllipsisVertical } from '@/components/Icons'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 
