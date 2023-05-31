@@ -112,12 +112,20 @@ export default class ProductsService extends BaseDbService {
     if (error !== null) throw new Error(error.message)
   }
 
-  async insert(product: InsertProduct): Promise<Product | null> {
+  async insert (product: InsertProduct): Promise<Product | null> {
     const { data, error } = await this.supabase.from('products').insert(product).select().single()
+    if (error !== null) throw new Error(error.message)
+    return data
+  }
 
-    if (error !== null) {
-      throw new Error(error.message)
-    }
+  async search (searchTerm: string): Promise<Product[] | null> {
+    const { data, error } = await this.supabase
+      .from('products')
+      .select('*')
+      .ilike('name', `%${searchTerm}%`)
+      .limit(5)
+
+    if (error !== null) throw new Error(error.message)
     return data
   }
 
