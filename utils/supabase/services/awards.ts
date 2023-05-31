@@ -5,26 +5,54 @@ import {
   type WinnerOfTheMonth,
   type ProductAward,
 } from '@/utils/supabase/CustomTypes'
+import ProductsService from '@/utils/supabase/services/products';
+
+
 
 export default class AwardsService extends BaseDbService {
+  async fallbackProducts<T>(winnersOfAny: T[] | null) {
+    if (winnersOfAny === null || winnersOfAny.length === 0) {
+      const randomTools = await new ProductsService(this.supabase).getRandomTools(10)
+      if (randomTools === null) {
+        return winnersOfAny
+      }
+      //@ts-ignore
+      return randomTools.map((t) => {
+        return {
+          ...t,
+          product_pricing: t.product_pricing_types.title,
+          product_categories: t.product_categories.map((pc) => pc.name)
+        }
+      }) as T[]
+    }
+
+    return winnersOfAny
+  }
+
   async getWinnersOfTheDay(day: Date | string, limit: number = 100): Promise<WinnerOfTheDay[] | null> {
-    const { data, error } = await this.supabase.from('winner_of_the_day').select().eq('day', day).limit(limit)
+    const { data, error } = await this.supabase.from('winner_of_the_day')
+      .select()
+      .eq('day', day)
+      .limit(limit)
 
     if (error !== null) {
       throw new Error(error.message)
     }
 
-    return data
+    return await this.fallbackProducts(data)
   }
 
   async getWinnersOfTheWeek(week: number, limit: number = 100): Promise<WinnerOfTheWeek[] | null> {
-    const { data, error } = await this.supabase.from('winner_of_the_week').select().eq('week', week).limit(limit)
+    const { data, error } = await this.supabase.from('winner_of_the_week')
+      .select()
+      .eq('week', week)
+      .limit(limit)
 
     if (error !== null) {
       throw new Error(error.message)
     }
 
-    return data
+    return await this.fallbackProducts(data)
   }
 
   async getWinnersOfTheMonth(month: number, limit: number = 100): Promise<WinnerOfTheMonth[] | null> {
@@ -34,7 +62,7 @@ export default class AwardsService extends BaseDbService {
       throw new Error(error.message)
     }
 
-    return data
+    return await this.fallbackProducts(data)
   }
 
   async getProductAwards(productId: number): Promise<ProductAward[]> {
