@@ -148,10 +148,12 @@ export default async function Page({
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
-          <p className="text-slate-300 mt-6">
-            WunderGraph was hunted by Alexander Isora 🦄 in Design Tools, Developer Tools. Made by Sidi jeddou. Featured
-            on March 24th, 2023.
-          </p>
+          {
+            product.launch_description !== null && <p className="text-slate-300 mt-6">
+              {product.launch_description}
+            </p>
+          }
+
           <div className="mt-10">
             <StatsWrapper>
               {stats.map((item, idx) => (

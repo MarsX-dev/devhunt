@@ -139,6 +139,7 @@ export interface Database {
           id: number
           is_draft: boolean
           launch_date: string
+          launch_description: string | null
           launch_end: string | null
           launch_start: string | null
           logo_url: string
@@ -163,6 +164,7 @@ export interface Database {
           id?: number
           is_draft: boolean
           launch_date: string
+          launch_description?: string | null
           launch_end?: string | null
           launch_start?: string | null
           logo_url: string
@@ -187,6 +189,7 @@ export interface Database {
           id?: number
           is_draft?: boolean
           launch_date?: string
+          launch_description?: string | null
           launch_end?: string | null
           launch_start?: string | null
           logo_url?: string
@@ -311,6 +314,7 @@ export interface Database {
           id: number
           is_draft: boolean
           launch_date: string
+          launch_description: string | null
           launch_end: string | null
           launch_start: string | null
           logo_url: string
