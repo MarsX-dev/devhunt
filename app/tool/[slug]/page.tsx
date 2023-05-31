@@ -32,7 +32,6 @@ export default async function Page({
   const supabaseBrowserClient = createBrowserClient()
 
   const productsService = new ProductsService(supabaseClient)
-  const productsServiceBrowser = new ProductsService(supabaseBrowserClient)
   const product = await productsService.getBySlug(slug)
 
   const awardService = new AwardsService(supabaseBrowserClient)
@@ -40,24 +39,15 @@ export default async function Page({
   const dayAward = toolAward[2]
   const weekAward = toolAward[0]
 
-  const pc_names = product?.product_categories.map(item => item.name)
-  const relatedProducts = await productsServiceBrowser.getRelatedProducts(
-    product?.id as number,
-    pc_names as [],
-    'votes_count',
-    false
-  )
-
   if (!product) {
     return '<div> Not found </div>'
   }
 
-  // call to trigger a vote
-  // client only -- move to client component for Voting
-  // const { supabase, session } = useSupabase()
-  // if(session) {
-  //   await productsService.voteUnvote(product.id, session.user.id);
-  // }
+  const winnersOfTheDayTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10)
+  const trendingTools =
+    winnersOfTheDayTools && winnersOfTheDayTools.length > 0
+      ? winnersOfTheDayTools
+      : await productsService.getRandomTools(10)
 
   const commentService = new CommentService(supabaseClient)
   const comments = (await commentService.getByProductId(product.id)) || []
@@ -177,38 +167,29 @@ export default async function Page({
           </div>
         </div>
         <div className="container-custom-screen" id="launches">
-          <h3 className="text-slate-50 font-medium">Related launches</h3>
-          {relatedProducts.length > 0 ? (
-            <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
-              {relatedProducts.map((item, idx) => (
+          <h3 className="text-slate-50 font-medium">Trending launches</h3>
+          <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
+            {trendingTools &&
+              trendingTools.map((item, idx) => (
                 <li key={idx} className="py-3">
-                  <ToolCard href={`/tool/${item.name.toLowerCase()}`}>
-                    <Logo src={item.logo_url} alt={item.slogan as string} imgClassName="w-14 h-14" />
+                  <ToolCard href={`/tool/${(item.name as string).toLowerCase()}`}>
+                    <Logo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
                     <div className="space-y-1">
                       <ToolName>{item.name}</ToolName>
-                      <Title className="line-clamp-1 sm:line-clamp-2">{item.slogan}</Title>
-                      <Tags
+                      <Title className="line-clamp-1 sm:line-clamp-2">
+                        {item?.slogan ? item?.slogan : 'This is a mock solgan till Vitalik fix it, lets dance now.'}
+                      </Title>
+                      {/* <Tags
                         items={[
                           item.product_pricing_types?.title || 'Free',
                           ...item.product_categories.map(c => c.name),
                         ]}
-                      />
+                      /> */}
                     </div>
                   </ToolCard>
                 </li>
               ))}
-            </ul>
-          ) : (
-            <div className="mb-20">
-              <LinkItem
-                href="/"
-                className="mt-6 py-2 inline-flex items-center gap-x-2 bg-orange-500 hover:bg-orange-400 active:bg-orange-600"
-              >
-                <IconArrowLongLeft />
-                Browse other tools
-              </LinkItem>
-            </div>
-          )}
+          </ul>
         </div>
       </div>
     </section>

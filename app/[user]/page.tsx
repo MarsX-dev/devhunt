@@ -33,7 +33,9 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
   const username = decodeURIComponent(user).slice(1)
   const browserService = createBrowserClient()
   const profileService = new ProfileService(browserService)
+
   const profile = await profileService.getByUsername(username)
+  const products = new ProductsService(browserService)
 
   if (profile) {
     const tools = await new ProductsService(browserService).getUserProductsById(
@@ -48,11 +50,12 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     const currentDate = new Date().toISOString().split('T')[0]
 
     const awardService = new AwardsService(browserService)
-    const trendingTools = await awardService.getWinnersOfTheDay(new Date(currentDate).toISOString(), 5)
+    const winnersOfTheDayTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10)
+    const trendingTools =
+      winnersOfTheDayTools && winnersOfTheDayTools.length > 0 ? winnersOfTheDayTools : await products.getRandomTools(10)
 
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
-        {JSON.stringify(trendingTools)}
         <UserProfileInfo profile={profile as Profile} />
         {tools && tools?.length > 0 ? (
           <div>
@@ -130,10 +133,31 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
         )}
         {trendingTools && trendingTools?.length > 0 ? (
           <div>
-            <h3 className="font-medium text-slate-50">Launches</h3>
+            <h3 className="font-medium text-slate-50">Trending tools</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
               {trendingTools.map((tool, idx) => (
-                <ToolCardList key={idx} tool={tool as ITool} />
+                <li key={idx} className="py-3">
+                  <ToolCard href={'/tool/' + tool.slug}>
+                    <Logo src={tool.logo_url || ''} alt={tool.name as string} />
+                    <div className="space-y-1">
+                      <Name>{tool.name}</Name>
+                      <Title className="line-clamp-1 sm:line-clamp-2">
+                        {tool?.slogan ? tool?.slogan : 'This is a mock solgan till Vitalik fix it, lets dance now.'}
+                      </Title>
+                      {/* <Tags
+                      items={[
+                        (tool.product_pricing_types as { title: string }).title || 'Free',
+                        ...(tool.product_category_product as { name: string }[]).map(
+                          (c: { name: string }) => c.name
+                        ),
+                      ]}
+                    /> */}
+                    </div>
+                    <div className="flex-1 self-center flex justify-end">
+                      <Votes count={tool.votes_count as number} />
+                    </div>
+                  </ToolCard>
+                </li>
               ))}
             </ul>
           </div>

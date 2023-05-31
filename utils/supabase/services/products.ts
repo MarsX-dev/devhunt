@@ -73,6 +73,11 @@ export default class ProductsService extends BaseDbService {
     return data || null
   }
 
+  async getRandomTools(limit: number): Promise<Product[] | null> {
+    const { data } = await this.supabase.from('products').select().limit(limit)
+    return data || null
+  }
+
   getById(id: number): Promise<ExtendedProduct | null> {
     return this._getOne('id', id)
   }
