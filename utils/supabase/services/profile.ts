@@ -28,7 +28,35 @@ export default class ProfileService extends BaseDbService {
   async getUserActivityById(userId: string): Promise<ProductComment[] | null> {
     const { data, error } = await this.supabase
       .from('comment')
-      .select('*, profiles(full_name, avatar_url), products(name, slug, slug, slogan, logo_url, votes_count)')
+      .select('*, profiles(full_name, avatar_url), products(name, slug, slogan, logo_url, votes_count)')
+      .eq('user_id', userId)
+
+    if (error !== null) throw new Error(error.message)
+
+    return data
+  }
+
+  async getUserVoteTools(userId: string): Promise<ProductComment[] | any> {
+    const { data, error } = await this.supabase
+      .from('product_votes')
+      .select(
+        `
+      product_id,
+      products (
+        name,
+        slug,
+        slogan,
+        votes_count,
+        logo_url,
+        product_pricing_types (title),
+        product_category_product (
+          product_categories (
+            name
+          )
+        )
+      )
+    `
+      )
       .eq('user_id', userId)
 
     if (error !== null) throw new Error(error.message)

@@ -41,9 +41,11 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     )
 
     const activity = await profileService.getUserActivityById(profile?.id as string)
+    const votedTools = await profileService.getUserVoteTools(profile?.id as string)
 
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
+        {/* {JSON.stringify(votedTools)} */}
         <UserProfileInfo profile={profile as Profile} />
         {tools && tools?.length > 0 ? (
           <div>
@@ -51,6 +53,37 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
             <ul className="mt-3 divide-y divide-slate-800/60">
               {tools.map((tool, idx) => (
                 <ToolCardList key={idx} tool={tool as ITool} />
+              ))}
+            </ul>
+          </div>
+        ) : (
+          ''
+        )}
+        {votedTools && votedTools?.length > 0 ? (
+          <div>
+            <h3 className="font-medium text-slate-50">{votedTools?.length} Upvotes</h3>
+            <ul className="mt-3 divide-y divide-slate-800/60">
+              {votedTools.map((tool: any, idx: number) => (
+                <li key={idx} className="py-3">
+                  <ToolCard href={'/tool/' + tool.products.slug}>
+                    <Logo src={tool.products.logo_url || ''} alt={tool.products.name} />
+                    <div className="space-y-1">
+                      <Name>{tool.products.name}</Name>
+                      <Title className="line-clamp-1 sm:line-clamp-2">{tool.products.slogan}</Title>
+                      <Tags
+                        items={[
+                          (tool.products.product_pricing_types as { title: string }).title || 'Free',
+                          ...(tool.products.product_category_product as { name: string }[]).map(
+                            (c: { name: string }) => c.name
+                          ),
+                        ]}
+                      />
+                    </div>
+                    <div className="flex-1 self-center flex justify-end">
+                      <Votes className="text-orange-500" count={tool.products.votes_count} />
+                    </div>
+                  </ToolCard>
+                </li>
               ))}
             </ul>
           </div>
@@ -71,7 +104,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
                     </Link>
                     <ToolCard className="mt-3 border border-slate-800" href={'/tool/' + item.products.slug}>
-                      <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-14 h-14" />
+                      <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
                       <div className="space-y-1">
                         <Name>{item.products.name}</Name>
                         <Title className="line-clamp-1 text-sm sm:line-clamp-2">{item.products.slogan}</Title>
