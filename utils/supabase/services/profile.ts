@@ -1,5 +1,6 @@
 import type { Profile, UpdateProfile } from '@/utils/supabase/types'
 import BaseDbService from './BaseDbService'
+import { ProductComment } from './comments'
 
 type FileBody =
   | ArrayBuffer
@@ -21,6 +22,17 @@ export default class ProfileService extends BaseDbService {
 
   async getByUsername(username: string): Promise<Profile | null> {
     const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single()
+    return data
+  }
+
+  async getUserActivityById(userId: string): Promise<ProductComment[] | null> {
+    const { data, error } = await this.supabase
+      .from('comment')
+      .select('*, profiles(full_name, avatar_url), products(name, slug, slug, slogan, logo_url, votes_count)')
+      .eq('user_id', userId)
+
+    if (error !== null) throw new Error(error.message)
+
     return data
   }
 

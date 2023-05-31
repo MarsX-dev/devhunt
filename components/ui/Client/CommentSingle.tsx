@@ -92,7 +92,7 @@ export default ({ comment, productId }: Props) => {
   }
 
   return (
-    <Comment className="items-start gap-x-2">
+    <Comment id={`${newComment.id}`} className="items-start gap-x-2">
       {/*TODO add First Letters Like avatars if there is no avatar */}
       <CommentUserAvatar src={newComment.profiles.avatar_url} />
       <div className="flex-1">

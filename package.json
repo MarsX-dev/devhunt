@@ -17,7 +17,7 @@
     "@supabase/supabase-js": "^2.22.0",
     "axios": "^1.4.0",
     "moment": "^2.29.4",
-    "next": "13.4.3",
+    "next": "13.4.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwind-merge": "^1.12.0"
