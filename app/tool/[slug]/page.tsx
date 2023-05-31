@@ -19,6 +19,7 @@ import { createServerClient } from '@/utils/supabase/server'
 import { createBrowserClient } from '@/utils/supabase/browser'
 import Link from 'next/link'
 import LinkItem from '@/components/ui/Link/LinkItem'
+import AwardsService from '@/utils/supabase/services/awards'
 
 export default async function Page({
   params: { slug },
@@ -33,6 +34,11 @@ export default async function Page({
   const productsService = new ProductsService(supabaseClient)
   const productsServiceBrowser = new ProductsService(supabaseBrowserClient)
   const product = await productsService.getBySlug(slug)
+
+  const awardService = new AwardsService(supabaseBrowserClient)
+  const toolAward = await awardService.getProductAwards(product?.id as number)
+  const dayAward = toolAward[2]
+  const weekAward = toolAward[0]
 
   const pc_names = product?.product_categories.map(item => item.name)
   const relatedProducts = await productsServiceBrowser.getRelatedProducts(
@@ -88,12 +94,12 @@ export default async function Page({
     },
     // TODO add calculation of rank in week and day
     {
-      count: '#3',
+      count: `#${dayAward.rank}`,
       icon: <IconChartBar />,
       label: 'Day rank',
     },
     {
-      count: '#14',
+      count: `#${weekAward.rank}`,
       icon: <IconChartBar />,
       label: 'Week rank',
     },

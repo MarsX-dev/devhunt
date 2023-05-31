@@ -1,4 +1,4 @@
-import type { Profile, UpdateProfile } from '@/utils/supabase/types'
+import type { Product, Profile, UpdateProfile } from '@/utils/supabase/types'
 import BaseDbService from './BaseDbService'
 import { ProductComment } from './comments'
 
@@ -13,6 +13,18 @@ type FileBody =
   | ReadableStream<Uint8Array>
   | URLSearchParams
   | string
+
+interface IProduct {
+  product_id: string
+  products: {
+    name: string
+    slogan: string
+    votes_count: string
+    logo_url: string
+    product_pricing_types: { title: string }
+    product_category_product: { name: string }[]
+  }
+}
 
 export default class ProfileService extends BaseDbService {
   async getById(id: string): Promise<Profile | null> {
@@ -36,7 +48,7 @@ export default class ProfileService extends BaseDbService {
     return data
   }
 
-  async getUserVoteTools(userId: string): Promise<ProductComment[] | any> {
+  async getUserVoteTools(userId: string): Promise<IProduct[] | any> {
     const { data, error } = await this.supabase
       .from('product_votes')
       .select(

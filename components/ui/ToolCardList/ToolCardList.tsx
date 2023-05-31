@@ -15,7 +15,7 @@ export interface ITool extends Product {
 
 export default ({ tool }: { tool: ITool }) => (
   <li className="py-3">
-    <ToolCard href={'/tool/' + tool.slug}>
+    <ToolCard href={`/tool/${tool.slug}`}>
       <Logo src={tool.logo_url || ''} alt={tool.name} />
       <div className="space-y-1">
         <Name>{tool.name}</Name>

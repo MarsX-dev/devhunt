@@ -22,6 +22,7 @@ import {
 import { createBrowserClient } from '@/utils/supabase/browser'
 import moment from 'moment'
 import Link from 'next/link'
+import AwardsService from '@/utils/supabase/services/awards'
 
 interface IComment extends CommentType {
   profiles: Profile
@@ -30,11 +31,12 @@ interface IComment extends CommentType {
 
 export default async ({ params: { user } }: { params: { user: string } }) => {
   const username = decodeURIComponent(user).slice(1)
-  const profileService = new ProfileService(createBrowserClient())
+  const browserService = createBrowserClient()
+  const profileService = new ProfileService(browserService)
   const profile = await profileService.getByUsername(username)
 
   if (profile) {
-    const tools = await new ProductsService(createBrowserClient()).getUserProductsById(
+    const tools = await new ProductsService(browserService).getUserProductsById(
       profile?.id as string,
       'votes_count',
       false
@@ -43,9 +45,14 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     const activity = await profileService.getUserActivityById(profile?.id as string)
     const votedTools = await profileService.getUserVoteTools(profile?.id as string)
 
+    const currentDate = new Date().toISOString().split('T')[0]
+
+    const awardService = new AwardsService(browserService)
+    const trendingTools = await awardService.getWinnersOfTheDay(new Date(currentDate).toISOString(), 5)
+
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
-        {/* {JSON.stringify(votedTools)} */}
+        {JSON.stringify(trendingTools)}
         <UserProfileInfo profile={profile as Profile} />
         {tools && tools?.length > 0 ? (
           <div>
@@ -117,6 +124,18 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                 </Comment>
               ))}
             </Comments>
+          </div>
+        ) : (
+          ''
+        )}
+        {trendingTools && trendingTools?.length > 0 ? (
+          <div>
+            <h3 className="font-medium text-slate-50">Launches</h3>
+            <ul className="mt-3 divide-y divide-slate-800/60">
+              {trendingTools.map((tool, idx) => (
+                <ToolCardList key={idx} tool={tool as ITool} />
+              ))}
+            </ul>
           </div>
         ) : (
           ''

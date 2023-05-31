@@ -78,6 +78,8 @@ export default ({ comment, productId }: Props) => {
       } else {
         setNewComment(handleLike(newComment.votes_count - 1))
       }
+    } else {
+      window.location.pathname = '/login'
     }
   }
 
