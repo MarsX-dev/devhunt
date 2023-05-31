@@ -50,9 +50,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     const currentDate = new Date().toISOString().split('T')[0]
 
     const awardService = new AwardsService(browserService)
-    const winnersOfTheDayTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10)
-    const trendingTools =
-      winnersOfTheDayTools && winnersOfTheDayTools.length > 0 ? winnersOfTheDayTools : await products.getRandomTools(10)
+    const trendingTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10)
 
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
@@ -142,16 +140,14 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                     <div className="space-y-1">
                       <Name>{tool.name}</Name>
                       <Title className="line-clamp-1 sm:line-clamp-2">
-                        {tool?.slogan ? tool?.slogan : 'This is a mock solgan till Vitalik fix it, lets dance now.'}
+                        {tool?.slogan}
                       </Title>
-                      {/* <Tags
-                      items={[
-                        (tool.product_pricing_types as { title: string }).title || 'Free',
-                        ...(tool.product_category_product as { name: string }[]).map(
-                          (c: { name: string }) => c.name
-                        ),
-                      ]}
-                    /> */}
+                      <Tags
+                        items={[
+                          tool.product_pricing,
+                          ...(tool.product_categories || [])
+                        ]}
+                      />
                     </div>
                     <div className="flex-1 self-center flex justify-end">
                       <Votes count={tool.votes_count as number} />

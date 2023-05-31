@@ -4,12 +4,15 @@ import { InsertProduct, Product, UpdateProduct } from '@/utils/supabase/types'
 import { omit } from '@/utils/helpers'
 
 export default class ProductsService extends BaseDbService {
+
+  private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name), profiles (full_name)'
+
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // there is error in types? foreignTable is required for order options, while it's not
     //@ts-ignore
     return this.supabase
       .from('products')
-      .select('*, product_pricing_types(*), product_categories(name), profiles (full_name)')
+      .select(this.EXTENDED_PRODUCT_SELECT)
       .eq('deleted', false)
       .order(sortBy, { ascending })
   }
@@ -29,7 +32,7 @@ export default class ProductsService extends BaseDbService {
   async getMostDiscussedProducts(limit = 10): Promise<ExtendedProduct[]> {
     const { data, error } = await this.supabase
       .from('products')
-      .select('*, product_categories(name)')
+      .select(this.EXTENDED_PRODUCT_SELECT)
       .eq('deleted', false)
       .order('comments_count', { ascending: false })
       .limit(limit)
@@ -44,7 +47,8 @@ export default class ProductsService extends BaseDbService {
     sortBy: string,
     ascending: boolean
   ): Promise<ExtendedProduct[]> {
-    const { data: products, error } = await this.getProducts(sortBy, ascending).neq('id', productId)
+    const { data: products, error } = await this.getProducts(sortBy, ascending)
+      .neq('id', productId)
 
     if (error) {
       console.error(error)
@@ -59,7 +63,8 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getUserProductsById(userId: string, sortBy: string, ascending: boolean) {
-    const { data } = await this.getProducts(sortBy, ascending).eq('owner_id', userId)
+    const { data } = await this.getProducts(sortBy, ascending)
+      .eq('owner_id', userId)
     return data || null
   }
 
@@ -73,8 +78,11 @@ export default class ProductsService extends BaseDbService {
     return data || null
   }
 
-  async getRandomTools(limit: number): Promise<Product[] | null> {
-    const { data } = await this.supabase.from('products').select().limit(limit)
+  async getRandomTools(limit: number): Promise<ExtendedProduct[] | null> {
+    const { data } = await this.supabase.from('products')
+      .select(this.EXTENDED_PRODUCT_SELECT)
+      .limit(limit)
+
     return data || null
   }
 

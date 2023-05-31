@@ -20,10 +20,11 @@ import { createBrowserClient } from '@/utils/supabase/browser'
 import Link from 'next/link'
 import LinkItem from '@/components/ui/Link/LinkItem'
 import AwardsService from '@/utils/supabase/services/awards'
+import { ExtendedProduct } from '@/utils/supabase/CustomTypes';
 
 export default async function Page({
-  params: { slug },
-}: {
+                                     params: { slug },
+                                   }: {
   params: {
     slug: string
   }
@@ -43,11 +44,7 @@ export default async function Page({
     return '<div> Not found </div>'
   }
 
-  const winnersOfTheDayTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10)
-  const trendingTools =
-    winnersOfTheDayTools && winnersOfTheDayTools.length > 0
-      ? winnersOfTheDayTools
-      : await productsService.getRandomTools(10)
+  const trendingTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10);
 
   const commentService = new CommentService(supabaseClient)
   const comments = (await commentService.getByProductId(product.id)) || []
@@ -74,23 +71,23 @@ export default async function Page({
   const stats = [
     {
       count: product.votes_count,
-      icon: <IconVote />,
+      icon: <IconVote/>,
       label: 'Upvotes',
     },
     {
       count: comments?.length || 0,
-      icon: <IconChatBubbleLeft />,
+      icon: <IconChatBubbleLeft/>,
       label: 'Comments',
     },
     // TODO add calculation of rank in week and day
     {
       count: `#${dayAward.rank}`,
-      icon: <IconChartBar />,
+      icon: <IconChartBar/>,
       label: 'Day rank',
     },
     {
       count: `#${weekAward.rank}`,
-      icon: <IconChartBar />,
+      icon: <IconChartBar/>,
       label: 'Week rank',
     },
   ]
@@ -102,15 +99,15 @@ export default async function Page({
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
-        <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
+        <ProductLogo src={product?.logo_url} alt={product?.slogan as string}/>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
           <LinkShiny href={product?.demo_url || ''} target="_balnk" className="flex items-center gap-x-2">
             Live preview
-            <IconArrowTopRight />
+            <IconArrowTopRight/>
           </LinkShiny>
-          <ButtonUpvote productId={product?.id} count={product?.votes_count} />
+          <ButtonUpvote productId={product?.id} count={product?.votes_count}/>
         </div>
       </div>
       <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
@@ -123,7 +120,8 @@ export default async function Page({
       <div className="space-y-20">
         <div>
           <div className="relative overflow-hidden pb-12">
-            <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
+            <div
+              className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
             <div className="relative container-custom-screen mt-12">
               <div className="prose text-slate-100">{product?.description}</div>
               <div className="mt-6 flex flex-wrap gap-3 items-center">
@@ -138,13 +136,13 @@ export default async function Page({
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
               <Gallery>
                 {getImagesOnly((product?.asset_urls as []) || []).map((item: string, idx: number) => (
-                  <GalleryImage key={idx} src={item} alt="" />
+                  <GalleryImage key={idx} src={item} alt=""/>
                 ))}
               </Gallery>
             </div>
           </div>
         </div>
-        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
+        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug}/>
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
@@ -175,18 +173,18 @@ export default async function Page({
               trendingTools.map((item, idx) => (
                 <li key={idx} className="py-3">
                   <ToolCard href={`/tool/${(item.name as string).toLowerCase()}`}>
-                    <Logo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
+                    <Logo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14"/>
                     <div className="space-y-1">
                       <ToolName>{item.name}</ToolName>
                       <Title className="line-clamp-1 sm:line-clamp-2">
-                        {item?.slogan ? item?.slogan : 'This is a mock solgan till Vitalik fix it, lets dance now.'}
+                        {item?.slogan}
                       </Title>
-                      {/* <Tags
+                      <Tags
                         items={[
-                          item.product_pricing_types?.title || 'Free',
-                          ...item.product_categories.map(c => c.name),
+                          item.product_pricing,
+                          ...(item.product_categories || [])
                         ]}
-                      /> */}
+                      />
                     </div>
                   </ToolCard>
                 </li>

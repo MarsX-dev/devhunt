@@ -253,11 +253,17 @@ export interface Database {
           day: string | null
           description: string | null
           launch_date: string | null
+          launch_description: string | null
+          launch_end: string | null
+          launch_start: string | null
           launch_votes_count: number | null
           logo_url: string | null
           name: string | null
+          product_categories: string[] | null
           product_id: number | null
+          product_pricing: string | null
           rank: number | null
+          slogan: string | null
           slug: string | null
           votes_count: number | null
         }
@@ -267,12 +273,18 @@ export interface Database {
           description: string | null
           end: string | null
           launch_date: string | null
+          launch_description: string | null
+          launch_end: string | null
+          launch_start: string | null
           launch_votes_count: number | null
           logo_url: string | null
           month: number | null
           name: string | null
+          product_categories: string[] | null
           product_id: number | null
+          product_pricing: string | null
           rank: number | null
+          slogan: string | null
           slug: string | null
           start: string | null
           votes_count: number | null
@@ -284,11 +296,17 @@ export interface Database {
           description: string | null
           end: string | null
           launch_date: string | null
+          launch_description: string | null
+          launch_end: string | null
+          launch_start: string | null
           launch_votes_count: number | null
           logo_url: string | null
           name: string | null
+          product_categories: string[] | null
           product_id: number | null
+          product_pricing: string | null
           rank: number | null
+          slogan: string | null
           slug: string | null
           start: string | null
           votes_count: number | null
