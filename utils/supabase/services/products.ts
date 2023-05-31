@@ -22,13 +22,20 @@ export default class ProductsService extends BaseDbService {
 
   async getTopProducts(sortBy: string, ascending: boolean): Promise<ExtendedProduct[]> {
     const { data: products, error } = await this.getProducts(sortBy, ascending)
-
-    if (error) {
-      console.error(error)
-      return []
-    }
-
+    if (error) throw new Error(error.message)
     return products as ExtendedProduct[]
+  }
+
+  async getMostDiscussedProducts (limit = 10): Promise<ExtendedProduct[]> {
+    const { data, error } = await this.supabase
+      .from('products')
+      .select('*, product_categories(name)')
+      .eq('deleted', false)
+      .order('comments_count', { ascending: false })
+      .limit(limit)
+
+    if (error !== null) throw new Error(error.message)
+    return data as ExtendedProduct[]
   }
 
   async getRelatedProducts(

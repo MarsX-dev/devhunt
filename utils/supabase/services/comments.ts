@@ -5,7 +5,7 @@ import { type ExtendedComment } from '@/utils/supabase/CustomTypes'
 export type ProductComment = Comment & { children?: ProductComment[] }
 
 export default class CommentService extends BaseDbService {
-  private _getChildren(rows: Comment[], parentId: number): ProductComment[] | undefined {
+  private _getChildren (rows: Comment[], parentId: number): ProductComment[] | undefined {
     return rows
       .filter(i => i.parent_id === parentId)
       .map(i => ({
@@ -14,14 +14,9 @@ export default class CommentService extends BaseDbService {
       }))
   }
 
-  async insert(comment: InsertComment): Promise<ProductComment | null> {
+  async insert (comment: InsertComment): Promise<ProductComment | null> {
     const { data, error } = await this.supabase.from('comment').insert(comment).select().single()
-
-    console.log(error)
-    if (error !== null) {
-      throw new Error(error.message)
-    }
-
+    if (error !== null) throw new Error(error.message)
     return data
   }
 
@@ -42,7 +37,7 @@ export default class CommentService extends BaseDbService {
     }
   }
 
-  async getByProductId(productId: number): Promise<ExtendedComment[] | null> {
+  async getByProductId (productId: number): Promise<ExtendedComment[] | null> {
     const { data, error } = await this.supabase
       .from('comment')
       .select('*, profiles (full_name, avatar_url)')
@@ -55,9 +50,9 @@ export default class CommentService extends BaseDbService {
     return data
       .filter(i => i.parent_id === null)
       .map(i => ({
-        ...i,
-        children: this._getChildren(data, i.id),
-      }))
+          ...i,
+          children: this._getChildren(data, i.id),
+        }))
   }
 
   async update(id: number, updates: UpdateComment): Promise<Comment> {
