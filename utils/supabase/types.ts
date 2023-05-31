@@ -295,6 +295,35 @@ export interface Database {
       }
     }
     Functions: {
+      get_similar_products: {
+        Args: {
+          _product_id: number
+        }
+        Returns: {
+          asset_urls: string[] | null
+          comments_count: number
+          created_at: string
+          deleted: boolean
+          deleted_at: string | null
+          demo_url: string | null
+          description: string | null
+          github_url: string | null
+          id: number
+          is_draft: boolean
+          launch_date: string
+          launch_end: string | null
+          launch_start: string | null
+          logo_url: string
+          name: string
+          owner_id: string | null
+          pricing_type: number
+          slogan: string | null
+          slug: string
+          updated_at: string
+          votes_count: number
+          votes_counter: number
+        }[]
+      }
       toggleCommentVote: {
         Args: {
           _comment_id: number
