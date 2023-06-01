@@ -5,7 +5,7 @@ import { omit } from '@/utils/helpers'
 
 export default class ProductsService extends BaseDbService {
 
-  private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name), profiles (full_name)'
+  private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)'
 
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // there is error in types? foreignTable is required for order options, while it's not
@@ -106,14 +106,42 @@ export default class ProductsService extends BaseDbService {
     return product?.votes_count || 0
   }
 
-  async update(id: number, updates: UpdateProduct): Promise<Product> {
+  async update(id: number, updates: UpdateProduct, productCategoryIds: number[] = []): Promise<Product> {
     const cleanUpdates = omit(updates, ['deleted_at', 'deleted'])
 
     const { data, error } = await this.supabase.from('products').update(cleanUpdates).eq('id', id).single()
 
     if (error != null) throw new Error(error.message)
 
+    if (productCategoryIds.length !== 0) {
+      await Promise.all(productCategoryIds.map(id => this.addProductToCategory((data as Product).id, id)))
+    }
+
     return data as Product
+  }
+
+  async addProductToCategory(productId: number, categoryId: number): Promise<boolean> {
+    const { data, error } = await this.supabase.from('product_category_product')
+      .insert({
+        product_id: productId,
+        category_id: categoryId
+      })
+
+    if (error != null) throw new Error(error.message)
+
+    return true
+  }
+
+  async dropProductFromCategory(productId: number, categoryId: number): Promise<boolean> {
+    const { error } = await this.supabase
+      .from('product_category_product')
+      .delete()
+      .eq('product_id', productId)
+      .eq('category_id', categoryId)
+
+    if (error !== null) throw new Error(error.message)
+
+    return true
   }
 
   async delete(id: number): Promise<void> {
