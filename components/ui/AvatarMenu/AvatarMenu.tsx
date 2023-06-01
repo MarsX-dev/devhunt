@@ -20,6 +20,7 @@ export default ({ onLogout, session }: Props) => {
 
   const navigation = [
     { title: 'Profile', path: isLoggin ? `/@${user.username}` : '' },
+    { title: 'Launch tool', path: '/account/tools/new' },
     { title: 'Details', path: '/account/details' },
   ]
 

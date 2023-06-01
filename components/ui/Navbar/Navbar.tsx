@@ -24,6 +24,8 @@ export default () => {
 
   const { supabase, session } = useSupabase()
 
+  const isLoggedin = session && session.user
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
     router.push('/')
@@ -36,6 +38,7 @@ export default () => {
     { title: 'Tools', path: '/' },
     { title: 'About', path: '/about' },
     { title: 'Learn how to post', path: '/learn-how-to-post' },
+    { title: 'Launch tool', path: '/account/tools/new' },
   ]
 
   const trend = [
@@ -59,7 +62,7 @@ export default () => {
 
   const handleSearch = (value: string) => {
     setSearchValue(value)
-    const getResults = mockproducts.filter(item => item.name.toLocaleLowerCase().includes(value.toLowerCase()))
+    const getResults = mockproducts.filter(item => item.name.toLowerCase().includes(value.toLowerCase()))
     setSearchResult(getResults)
   }
 
@@ -105,7 +108,7 @@ export default () => {
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
                 <li
                   className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${
-                    session && session.user ? 'hidden md:flex' : ''
+                    isLoggedin ? 'hidden md:flex' : ''
                   }`}
                 >
                   <Auth onLogout={handleLogout} />

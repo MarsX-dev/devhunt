@@ -22,7 +22,7 @@ export default ({ avatarUrl, avatarPreview, setSelectedImage = () => '', setAvat
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const file = e.target.files[0]
-    if (file) {
+    if (file && file.type.includes('image')) {
       setSelectedImage(file)
       setAvatarPreview(URL.createObjectURL(file))
     }

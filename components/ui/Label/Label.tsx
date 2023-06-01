@@ -4,6 +4,7 @@ import { HTMLAttributes, ReactNode } from 'react'
 interface Props extends HTMLAttributes<HTMLLabelElement> {
   children: ReactNode
   className?: string
+  htmlFor?: string
 }
 
 export default ({ children, className, ...props }: Props) => (
