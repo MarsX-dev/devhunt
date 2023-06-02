@@ -1,47 +1,56 @@
-import React, { ChangeEventHandler, MouseEventHandler, useState } from 'react'
-import { IconXmark } from '@/components/Icons'
+import React, { ChangeEventHandler, MouseEventHandler, useEffect, useState } from 'react';
+import { IconXmark } from '@/components/Icons';
+import { createBrowserClient } from '@/utils/supabase/browser';
+import CategoryService from '@/utils/supabase/services/categories';
+import { ProductCategory } from '@/utils/supabase/types';
 
 type Props = {
-  className?: string
-  categories?: string[]
-  setCategory?: (e: string[]) => void
-}
+  className?: string;
+  categories?: ProductCategory[];
+  setCategory?: (e: ProductCategory[]) => void;
+};
 
 export default ({ className, categories = [], setCategory = () => [] }: Props) => {
-  const [items] = useState(['Apple', 'Laravel', 'Front-End', 'Back-end'])
-  const [newItems, setNewItems] = useState<string[]>([])
+  const [categoryItems, setCategoryItem] = useState<ProductCategory[]>([]);
+  const browserService = createBrowserClient();
+  const categoryList = new CategoryService(browserService).getAll();
 
-  const [isActive, setIsActive] = useState(false)
-  const [value, setValue] = useState('')
+  const [newItems, setNewItems] = useState<ProductCategory[]>([]);
+
+  const [isActive, setIsActive] = useState(false);
+  const [value, setValue] = useState('');
+
+  useEffect(() => {
+    categoryList.then(items => {
+      setCategoryItem([...(items as ProductCategory[])]);
+    });
+  }, []);
 
   const handleBlur = () => {
-    setTimeout(() => setIsActive(false), 200)
-  }
+    setTimeout(() => setIsActive(false), 200);
+  };
 
   const handleKeydown = (e: { key: string }) => {
-    const tagsLen = categories.length
+    const tagsLen = categories.length;
     if (e.key === 'Backspace' && tagsLen > 0 && !value) {
-      setCategory(categories.slice(0, tagsLen - 1))
+      setCategory(categories.slice(0, tagsLen - 1));
     }
-  }
+  };
 
   const handleSearch: ChangeEventHandler = e => {
-    const inputValue = (e.target as HTMLInputElement).value
-    setValue(inputValue)
-    const getResults: string[] = items.filter(item => item.toLowerCase().includes(inputValue.toLowerCase()))
+    const inputValue = (e.target as HTMLInputElement).value;
+    setValue(inputValue);
+    const getResults: ProductCategory[] = categoryItems.filter(item => item.name?.toLowerCase().includes(inputValue.toLowerCase()));
 
-    setNewItems(getResults)
-  }
+    setNewItems(getResults);
+  };
 
   return (
     <div className={`relative ${className}`}>
       <ul className="flex flex-wrap items-center gap-2 w-full px-3 py-2 border border-slate-800 rounded-lg">
         {categories.map((item, idx) => (
-          <li
-            key={idx}
-            className="flex-none inline-flex items-center px-3 py-2 bg-slate-800 rounded-lg font-medium text-xs text-slate-300"
-          >
-            {item}
+          <li key={idx} className="flex-none inline-flex items-center px-3 py-2 bg-slate-800 rounded-lg font-medium text-xs text-slate-300">
+            {item.name}
             <button onClick={() => setCategory(categories.filter((_, i) => i !== idx))}>
               <IconXmark className="w-3 h-3 ml-2" />
             </button>
@@ -71,20 +80,20 @@ export default ({ className, categories = [], setCategory = () => [] }: Props) =
                     className="w-full text-left p-2 hover:bg-slate-700 active:bg-slate-600 rounded-lg duration-150"
                     onClick={() => setCategory([...categories, item])}
                   >
-                    {item}
+                    {item.name}
                   </button>
                 ))
               ) : (
                 <div className="text-sm text-slate-300 p-2">No categories found</div>
               )
             ) : (
-              items.map((item, idx) => (
+              categoryItems.map((item, idx) => (
                 <button
                   key={idx}
                   className="w-full text-left p-2 hover:bg-slate-700 active:bg-slate-600 rounded-lg duration-150"
                   onClick={() => setCategory([...categories, item])}
                 >
-                  {item}
+                  {item.name}
                 </button>
               ))
             )}
@@ -92,5 +101,5 @@ export default ({ className, categories = [], setCategory = () => [] }: Props) =
         </div>
       )}
     </div>
-  )
-}
+  );
+};

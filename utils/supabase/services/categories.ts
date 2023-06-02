@@ -1,39 +1,54 @@
-import BaseDbService from './BaseDbService'
-import type { InsertProductCategory, Product, ProductCategory } from '@/utils/supabase/types'
+import BaseDbService from './BaseDbService';
+import type {
+  InsertProductCategory,
+  InsertProductCategoryProduct,
+  Product,
+  ProductCategory,
+  ProductCategoryProduct,
+} from '@/utils/supabase/types';
 
 export default class CategoryService extends BaseDbService {
-  async getProducts (categoryId: number): Promise<Product[] | null> {
+  async getProducts(categoryId: number): Promise<Product[] | null> {
     const { data, error } = await this.supabase
       .from('product_category_product')
       .select('products(*)')
       .eq('category_id', categoryId)
-      .order('launch_date', { foreignTable: 'products', ascending: false })
+      .order('launch_date', { foreignTable: 'products', ascending: false });
 
     if (error !== null) {
-      throw new Error(error.message)
+      throw new Error(error.message);
     }
 
-    return data.map(i => i.products)
+    return data.map(i => i.products);
   }
 
-  async insert (category: InsertProductCategory): Promise<ProductCategory | null> {
-    const { data, error } = await this.supabase.from('product_categories')
-      .insert(category)
-      .select()
-      .single()
+  async insert(category: InsertProductCategory): Promise<ProductCategory | null> {
+    const { data, error } = await this.supabase.from('product_categories').insert(category).select().single();
 
-    if (error !== null) throw new Error(error.message)
+    if (error !== null) throw new Error(error.message);
 
-    return data
+    return data;
   }
 
-  async search (searchTerm: string): Promise<ProductCategory[] | null> {
-    const { data, error } = await this.supabase.from('product_categories')
-      .select()
-      .ilike('name', `%${searchTerm}%`)
-      .limit(5)
+  async insertProduct(category: InsertProductCategoryProduct): Promise<ProductCategoryProduct | null> {
+    const { data, error } = await this.supabase.from('product_category_product').insert(category).select().single();
 
-    if (error !== null) throw new Error(error.message)
-    return data
+    if (error !== null) throw new Error(error.message);
+
+    return data as ProductCategoryProduct;
+  }
+
+  async search(searchTerm: string): Promise<ProductCategory[] | null> {
+    const { data, error } = await this.supabase.from('product_categories').select().ilike('name', `%${searchTerm}%`).limit(5);
+
+    if (error !== null) throw new Error(error.message);
+    return data;
+  }
+
+  async getAll(): Promise<ProductCategory[] | null> {
+    const { data, error } = await this.supabase.from('product_categories').select();
+
+    if (error !== null) throw new Error(error.message);
+    return data;
   }
 }

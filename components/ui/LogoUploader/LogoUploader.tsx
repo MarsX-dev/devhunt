@@ -1,13 +1,16 @@
 import { ChangeEvent, useRef } from 'react';
 import Button from '../Button/Button';
+import { IconLoading } from '@/components/Icons';
 
 export default ({
   src,
   required = false,
+  isLoad = false,
   onChange,
 }: {
   src?: string;
   required?: boolean;
+  isLoad?: boolean;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -15,8 +18,12 @@ export default ({
   return (
     <div>
       <div className="flex gap-3 items-center flex-wrap sm:gap-6">
-        <label htmlFor="logo-upload" className="flex-none cursor-pointer w-24 h-24 rounded-full border border-slate-700 border-dashed">
+        <label
+          htmlFor="logo-upload"
+          className="relative flex-none cursor-pointer w-24 h-24 rounded-full border border-slate-700 border-dashed"
+        >
           {src ? <img src={src} className="w-full h-full rounded-full" /> : ''}
+          {isLoad ? <IconLoading className="absolute inset-0 m-auto text-orange-500" /> : ''}
         </label>
         <div>
           <p className="text-slate-300">Tool logo</p>

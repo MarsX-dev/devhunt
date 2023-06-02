@@ -1,5 +1,6 @@
 'use client';
 
+import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
 import CategoryInput from '@/components/ui/CategoryInput';
 import { FormLaunchSection, FormLaunchWrapper } from '@/components/ui/FormLaunch';
@@ -11,7 +12,11 @@ import LogoUploader from '@/components/ui/LogoUploader/LogoUploader';
 import Radio from '@/components/ui/Radio';
 import Textarea from '@/components/ui/Textarea';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import fileUploader from '@/utils/supabase/fileUploader';
+import CategoryService from '@/utils/supabase/services/categories';
 import ProductPricingTypesService from '@/utils/supabase/services/pricing-types';
+import ProductsService from '@/utils/supabase/services/products';
+import { ProductCategory, ProductPricingType } from '@/utils/supabase/types';
 import { File } from 'buffer';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -20,8 +25,8 @@ type Inputs = {
   tool_name: string;
   tool_website: string;
   tool_description: string;
-  solgan: string;
-  pricing_type: string;
+  slogan: string;
+  pricing_type: number;
   github_repo: string;
   demo_video: string;
 };
@@ -29,6 +34,11 @@ type Inputs = {
 export default () => {
   const browserService = createBrowserClient();
   const pricingTypesList = new ProductPricingTypesService(browserService).getAll();
+  const productService = new ProductsService(browserService);
+  const productCategoryService = new CategoryService(browserService);
+
+  const { session } = useSupabase();
+  const user = session && session.user;
 
   const {
     register,
@@ -37,8 +47,8 @@ export default () => {
     formState: { errors },
   } = useForm();
 
-  const [categories, setCategory] = useState(['AWS ES2', 'Docker', 'Github']);
-  const [pricingType, setPricingType] = useState<string[]>([]);
+  const [categories, setCategory] = useState<ProductCategory[]>([]);
+  const [pricingType, setPricingType] = useState<ProductPricingType[]>([]);
 
   const [imageFiles, setImageFile] = useState<File[]>([]);
   const [imagePreviews, setImagePreview] = useState<string[]>([]);
@@ -48,13 +58,12 @@ export default () => {
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [logoError, setLogoError] = useState<string>('');
 
+  const [isLogoLoad, setLogoLoad] = useState<boolean>(false);
+  const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
+
   useEffect(() => {
-    const types: string[] = [];
-    pricingTypesList.then(items => {
-      items?.forEach(item => {
-        types.push(item.title as string);
-      });
-      setPricingType(types);
+    pricingTypesList.then(types => {
+      setPricingType([...(types as ProductPricingType[])]);
     });
   }, []);
 
@@ -63,7 +72,13 @@ export default () => {
     const file = e.target.files[0];
     if (file && file.type.includes('image') && imagePreviews.length < 5) {
       setImageFile([...(imageFiles as any), file]);
-      setImagePreview([...imagePreviews, URL.createObjectURL(file)]);
+      setImagesLoad(true);
+      fileUploader({ files: file as Blob, options: 'w=512' }).then(data => {
+        if (data?.file) {
+          setImagePreview([...imagePreviews, data.file as string]);
+          setImagesLoad(false);
+        }
+      });
     }
   };
 
@@ -72,7 +87,11 @@ export default () => {
     const file = e.target.files[0];
     if (file && file.type.includes('image')) {
       setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
+      setLogoLoad(true);
+      fileUploader({ files: file as Blob, options: 'w=220' }).then(data => {
+        setLogoPreview(data?.file as string);
+        setLogoLoad(false);
+      });
     }
   };
 
@@ -90,20 +109,54 @@ export default () => {
   };
 
   const onSubmit: SubmitHandler<Inputs> = data => {
-    console.log(data);
     if (validateImages()) {
+      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
+      productService
+        .insert({
+          asset_urls: imagePreviews,
+          name: tool_name,
+          demo_url: tool_website,
+          github_url: github_repo,
+          pricing_type,
+          slogan,
+          description: tool_description,
+          logo_url: logoPreview,
+          owner_id: user?.id,
+          slug: tool_name.toLowerCase().replaceAll(' ', '-'),
+          is_draft: false,
+          comments_count: 0,
+          votes_counter: 0,
+          // demo_video: demo_video,
+          launch_date: new Date().toISOString(),
+        })
+        .then(res => {
+          categories.forEach(item => {
+            productCategoryService.insertProduct({
+              category_id: item.id,
+              product_id: res?.id as number,
+            });
+          });
+          console.log(res);
+        });
     }
   };
-  console.log(imagesError, logoError);
+
+  const uploadLogo = () => {
+    // fileUploader({ files: imageFiles as File[], options: 'w=220' }).then(res => {
+    //   console.log(res);
+    // });
+    console.log(imagePreviews);
+  };
 
   return (
     <section className="container-custom-screen">
       <h1 className="text-xl text-slate-50 font-semibold">Launch a tool</h1>
       <div className="mt-14">
+        <Button onClick={uploadLogo}>Upload</Button>
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection number={1} title="Tell us about your tool" description="This basic information is important for the users.">
             <div>
-              <LogoUploader required src={logoPreview} onChange={handleUploadLogo} />
+              <LogoUploader isLoad={isLogoLoad} required src={logoPreview} onChange={handleUploadLogo} />
               <LabelError className="mt-2">{logoError}</LabelError>
             </div>
             <div>
@@ -120,9 +173,9 @@ export default () => {
               <Input
                 placeholder="Find the best new DevTools in tech"
                 className="w-full mt-2"
-                validate={{ ...register('solgan', { required: true, minLength: 20 }) }}
+                validate={{ ...register('slogan', { required: true, minLength: 20 }) }}
               />
-              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool solgan'}</LabelError>
+              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool slogan'}</LabelError>
             </div>
             <div>
               <Label>Tool website URL</Label>
@@ -168,14 +221,9 @@ export default () => {
                   rules={{ required: true }}
                   render={({ field }) => (
                     <div className="mt-2 flex items-center gap-x-2">
-                      <Radio
-                        value="free"
-                        onChange={e => field.onChange((e.target as HTMLInputElement).value)}
-                        id={item}
-                        name="pricing-type"
-                      />
-                      <Label htmlFor={item} className="font-normal">
-                        {item}
+                      <Radio value="free" onChange={e => field.onChange(item.id)} id={item.title as string} name="pricing-type" />
+                      <Label htmlFor={item.title as string} className="font-normal">
+                        {item.title}
                       </Label>
                     </div>
                   )}
@@ -202,7 +250,7 @@ export default () => {
             <div>
               <Label>Tool screenshots</Label>
               <p className="text-sm text-slate-400">The first image will be used as the social preview. upload at least 3-5 images.</p>
-              <ImagesUploader className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
+              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
                   <ImageUploaderItem src={src} key={idx} onRemove={() => handleRemoveImage(idx)} />
                 ))}
