@@ -1,16 +1,21 @@
-import { ChangeEvent, useRef } from 'react'
-import Button from '../Button/Button'
+import { ChangeEvent, useRef } from 'react';
+import Button from '../Button/Button';
 
-export default ({ src, onChange }: { src?: string; onChange?: (e: ChangeEvent<HTMLInputElement>) => void }) => {
-  const inputRef = useRef<HTMLInputElement>(null)
+export default ({
+  src,
+  required = false,
+  onChange,
+}: {
+  src?: string;
+  required?: boolean;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div>
       <div className="flex gap-3 items-center flex-wrap sm:gap-6">
-        <label
-          htmlFor="logo-upload"
-          className="flex-none cursor-pointer w-24 h-24 rounded-full border border-slate-700 border-dashed"
-        >
+        <label htmlFor="logo-upload" className="flex-none cursor-pointer w-24 h-24 rounded-full border border-slate-700 border-dashed">
           {src ? <img src={src} className="w-full h-full rounded-full" /> : ''}
         </label>
         <div>
@@ -27,7 +32,16 @@ export default ({ src, onChange }: { src?: string; onChange?: (e: ChangeEvent<HT
           </Button>
         </div>
       </div>
-      <input ref={inputRef} id="logo-upload" type="file" className="sr-only " accept="image/*" onChange={onChange} />
+      <input
+        required={required}
+        ref={inputRef}
+        id="logo-upload"
+        name="logo-upload"
+        type="file"
+        className="sr-only "
+        accept="image/*"
+        onChange={onChange}
+      />
     </div>
-  )
-}
+  );
+};

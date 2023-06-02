@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { IconPlus } from '@/components/Icons'
-import mergeTW from '@/utils/mergeTW'
-import { ChangeEvent, ReactNode, useRef } from 'react'
+import { IconPlus } from '@/components/Icons';
+import mergeTW from '@/utils/mergeTW';
+import { ChangeEvent, ReactNode, useRef } from 'react';
 
 export const ImagesUploader = ({
   children,
@@ -10,14 +10,16 @@ export const ImagesUploader = ({
   onChange,
   max = 3,
   files = [],
+  required = false,
 }: {
-  children: ReactNode
-  className?: string
-  max?: number
-  files: File[] | []
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
+  children: ReactNode;
+  className?: string;
+  max?: number;
+  files: File[] | [];
+  required?: boolean;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className={mergeTW(`flex flex-wrap gap-3 ${className}`)}>
@@ -37,13 +39,14 @@ export const ImagesUploader = ({
       )}
       <input
         ref={inputRef}
+        required={required}
         id="image-upload"
         name="file-upload"
         type="file"
-        className="sr-only "
+        className="sr-only"
         accept="image/*"
         onChange={onChange}
       />
     </div>
-  )
-}
+  );
+};

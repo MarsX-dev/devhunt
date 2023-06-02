@@ -1,45 +1,45 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Brand from '../Brand'
-import Link from 'next/link'
-import ButtonMenu from './ButtonMenu'
-import { IconSearch } from '@/components/Icons'
-import Auth from '../Auth'
-import { useRouter } from 'next/navigation'
-import CommandPalette from '../CommandPalette/CommandPalette'
-import BlurBackground from '../BlurBackground/BlurBackground'
-import { IProductResult } from '@/type'
-import mockproducts from '@/mockproducts'
-import AvatarMenu from '../AvatarMenu'
-import { useSupabase } from '@/components/supabase/provider'
+import { useState } from 'react';
+import Brand from '../Brand';
+import Link from 'next/link';
+import ButtonMenu from './ButtonMenu';
+import { IconSearch } from '@/components/Icons';
+import Auth from '../Auth';
+import { useRouter } from 'next/navigation';
+import CommandPalette from '../CommandPalette/CommandPalette';
+import BlurBackground from '../BlurBackground/BlurBackground';
+import { IProductResult } from '@/type';
+import mockproducts from '@/mockproducts';
+import AvatarMenu from '../AvatarMenu';
+import { useSupabase } from '@/components/supabase/provider';
 
 export default () => {
-  const [isActive, setActive] = useState(false)
-  const [isCommandActive, setCommandActive] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
-  const [searchResult, setSearchResult] = useState<IProductResult[]>([])
+  const [isActive, setActive] = useState(false);
+  const [isCommandActive, setCommandActive] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchResult, setSearchResult] = useState<IProductResult[]>([]);
 
-  const router = useRouter()
+  const router = useRouter();
 
-  const { supabase, session } = useSupabase()
+  const { supabase, session } = useSupabase();
 
-  const isLoggedin = session && session.user
+  const isLoggedin = session && session.user;
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut()
-    router.push('/')
+    const { error } = await supabase.auth.signOut();
+    router.push('/');
     if (error != null) {
-      console.log({ error })
+      console.log({ error });
     }
-  }
+  };
 
   const navigation = [
     { title: 'Tools', path: '/' },
     { title: 'About', path: '/about' },
     { title: 'Learn how to post', path: '/learn-how-to-post' },
-    { title: 'Launch tool', path: '/account/tools/new' },
-  ]
+    { title: 'Launch tool', path: isLoggedin ? '/account/tools/new' : '/login' },
+  ];
 
   const trend = [
     {
@@ -58,13 +58,13 @@ export default () => {
       name: 'Lost Pixel',
       href: '/',
     },
-  ]
+  ];
 
   const handleSearch = (value: string) => {
-    setSearchValue(value)
-    const getResults = mockproducts.filter(item => item.name.toLowerCase().includes(value.toLowerCase()))
-    setSearchResult(getResults)
-  }
+    setSearchValue(value);
+    const getResults = mockproducts.filter(item => item.name.toLowerCase().includes(value.toLowerCase()));
+    setSearchResult(getResults);
+  };
 
   return (
     <>
@@ -84,11 +84,7 @@ export default () => {
               </div>
             </div>
           </div>
-          <div
-            className={`flex-1 md:static  ${
-              isActive ? 'w-full fixed top-20 inset-x-0 px-4 md:px-0' : 'hidden md:block'
-            }`}
-          >
+          <div className={`flex-1 md:static  ${isActive ? 'w-full fixed top-20 inset-x-0 px-4 md:px-0' : 'hidden md:block'}`}>
             <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg md:block md:mt-0 md:p-0 md:bg-transparent">
               <ul className="justify-end items-center space-y-6 text-slate-400 md:flex md:space-x-6 md:space-y-0">
                 {navigation.map((item, idx) => {
@@ -98,7 +94,7 @@ export default () => {
                         {item.title}
                       </Link>
                     </li>
-                  )
+                  );
                 })}
                 <li className="hidden md:block">
                   <button onClick={() => setCommandActive(true)} className="hover:text-slate-200">
@@ -106,11 +102,7 @@ export default () => {
                   </button>
                 </li>
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
-                <li
-                  className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${
-                    isLoggedin ? 'hidden md:flex' : ''
-                  }`}
-                >
+                <li className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${isLoggedin ? 'hidden md:flex' : ''}`}>
                   <Auth onLogout={handleLogout} />
                 </li>
               </ul>
@@ -122,8 +114,8 @@ export default () => {
         isCommandActive={isCommandActive}
         trend={trend}
         setCommandActive={() => {
-          setCommandActive(false)
-          setSearchValue('')
+          setCommandActive(false);
+          setSearchValue('');
         }}
         searchValue={searchValue}
         setSearch={handleSearch}
@@ -131,5 +123,5 @@ export default () => {
       />
       <BlurBackground className="md:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
     </>
-  )
-}
+  );
+};
