@@ -134,6 +134,7 @@ export interface Database {
           deleted: boolean;
           deleted_at: string | null;
           demo_url: string | null;
+          demo_video_url: string | null;
           description: string | null;
           github_url: string | null;
           id: number;
@@ -159,6 +160,7 @@ export interface Database {
           deleted?: boolean;
           deleted_at?: string | null;
           demo_url?: string | null;
+          demo_video_url?: string | null;
           description?: string | null;
           github_url?: string | null;
           id?: number;
@@ -184,6 +186,7 @@ export interface Database {
           deleted?: boolean;
           deleted_at?: string | null;
           demo_url?: string | null;
+          demo_video_url?: string | null;
           description?: string | null;
           github_url?: string | null;
           id?: number;
@@ -338,6 +341,7 @@ export interface Database {
           deleted: boolean;
           deleted_at: string | null;
           demo_url: string | null;
+          demo_video_url: string | null;
           description: string | null;
           github_url: string | null;
           id: number;
