@@ -9,16 +9,21 @@ import Auth from '../Auth';
 import { useRouter } from 'next/navigation';
 import CommandPalette from '../CommandPalette/CommandPalette';
 import BlurBackground from '../BlurBackground/BlurBackground';
-import { IProductResult } from '@/type';
 import mockproducts from '@/mockproducts';
 import AvatarMenu from '../AvatarMenu';
 import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@/utils/supabase/browser';
+import ProductsService from '@/utils/supabase/services/products';
+import { Product } from '@/utils/supabase/types';
 
 export default () => {
   const [isActive, setActive] = useState(false);
   const [isCommandActive, setCommandActive] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [searchResult, setSearchResult] = useState<IProductResult[]>([]);
+  const [searchResult, setSearchResult] = useState<Product[]>([]);
+
+  const browserService = createBrowserClient();
+  const toolsService = new ProductsService(browserService);
 
   const router = useRouter();
 
@@ -62,8 +67,11 @@ export default () => {
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
-    const getResults = mockproducts.filter(item => item.name.toLowerCase().includes(value.toLowerCase()));
-    setSearchResult(getResults);
+    setTimeout(() => {
+      toolsService.search(value).then(data => {
+        setSearchResult(data as Product[]);
+      });
+    }, 50);
   };
 
   return (

@@ -112,6 +112,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           <div className="relative overflow-hidden pb-12">
             <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
             <div className="relative container-custom-screen mt-12">
+              {/* This is not a secure way to insert HTMl code, it may cause XSS attacks */}
               <div className="prose text-slate-100" dangerouslySetInnerHTML={{ __html: product?.description as string }}></div>
               <div className="mt-6 flex flex-wrap gap-3 items-center">
                 <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>

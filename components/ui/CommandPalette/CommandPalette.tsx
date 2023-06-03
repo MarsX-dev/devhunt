@@ -1,23 +1,23 @@
-import { IconSearch } from '@/components/Icons'
-import BlurBackground from '../BlurBackground/BlurBackground'
-import { IProductResult } from '@/type'
-import SearchItem from './SearchItem'
-import EmptyState from './EmptyState'
-import { useEffect } from 'react'
+import { IconSearch } from '@/components/Icons';
+import BlurBackground from '../BlurBackground/BlurBackground';
+import SearchItem from './SearchItem';
+import EmptyState from './EmptyState';
+import { useEffect } from 'react';
+import { Product } from '@/utils/supabase/types';
 
 type ITrend = {
-  name: string
-  href: string
-}
+  name: string;
+  href: string;
+};
 
 type Props = {
-  isCommandActive: boolean
-  searchResult?: IProductResult[]
-  trend?: ITrend[]
-  searchValue?: string
-  setCommandActive?: (val: boolean) => void
-  setSearch?: (val: string) => void
-}
+  isCommandActive: boolean;
+  searchResult?: Product[];
+  trend?: ITrend[];
+  searchValue?: string;
+  setCommandActive?: (val: boolean) => void;
+  setSearch?: (val: string) => void;
+};
 
 export default ({
   isCommandActive,
@@ -28,8 +28,13 @@ export default ({
   trend = [],
 }: Props) => {
   useEffect(() => {
-    isCommandActive ? document.body.classList.add('overflow-hidden') : document.body.classList.remove('overflow-hidden')
-  }, [isCommandActive])
+    isCommandActive ? document.body.classList.add('overflow-hidden') : document.body.classList.remove('overflow-hidden');
+  }, [isCommandActive]);
+
+  const handleClick = () => {
+    setCommandActive(false);
+  };
+
   return isCommandActive ? (
     <div className="fixed z-30 w-full h-full inset-0 rounded-xl flex items-center justify-center px-4">
       <BlurBackground isActive={true} setActive={setCommandActive} />
@@ -49,7 +54,7 @@ export default ({
             searchResult.length > 0 ? (
               searchResult.map((item, idx) => (
                 <li key={idx}>
-                  <SearchItem item={item} />
+                  <SearchItem onClick={handleClick} item={item} />
                 </li>
               ))
             ) : (
@@ -77,5 +82,5 @@ export default ({
     </div>
   ) : (
     <></>
-  )
-}
+  );
+};
