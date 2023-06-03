@@ -16,7 +16,33 @@ import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
+import { Metadata, ResolvingMetadata } from 'next';
+
 // import dompurify from 'dompurify';
+
+// set dynamic metadata
+export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
+  const supabaseClient = createServerClient();
+  const productsService = new ProductsService(supabaseClient);
+  const tool = await productsService.getBySlug(slug);
+
+  return {
+    title: `${tool?.name} - ${tool?.slogan}`,
+    description: tool?.slogan,
+    openGraph: {
+      type: 'article',
+      title: `${tool?.name} - ${tool?.slogan}`,
+      description: tool?.slogan as string,
+      images: tool?.asset_urls as [],
+    },
+    twitter: {
+      title: `${tool?.name} - ${tool?.slogan}`,
+      description: tool?.slogan as string,
+      card: 'summary_large_image',
+      images: tool?.asset_urls as [],
+    },
+  };
+}
 
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
   const supabaseClient = createServerClient();
@@ -34,7 +60,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     return <div>Not found</div>;
   }
 
-  const trendingTools = await awardService.getWinnersOfTheDay(new Date('2023-05-30').toISOString(), 10);
+  const trendingTools = await awardService.getWinnersOfTheDay(new Date().toISOString(), 10);
 
   const commentService = new CommentService(supabaseClient);
   const comments = (await commentService.getByProductId(product.id)) ?? [];
