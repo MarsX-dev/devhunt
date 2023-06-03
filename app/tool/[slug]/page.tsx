@@ -16,7 +16,7 @@ import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
-import extractVideoId from '@/utils/extractVideoId';
+// import dompurify from 'dompurify';
 
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
   const supabaseClient = createServerClient();
@@ -112,7 +112,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           <div className="relative overflow-hidden pb-12">
             <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
             <div className="relative container-custom-screen mt-12">
-              <div className="prose text-slate-100">{product?.description}</div>
+              {/* This is not a secure way to insert HTMl code, it may cause XSS attacks */}
+              <div className="prose text-slate-100" dangerouslySetInnerHTML={{ __html: product?.description as string }}></div>
               <div className="mt-6 flex flex-wrap gap-3 items-center">
                 <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                 <TagsGroup>

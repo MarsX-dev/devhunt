@@ -121,24 +121,26 @@ export default () => {
     const categoryIds = categories.map(item => item.id);
 
     await productService
-      .insert({
-        asset_urls: imagePreviews,
-        name: tool_name,
-        demo_url: tool_website,
-        github_url: github_repo,
-        pricing_type,
-        slogan,
-        description: tool_description,
-        logo_url: logoPreview,
-        owner_id: user?.id,
-        slug: createSlug(tool_name),
-        is_draft: false,
-        comments_count: 0,
-        votes_counter: 0,
-        demo_video_url: demo_video,
-        launch_date: new Date().toISOString(),
-      },
-      categoryIds)
+      .insert(
+        {
+          asset_urls: imagePreviews,
+          name: tool_name,
+          demo_url: tool_website,
+          github_url: github_repo,
+          pricing_type,
+          slogan,
+          description: tool_description,
+          logo_url: logoPreview,
+          owner_id: user?.id,
+          slug: createSlug(tool_name),
+          is_draft: false,
+          comments_count: 0,
+          votes_counter: 0,
+          demo_video_url: demo_video,
+          launch_date: new Date().toISOString(),
+        },
+        categoryIds,
+      )
       .then(res => {
         window.open(`/tool/${res?.slug}`);
         router.push('/account/tools');
@@ -195,7 +197,7 @@ export default () => {
               />
             </div>
             <div>
-              <Label>Description of the tool (up to 350 symbols)</Label>
+              <Label>Description of the tool (up to 300 symbols)</Label>
               <Textarea
                 placeholder="Write a description: 220 characters, HTML is supported."
                 className="w-full h-36 mt-2"
@@ -248,7 +250,13 @@ export default () => {
               <p className="text-sm text-slate-400">The first image will be used as the social preview. upload at least 3-5 images.</p>
               <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
-                  <ImageUploaderItem src={src} key={idx} onRemove={() => { handleRemoveImage(idx); }} />
+                  <ImageUploaderItem
+                    src={src}
+                    key={idx}
+                    onRemove={() => {
+                      handleRemoveImage(idx);
+                    }}
+                  />
                 ))}
               </ImagesUploader>
               <LabelError className="mt-2">{imagesError}</LabelError>
