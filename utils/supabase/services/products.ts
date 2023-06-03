@@ -94,23 +94,54 @@ export default class ProductsService extends BaseDbService {
     return product?.votes_count || 0;
   }
 
-  // The problem now is caused of this code.
+  async insert(product: InsertProduct, productCategoryIds: number[]): Promise<Product | null> {
+    const { data, error } = await this.supabase.from('products').insert(product).select().single();
+    if (error !== null) throw new Error(error.message);
+
+    if (productCategoryIds.length !== 0) {
+      await Promise.all(productCategoryIds.map(async categoryId => await this._addProductToCategory((data as Product).id, categoryId)));
+    }
+
+    return data;
+  }
+
   async update(id: number, updates: UpdateProduct, productCategoryIds: number[] = []): Promise<Product> {
     const cleanUpdates = omit(updates, ['deleted_at', 'deleted']);
 
-    const { data, error } = await this.supabase.from('products').update(cleanUpdates).eq('id', id).single();
+    const { data, error } = await this.supabase.from('products')
+      .update(cleanUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    await this.supabase.from('product_category_product')
+      .delete()
+      .eq('product_id', id);
+
+    await Promise.all(productCategoryIds.map(async categoryId => await this._addProductToCategory(id, categoryId)));
 
     if (error != null) throw new Error(error.message);
-
-    if (productCategoryIds.length !== 0) {
-      productCategoryIds.forEach(item => console.log(item));
-      await Promise.all(productCategoryIds.map(async categoryId => await this.addProductToCategory((data as Product).id, categoryId)));
-    }
 
     return data as Product;
   }
 
-  async addProductToCategory(productId: number, categoryId: number): Promise<boolean> {
+  async delete(id: number): Promise<void> {
+    const { error } = await this.supabase.from('products').update({
+      deleted: true,
+      deleted_at: new Date().toISOString()
+    }).eq('id', id);
+
+    if (error !== null) throw new Error(error.message);
+  }
+
+  async search(searchTerm: string): Promise<Product[] | null> {
+    const { data, error } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).limit(5);
+
+    if (error !== null) throw new Error(error.message);
+    return data;
+  }
+
+  private async _addProductToCategory(productId: number, categoryId: number): Promise<boolean> {
     const { data, error } = await this.supabase.from('product_category_product').insert({
       product_id: productId,
       category_id: categoryId,
@@ -121,39 +152,11 @@ export default class ProductsService extends BaseDbService {
     return true;
   }
 
-  async dropProductFromCategory(productId: number, categoryId: number): Promise<boolean> {
-    const { error } = await this.supabase
-      .from('product_category_product')
-      .delete()
-      .eq('product_id', productId)
-      .eq('category_id', categoryId);
-
-    if (error !== null) throw new Error(error.message);
-
-    return true;
-  }
-
-  async delete(id: number): Promise<void> {
-    const { error } = await this.supabase.from('products').update({ deleted: true, deleted_at: new Date().toISOString() }).eq('id', id);
-
-    if (error !== null) throw new Error(error.message);
-  }
-
-  async insert(product: InsertProduct): Promise<Product | null> {
-    const { data, error } = await this.supabase.from('products').insert(product).select().single();
-    if (error !== null) throw new Error(error.message);
-    return data;
-  }
-
-  async search(searchTerm: string): Promise<Product[] | null> {
-    const { data, error } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).limit(5);
-
-    if (error !== null) throw new Error(error.message);
-    return data;
-  }
-
   private async _getOne(column: string, value: unknown, select = '*, product_pricing_types(*), product_categories(name, id)') {
-    const { data: products, error } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).limit(1);
+    const {
+      data: products,
+      error
+    } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).limit(1);
 
     if (error !== null) {
       throw new Error(error.message);

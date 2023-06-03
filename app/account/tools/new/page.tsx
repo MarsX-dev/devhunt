@@ -17,13 +17,13 @@ import fileUploader from '@/utils/supabase/fileUploader';
 import CategoryService from '@/utils/supabase/services/categories';
 import ProductPricingTypesService from '@/utils/supabase/services/pricing-types';
 import ProductsService from '@/utils/supabase/services/products';
-import { ProductCategory, ProductPricingType } from '@/utils/supabase/types';
-import { File } from 'buffer';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { type ProductCategory, type ProductPricingType } from '@/utils/supabase/types';
+import { type File } from 'buffer';
+import { type ChangeEvent, useEffect, useState } from 'react';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 
-type Inputs = {
+interface Inputs {
   tool_name: string;
   tool_website: string;
   tool_description: string;
@@ -31,7 +31,7 @@ type Inputs = {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
-};
+}
 
 export default () => {
   const browserService = createBrowserClient();
@@ -79,7 +79,7 @@ export default () => {
       setImagesLoad(true);
       fileUploader({ files: file as Blob, options: 'w=512' }).then(data => {
         if (data?.file) {
-          setImagePreview([...imagePreviews, data.file as string]);
+          setImagePreview([...imagePreviews, data.file]);
           setImagesLoad(false);
         }
       });
@@ -112,38 +112,37 @@ export default () => {
     else return true;
   };
 
-  const onSubmit: SubmitHandler<Inputs> = data => {
-    if (validateImages()) {
-      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
-      productService
-        .insert({
-          asset_urls: imagePreviews,
-          name: tool_name,
-          demo_url: tool_website,
-          github_url: github_repo,
-          pricing_type,
-          slogan,
-          description: tool_description,
-          logo_url: logoPreview,
-          owner_id: user?.id,
-          slug: createSlug(tool_name),
-          is_draft: false,
-          comments_count: 0,
-          votes_counter: 0,
-          demo_video_url: demo_video,
-          launch_date: new Date().toISOString(),
-        })
-        .then(res => {
-          categories.forEach(item => {
-            productCategoryService.insertProduct({
-              category_id: item.id,
-              product_id: res?.id as number,
-            });
-          });
-          window.open(`/tool/${res?.slug}`);
-          router.push('/account/tools');
-        });
+  const onSubmit: SubmitHandler<Inputs> = async data => {
+    if (!validateImages()) {
+      alert('something wrong with iamges');
     }
+
+    const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
+    const categoryIds = categories.map(item => item.id);
+
+    await productService
+      .insert({
+        asset_urls: imagePreviews,
+        name: tool_name,
+        demo_url: tool_website,
+        github_url: github_repo,
+        pricing_type,
+        slogan,
+        description: tool_description,
+        logo_url: logoPreview,
+        owner_id: user?.id,
+        slug: createSlug(tool_name),
+        is_draft: false,
+        comments_count: 0,
+        votes_counter: 0,
+        demo_video_url: demo_video,
+        launch_date: new Date().toISOString(),
+      },
+      categoryIds)
+      .then(res => {
+        window.open(`/tool/${res?.slug}`);
+        router.push('/account/tools');
+      });
   };
 
   return (
@@ -196,12 +195,12 @@ export default () => {
               />
             </div>
             <div>
-              <Label>Description of the tool</Label>
+              <Label>Description of the tool (up to 350 symbols)</Label>
               <Textarea
                 placeholder="Write a description: 220 characters, HTML is supported."
                 className="w-full h-36 mt-2"
                 validate={{
-                  ...register('tool_description', { required: true, maxLength: 220 }),
+                  ...register('tool_description', { required: true, maxLength: 350 }),
                 }}
               />
               <LabelError className="mt-2">{errors.solgan && 'Please enter your tool description'}</LabelError>
@@ -249,7 +248,7 @@ export default () => {
               <p className="text-sm text-slate-400">The first image will be used as the social preview. upload at least 3-5 images.</p>
               <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
-                  <ImageUploaderItem src={src} key={idx} onRemove={() => handleRemoveImage(idx)} />
+                  <ImageUploaderItem src={src} key={idx} onRemove={() => { handleRemoveImage(idx); }} />
                 ))}
               </ImagesUploader>
               <LabelError className="mt-2">{imagesError}</LabelError>

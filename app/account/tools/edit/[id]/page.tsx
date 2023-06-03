@@ -131,10 +131,13 @@ export default () => {
 
   const onSubmit: SubmitHandler<Inputs> = data => {
     if (validateImages()) {
+
       setUpdate(true);
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
+
       const categoryIds: number[] = categories.map(category => category.id);
-      productService
+
+      return productService
         .update(
           +id,
           {
@@ -148,12 +151,14 @@ export default () => {
             logo_url: logoPreview,
             demo_video_url: demo_video,
           },
-          categoryIds,
+          categoryIds
         )
         .then(res => {
-          setUpdate(false);
           window.alert('Your launch has been updated successfully');
           window.open(`/tool/${res?.slug}`);
+        })
+        .finally(() => {
+          setUpdate(false);
         });
     }
   };
@@ -163,9 +168,10 @@ export default () => {
       <h1 className="text-xl text-slate-50 font-semibold">Edit Launch</h1>
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
-          <FormLaunchSection number={1} title="Tell us about your tool" description="This basic information is important for the users.">
+          <FormLaunchSection number={1} title="Tell us about your tool"
+                             description="This basic information is important for the users.">
             <div>
-              <LogoUploader isLoad={isLogoLoad} src={logoPreview} onChange={handleUploadLogo} />
+              <LogoUploader isLoad={isLogoLoad} src={logoPreview} onChange={handleUploadLogo}/>
               <LabelError className="mt-2">{logoError}</LabelError>
             </div>
             <div>
@@ -192,7 +198,10 @@ export default () => {
                 placeholder="https://devhunt.org/"
                 className="w-full mt-2"
                 validate={{
-                  ...register('tool_website', { required: true, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
+                  ...register('tool_website', {
+                    required: true,
+                    pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i
+                  }),
                 }}
               />
               <LabelError className="mt-2">{errors.solgan && 'Please enter your tool website URL'}</LabelError>
@@ -203,7 +212,10 @@ export default () => {
                 placeholder="https://github.com/MarsX-dev/devhunt"
                 className="w-full mt-2"
                 validate={{
-                  ...register('github_repo', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
+                  ...register('github_repo', {
+                    required: false,
+                    pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i
+                  }),
                 }}
               />
             </div>
@@ -219,7 +231,8 @@ export default () => {
               <LabelError className="mt-2">{errors.solgan && 'Please enter your tool description'}</LabelError>
             </div>
           </FormLaunchSection>
-          <FormLaunchSection number={2} title="Extras" description="Help people find you easily by providing pricing type and categories. ">
+          <FormLaunchSection number={2} title="Extras"
+                             description="Help people find you easily by providing pricing type and categories. ">
             <div>
               <Label>Tool pricing type</Label>
               {pricingType.map((item, idx) => (
@@ -248,32 +261,39 @@ export default () => {
             </div>
             <div>
               <Label>Tool categories (optional)</Label>
-              <CategoryInput className="mt-2" categories={categories} setCategory={setCategory} />
+              <CategoryInput className="mt-2" categories={categories} setCategory={setCategory}/>
             </div>
           </FormLaunchSection>
-          <FormLaunchSection number={3} title="Media" description="Make people engage with your tool by providing great images">
+          <FormLaunchSection number={3} title="Media"
+                             description="Make people engage with your tool by providing great images">
             <div>
               <Label>Demo video (optional)</Label>
               <Input
                 placeholder="A simple demo video URL from youtube"
                 className="w-full mt-2"
                 validate={{
-                  ...register('demo_video', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
+                  ...register('demo_video', {
+                    required: false,
+                    pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i
+                  }),
                 }}
               />
             </div>
             <div>
               <Label>Tool screenshots</Label>
-              <p className="text-sm text-slate-400">The first image will be used as the social preview. upload at least 3-5 images.</p>
-              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5} onChange={handleUploadImages}>
+              <p className="text-sm text-slate-400">The first image will be used as the social preview. upload at least
+                3-5 images.</p>
+              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5}
+                              onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
-                  <ImageUploaderItem src={src} key={idx} onRemove={() => handleRemoveImage(idx)} />
+                  <ImageUploaderItem src={src} key={idx} onRemove={() => handleRemoveImage(idx)}/>
                 ))}
               </ImagesUploader>
               <LabelError className="mt-2">{imagesError}</LabelError>
             </div>
             <div className="mt-3">
-              <Button isLoad={isUpdate} type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
+              <Button isLoad={isUpdate} type="submit"
+                      className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
                 Update
               </Button>
             </div>
