@@ -1,10 +1,11 @@
 'use client';
 
-import ProtectedRoute from '@/components/ProtectedRoute';
 import { ReactNode } from 'react';
+import { useSupabase } from '@/components/supabase/provider';
+import LoginPage from '../../components/ui/LoginPage';
 
-export default ({ children }: { children: ReactNode }) => (
-  <ProtectedRoute>
-    <div className="mt-10 mb-32">{children}</div>
-  </ProtectedRoute>
-);
+export default ({ children }: { children: ReactNode }) => {
+  const { session } = useSupabase();
+  const user = session && session.user;
+  return user ? <div className="mt-10 mb-32">{children}</div> : <LoginPage />;
+};
