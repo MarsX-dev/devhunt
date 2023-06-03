@@ -1,6 +1,7 @@
 import Navbar from '@/components/ui/Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import Script from 'next/script';
 
 import SupabaseListener from '@/components/supabase/listener'
 import SupabaseProvider from '@/components/supabase/provider'
@@ -39,31 +40,35 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className="bg-slate-900">
-      <head>
-        {/* <script
-          src="https://t.usermaven.com/lib.js"
-          data-key="UMuqbdiCeT"
-          data-tracking-host="https://events.usermaven.com"
-          data-autocapture="true"
-          data-privacy-policy="strict"
-          defer
-        ></script>
-        <script>
-          window.usermaven = window.usermaven || (function()
-          {(window.usermavenQ = window.usermavenQ || []).push(arguments)})
-        </script> */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
-      </head>
-      <body className={inter.className}>
-        <main>
-          <SupabaseProvider user={profile as Profile} session={session}>
-            <SupabaseListener serverAccessToken={session?.access_token} />
-            <Navbar />
-            {children}
-            <Footer />
-          </SupabaseProvider>
-        </main>
-      </body>
+    <head>
+      {
+        process.env.USER_MAVEN_KEY && <>
+          <Script
+            strategy="afterInteractive"
+            src="https://t.usermaven.com/lib.js"
+            data-key={process.env.USER_MAVEN_KEY}
+            data-tracking-host="https://events.usermaven.com"
+            data-autocapture="true"
+            data-privacy-policy="strict"
+            defer
+          ></Script>
+          <Script strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `
+            window.usermaven = window.usermaven || (function()
+            {(window.usermavenQ = window.usermavenQ || []).push(arguments)})
+          `}}/>
+        </>}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0"/>
+    </head>
+    <body className={inter.className}>
+    <main>
+      <SupabaseProvider user={profile as Profile} session={session}>
+        <SupabaseListener serverAccessToken={session?.access_token}/>
+        <Navbar/>
+        {children}
+        <Footer/>
+      </SupabaseProvider>
+    </main>
+    </body>
     </html>
   )
 }
