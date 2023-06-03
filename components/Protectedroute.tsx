@@ -1,5 +1,3 @@
-'use client';
-
 import { useSupabase } from '@/components/supabase/provider';
 import { ReactNode } from 'react';
 import LoginPage from './ui/LoginPage';
