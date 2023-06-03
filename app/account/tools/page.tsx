@@ -63,7 +63,7 @@ export default () => {
           tools.map((tool: ProductType, idx: number) => (
             <li key={idx} className="py-3">
               <div className="p-2 flex items-start gap-x-4">
-                <Logo src={tool.logo_url || ''} alt={tool.name} />
+                <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
                 <div>
                   <Link href={`/tool/${tool.slug}`}>
                     <Name>{tool.name}</Name>

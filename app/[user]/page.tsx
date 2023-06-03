@@ -29,7 +29,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
   const profile = await profileService.getByUsername(username);
 
   if (profile) {
-    const tools = await new ProductsService(browserService).getUserProductsById(profile?.id, 'votes_count', false);
+    const tools = await new ProductsService(browserService).getUserProductsById(profile?.id);
 
     const activity = await profileService.getUserActivityById(profile?.id);
     const votedTools = await profileService.getUserVoteTools(profile?.id);

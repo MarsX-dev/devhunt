@@ -94,6 +94,7 @@ export default class ProductsService extends BaseDbService {
     return product?.votes_count || 0;
   }
 
+  // The problem now is caused of this code.
   async update(id: number, updates: UpdateProduct, productCategoryIds: number[] = []): Promise<Product> {
     const cleanUpdates = omit(updates, ['deleted_at', 'deleted']);
 
@@ -102,7 +103,8 @@ export default class ProductsService extends BaseDbService {
     if (error != null) throw new Error(error.message);
 
     if (productCategoryIds.length !== 0) {
-      await Promise.all(productCategoryIds.map(async id => await this.addProductToCategory((data as Product).id, id)));
+      productCategoryIds.forEach(item => console.log(item));
+      await Promise.all(productCategoryIds.map(async categoryId => await this.addProductToCategory((data as Product).id, categoryId)));
     }
 
     return data as Product;
@@ -150,7 +152,7 @@ export default class ProductsService extends BaseDbService {
     return data;
   }
 
-  private async _getOne(column: string, value: unknown, select = '*, product_pricing_types(*), product_categories(name)') {
+  private async _getOne(column: string, value: unknown, select = '*, product_pricing_types(*), product_categories(name, id)') {
     const { data: products, error } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).limit(1);
 
     if (error !== null) {
