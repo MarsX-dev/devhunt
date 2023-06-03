@@ -1,10 +1,12 @@
-import { useSupabase } from '@/components/supabase/provider'
-import { ReactNode } from 'react'
-import LoginPage from './ui/LoginPage'
+import { useSupabase } from '@/components/supabase/provider';
+import { ReactNode } from 'react';
+import LoginPage from './ui/LoginPage';
 
-export default ({ children }: { children: ReactNode }) => {
-  const { session } = useSupabase()
-  const user = session && session.user
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { session } = useSupabase();
+  const user = session && session.user;
 
-  return user ? <>{children}</> : <LoginPage />
-}
+  return user ? <>{children}</> : <LoginPage />;
+};
+
+export default ProtectedRoute;
