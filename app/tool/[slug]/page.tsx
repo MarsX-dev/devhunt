@@ -16,6 +16,7 @@ import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
+import extractVideoId from '@/utils/extractVideoId';
 
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
   const supabaseClient = createServerClient();
@@ -122,7 +123,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               </div>
             </div>
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
-              <Gallery>
+              <Gallery src={product.demo_video_url as string}>
                 {getImagesOnly((product?.asset_urls as []) || []).map((item: string, idx: number) => (
                   <GalleryImage key={idx} src={item} alt="" />
                 ))}
@@ -154,16 +155,16 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
           <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
             {trendingTools?.map((item, idx) => (
-                <li key={idx} className="py-3">
-                  <ToolCard href={`/tool/${(item.name as string).toLowerCase()}`}>
-                    <ProductLogo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
-                    <div className="space-y-1">
-                      <ToolName>{item.name}</ToolName>
-                      <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
-                      <Tags items={[item.product_pricing, ...(item.product_categories || [])]} />
-                    </div>
-                  </ToolCard>
-                </li>
+              <li key={idx} className="py-3">
+                <ToolCard href={`/tool/${(item.name as string).toLowerCase()}`}>
+                  <ProductLogo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
+                  <div className="space-y-1">
+                    <ToolName>{item.name}</ToolName>
+                    <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
+                    <Tags items={[item.product_pricing, ...(item.product_categories || [])]} />
+                  </div>
+                </ToolCard>
+              </li>
             ))}
           </ul>
         </div>

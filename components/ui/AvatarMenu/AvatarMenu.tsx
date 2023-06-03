@@ -1,35 +1,35 @@
-import { useEffect, useRef, useState } from 'react'
-import Button from '../Button/Button'
-import LinkItem from '../Link/LinkItem'
-import { Session } from '@supabase/supabase-js'
-import Avatar from '../Avatar/Avatar'
-import { useSupabase } from '@/components/supabase/provider'
+import { useEffect, useRef, useState } from 'react';
+import Button from '../Button/Button';
+import LinkItem from '../Link/LinkItem';
+import { Session } from '@supabase/supabase-js';
+import Avatar from '../Avatar/Avatar';
+import { useSupabase } from '@/components/supabase/provider';
 
 type Props = {
-  onLogout?: () => void
-  session: Session | null
-}
+  onLogout?: () => void;
+  session: Session | null;
+};
 
 // Avtar with darpdown menu
 export default ({ onLogout, session }: Props) => {
-  const [state, setState] = useState(false)
-  const profileRef = useRef<HTMLButtonElement>(null)
-  const isLoggin = session && session.user
+  const [state, setState] = useState(false);
+  const profileRef = useRef<HTMLButtonElement>(null);
+  const isLoggin = session && session.user;
 
-  const { user } = useSupabase()
+  const { user } = useSupabase();
 
   const navigation = [
     { title: 'Profile', path: isLoggin ? `/@${user.username}` : '' },
-    { title: 'Launch tool', path: '/account/tools/new' },
+    { title: 'Launch tool', path: '/account/tools' },
     { title: 'Details', path: '/account/details' },
-  ]
+  ];
 
   useEffect(() => {
     const handleDropDown = (e: MouseEvent) => {
-      if (profileRef.current && !(profileRef.current as HTMLElement).contains(e.target as Node)) setState(false)
-    }
-    document.addEventListener('click', handleDropDown)
-  }, [])
+      if (profileRef.current && !(profileRef.current as HTMLElement).contains(e.target as Node)) setState(false);
+    };
+    document.addEventListener('click', handleDropDown);
+  }, []);
 
   return isLoggin ? (
     <div className="relative">
@@ -44,11 +44,7 @@ export default ({ onLogout, session }: Props) => {
           <div className="w-10 h-10 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>
         )}
       </button>
-      <ul
-        className={`bg-slate-800 top-14 right-0 absolute rounded-lg w-52 shadow-md space-y-0 overflow-hidden ${
-          state ? '' : 'hidden'
-        }`}
-      >
+      <ul className={`bg-slate-800 top-14 right-0 absolute rounded-lg w-52 shadow-md space-y-0 overflow-hidden ${state ? '' : 'hidden'}`}>
         {navigation.map((item, idx) => (
           <li key={idx}>
             <LinkItem
@@ -69,5 +65,5 @@ export default ({ onLogout, session }: Props) => {
     </div>
   ) : (
     <></>
-  )
-}
+  );
+};

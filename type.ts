@@ -1,15 +1,10 @@
-export type IProduct = {
-  logo: string
-  name: string
-  title: string
-  tags: string[]
-  votes: number
-  slug: string
-}
+import { Product } from './utils/supabase/types';
 
-export type IProductResult = {
-  name: string
-  title: string
-  logo: string
-  slug: string
+export interface ProductType extends Product {
+  product_pricing_types: {
+    title: string;
+  };
+  product_categories: {
+    name: string;
+  }[];
 }

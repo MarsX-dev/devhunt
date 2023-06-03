@@ -8,11 +8,7 @@ export default class ProductsService extends BaseDbService {
 
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-    return this.supabase
-      .from('products')
-      .select(this.EXTENDED_PRODUCT_SELECT)
-      .eq('deleted', false)
-      .order(sortBy, { ascending });
+    return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).eq('deleted', false).order(sortBy, { ascending });
   }
 
   async getSimilarProducts(productId: number): Promise<Product[]> {
@@ -43,10 +39,9 @@ export default class ProductsService extends BaseDbService {
     productId: number,
     categoryNames: { name: string }[],
     sortBy: string,
-    ascending: boolean
+    ascending: boolean,
   ): Promise<ExtendedProduct[]> {
-    const { data: products, error } = await this.getProducts(sortBy, ascending)
-      .neq('id', productId);
+    const { data: products, error } = await this.getProducts(sortBy, ascending).neq('id', productId);
 
     if (error) {
       console.error(error);
@@ -60,26 +55,21 @@ export default class ProductsService extends BaseDbService {
     return filteredProducts as ExtendedProduct[];
   }
 
-  async getUserProductsById(userId: string, sortBy: string, ascending: boolean) {
-    const { data } = await this.getProducts(sortBy, ascending)
+  async getUserProductsById(userId: string) {
+    const { data } = await this.supabase
+      .from('products')
+      .select('*, product_pricing_types(*), product_categories(*)')
       .eq('owner_id', userId);
     return data;
   }
 
   async getUserVoteById(userId: string, productId: number) {
-    const { data } = await this.supabase
-      .from('product_votes')
-      .select()
-      .eq('user_id', userId)
-      .eq('product_id', productId)
-      .single();
+    const { data } = await this.supabase.from('product_votes').select().eq('user_id', userId).eq('product_id', productId).single();
     return data;
   }
 
   async getRandomTools(limit: number): Promise<ExtendedProduct[] | null> {
-    const { data } = await this.supabase.from('products')
-      .select(this.EXTENDED_PRODUCT_SELECT)
-      .limit(limit);
+    const { data } = await this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).limit(limit);
 
     return data;
   }
@@ -119,11 +109,10 @@ export default class ProductsService extends BaseDbService {
   }
 
   async addProductToCategory(productId: number, categoryId: number): Promise<boolean> {
-    const { data, error } = await this.supabase.from('product_category_product')
-      .insert({
-        product_id: productId,
-        category_id: categoryId
-      });
+    const { data, error } = await this.supabase.from('product_category_product').insert({
+      product_id: productId,
+      category_id: categoryId,
+    });
 
     if (error != null) throw new Error(error.message);
 
@@ -143,10 +132,7 @@ export default class ProductsService extends BaseDbService {
   }
 
   async delete(id: number): Promise<void> {
-    const { error } = await this.supabase
-      .from('products')
-      .update({ deleted: true, deleted_at: new Date() })
-      .eq('id', id);
+    const { error } = await this.supabase.from('products').update({ deleted: true, deleted_at: new Date().toISOString() }).eq('id', id);
 
     if (error !== null) throw new Error(error.message);
   }
@@ -164,17 +150,8 @@ export default class ProductsService extends BaseDbService {
     return data;
   }
 
-  private async _getOne(
-    column: string,
-    value: unknown,
-    select = '*, product_pricing_types(*), product_categories(name)'
-  ) {
-    const { data: products, error } = await this.supabase
-      .from('products')
-      .select(select)
-      .eq('deleted', false)
-      .eq(column, value)
-      .limit(1);
+  private async _getOne(column: string, value: unknown, select = '*, product_pricing_types(*), product_categories(name)') {
+    const { data: products, error } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).limit(1);
 
     if (error !== null) {
       throw new Error(error.message);

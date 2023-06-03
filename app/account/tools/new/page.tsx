@@ -11,6 +11,7 @@ import LabelError from '@/components/ui/LabelError/LabelError';
 import LogoUploader from '@/components/ui/LogoUploader/LogoUploader';
 import Radio from '@/components/ui/Radio';
 import Textarea from '@/components/ui/Textarea';
+import createSlug from '@/utils/createSlug';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import fileUploader from '@/utils/supabase/fileUploader';
 import CategoryService from '@/utils/supabase/services/categories';
@@ -20,6 +21,7 @@ import { ProductCategory, ProductPricingType } from '@/utils/supabase/types';
 import { File } from 'buffer';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 
 type Inputs = {
   tool_name: string;
@@ -36,6 +38,8 @@ export default () => {
   const pricingTypesList = new ProductPricingTypesService(browserService).getAll();
   const productService = new ProductsService(browserService);
   const productCategoryService = new CategoryService(browserService);
+
+  const router = useRouter();
 
   const { session } = useSupabase();
   const user = session && session.user;
@@ -122,11 +126,11 @@ export default () => {
           description: tool_description,
           logo_url: logoPreview,
           owner_id: user?.id,
-          slug: tool_name.toLowerCase().replaceAll(' ', '-'),
+          slug: createSlug(tool_name),
           is_draft: false,
           comments_count: 0,
           votes_counter: 0,
-          // demo_video: demo_video,
+          demo_video_url: demo_video,
           launch_date: new Date().toISOString(),
         })
         .then(res => {
@@ -136,23 +140,16 @@ export default () => {
               product_id: res?.id as number,
             });
           });
-          console.log(res);
+          window.open(`/tool/${res?.slug}`);
+          router.push('/account/tools');
         });
     }
-  };
-
-  const uploadLogo = () => {
-    // fileUploader({ files: imageFiles as File[], options: 'w=220' }).then(res => {
-    //   console.log(res);
-    // });
-    console.log(imagePreviews);
   };
 
   return (
     <section className="container-custom-screen">
       <h1 className="text-xl text-slate-50 font-semibold">Launch a tool</h1>
       <div className="mt-14">
-        <Button onClick={uploadLogo}>Upload</Button>
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection number={1} title="Tell us about your tool" description="This basic information is important for the users.">
             <div>
