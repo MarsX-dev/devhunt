@@ -77,7 +77,7 @@ export default () => {
     if (file && file.type.includes('image') && imagePreviews.length < 5) {
       setImageFile([...(imageFiles as any), file]);
       setImagesLoad(true);
-      fileUploader({ files: file as Blob, options: 'w=512' }).then(data => {
+      fileUploader({ files: file as Blob }).then(data => {
         if (data?.file) {
           setImagePreview([...imagePreviews, data.file]);
           setImagesLoad(false);

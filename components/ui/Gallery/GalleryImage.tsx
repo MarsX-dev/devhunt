@@ -1,4 +1,4 @@
-import mergeTW from '@/utils/mergeTW'
+import mergeTW from '@/utils/mergeTW';
 
 export const GalleryImage = ({
   src = '',
@@ -7,12 +7,12 @@ export const GalleryImage = ({
   imgClassName = '',
   ...props
 }: {
-  src: string
-  alt?: string
-  className?: string
-  imgClassName?: string
+  src: string;
+  alt?: string;
+  className?: string;
+  imgClassName?: string;
 }) => (
-  <li {...props} className={mergeTW(`flex-none snap-normal snap-start py-3 ${className}`)}>
-    <img src={src} alt={alt} className={`max-w-md md:max-w-lg rounded-lg ${imgClassName}`} />
+  <li {...props} className={mergeTW(`flex-none snap-normal snap-start py-3 pointer-events-none ${className}`)}>
+    <img src={src} alt={alt} className={`max-w-md rounded-lg ${imgClassName}`} />
   </li>
-)
+);

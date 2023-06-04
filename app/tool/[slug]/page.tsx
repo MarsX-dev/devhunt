@@ -154,7 +154,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               </div>
             </div>
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
-              <Gallery src={product.demo_video_url as string}>
+              <Gallery assets={product?.asset_urls as string[]} src={product.demo_video_url as string}>
                 {getImagesOnly((product?.asset_urls as []) || []).map((item: string, idx: number) => (
                   <GalleryImage key={idx} src={item} alt="" />
                 ))}
