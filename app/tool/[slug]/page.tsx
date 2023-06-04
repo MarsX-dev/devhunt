@@ -17,9 +17,11 @@ import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
 import { Metadata } from 'next';
-import DOMPurify from '@/utils/DOMPurify';
+import createDOMPurify from 'dompurify';
+import { JSDOM } from 'jsdom';
 
-// import dompurify from 'dompurify';
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 // set dynamic metadata
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
