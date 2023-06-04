@@ -2,7 +2,7 @@
 
 import extractVideoId from '@/utils/extractVideoId';
 import mergeTW from '@/utils/mergeTW';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import BlurBackground from '../BlurBackground/BlurBackground';
 import { ButtonHandler } from './ButtonHandler';
 import { IconChevronLeft } from '@/components/Icons/IconChevronLeft';
