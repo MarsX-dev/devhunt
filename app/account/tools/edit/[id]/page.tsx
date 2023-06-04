@@ -166,7 +166,11 @@ export default () => {
       <h1 className="text-xl text-slate-50 font-semibold">Edit Launch</h1>
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
-          <FormLaunchSection number={1} title="Tell us about your tool" description="This basic information is important for the users.">
+          <FormLaunchSection
+            number={1}
+            title="Tell us about your tool"
+            description="Provide basic information to help users understand your tool."
+          >
             <div>
               <LogoUploader isLoad={isLogoLoad} src={logoPreview} onChange={handleUploadLogo} />
               <LabelError className="mt-2">{logoError}</LabelError>
@@ -174,7 +178,7 @@ export default () => {
             <div>
               <Label>Tool name</Label>
               <Input
-                placeholder="Dev Hunt"
+                placeholder="My Awesome Dev Tool"
                 className="w-full mt-2"
                 validate={{ ...register('tool_name', { required: true, minLength: 3 }) }}
               />
@@ -183,7 +187,7 @@ export default () => {
             <div>
               <Label>Slogan</Label>
               <Input
-                placeholder="Find the best new DevTools in tech"
+                placeholder="Supercharge Your Development Workflow"
                 className="w-full mt-2"
                 validate={{ ...register('slogan', { required: true, minLength: 20 }) }}
               />
@@ -192,7 +196,7 @@ export default () => {
             <div>
               <Label>Tool website URL</Label>
               <Input
-                placeholder="https://devhunt.org/"
+                placeholder="https://myawesomedevtool.com/"
                 className="w-full mt-2"
                 validate={{
                   ...register('tool_website', {
@@ -206,7 +210,7 @@ export default () => {
             <div>
               <Label>Github repo URL (optional)</Label>
               <Input
-                placeholder="https://github.com/MarsX-dev/devhunt"
+                placeholder="https://github.com/username/myawesomedevtool"
                 className="w-full mt-2"
                 validate={{
                   ...register('github_repo', {
@@ -219,7 +223,7 @@ export default () => {
             <div>
               <Label>Description of the tool (up to 300 symbols)</Label>
               <Textarea
-                placeholder="Write a description: 220 characters, HTML is supported."
+                placeholder="Briefly explain what your tool does. HTML is supported."
                 className="w-full h-36 mt-2"
                 validate={{
                   ...register('tool_description', { required: true, maxLength: 350 }),
@@ -260,7 +264,7 @@ export default () => {
               <CategoryInput className="mt-2" categories={categories} setCategory={setCategory} />
             </div>
           </FormLaunchSection>
-          <FormLaunchSection number={3} title="Media" description="Make people engage with your tool by providing great images">
+          <FormLaunchSection number={3} title="Media" description="Showcase the awesomeness of your dev tool with engaging images.">
             <div>
               <Label>Demo video (optional)</Label>
               <Input
@@ -276,7 +280,10 @@ export default () => {
             </div>
             <div>
               <Label>Tool screenshots</Label>
-              <p className="text-sm text-slate-400">The first image will be used as the social preview. upload at least 3-5 images.</p>
+              <p className="text-sm text-slate-400">
+                Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
+                social preview, so choose wisely!
+              </p>
               <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
                   <ImageUploaderItem src={src} key={idx} onRemove={() => handleRemoveImage(idx)} />

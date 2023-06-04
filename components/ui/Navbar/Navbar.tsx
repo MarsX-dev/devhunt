@@ -9,7 +9,6 @@ import Auth from '../Auth';
 import { useRouter } from 'next/navigation';
 import CommandPalette from '../CommandPalette/CommandPalette';
 import BlurBackground from '../BlurBackground/BlurBackground';
-import mockproducts from '@/mockproducts';
 import AvatarMenu from '../AvatarMenu';
 import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
@@ -42,8 +41,11 @@ export default () => {
   const navigation = [
     { title: 'Tools', path: '/' },
     { title: 'About', path: '/about' },
-    { title: 'Learn how to post', path: '/learn-how-to-post' },
-    { title: 'Launch tool', path: isLoggedin ? '/account/tools' : '/login' },
+    {
+      title: 'Submit your Dev Tool',
+      path: isLoggedin ? '/account/tools' : '/login',
+      className: 'border border-slate-700 hover:border-slate-600 rounded-lg px-3 p-2',
+    },
   ];
 
   const trend = [
@@ -98,7 +100,7 @@ export default () => {
                 {navigation.map((item, idx) => {
                   return (
                     <li key={idx} className="hover:text-slate-200">
-                      <Link href={item.path} className="block">
+                      <Link href={item.path} className={`block ${item?.className || ''}`}>
                         {item.title}
                       </Link>
                     </li>

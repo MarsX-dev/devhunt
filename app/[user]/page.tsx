@@ -16,10 +16,37 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import moment from 'moment';
 import Link from 'next/link';
 import AwardsService from '@/utils/supabase/services/awards';
+import { createServerClient } from '@/utils/supabase/server';
+import { Metadata } from 'next';
 
 interface IComment extends CommentType {
   profiles: Profile;
   products: Product;
+}
+
+// set dynamic metadata
+export async function generateMetadata({ params: { user } }: { params: { user: string } }): Promise<Metadata> {
+  const username = decodeURIComponent(user).slice(1);
+  const supabaseClient = createServerClient();
+  const profileService = new ProfileService(supabaseClient);
+  const profile = await profileService.getByUsername(username);
+
+  return {
+    title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
+    description: profile?.headline,
+    openGraph: {
+      type: 'article',
+      title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
+      description: profile?.headline as string,
+      images: [(profile?.avatar_url as string) || ''],
+    },
+    twitter: {
+      title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
+      description: profile?.headline as string,
+      card: 'summary_large_image',
+      images: [profile?.avatar_url || ''],
+    },
+  };
 }
 
 export default async ({ params: { user } }: { params: { user: string } }) => {
