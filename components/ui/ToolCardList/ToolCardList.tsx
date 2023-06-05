@@ -1,16 +1,16 @@
-import { Product } from '@/utils/supabase/types'
-import Logo from '@/components/ui/ToolCard/Tool.Logo'
-import Name from '@/components/ui/ToolCard/Tool.Name'
-import Tags from '@/components/ui/ToolCard/Tool.Tags'
-import Title from '@/components/ui/ToolCard/Tool.Title'
-import Votes from '@/components/ui/ToolCard/Tool.Votes'
-import ToolCard from '@/components/ui/ToolCard/ToolCard'
+import { Product } from '@/utils/supabase/types';
+import Logo from '@/components/ui/ToolCard/Tool.Logo';
+import Name from '@/components/ui/ToolCard/Tool.Name';
+import Tags from '@/components/ui/ToolCard/Tool.Tags';
+import Title from '@/components/ui/ToolCard/Tool.Title';
+import Votes from '@/components/ui/ToolCard/Tool.Votes';
+import ToolCard from '@/components/ui/ToolCard/ToolCard';
 
 export interface ITool extends Product {
   product_pricing_types: {
-    title: string
-  }
-  product_categories: { name: string }[]
+    title: string;
+  };
+  product_categories: { name: string }[];
 }
 
 export default ({ tool }: { tool: ITool }) => (
@@ -32,4 +32,4 @@ export default ({ tool }: { tool: ITool }) => (
       </div>
     </ToolCard>
   </li>
-)
+);

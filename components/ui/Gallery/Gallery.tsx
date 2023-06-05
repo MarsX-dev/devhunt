@@ -52,8 +52,14 @@ export const Gallery = ({
         onClick={() => setZoomActive(true)}
       >
         {src ? (
-          <li className={mergeTW(`flex-none snap-start py-3 pointer-events-none ${className}`)}>
-            <iframe src={extractVideoId(src) as string} width={448} height={252} className="rounded-lg"></iframe>
+          <li className={mergeTW(`flex-none max-w-md snap-start py-3 pointer-events-none ${className}`)}>
+            {media[0].includes('youtube') ? (
+              <iframe src={extractVideoId(src) as string} width={448} height={252} className="rounded-lg"></iframe>
+            ) : (
+              <video controls className="max-w-md rounded-lg">
+                <source src={src} />
+              </video>
+            )}
           </li>
         ) : (
           ''
@@ -68,8 +74,14 @@ export const Gallery = ({
                 <IconXmark />
               </ButtonHandler>
               <li className="h-full">
-                {currentIdx == 0 && media[0].includes('youtube') ? (
-                  <iframe src={extractVideoId(src as string) as string} className="rounded-lg w-full h-full"></iframe>
+                {(currentIdx == 0 && media[currentIdx].includes('youtube')) || media[currentIdx].includes('.mp4') ? (
+                  media[0].includes('youtube') ? (
+                    <iframe src={extractVideoId(src as string) as string} className="rounded-lg w-full h-full"></iframe>
+                  ) : (
+                    <video controls className="w-full">
+                      <source src={src} />
+                    </video>
+                  )
                 ) : (
                   <img src={media[currentIdx]} className="w-full h-full rounded-lg object-cover" />
                 )}

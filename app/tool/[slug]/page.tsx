@@ -22,6 +22,7 @@ import { JSDOM } from 'jsdom';
 import Link from 'next/link';
 import moment from 'moment';
 import ProfileService from '@/utils/supabase/services/profile';
+import ToolVotes from '@/components/ui/ToolCard/Tool.Votes';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -115,10 +116,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     },
   ];
 
-  function getImagesOnly(urls: []) {
-    return urls.filter(u => /\.(?:jpg|gif|png)/.test(u));
-  }
-
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
@@ -161,9 +158,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             </div>
             <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
               <Gallery assets={product?.asset_urls as string[]} src={product.demo_video_url as string}>
-                {getImagesOnly((product?.asset_urls as []) || []).map((item: string, idx: number) => (
-                  <GalleryImage key={idx} src={item} alt="" />
-                ))}
+                {product?.asset_urls &&
+                  product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
               </Gallery>
             </div>
           </div>
@@ -177,7 +173,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
               {owned?.full_name}
             </Link>
-            , Featured on {moment(product.launch_date).format('ll')}
+            , Featured on {moment(product.launch_date).format('ll')}.
           </p>
           <div className="mt-10">
             <StatsWrapper>
@@ -195,7 +191,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
-          <ul className="mt-6 grid divide-y divide-slate-800/60 md:grid-cols-2 md:divide-y-0">
+          <ul className="divide-y divide-slate-800/60">
             {trendingTools?.map((item, idx) => (
               <li key={idx} className="py-3">
                 <ToolCard href={`/tool/${(item.name as string).toLowerCase()}`}>
@@ -204,6 +200,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                     <ToolName>{item.name}</ToolName>
                     <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
                     <Tags items={[item.product_pricing, ...(item.product_categories || [])]} />
+                  </div>
+                  <div className="flex-1 self-center flex justify-end">
+                    <ToolVotes count={item.votes_count as number} />
                   </div>
                 </ToolCard>
               </li>
