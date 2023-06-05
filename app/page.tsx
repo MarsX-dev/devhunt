@@ -8,14 +8,20 @@ import ProductsService from '@/utils/supabase/services/products'
 import { createServerClient } from '@/utils/supabase/server'
 
 export default async function Home() {
-  const tools = await new ProductsService(createServerClient()).getTopProducts('votes_count', false)
+  const tools = await new ProductsService(createServerClient()).getTopProducts('created_at', false)
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
       <div className='prose prose-invert'>
-        <h1 className='text-slate-50 text-lg font-semibold'>Hey Devs!</h1>
-        <p>
-        Check out today's lineup of competing dev tools. Put them to the test, vote for your favorites, and share insights in the comments.
+        <h1 className='text-slate-50 text-lg font-semibold'>Hey Developers!</h1>
+        <p className='whitespace-pre-wrap'>
+        📢 DevHunt's public launch: July 1st, 2023.
+        <div className='p-1 w-full' id="id1"></div>
+        Submit your dev tools & schedule launches from July 1st onwards ASAP. First submitted shown on top of the list on the launch day 🔝.
+<div className='p-1 w-full'></div>
+⏸️ Voting paused until then.
+<div className='p-1 w-full'></div>
+Let's build this together - by us, for us 💪😎
         </p>
       </div>
 

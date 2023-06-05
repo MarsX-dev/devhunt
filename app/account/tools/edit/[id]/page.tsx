@@ -185,7 +185,7 @@ export default () => {
               <LabelError className="mt-2">{errors.tool_name && 'Please enter your tool name'}</LabelError>
             </div>
             <div>
-              <Label>Slogan</Label>
+              <Label>Catchy slogan 😎</Label>
               <Input
                 placeholder="Supercharge Your Development Workflow"
                 className="w-full mt-2"
@@ -208,7 +208,7 @@ export default () => {
               <LabelError className="mt-2">{errors.solgan && 'Please enter your tool website URL'}</LabelError>
             </div>
             <div>
-              <Label>Github repo URL (optional)</Label>
+              <Label>GitHub repo URL (optional)</Label>
               <Input
                 placeholder="https://github.com/username/myawesomedevtool"
                 className="w-full mt-2"
@@ -221,7 +221,7 @@ export default () => {
               />
             </div>
             <div>
-              <Label>Description of the tool (up to 300 symbols)</Label>
+              <Label>Quick Description (max 300 characters)</Label>
               <Textarea
                 placeholder="Briefly explain what your tool does. HTML is supported."
                 className="w-full h-36 mt-2"
@@ -232,7 +232,7 @@ export default () => {
               <LabelError className="mt-2">{errors.solgan && 'Please enter your tool description'}</LabelError>
             </div>
           </FormLaunchSection>
-          <FormLaunchSection number={2} title="Extras" description="Help people find you easily by providing pricing type and categories. ">
+          <FormLaunchSection number={2} title="Extra Stuff" description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!">
             <div>
               <Label>Tool pricing type</Label>
               {pricingType.map((item, idx) => (
@@ -264,11 +264,11 @@ export default () => {
               <CategoryInput className="mt-2" categories={categories} setCategory={setCategory} />
             </div>
           </FormLaunchSection>
-          <FormLaunchSection number={3} title="Media" description="Showcase the awesomeness of your dev tool with engaging images.">
+          <FormLaunchSection number={3} title="Media" description="Show off how awesome your dev tool is with cool images.">
             <div>
               <Label>Demo video (optional)</Label>
               <Input
-                placeholder="A simple demo video URL from youtube"
+                placeholder="A simple demo video URL from youtube or mpt4 link"
                 className="w-full mt-2"
                 validate={{
                   ...register('demo_video', {

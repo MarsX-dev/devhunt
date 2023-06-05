@@ -12,6 +12,6 @@ export default ({
   alt?: string
 }) => (
   <div className={mergeTW(`flex-none  ${className}`)}>
-    <img src={src} alt={alt} className={mergeTW(`w-16 h-16 rounded-full  ${imgClassName}`)} />
+    <img src={src} alt={alt} className={mergeTW(`bg-slate-300 w-16 h-16 rounded-full  ${imgClassName}`)} />
   </div>
 )
