@@ -21,7 +21,7 @@ export default ({ onLogout, session }: Props) => {
   const navigation = [
     { title: 'Profile', path: isLoggin ? `/@${user.username}` : '' },
     { title: 'My tools', path: '/account/tools' },
-    { title: 'Details', path: '/account/details' },
+    { title: 'Edit profile', path: '/account/details' },
   ];
 
   useEffect(() => {
