@@ -272,6 +272,26 @@ export default () => {
               </ImagesUploader>
               <LabelError className="mt-2">{imagesError}</LabelError>
             </div>
+          </FormLaunchSection>
+
+          <FormLaunchSection number={4} title="Launch Date for Your Dev Tool" description="Setting the perfect launch date is essential to make a splash in the dev world. By choosing your tool's big day, you're guaranteeing:
+">
+            <div>
+              <Label>1. Home Page Spotlight: Your tool will steal the show on our home page for a full 24 hours!</Label>
+              <Label>2. Morning Buzz: We'll shoot out an email featuring your tool to our subscribers that very morning.</Label>
+              <Label>3. Daily Voting Frenzy: Users will be eager to check out and vote for all of the day's featured tools.</Label>
+              <div className="relative max-w-xs mx-auto mt-12">
+                <svg xmlns="http://www.w3.org/2000/svg" className="absolute top-0 bottom-0 w-6 h-6 my-auto text-gray-400 right-2.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+                <select className="w-full p-2.5 text-gray-500 bg-white border rounded-md shadow-sm outline-none appearance-none focus:border-indigo-600">
+                    <option>Tomorrow(6)</option>
+                    <option>June 5 (33)</option>
+                    <option>June 6 (22)</option>
+                    <option>June 5 (4)</option>
+                </select>
+              </div>
+            </div>
             <div className="mt-3">
               <Button type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
                 Submit
