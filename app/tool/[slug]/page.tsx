@@ -19,6 +19,9 @@ import AwardsService from '@/utils/supabase/services/awards';
 import { Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
+import Link from 'next/link';
+import moment from 'moment';
+import ProfileService from '@/utils/supabase/services/profile';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -53,6 +56,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const productsService = new ProductsService(supabaseClient);
   const product = await productsService.getBySlug(slug);
+  const owned = await new ProfileService(supabaseBrowserClient).getById(product?.owner_id as string);
 
   const awardService = new AwardsService(supabaseBrowserClient);
   const toolAward = await awardService.getProductRanks(product?.id as number);
@@ -168,8 +172,13 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
-          {product.launch_description !== null && <p className="text-slate-300 mt-6">{product.launch_description}</p>}
-
+          <p className="text-slate-300 mt-6">
+            {product.name} was hunted by{' '}
+            <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
+              {owned?.full_name}
+            </Link>
+            , Featured on {moment(product.launch_date).format('ll')}
+          </p>
           <div className="mt-10">
             <StatsWrapper>
               {stats.map((item, idx) => (
