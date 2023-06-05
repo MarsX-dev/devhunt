@@ -63,7 +63,7 @@ export default ({
           value={comment}
           onChange={e => setComment((e.target as HTMLTextAreaElement).value)}
           defaultValue={comment}
-          placeholder="Write your feedback"
+          placeholder="Type here..."
         />
       </CommentFormWrapper>
       <div className="mt-3 flex justify-end">

@@ -10,18 +10,13 @@ export default () => {
       name: 'About',
     },
     {
-      href: '/blog',
-      name: 'Blog',
+      href: 'https://github.com/MarsX-dev/devhunt',
+      name: 'GitHub Repository',
     },
 
     {
-      href: '/team',
-      name: 'Team',
-    },
-
-    {
-      href: '/support',
-      name: 'Support',
+      href: 'https://twitter.com/johnrushx',
+      name: 'Contact',
     },
   ];
 
@@ -31,7 +26,7 @@ export default () => {
         <div className="max-w-lg sm:mx-auto sm:text-center">
           <Brand className="sm:m-auto" />
           <p className="leading-relaxed mt-3 text-slate-300 text-[15px]">
-            A launching platform for dev tools, built by developers. Open-source and collaborative.
+            A launchpad for dev tools, built by developers. Open-source and fair.
           </p>
         </div>
         <ul className="text-sm font-medium items-center justify-center mt-8 space-y-5 sm:flex sm:space-x-4 sm:space-y-0">
@@ -44,7 +39,7 @@ export default () => {
           ))}
         </ul>
         <div className="mt-8 items-center justify-between sm:flex">
-          <div className="mt-4 sm:mt-0">&copy; 2023 Dev Hunt Inc. All rights reserved.</div>
+          <div className="mt-4 sm:mt-0">&copy; 2023 Dev Hunt Inc. Member of <a className='underline text-slate-200' href='https://www.marsx.dev/'>MarsX.Dev</a> family</div>
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
               <li>

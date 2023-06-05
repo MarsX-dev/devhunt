@@ -46,14 +46,14 @@ export default ({ count, productId, className = '', ...props }: Props) => {
       className={`flex items-center gap-x-3 bg-transparent duration-200 ${
         isUpvoted
           ? 'border border-orange-500 hover:border-orange-600 hover:text-orange-500 group/bar'
-          : 'bg-orange-500 hover:bg-orange-400 active:bg-orange-600'
+          : 'bg-orange-500 hover:bg-orange-700 active:bg-orange-600'
       } ${className}`}
     >
       <div className="flex items-center gap-x-2">
         <IconVote className="w-5 h-5" />
         {votesCount}
       </div>
-      <span className="w-px h-4 bg-orange-50 group-hover/bar:bg-orange-500"></span>
+      <span className="w-px h-4 bg-orange-300 group-hover/bar:bg-orange-500"></span>
       {isUpvoted ? 'Upvoted' : 'Upvote'}
     </Button>
   )

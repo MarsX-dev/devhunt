@@ -70,7 +70,7 @@ export const Gallery = ({
         <div>
           <div className="fixed z-40 inset-0 flex items-center justify-center w-full h-full zoom">
             <ul className="relative flex-1 max-w-5xl aspect-[3/2] max-h-full">
-              <ButtonHandler className="absolute z-20 top-4 bg-white text-slate-800 left-4 my-auto" onClick={() => setZoomActive(false)}>
+              <ButtonHandler className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto" onClick={() => setZoomActive(false)}>
                 <IconXmark />
               </ButtonHandler>
               <li className="h-full">

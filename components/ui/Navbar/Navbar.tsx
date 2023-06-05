@@ -39,8 +39,8 @@ export default () => {
   };
 
   const navigation = [
-    { title: 'Tools', path: '/' },
-    { title: 'About', path: '/about' },
+    { title: 'Dev Tools', path: '/' },
+    { title: 'The Story', path: '/about' },
     {
       title: 'Submit your Dev Tool',
       path: isLoggedin ? '/account/tools' : '/login',

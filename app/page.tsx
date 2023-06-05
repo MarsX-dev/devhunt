@@ -12,7 +12,12 @@ export default async function Home() {
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
-      <h1 className="text-slate-50 text-lg font-semibold xl:px-4">Find your next favorite product</h1>
+      <div className='prose prose-invert'>
+        <h1 className='text-slate-50 text-lg font-semibold xl:px-4'>Hey Devs!</h1>
+        <p>
+        Check out today's lineup of competing dev tools. Put them to the test, vote for your favorites, and share insights in the comments.
+        </p>
+      </div>
 
       <div className="mt-10 mb-12">
         <ul className="divide-y divide-slate-800/60">

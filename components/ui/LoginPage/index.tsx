@@ -35,11 +35,12 @@ export default () => {
   return (
     <section>
       <div className="h-screen px-4 w-full flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-xl">
           <div className="space-y-3">
             <Brand w="180" h="50" className="mx-auto" />
             <h1 className="text-slate-50 text-2xl font-semibold">Log in to your account</h1>
-            <p className="text-slate-300">Join our friendly community discovering and sharing the latest Dev Tools.</p>
+            <p className="text-slate-300 whitespace-pre-wrap">We use GitHub login to keep it real and ensure no fake accounts sneak in for those pesky fake upvotes. 
+            Let's explore together, the legit way!</p>
           </div>
           <Button
             isLoad={isLoad}

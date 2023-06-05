@@ -143,25 +143,25 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
             <div className="relative container-custom-screen mt-12">
               <div
-                className="prose text-slate-100"
+                className="prose text-slate-100 whitespace-pre-wrap"
                 // Use DOMPurify method for XSS sanitizeration
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
               ></div>
-              <div className="mt-6 flex flex-wrap gap-3 items-center">
+              {product?.product_categories.length && <div className="mt-6 flex flex-wrap gap-3 items-center">
                 <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                 <TagsGroup>
                   {product?.product_categories.map(pc => (
                     <Tag>{pc.name}</Tag>
                   ))}
                 </TagsGroup>
-              </div>
+              </div>}
             </div>
-            <div className="max-w-screen-2xl mt-10 mx-auto sm:px-8">
+            {product?.asset_urls?.length && <div className={`max-w-screen-2xl ${product?.asset_urls?.length==1?'container-custom-screen':''} mt-10 mx-auto sm:px-8`}>
               <Gallery assets={product?.asset_urls as string[]} src={product.demo_video_url as string}>
                 {product?.asset_urls &&
                   product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
               </Gallery>
-            </div>
+            </div>}
           </div>
         </div>
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />

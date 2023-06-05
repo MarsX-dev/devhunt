@@ -22,7 +22,7 @@ export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; sl
 
   return (
     <div className="container-custom-screen" id="comments">
-      <h3 className="text-slate-50 font-medium">Support and give a Feedback</h3>
+      <h3 className="text-slate-50 font-medium">Comments, support and feedback</h3>
       <CommentFormSection
         comments={commentsCollection}
         setCommentsCollection={setCommentsCollection}

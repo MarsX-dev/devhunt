@@ -16,9 +16,7 @@ export const TabLink = ({ children, hash, href, className = '', linkClassName, i
   const [isLinkActive, setLinkActive] = useState(isActive)
   const pathname = usePathname()
 
-  const customClassName = `inline-block rounded-full py-2 px-3 target:bg-slate-800 ${
-    isLinkActive ? 'bg-slate-800' : ''
-  } hover:bg-slate-800 duration-150 ${linkClassName}`
+  const customClassName = `inline-block rounded-full py-2 px-3 target:bg-slate-800 hover:bg-slate-800 duration-150 ${linkClassName}`
 
   const handlehashUpdate = () => {
     const currentHash = window.location.hash
