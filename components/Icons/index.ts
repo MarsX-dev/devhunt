@@ -13,3 +13,4 @@ export * from './IconXmark';
 export * from './IconPlus';
 export * from './IconPencilSquare';
 export * from './IconTrash';
+export * from './IconCalendar';

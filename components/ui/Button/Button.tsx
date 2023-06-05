@@ -14,8 +14,8 @@ interface Props extends HTMLAttributes<HTMLButtonElement> {
 export default ({ children, child, className = '', variant = 'default', isLoad = false, ...props }: Props) => {
   const variants = {
     shiny:
-      'py-2 px-3 font-medium text-center text-white active:shadow-none rounded-lg shadow bg-slate-700 md:bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-800 duration-150',
-    default: 'py-2 px-3 rounded-lg duration-150 font-medium text-center text-sm text-white bg-orange-500',
+      'py-2.5 px-3 font-medium text-center text-white active:shadow-none rounded-lg shadow bg-slate-700 md:bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-800 duration-150',
+    default: 'py-2.5 px-3 rounded-lg duration-150 font-medium text-center text-sm text-white bg-orange-500',
   };
 
   return (
