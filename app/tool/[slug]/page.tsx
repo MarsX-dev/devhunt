@@ -194,7 +194,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           <ul className="divide-y divide-slate-800/60">
             {trendingTools?.map((item, idx) => (
               <li key={idx} className="py-3">
-                <ToolCard href={`/tool/${(item.name as string).toLowerCase()}`}>
+                <ToolCard href={`/tool/${(item.slug as string).toLowerCase()}`}>
                   <ProductLogo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
                   <div className="space-y-1">
                     <ToolName>{item.name}</ToolName>
