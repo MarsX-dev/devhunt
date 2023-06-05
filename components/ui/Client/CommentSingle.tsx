@@ -108,7 +108,7 @@ export default ({ comment, productId }: Props) => {
             ''
           )}
         </div>
-        <CommentDate className="mt-1">Commented {moment(newComment.created_at).format('LL')}</CommentDate>
+        <CommentDate className="mt-1">{moment(newComment.created_at).fromNow()}</CommentDate>
         {isEditorActive ? (
           <CommentForm onSubmit={handleEdit}>
             <CommentTextarea

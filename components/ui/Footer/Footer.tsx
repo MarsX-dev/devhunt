@@ -20,6 +20,11 @@ export default () => {
     },
   ];
 
+  const usedTools = [
+    { title: 'FloatUI', url: 'https://www.floatui.com/' },
+    { title: 'Sensorpro', url: 'https://sensorpro.eu/' },
+  ];
+
   return (
     <footer className="mt-20 text-slate-400 bg-slate-900 px-4 py-5 max-w-screen-xl mx-auto md:px-8">
       <div className="border-t border-slate-800 pt-8">
@@ -39,7 +44,19 @@ export default () => {
           ))}
         </ul>
         <div className="mt-8 items-center justify-between sm:flex">
-          <div className="mt-4 sm:mt-0">&copy; 2023 Dev Hunt Inc. Member of <a className='underline text-slate-200' href='https://www.marsx.dev/'>MarsX.Dev</a> family</div>
+          <div className="mt-4 sm:mt-0">
+            &copy; 2023 Dev Hunt. Member of{' '}
+            <a className=" text-slate-100 hover:text-slate-50" href="https://www.marsx.dev/">
+              MarsX.Dev
+            </a>{' '}
+            family. Uses{' '}
+            {usedTools.map((t, i) => (
+              <a className=" text-slate-200 hover:text-slate-50" href={t.url}>
+                {t.title}
+                {usedTools.length - 1 === i ? '' : ', '}
+              </a>
+            ))}{'.'}
+          </div>
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
               <li>

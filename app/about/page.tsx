@@ -35,7 +35,13 @@ export default () => {
             <a href="https://twitter.com/ahmadubahh">Ahmad Ubah</a>
           </li>
           <li>
+            <a href="https://twitter.com/chris_byrne">Chris</a>
+          </li>
+          <li>
             <a href="https://twitter.com/andrenoari">Ariful Islam Khan</a>
+          </li>
+          <li>
+            <a href="https://twitter.com/thezachhan">Zach</a>
           </li>
         </ul>
         <h2>Our Story</h2>
@@ -53,6 +59,18 @@ export default () => {
           developers who might want in on this adventure too.
         </p>
         <p>Together as a community, we'll create something truly special – let's do this! 🚀</p>
+        <blockquote className="twitter-tweet">
+          <p lang="en" dir="ltr">
+            DevHunt. Day 5.- 15 developers joined a discord chat today- we&#39;ve spent the day coding - created most of the backend using{' '}
+            <a href="https://twitter.com/supabase?ref_src=twsrc%5Etfw">@supabase</a> - implemented the home page, product page,{' '}
+            <a href="https://twitter.com/github?ref_src=twsrc%5Etfw">@github</a> auth...(everything &quot;almost done&quot; :D)- agreed on a
+            code style- deployed to <a href="https://twitter.com/vercel?ref_src=twsrc%5Etfw">@vercel</a>…{' '}
+            <a href="https://t.co/I6i5X3fit0">pic.twitter.com/I6i5X3fit0</a>
+          </p>
+          &mdash; John Rush (@johnrushx){' '}
+          <a href="https://twitter.com/johnrushx/status/1661534492949872641?ref_src=twsrc%5Etfw">May 25, 2023</a>
+        </blockquote>{' '}
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       </article>
     </div>
   );

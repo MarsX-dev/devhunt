@@ -173,7 +173,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
               {owned?.full_name}
             </Link>
-            , Featured on {moment(product.launch_date).format('ll')}.
+            {' '} {moment(product.launch_date).fromNow()}.
           </p>
           <div className="mt-10">
             <StatsWrapper>
