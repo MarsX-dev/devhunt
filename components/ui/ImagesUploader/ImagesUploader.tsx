@@ -26,7 +26,7 @@ export const ImagesUploader = ({
   return (
     <div className={mergeTW(`flex flex-wrap gap-3 ${className}`)}>
       {children}
-      {files?.length < max && !isLoad ? (
+      {files?.length < max ? (
         <label
           htmlFor="image-upload"
           className={`${

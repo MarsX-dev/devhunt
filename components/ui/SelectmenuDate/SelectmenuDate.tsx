@@ -10,9 +10,10 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   date?: {
     month?: number;
   };
+  validate?: {};
 }
 
-export default ({ label, value, className = '', date: { month = new Date().getMonth() } = {}, ...props }: Props) => {
+export default ({ label, value, className = '', date: { month = new Date().getMonth() } = {}, validate, ...props }: Props) => {
   const currentDate = new Date();
   const getDaysInMonth = new Date(currentDate.getFullYear(), month, 0).getDate();
   const monthDays = Array.from({ length: getDaysInMonth }, (_, index) => index + 1);
@@ -22,10 +23,11 @@ export default ({ label, value, className = '', date: { month = new Date().getMo
       <IconCalendar className="absolute top-0 bottom-0 w-6 h-6 my-auto text-gray-400 left-3" />
       <select
         {...props}
+        {...validate}
         value={value}
         className={`pr-3 pl-12 py-2 appearance-none rounded-lg text-sm bg-slate-800 text-slate-300 outline-none ${mergeTW(className)}`}
       >
-        <option disabled selected>
+        <option value="" disabled selected>
           {label}
         </option>
         {monthDays.map(item => (

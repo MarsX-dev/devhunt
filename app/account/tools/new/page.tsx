@@ -31,6 +31,7 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
+  launch_date: string;
 }
 
 export default () => {
@@ -64,6 +65,7 @@ export default () => {
 
   const [isLogoLoad, setLogoLoad] = useState<boolean>(false);
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
+  const [isLaunching, setLaunching] = useState<boolean>(false);
 
   useEffect(() => {
     pricingTypesList.then(types => {
@@ -77,6 +79,7 @@ export default () => {
     if (file && file.type.includes('image') && imagePreviews.length < 5) {
       setImageFile([...(imageFiles as any), file]);
       setImagesLoad(true);
+      setImageError('');
       fileUploader({ files: file as Blob }).then(data => {
         if (data?.file) {
           setImagePreview([...imagePreviews, data.file]);
@@ -113,38 +116,37 @@ export default () => {
   };
 
   const onSubmit: SubmitHandler<Inputs> = async data => {
-    if (!validateImages()) {
-      alert('something wrong with iamges');
+    if (validateImages()) {
+      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, launch_date } = data;
+      const categoryIds = categories.map(item => item.id);
+      setLaunching(true);
+      await productService
+        .insert(
+          {
+            asset_urls: imagePreviews,
+            name: tool_name,
+            demo_url: tool_website,
+            github_url: github_repo,
+            pricing_type,
+            slogan,
+            description: tool_description,
+            logo_url: logoPreview,
+            owner_id: user?.id,
+            slug: createSlug(tool_name),
+            is_draft: false,
+            comments_count: 0,
+            votes_counter: 0,
+            demo_video_url: demo_video,
+            launch_date: launch_date,
+          },
+          categoryIds,
+        )
+        .then(res => {
+          setLaunching(false);
+          window.open(`/tool/${res?.slug}`);
+          router.push('/account/tools');
+        });
     }
-
-    const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
-    const categoryIds = categories.map(item => item.id);
-
-    await productService
-      .insert(
-        {
-          asset_urls: imagePreviews,
-          name: tool_name,
-          demo_url: tool_website,
-          github_url: github_repo,
-          pricing_type,
-          slogan,
-          description: tool_description,
-          logo_url: logoPreview,
-          owner_id: user?.id,
-          slug: createSlug(tool_name),
-          is_draft: false,
-          comments_count: 0,
-          votes_counter: 0,
-          demo_video_url: demo_video,
-          launch_date: new Date().toISOString(),
-        },
-        categoryIds,
-      )
-      .then(res => {
-        window.open(`/tool/${res?.slug}`);
-        router.push('/account/tools');
-      });
   };
 
   return (
@@ -177,7 +179,7 @@ export default () => {
                 className="w-full mt-2"
                 validate={{ ...register('slogan', { required: true, minLength: 20 }) }}
               />
-              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool slogan'}</LabelError>
+              <LabelError className="mt-2">{errors.slogan && 'Please enter your tool slogan'}</LabelError>
             </div>
             <div>
               <Label>Tool website URL</Label>
@@ -188,7 +190,7 @@ export default () => {
                   ...register('tool_website', { required: true, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
                 }}
               />
-              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool website URL'}</LabelError>
+              <LabelError className="mt-2">{errors.tool_website && 'Please enter your tool website URL'}</LabelError>
             </div>
             <div>
               <Label>GitHub repo URL (optional)</Label>
@@ -199,6 +201,7 @@ export default () => {
                   ...register('github_repo', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
                 }}
               />
+              <LabelError className="mt-2">{errors.github_repo && 'Please enter a valid github repo url'}</LabelError>
             </div>
             <div>
               <Label>Quick Description (max 300 characters)</Label>
@@ -209,7 +212,7 @@ export default () => {
                   ...register('tool_description', { required: true, maxLength: 350 }),
                 }}
               />
-              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool description'}</LabelError>
+              <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
             </div>
           </FormLaunchSection>
           <FormLaunchSection
@@ -235,7 +238,7 @@ export default () => {
                   )}
                 />
               ))}
-              <LabelError className="mt-2">{errors.solgan && 'Please select your tool pricing type'}</LabelError>
+              <LabelError className="mt-2">{errors.pricing_type && 'Please select your tool pricing type'}</LabelError>
             </div>
             <div>
               <Label>Tool categories (optional)</Label>
@@ -252,6 +255,7 @@ export default () => {
                   ...register('demo_video', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
                 }}
               />
+              <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
             </div>
             <div>
               <Label>Tool screenshots</Label>
@@ -277,32 +281,38 @@ export default () => {
           <FormLaunchSection
             number={4}
             title="Launch Date for Your Dev Tool"
-            description="Setting the perfect launch date is essential to make a splash in the dev world. 
-"
+            description="Setting the perfect launch date is essential to make a splash in the dev world."
           >
             <div>
-              <ul className='text-sm text-slate-400'>
-                <li className='text-slate-300 mb-1'>By choosing your tool's big day, you're guaranteeing:</li>
-                <li><b>1. Home Page Spotlight:</b> Your tool will steal the show on our home page for a full 24 hours!</li>
-                <li><b>2. Morning Buzz:</b> We'll shoot out an email featuring your tool to our subscribers that very morning.</li>
-                <li><b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.</li>
+              <ul className="text-sm text-slate-400">
+                <li className="text-slate-300 mb-1">By choosing your tool's big day, you're guaranteeing:</li>
+                <li>
+                  <b>1. Home Page Spotlight:</b> Your tool will steal the show on our home page for a full 24 hours!
+                </li>
+                <li>
+                  <b>2. Morning Buzz:</b> We'll shoot out an email featuring your tool to our subscribers that very morning.
+                </li>
+                <li>
+                  <b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.
+                </li>
               </ul>
               <div className="relative mt-4 mb-3">
                 <SelectmenuDate
-                  label="Lauch date"
+                  label="Launch date"
                   className="w-full"
                   date={{ month: 6 }}
-                  onChange={e => console.log((e.target as HTMLSelectElement).value)}
+                  validate={{
+                    ...register('launch_date', { required: true }),
+                  }}
                 />
+                <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
               </div>
             </div>
             <div className="pt-7">
-              <Button type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
+              <Button type="submit" isLoad={isLaunching} className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
                 Schedule my Dev Tool for Launch
               </Button>
-              <p className="text-sm text-slate-500 mt-2">
-                * no worries, you can change it later
-              </p>
+              <p className="text-sm text-slate-500 mt-2">* no worries, you can change it later</p>
             </div>
           </FormLaunchSection>
         </FormLaunchWrapper>

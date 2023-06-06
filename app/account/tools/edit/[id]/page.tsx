@@ -20,6 +20,8 @@ import { type File } from 'buffer';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
+import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
+import moment from 'moment';
 
 interface Inputs {
   tool_name: string;
@@ -39,10 +41,10 @@ export default () => {
 
   const tool = productService.getById(+id);
 
-  // const router = useRouter();
+  const router = useRouter();
 
-  // const { session } = useSupabase();
-  // const user = session?.user;
+  const { session } = useSupabase();
+  const user = session && session.user;
 
   const {
     register,
@@ -82,6 +84,7 @@ export default () => {
       setValue('pricing_type', data?.pricing_type);
       setValue('github_repo', data?.github_url);
       setValue('demo_video', data?.demo_video_url);
+      setValue('launch_date', data?.launch_date);
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
     });
@@ -203,7 +206,7 @@ export default () => {
                   }),
                 }}
               />
-              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool website URL'}</LabelError>
+              <LabelError className="mt-2">{errors.tool_website && 'Please enter your tool website URL'}</LabelError>
             </div>
             <div>
               <Label>GitHub repo URL (optional)</Label>
@@ -217,6 +220,7 @@ export default () => {
                   }),
                 }}
               />
+              <LabelError className="mt-2">{errors.github_repo && 'Please enter a valid github repo url'}</LabelError>
             </div>
             <div>
               <Label>Quick Description (max 300 characters)</Label>
@@ -227,10 +231,14 @@ export default () => {
                   ...register('tool_description', { required: true, maxLength: 350 }),
                 }}
               />
-              <LabelError className="mt-2">{errors.solgan && 'Please enter your tool description'}</LabelError>
+              <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
             </div>
           </FormLaunchSection>
-          <FormLaunchSection number={2} title="Extra Stuff" description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!">
+          <FormLaunchSection
+            number={2}
+            title="Extra Stuff"
+            description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!"
+          >
             <div>
               <Label>Tool pricing type</Label>
               {pricingType.map((item, idx) => (
@@ -244,7 +252,9 @@ export default () => {
                       <Radio
                         checked={item.id == getValues('pricing_type')}
                         value="free"
-                        onChange={e => { field.onChange(item.id); }}
+                        onChange={e => {
+                          field.onChange(item.id);
+                        }}
                         id={item.title as string}
                         name="pricing-type"
                       />
@@ -255,7 +265,7 @@ export default () => {
                   )}
                 />
               ))}
-              <LabelError className="mt-2">{errors.solgan && 'Please select your tool pricing type'}</LabelError>
+              <LabelError className="mt-2">{errors.pricing_type && 'Please select your tool pricing type'}</LabelError>
             </div>
             <div>
               <Label>Tool categories (optional)</Label>
@@ -275,6 +285,7 @@ export default () => {
                   }),
                 }}
               />
+              <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
             </div>
             <div>
               <Label>Tool screenshots</Label>
@@ -284,10 +295,45 @@ export default () => {
               </p>
               <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
-                  <ImageUploaderItem src={src} key={idx} onRemove={() => { handleRemoveImage(idx); }} />
+                  <ImageUploaderItem
+                    src={src}
+                    key={idx}
+                    onRemove={() => {
+                      handleRemoveImage(idx);
+                    }}
+                  />
                 ))}
               </ImagesUploader>
               <LabelError className="mt-2">{imagesError}</LabelError>
+            </div>
+          </FormLaunchSection>
+          <FormLaunchSection
+            number={4}
+            title="Launch Date for Your Dev Tool"
+            description="Setting the perfect launch date is essential to make a splash in the dev world."
+          >
+            <div>
+              <ul className="text-sm text-slate-300">
+                <li className="p-2 rounded-lg border border-slate-800 bg-slate-800/50">
+                  The launch date is <b>{moment(getValues('launch_date')).format('LL')}</b> Please{' '}
+                  <a href="https://twitter.com/johnrushx" target="_blank" className="text-orange-500 hover:text-orange-400">
+                    contact us
+                  </a>{' '}
+                  if you want to update or cancel the launch.
+                </li>
+              </ul>
+              {/* <div className="relative mt-4 mb-3">
+                <SelectmenuDate
+                  value={getValues('launch_date')}
+                  label="Launch date"
+                  className="w-full"
+                  date={{ month: 6 }}
+                  validate={{
+                    ...register('launch_date', { required: true }),
+                  }}
+                />
+                <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
+              </div> */}
             </div>
             <div className="mt-3">
               <Button isLoad={isUpdate} type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
