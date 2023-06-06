@@ -123,7 +123,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny href={product?.demo_url ?? ''} target="_balnk" className="flex items-center gap-x-2">
+          <LinkShiny href={product?.demo_url ?? ''} target="_balnk" rel="nofollow noopener noreferrer" className="flex items-center gap-x-2">
             Live preview
             <IconArrowTopRight />
           </LinkShiny>

@@ -333,6 +333,16 @@ export interface Database {
       };
     };
     Functions: {
+      get_prev_launch_days: {
+        Args: {
+          _launch_date: string;
+          _limit: number;
+        };
+        Returns: {
+          launch_date: string;
+          products: Json;
+        }[];
+      };
       get_similar_products: {
         Args: {
           _product_id: number;

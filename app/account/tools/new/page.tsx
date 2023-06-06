@@ -14,7 +14,6 @@ import Textarea from '@/components/ui/Textarea';
 import createSlug from '@/utils/createSlug';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import fileUploader from '@/utils/supabase/fileUploader';
-import CategoryService from '@/utils/supabase/services/categories';
 import ProductPricingTypesService from '@/utils/supabase/services/pricing-types';
 import ProductsService from '@/utils/supabase/services/products';
 import { type ProductCategory, type ProductPricingType } from '@/utils/supabase/types';
@@ -38,12 +37,12 @@ export default () => {
   const browserService = createBrowserClient();
   const pricingTypesList = new ProductPricingTypesService(browserService).getAll();
   const productService = new ProductsService(browserService);
-  const productCategoryService = new CategoryService(browserService);
+  // const productCategoryService = new CategoryService(browserService);
 
   const router = useRouter();
 
   const { session } = useSupabase();
-  const user = session && session.user;
+  const user = session?.user;
 
   const {
     register,

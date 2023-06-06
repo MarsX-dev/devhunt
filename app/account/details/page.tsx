@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FormEventHandler, useEffect, useState } from 'react';
+import React, { type FormEventHandler, useEffect, useState } from 'react';
 import UploadAvatar from '@/components/ui/UploadAvatar/UploadAvatar';
 import Button from '@/components/ui/Button/Button';
 import Input from '@/components/ui/Input';
@@ -14,7 +14,7 @@ import validateURL from '@/utils/validateURL';
 
 function Profile() {
   const { session, user } = useSupabase();
-  const userSession = session && session.user;
+  const userSession = session?.user;
   const profileService = new ProfileService(createBrowserClient());
   const profile = profileService.getById(userSession?.id as string);
 
@@ -97,12 +97,12 @@ function Profile() {
           <div className="space-y-4">
             <div>
               <Label>Full name</Label>
-              <Input value={fullName} onChange={e => setFullName((e.target as HTMLInputElement).value)} className="w-full mt-2" />
+              <Input value={fullName} onChange={e => { setFullName((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
               <LabelError className="mt">{fullNameError}</LabelError>
             </div>
             <div>
               <Label>Username</Label>
-              <Input value={username} onChange={e => setUsername((e.target as HTMLInputElement).value)} className="w-full mt-2" />
+              <Input value={username} onChange={e => { setUsername((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
               <LabelError className="mt">{usernameError}</LabelError>
             </div>
             <div>
@@ -111,17 +111,17 @@ function Profile() {
             </div>
             <div>
               <Label>Headline</Label>
-              <Input value={headline} onChange={e => setHeadLine((e.target as HTMLInputElement).value)} className="w-full mt-2" />
+              <Input value={headline} onChange={e => { setHeadLine((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
               <LabelError>{headlineError}</LabelError>
             </div>
             <div>
               <Label>Website URL</Label>
-              <Input value={websiteUrl} onChange={e => setWebsiteUrl((e.target as HTMLInputElement).value)} className="w-full mt-2" />
+              <Input value={websiteUrl} onChange={e => { setWebsiteUrl((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
               <LabelError>{websiteUrlError}</LabelError>
             </div>
             <div>
               <Label>About</Label>
-              <Textarea value={about} onChange={e => setAbout((e.target as HTMLInputElement).value)} className="w-full h-28 mt-2" />
+              <Textarea value={about} onChange={e => { setAbout((e.target as HTMLInputElement).value); }} className="w-full h-28 mt-2" />
               <LabelError className="mt">{aboutError}</LabelError>
             </div>
             <Button isLoad={isLoad} className="flex justify-center w-full ring-offset-2 ring-orange-500 focus:ring-2 hover:bg-orange-400">

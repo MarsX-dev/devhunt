@@ -6,7 +6,7 @@ import Page404 from '@/components/ui/Page404/Page404';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { useParams } from 'next/navigation';
-import { ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 export default ({ children }: { children: ReactNode }) => {
   const { id } = useParams();
@@ -24,13 +24,17 @@ export default ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  return isLoad ? (
+  return isLoad
+    ? (
     <div className="min-h-screen">
       <IconLoading className="w-7 h-7 text-orange-500 mx-auto mt-16" />
     </div>
-  ) : isTool ? (
-    children
-  ) : (
+      )
+    : isTool
+      ? (
+          children
+        )
+      : (
     <Page404 />
-  );
+        );
 };

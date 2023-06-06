@@ -34,9 +34,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  const user = session && session.user;
+  const user = session?.user;
   const profileService = new ProfileService(createServerClient());
-  const profile = user ? await profileService.getById(user?.id as string) : null;
+  const profile = user ? await profileService.getById(user?.id) : null;
 
   return (
     <html lang="en" className="bg-slate-900">
