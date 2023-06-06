@@ -278,26 +278,32 @@ export default () => {
           <FormLaunchSection
             number={4}
             title="Launch Date for Your Dev Tool"
-            description="Setting the perfect launch date is essential to make a splash in the dev world. By choosing your tool's big day, you're guaranteeing:
+            description="Setting the perfect launch date is essential to make a splash in the dev world. 
 "
           >
             <div>
-              <Label>1. Home Page Spotlight: Your tool will steal the show on our home page for a full 24 hours!</Label>
-              <Label>2. Morning Buzz: We'll shoot out an email featuring your tool to our subscribers that very morning.</Label>
-              <Label>3. Daily Voting Frenzy: Users will be eager to check out and vote for all of the day's featured tools.</Label>
-              <div className="relative mt-12">
+              <ul className='text-sm text-slate-400'>
+                <li className='text-slate-300 mb-1'>By choosing your tool's big day, you're guaranteeing:</li>
+                <li><b>1. Home Page Spotlight:</b> Your tool will steal the show on our home page for a full 24 hours!</li>
+                <li><b>2. Morning Buzz:</b> We'll shoot out an email featuring your tool to our subscribers that very morning.</li>
+                <li><b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.</li>
+              </ul>
+              <div className="relative mt-4 mb-3">
                 <SelectmenuDate
                   label="Lauch date"
                   className="w-full"
-                  date={{ month: 5 }}
+                  date={{ month: 6 }}
                   onChange={e => console.log((e.target as HTMLSelectElement).value)}
                 />
               </div>
             </div>
-            <div className="mt-3">
+            <div className="pt-7">
               <Button type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
-                Submit
+                Schedule my Dev Tool for Launch
               </Button>
+              <p className="text-sm text-slate-500 mt-2">
+                * no worries, you can change it later
+              </p>
             </div>
           </FormLaunchSection>
         </FormLaunchWrapper>
