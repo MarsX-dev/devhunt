@@ -1,9 +1,5 @@
-import ProductsService from '@/utils/supabase/services/products'
-import { createServerClient } from '@/utils/supabase/server'
-import ProfileService from '@/utils/supabase/services/profile'
-
 export default async ({ params: { user, slug } }: { params: { user: string; slug: string } }) => {
-  console.log(slug)
+  console.log(slug);
 
   // const profileService = new ProfileService(createServerClient())
   // const profile = await profileService.getByUsername(slug)

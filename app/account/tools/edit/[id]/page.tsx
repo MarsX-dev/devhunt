@@ -11,19 +11,17 @@ import LabelError from '@/components/ui/LabelError/LabelError';
 import LogoUploader from '@/components/ui/LogoUploader/LogoUploader';
 import Radio from '@/components/ui/Radio';
 import Textarea from '@/components/ui/Textarea';
-import createSlug from '@/utils/createSlug';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import fileUploader from '@/utils/supabase/fileUploader';
-import CategoryService from '@/utils/supabase/services/categories';
 import ProductPricingTypesService from '@/utils/supabase/services/pricing-types';
 import ProductsService from '@/utils/supabase/services/products';
-import { ProductCategory, ProductPricingType } from '@/utils/supabase/types';
-import { File } from 'buffer';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { type ProductCategory, type ProductPricingType } from '@/utils/supabase/types';
+import { type File } from 'buffer';
+import { type ChangeEvent, useEffect, useState } from 'react';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 
-type Inputs = {
+interface Inputs {
   tool_name: string;
   tool_website: string;
   tool_description: string;
@@ -31,7 +29,7 @@ type Inputs = {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
-};
+}
 
 export default () => {
   const { id } = useParams();
@@ -41,10 +39,10 @@ export default () => {
 
   const tool = productService.getById(+id);
 
-  const router = useRouter();
+  // const router = useRouter();
 
-  const { session } = useSupabase();
-  const user = session && session.user;
+  // const { session } = useSupabase();
+  // const user = session?.user;
 
   const {
     register,
@@ -97,7 +95,7 @@ export default () => {
       setImagesLoad(true);
       fileUploader({ files: file as Blob }).then(data => {
         if (data?.file) {
-          setImagePreview([...imagePreviews, data.file as string]);
+          setImagePreview([...imagePreviews, data.file]);
           setImagesLoad(false);
         }
       });
@@ -129,14 +127,14 @@ export default () => {
     else return true;
   };
 
-  const onSubmit: SubmitHandler<Inputs> = data => {
+  const onSubmit: SubmitHandler<Inputs> = async data => {
     if (validateImages()) {
       setUpdate(true);
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
 
       const categoryIds: number[] = categories.map(category => category.id);
 
-      return productService
+      await productService
         .update(
           +id,
           {
@@ -246,7 +244,7 @@ export default () => {
                       <Radio
                         checked={item.id == getValues('pricing_type')}
                         value="free"
-                        onChange={e => field.onChange(item.id)}
+                        onChange={e => { field.onChange(item.id); }}
                         id={item.title as string}
                         name="pricing-type"
                       />
@@ -286,7 +284,7 @@ export default () => {
               </p>
               <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
-                  <ImageUploaderItem src={src} key={idx} onRemove={() => handleRemoveImage(idx)} />
+                  <ImageUploaderItem src={src} key={idx} onRemove={() => { handleRemoveImage(idx); }} />
                 ))}
               </ImagesUploader>
               <LabelError className="mt-2">{imagesError}</LabelError>

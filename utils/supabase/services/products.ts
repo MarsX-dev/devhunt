@@ -6,6 +6,19 @@ import { omit } from '@/utils/helpers';
 export default class ProductsService extends BaseDbService {
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
 
+  async getPrevLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
+    const { data, error } = await this.supabase.rpc('get_prev_launch_days', { _launch_date: launchDate.toISOString(), _limit: limit });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({
+      launchDate: new Date(i.launch_date),
+      products: i.products.map(i => ({
+        ...i.product,
+        product_pricing_types: i.product_pricing_types,
+        product_categories: i.product_categories,
+      })) as ExtendedProduct[],
+    }));
+  }
+
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
     return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).eq('deleted', false).order(sortBy, { ascending });

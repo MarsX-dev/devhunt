@@ -9,8 +9,7 @@ import Name from '@/components/ui/ToolCard/Tool.Name';
 import Tags from '@/components/ui/ToolCard/Tool.Tags';
 import Title from '@/components/ui/ToolCard/Tool.Title';
 import Votes from '@/components/ui/ToolCard/Tool.Votes';
-import ToolCard from '@/components/ui/ToolCard/ToolCard';
-import { ProductType } from '@/type';
+import { type ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
@@ -18,7 +17,7 @@ import { useEffect, useState } from 'react';
 
 export default () => {
   const { session } = useSupabase();
-  const user = session && session.user;
+  const user = session?.user;
   const browserService = createBrowserClient();
   const toolsService = new ProductsService(browserService);
   const toolsList = new ProductsService(browserService).getUserProductsById(user?.id as string);
@@ -55,12 +54,15 @@ export default () => {
         </div>
       </div>
       <ul className="mt-6 divide-y divide-slate-800/60">
-        {isLoad ? (
+        {isLoad
+          ? (
           <div>
             <IconLoading className="w-6 h-6 mx-auto text-orange-500" />
           </div>
-        ) : tools.length > 0 ? (
-          tools.map((tool: ProductType, idx: number) => (
+            )
+          : tools.length > 0
+            ? (
+                tools.map((tool: ProductType, idx: number) => (
             <li key={idx} className="py-3">
               <div className="p-2 flex items-start gap-x-4">
                 <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
@@ -80,7 +82,7 @@ export default () => {
                       <IconPencilSquare />
                     </Link>
                     <button
-                      onClick={() => handleDeleteConfirm(tool.id, idx)}
+                      onClick={() => { handleDeleteConfirm(tool.id, idx); }}
                       className="inline-block text-slate-400 hover:text-slate-500 duration-150"
                     >
                       <IconTrash />
@@ -92,10 +94,11 @@ export default () => {
                 </div>
               </div>
             </li>
-          ))
-        ) : (
+                ))
+              )
+            : (
           <div className="font-medium text-slate-400">No launches found.</div>
-        )}
+              )}
       </ul>
     </section>
   );

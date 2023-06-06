@@ -4,7 +4,7 @@ import {
   type ProductPricingType,
   type Profile,
   type Database,
-} from '@/utils/supabase/types'
+} from '@/utils/supabase/types';
 
 export type ExtendedProduct = Product & {
   product_pricing_types: ProductPricingType

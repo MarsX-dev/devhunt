@@ -17,7 +17,7 @@ import moment from 'moment';
 import Link from 'next/link';
 import AwardsService from '@/utils/supabase/services/awards';
 import { createServerClient } from '@/utils/supabase/server';
-import { Metadata } from 'next';
+import { type Metadata } from 'next';
 
 interface IComment extends CommentType {
   profiles: Profile;
@@ -67,7 +67,8 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
         <UserProfileInfo profile={profile} />
-        {tools && tools?.length > 0 ? (
+        {tools && tools?.length > 0
+          ? (
           <div>
             <h3 className="font-medium text-slate-50">Launches</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
@@ -76,10 +77,12 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
               ))}
             </ul>
           </div>
-        ) : (
-          ''
-        )}
-        {votedTools && votedTools?.length > 0 ? (
+            )
+          : (
+              ''
+            )}
+        {votedTools && votedTools?.length > 0
+          ? (
           <div>
             <h3 className="font-medium text-slate-50">{votedTools?.length} Upvotes</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
@@ -105,10 +108,12 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
               ))}
             </ul>
           </div>
-        ) : (
-          ''
-        )}
-        {activity && activity?.length > 0 ? (
+            )
+          : (
+              ''
+            )}
+        {activity && activity?.length > 0
+          ? (
           <div>
             <h3 className="font-medium text-slate-50">Activity</h3>
             <Comments className="mt-8">
@@ -136,10 +141,12 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
               ))}
             </Comments>
           </div>
-        ) : (
-          ''
-        )}
-        {trendingTools && trendingTools?.length > 0 ? (
+            )
+          : (
+              ''
+            )}
+        {trendingTools && trendingTools?.length > 0
+          ? (
           <div>
             <h3 className="font-medium text-slate-50">Trending tools</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
@@ -160,9 +167,10 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
               ))}
             </ul>
           </div>
-        ) : (
-          ''
-        )}
+            )
+          : (
+              ''
+            )}
       </div>
     );
   } else return <Page404 />;
