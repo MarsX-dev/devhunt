@@ -99,9 +99,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       label: 'Upvotes',
     },
     {
-      count: comments?.length || 0,
+      count: product.views_count,
       icon: <IconChatBubbleLeft />,
-      label: 'Comments',
+      label: 'Views',
     },
     // TODO add calculation of rank in week and day
     {
@@ -199,7 +199,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                   <div className="space-y-1">
                     <ToolName>{item.name}</ToolName>
                     <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
-                    <Tags items={[item.product_pricing, ...(item.product_categories || [])]} />
+                    <Tags items={[item.product_pricing, ...(item.product_categories ?? [])]} />
                   </div>
                   <div className="flex-1 self-center flex justify-end">
                     <ToolVotes count={item.votes_count as number} />
