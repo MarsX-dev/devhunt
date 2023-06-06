@@ -23,6 +23,10 @@ export default () => {
   const usedTools = [
     { title: 'FloatUI', url: 'https://www.floatui.com/' },
     { title: 'Sensorpro', url: 'https://sensorpro.eu/' },
+    { title: 'Usermaven', url: 'https://usermaven.com/' },
+    { title: 'Vercel', url: 'https://vercel.com/' },
+    { title: 'Supabase', url: 'https://supabase.com/' },
+    { title: 'UnicornPlatform', url: 'https://unicornplatform.com/' },
   ];
 
   return (
@@ -49,13 +53,17 @@ export default () => {
             <a className=" text-slate-100 hover:text-slate-50" href="https://www.marsx.dev/">
               MarsX.Dev
             </a>{' '}
-            family. Uses{' '}
-            {usedTools.map((t, i) => (
-              <a className=" text-slate-200 hover:text-slate-50" href={t.url}>
-                {t.title}
-                {usedTools.length - 1 === i ? '' : ', '}
-              </a>
-            ))}{'.'}
+            family. <br />
+            <div className="text-xs pt-2">
+              Uses{' '}
+              {usedTools.map((t, i) => (
+                <a className=" text-slate-200 hover:text-slate-50" href={t.url}>
+                  {t.title}
+                  {usedTools.length - 1 === i ? '' : ', '}
+                </a>
+              ))}
+              {'.'}
+            </div>
           </div>
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
