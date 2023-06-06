@@ -24,7 +24,7 @@ export default ({ count, productId, className = '', ...props }: Props) => {
 
   const toggleVote = async () => {
     if (session && session.user) {
-      const newVotesCount = await productsService.voteUnvote(productId as number, session.user.id)
+      const newVotesCount = await productsService.toggleVote(productId as number, session.user.id)
       setUpvoted(!isUpvoted)
       setVotesCount(newVotesCount)
     } else router.push('/login')

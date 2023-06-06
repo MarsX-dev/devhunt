@@ -1,14 +1,14 @@
-import Logo from '@/components/ui/ToolCard/Tool.Logo'
-import Name from '@/components/ui/ToolCard/Tool.Name'
-import Tags from '@/components/ui/ToolCard/Tool.Tags'
-import Title from '@/components/ui/ToolCard/Tool.Title'
-import Votes from '@/components/ui/ToolCard/Tool.Votes'
-import ToolCard from '@/components/ui/ToolCard/ToolCard'
-import ProductsService from '@/utils/supabase/services/products'
-import { createServerClient } from '@/utils/supabase/server'
+import Logo from '@/components/ui/ToolCard/Tool.Logo';
+import Name from '@/components/ui/ToolCard/Tool.Name';
+import Tags from '@/components/ui/ToolCard/Tool.Tags';
+import Title from '@/components/ui/ToolCard/Tool.Title';
+import Votes from '@/components/ui/ToolCard/Tool.Votes';
+import ToolCard from '@/components/ui/ToolCard/ToolCard';
+import ProductsService from '@/utils/supabase/services/products';
+import { createServerClient } from '@/utils/supabase/server';
 
 export default async function Home() {
-  const tools = await new ProductsService(createServerClient()).getTopProducts('created_at', false)
+  const tools = await new ProductsService(createServerClient()).getTopProducts('created_at', false);
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
@@ -27,8 +27,7 @@ Let's build this together - by us, for us 💪😎
 
       <div className="mt-10 mb-12">
         <ul className="divide-y divide-slate-800/60">
-          {tools &&
-            tools.map((product, idx) => (
+          {tools?.map((product, idx) => (
               <li key={idx} className="py-3">
                 <ToolCard href={'/tool/' + product.slug}>
                   <Logo src={product.logo_url || ''} alt={product.name} />
@@ -37,7 +36,7 @@ Let's build this together - by us, for us 💪😎
                     <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
                     <Tags
                       items={[
-                        product.product_pricing_types?.title || 'Free',
+                        product.product_pricing_types?.title ?? 'Free',
                         ...product.product_categories.map(c => c.name),
                       ]}
                     />
@@ -47,9 +46,9 @@ Let's build this together - by us, for us 💪😎
                   </div>
                 </ToolCard>
               </li>
-            ))}
+          ))}
         </ul>
       </div>
     </section>
-  )
+  );
 }

@@ -368,12 +368,12 @@ export interface Database {
         };
         Returns: boolean;
       };
-      triggerProductVote: {
+      toggleProductVote: {
         Args: {
-          _user_id: string;
           _product_id: number;
+          _user_id: string;
         };
-        Returns: boolean;
+        Returns: number;
       };
     };
     Enums: {

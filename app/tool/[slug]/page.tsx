@@ -16,7 +16,7 @@ import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
-import { Metadata } from 'next';
+import { type Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import Link from 'next/link';
@@ -156,8 +156,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 </TagsGroup>
               </div>}
             </div>
-            {product?.asset_urls?.length && <div className={`max-w-screen-2xl ${product?.asset_urls?.length==1?'container-custom-screen':''} mt-10 mx-auto sm:px-8`}>
-              <Gallery assets={product?.asset_urls as string[]} src={product.demo_video_url as string}>
+            {product?.asset_urls?.length && <div className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
+              <Gallery assets={product?.asset_urls } src={product.demo_video_url as string}>
                 {product?.asset_urls &&
                   product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
               </Gallery>
