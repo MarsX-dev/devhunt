@@ -78,11 +78,18 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getBySlug(slug: string): Promise<ExtendedProduct | null> {
-    return this._getOne('slug', slug);
+    const product = await this._getOne('slug', slug);
+    await this.viewed(product?.id);
+    return product;
   }
 
   async toggleVote(productId: number, userId: string): Promise<number> {
     const { data } = await this.supabase.rpc('toggleProductVote', { _product_id: productId, _user_id: userId });
+    return data ?? 0;
+  }
+
+  async viewed(productId: number): Promise<number> {
+    const { data } = await this.supabase.rpc('updateViews', { _product_id: productId });
     return data ?? 0;
   }
 
@@ -99,11 +106,8 @@ export default class ProductsService extends BaseDbService {
 
   async update(id: number, updates: UpdateProduct, productCategoryIds: number[] = []): Promise<Product> {
     const cleanUpdates = omit(updates, ['deleted_at', 'deleted']);
-
     const { data, error } = await this.supabase.from('products').update(cleanUpdates).eq('id', id).select().single();
-
     await this.supabase.from('product_category_product').delete().eq('product_id', id);
-
     await Promise.all(productCategoryIds.map(async categoryId => await this._addProductToCategory(id, categoryId)));
 
     if (error != null) throw new Error(error.message);
