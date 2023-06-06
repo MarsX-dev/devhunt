@@ -16,7 +16,7 @@ import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
-import { Metadata } from 'next';
+import { type Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import Link from 'next/link';
@@ -99,9 +99,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       label: 'Upvotes',
     },
     {
-      count: comments?.length || 0,
+      count: product.views_count,
       icon: <IconChatBubbleLeft />,
-      label: 'Comments',
+      label: 'Views',
     },
     // TODO add calculation of rank in week and day
     {
@@ -156,8 +156,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 </TagsGroup>
               </div>}
             </div>
-            {product?.asset_urls?.length && <div className={`max-w-screen-2xl ${product?.asset_urls?.length==1?'container-custom-screen':''} mt-10 mx-auto sm:px-8`}>
-              <Gallery assets={product?.asset_urls as string[]} src={product.demo_video_url as string}>
+            {product?.asset_urls?.length && <div className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
+              <Gallery assets={product?.asset_urls } src={product.demo_video_url as string}>
                 {product?.asset_urls &&
                   product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
               </Gallery>
@@ -199,7 +199,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                   <div className="space-y-1">
                     <ToolName>{item.name}</ToolName>
                     <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
-                    <Tags items={[item.product_pricing, ...(item.product_categories || [])]} />
+                    <Tags items={[item.product_pricing, ...(item.product_categories ?? [])]} />
                   </div>
                   <div className="flex-1 self-center flex justify-end">
                     <ToolVotes count={item.votes_count as number} />

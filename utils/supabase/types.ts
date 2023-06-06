@@ -150,6 +150,7 @@ export interface Database {
           slogan: string | null;
           slug: string;
           updated_at: string;
+          views_count: number;
           votes_count: number;
           votes_counter: number;
         };
@@ -176,6 +177,7 @@ export interface Database {
           slogan?: string | null;
           slug: string;
           updated_at?: string;
+          views_count?: number;
           votes_count?: number;
           votes_counter: number;
         };
@@ -202,6 +204,7 @@ export interface Database {
           slogan?: string | null;
           slug?: string;
           updated_at?: string;
+          views_count?: number;
           votes_count?: number;
           votes_counter?: number;
         };
@@ -357,6 +360,7 @@ export interface Database {
           slogan: string | null;
           slug: string;
           updated_at: string;
+          views_count: number;
           votes_count: number;
           votes_counter: number;
         }[];
@@ -368,12 +372,18 @@ export interface Database {
         };
         Returns: boolean;
       };
-      triggerProductVote: {
+      toggleProductVote: {
         Args: {
+          _product_id: number;
           _user_id: string;
+        };
+        Returns: number;
+      };
+      updateViews: {
+        Args: {
           _product_id: number;
         };
-        Returns: boolean;
+        Returns: number;
       };
     };
     Enums: {

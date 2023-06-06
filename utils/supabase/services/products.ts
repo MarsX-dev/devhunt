@@ -70,28 +70,27 @@ export default class ProductsService extends BaseDbService {
 
   async getRandomTools(limit: number): Promise<ExtendedProduct[] | null> {
     const { data } = await this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).limit(limit);
-
     return data;
   }
 
   async getById(id: number): Promise<ExtendedProduct | null> {
-    return await this._getOne('id', id);
+    return this._getOne('id', id);
   }
 
   async getBySlug(slug: string): Promise<ExtendedProduct | null> {
-    return await this._getOne('slug', slug);
+    const product = await this._getOne('slug', slug);
+    await this.viewed(product?.id);
+    return product;
   }
 
-  async voteUnvote(productId: number, userId: string): Promise<number> {
-    const { data, error } = await this.supabase.rpc('triggerProductVote', { _product_id: productId, _user_id: userId });
+  async toggleVote(productId: number, userId: string): Promise<number> {
+    const { data } = await this.supabase.rpc('toggleProductVote', { _product_id: productId, _user_id: userId });
+    return data ?? 0;
+  }
 
-    if (error !== null) {
-      throw new Error(error.message);
-    }
-
-    const product = await this._getOne('id', productId, 'votes_count');
-
-    return product?.votes_count || 0;
+  async viewed(productId: number): Promise<number> {
+    const { data } = await this.supabase.rpc('updateViews', { _product_id: productId });
+    return data ?? 0;
   }
 
   async insert(product: InsertProduct, productCategoryIds: number[]): Promise<Product | null> {
@@ -107,11 +106,8 @@ export default class ProductsService extends BaseDbService {
 
   async update(id: number, updates: UpdateProduct, productCategoryIds: number[] = []): Promise<Product> {
     const cleanUpdates = omit(updates, ['deleted_at', 'deleted']);
-
     const { data, error } = await this.supabase.from('products').update(cleanUpdates).eq('id', id).select().single();
-
     await this.supabase.from('product_category_product').delete().eq('product_id', id);
-
     await Promise.all(productCategoryIds.map(async categoryId => await this._addProductToCategory(id, categoryId)));
 
     if (error != null) throw new Error(error.message);
@@ -150,17 +146,8 @@ export default class ProductsService extends BaseDbService {
   }
 
   private async _getOne(column: string, value: unknown, select = '*, product_pricing_types(*), product_categories(name, id)') {
-    const { data: products, error } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).limit(1);
-
-    if (error !== null) {
-      throw new Error(error.message);
-    }
-
-    const product = products[0];
-    if (!product) {
-      return null;
-    }
-
-    return product;
+    const { data, error } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).single();
+    if (error !== null) throw new Error(error.message);
+    return data;
   }
 }
