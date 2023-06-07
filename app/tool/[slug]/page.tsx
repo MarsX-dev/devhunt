@@ -134,7 +134,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
-          <ButtonUpvote productId={product?.id} count={product?.votes_count} />
+          <ButtonUpvote productId={product?.id} count={product?.votes_count} launchDate={product.launch_date} />
         </div>
       </div>
       <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
