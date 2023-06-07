@@ -19,6 +19,19 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
+  async getNextLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
+    const { data, error } = await this.supabase.rpc('get_next_launch_days', { _launch_date: launchDate.toISOString(), _limit: limit });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({
+      launchDate: new Date(i.launch_date),
+      products: i.products.map(i => ({
+        ...i.product,
+        product_pricing_types: i.product_pricing_types,
+        product_categories: i.product_categories,
+      })) as ExtendedProduct[],
+    }));
+  }
+
   async getProductsCountByDay(startDate: Date, endDate: Date): Promise<{ date: Date; count: number }[]> {
     const { data, error } = await this.supabase.rpc('get_products_count_by_date', { _start_date: startDate.toISOString(), _end_date: endDate.toISOString() });
     if (error !== null) throw new Error(error.message);
