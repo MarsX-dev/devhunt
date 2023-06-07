@@ -336,6 +336,16 @@ export interface Database {
       };
     };
     Functions: {
+      get_next_launch_days: {
+        Args: {
+          _launch_date: string;
+          _limit: number;
+        };
+        Returns: {
+          launch_date: string;
+          data: Json;
+        }[];
+      };
       get_prev_launch_days: {
         Args: {
           _launch_date: string;
