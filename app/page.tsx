@@ -9,9 +9,6 @@ import { createServerClient } from '@/utils/supabase/server';
 
 export default async function Home() {
   const launchDays = await new ProductsService(createServerClient()).getPrevLaunchDays(new Date(), 10);
-  console.log('###');
-  console.log(JSON.stringify(launchDays, null, 2));
-
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
       <div className="prose prose-invert">

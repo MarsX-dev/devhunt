@@ -343,6 +343,16 @@ export interface Database {
           products: Json;
         }[];
       };
+      get_products_count_by_date: {
+        Args: {
+          _start_date: string;
+          _end_date: string;
+        };
+        Returns: {
+          date: string;
+          product_count: number;
+        }[];
+      };
       get_similar_products: {
         Args: {
           _product_id: number;

@@ -19,6 +19,12 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
+  async getProductsCountByDay(startDate: Date, endDate: Date): Promise<{ date: Date; count: number }[]> {
+    const { data, error } = await this.supabase.rpc('get_products_count_by_date', { _start_date: startDate.toISOString(), _end_date: endDate.toISOString() });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({ date: new Date(i.date), count: i.product_count }));
+  }
+
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
     return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).eq('deleted', false).order(sortBy, { ascending });

@@ -1,7 +1,7 @@
 import { IconCalendar } from '@/components/Icons';
 import mergeTW from '@/utils/mergeTW';
 import moment from 'moment';
-import { HTMLAttributes } from 'react';
+import { type HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;
