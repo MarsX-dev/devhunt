@@ -147,7 +147,7 @@ export default class ProductsService extends BaseDbService {
   }
 
   async search(searchTerm: string): Promise<Product[] | null> {
-    const { data, error } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).limit(8);
+    const { data, error } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).eq('deleted', false).limit(8);
 
     if (error !== null) throw new Error(error.message);
     return data;
