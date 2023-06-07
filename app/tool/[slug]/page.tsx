@@ -154,7 +154,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 // Use DOMPurify method for XSS sanitizeration
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
               ></div>
-              {product?.product_categories.length && (
+              {product?.product_categories.length ? (
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
                   <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                   <TagsGroup>
@@ -163,6 +163,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                     ))}
                   </TagsGroup>
                 </div>
+              ) : (
+                ''
               )}
             </div>
             {product?.asset_urls?.length && (
