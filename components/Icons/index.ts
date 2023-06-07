@@ -15,3 +15,4 @@ export * from './IconPencilSquare';
 export * from './IconTrash';
 export * from './IconCalendar';
 export * from './IconEye';
+export * from './IconInformationCircle';
