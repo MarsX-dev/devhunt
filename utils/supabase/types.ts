@@ -216,6 +216,7 @@ export interface Database {
           full_name: string | null;
           headline: string | null;
           id: string;
+          twitter: string | null;
           updated_at: string | null;
           username: string | null;
           website_url: string | null;
@@ -226,6 +227,7 @@ export interface Database {
           full_name?: string | null;
           headline?: string | null;
           id: string;
+          twitter?: string | null;
           updated_at?: string | null;
           username?: string | null;
           website_url?: string | null;
@@ -236,6 +238,7 @@ export interface Database {
           full_name?: string | null;
           headline?: string | null;
           id?: string;
+          twitter?: string | null;
           updated_at?: string | null;
           username?: string | null;
           website_url?: string | null;
