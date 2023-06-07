@@ -20,9 +20,9 @@ import { type Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import Link from 'next/link';
-import moment from 'moment';
 import ProfileService from '@/utils/supabase/services/profile';
 import ToolVotes from '@/components/ui/ToolCard/Tool.Votes';
+import customDateFromNow from '@/utils/customDateFromNow';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -187,7 +187,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               {owned?.full_name}
             </Link>{' '}
             {isLaunchStarted ? 'in ' : 'Will be launched in '}
-            {moment(product.launch_date).format('LL')}.
+            {customDateFromNow(product.launch_date)}.
           </p>
           {isLaunchStarted ? (
             <div className="mt-10">
