@@ -21,10 +21,10 @@ declare global {
 
 const inter = Inter({ subsets: ['latin'] });
 
-// export const metadata = {
-//   title: 'Dev Hunt – The best new DevTools in tech.',
-//   description: 'Discover and explore the best new Dev Tools in the tech industry with Dev Hunt.',
-// };
+export const metadata = {
+  title: 'Dev Hunt – The best new DevTools in tech.',
+  description: 'Discover and explore the best new Dev Tools in the tech industry with Dev Hunt.',
+};
 
 // do not cache this layout
 export const revalidate = 0;
@@ -64,12 +64,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </>
         )}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
-        <meta property="og:site_name" content="Dev Hunt" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Dev Hunt – The best new DevTools in tech." />
-        <meta name="twitter:description" content="Discover and explore the best new Dev Tools in the tech industry with Dev Hunt." />
-        <meta name="description" content="Discover and explore the best new Dev Tools in the tech industry with Dev Hunt." />
-        <title>Dev Hunt – The best new DevTools in tech.</title>
       </head>
       <body className={inter.className}>
         <main>

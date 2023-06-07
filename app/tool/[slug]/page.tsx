@@ -68,6 +68,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     return <div>Not found</div>;
   }
 
+  const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
+
   const trendingTools = await awardService.getWinnersOfTheDay(new Date().toISOString(), 10);
 
   const commentService = new CommentService(supabaseClient);
@@ -180,25 +182,30 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
           <p className="text-slate-300 mt-6">
-            {product.name} was hunted by{' '}
+            {product.name} {isLaunchStarted ? 'was hunted by' : 'by'}{' '}
             <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
               {owned?.full_name}
             </Link>{' '}
-            {moment(product.launch_date).fromNow()}.
+            {isLaunchStarted ? 'in ' : 'Will be launched in '}
+            {moment(product.launch_date).format('LL')}.
           </p>
-          <div className="mt-10">
-            <StatsWrapper>
-              {stats.map((item, idx) => (
-                <Stat key={idx} className="py-4">
-                  <StatCountItem>{item.count}</StatCountItem>
-                  <StatItem className="mt-2">
-                    {item.icon}
-                    {item.label}
-                  </StatItem>
-                </Stat>
-              ))}
-            </StatsWrapper>
-          </div>
+          {isLaunchStarted ? (
+            <div className="mt-10">
+              <StatsWrapper>
+                {stats.map((item, idx) => (
+                  <Stat key={idx} className="py-4">
+                    <StatCountItem>{item.count}</StatCountItem>
+                    <StatItem className="mt-2">
+                      {item.icon}
+                      {item.label}
+                    </StatItem>
+                  </Stat>
+                ))}
+              </StatsWrapper>
+            </div>
+          ) : (
+            ''
+          )}
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
