@@ -1,4 +1,4 @@
-import { IconVote, IconChatBubbleLeft, IconChartBar, IconArrowTopRight } from '@/components/Icons';
+import { IconVote, IconChartBar, IconArrowTopRight, IconEye } from '@/components/Icons';
 import ButtonUpvote from '@/components/ui/ButtonUpvote';
 import { Gallery, GalleryImage } from '@/components/ui/Gallery';
 import LinkShiny from '@/components/ui/LinkShiny';
@@ -100,7 +100,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     },
     {
       count: product.views_count,
-      icon: <IconChatBubbleLeft />,
+      icon: <IconEye />,
       label: 'Views',
     },
     // TODO add calculation of rank in week and day
@@ -123,7 +123,12 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny href={product?.demo_url ?? ''} target="_balnk" rel="nofollow noopener noreferrer" className="flex items-center gap-x-2">
+          <LinkShiny
+            href={product?.demo_url ?? ''}
+            target="_balnk"
+            rel="nofollow noopener noreferrer"
+            className="flex items-center gap-x-2"
+          >
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
@@ -147,21 +152,27 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 // Use DOMPurify method for XSS sanitizeration
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
               ></div>
-              {product?.product_categories.length && <div className="mt-6 flex flex-wrap gap-3 items-center">
-                <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
-                <TagsGroup>
-                  {product?.product_categories.map(pc => (
-                    <Tag>{pc.name}</Tag>
-                  ))}
-                </TagsGroup>
-              </div>}
+              {product?.product_categories.length && (
+                <div className="mt-6 flex flex-wrap gap-3 items-center">
+                  <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
+                  <TagsGroup>
+                    {product?.product_categories.map(pc => (
+                      <Tag>{pc.name}</Tag>
+                    ))}
+                  </TagsGroup>
+                </div>
+              )}
             </div>
-            {product?.asset_urls?.length && <div className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
-              <Gallery assets={product?.asset_urls } src={product.demo_video_url as string}>
-                {product?.asset_urls &&
-                  product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
-              </Gallery>
-            </div>}
+            {product?.asset_urls?.length && (
+              <div
+                className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}
+              >
+                <Gallery assets={product?.asset_urls} src={product.demo_video_url as string}>
+                  {product?.asset_urls &&
+                    product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
+                </Gallery>
+              </div>
+            )}
           </div>
         </div>
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
@@ -172,8 +183,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             {product.name} was hunted by{' '}
             <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
               {owned?.full_name}
-            </Link>
-            {' '} {moment(product.launch_date).fromNow()}.
+            </Link>{' '}
+            {moment(product.launch_date).fromNow()}.
           </p>
           <div className="mt-10">
             <StatsWrapper>

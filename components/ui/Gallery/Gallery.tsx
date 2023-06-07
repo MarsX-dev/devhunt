@@ -49,51 +49,49 @@ export const Gallery = ({
     <>
       <ul
         className={mergeTW(`flex items-center gap-x-3 w-full overflow-auto snap-x cursor-zoom-in ${className}`)}
-        onClick={() => { setZoomActive(true); }}
+        onClick={() => {
+          setZoomActive(true);
+        }}
       >
-        {src
-          ? (
-          <li className={mergeTW(`flex-none max-w-md snap-start py-3 pointer-events-none ${className}`)}>
-            {media[0].includes('youtube')
-              ? (
+        {src ? (
+          <li className={mergeTW(`flex-none w-[400px] aspect-[4/3] snap-start py-3 pointer-events-none ${className}`)}>
+            {media[0].includes('youtube') ? (
               <iframe src={extractVideoId(src) as string} width={448} height={252} className="rounded-lg"></iframe>
-                )
-              : (
-              <video controls className="max-w-md rounded-lg">
+            ) : (
+              <video controls className="w-[400px] rounded-lg">
                 <source src={src} />
               </video>
-                )}
-          </li>
-            )
-          : (
-              ''
             )}
+          </li>
+        ) : (
+          ''
+        )}
         {children}
       </ul>
-      {isZoomActive
-        ? (
+      {isZoomActive ? (
         <div>
           <div className="fixed z-40 inset-0 flex items-center justify-center w-full h-full zoom">
             <ul className="relative flex-1 max-w-5xl aspect-[3/2] max-h-full">
-              <ButtonHandler className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto" onClick={() => { setZoomActive(false); }}>
+              <ButtonHandler
+                className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto"
+                onClick={() => {
+                  setZoomActive(false);
+                }}
+              >
                 <IconXmark />
               </ButtonHandler>
               <li className="h-full">
-                {(currentIdx === 0 && media[currentIdx].includes('youtube')) || media[currentIdx].includes('.mp4')
-                  ? (
-                      media[0].includes('youtube')
-                        ? (
+                {(currentIdx === 0 && media[currentIdx].includes('youtube')) || media[currentIdx].includes('.mp4') ? (
+                  media[0].includes('youtube') ? (
                     <iframe src={extractVideoId(src as string) as string} className="rounded-lg w-full h-full"></iframe>
-                          )
-                        : (
+                  ) : (
                     <video controls className="w-full">
                       <source src={src} />
                     </video>
-                          )
-                    )
-                  : (
+                  )
+                ) : (
                   <img src={media[currentIdx]} className="w-full h-full rounded-lg object-cover" />
-                    )}
+                )}
               </li>
               <ButtonHandler onClick={handleLeftSide} className="absolute inset-y-0 left-4 my-auto">
                 <IconChevronLeft />
@@ -103,12 +101,17 @@ export const Gallery = ({
               </ButtonHandler>
             </ul>
           </div>
-          <BlurBackground className="z-30" isActive={isZoomActive} setActive={() => { setZoomActive(false); }} />
+          <BlurBackground
+            className="z-30"
+            isActive={isZoomActive}
+            setActive={() => {
+              setZoomActive(false);
+            }}
+          />
         </div>
-          )
-        : (
-            ''
-          )}
+      ) : (
+        ''
+      )}
     </>
   );
 };

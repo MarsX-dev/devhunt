@@ -29,37 +29,32 @@ export default async function Home() {
       </div>
 
       <div className="mt-10 mb-12">
-          {
-            launchDays.map(group => (
-              <>
-                <div className="text-white">{group.launchDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                <ul className="divide-y divide-slate-800/60">
-                  {
-                    group.products?.map((product, idx) => (
-                      <li key={idx} className="py-3">
-                        <ToolCard href={'/tool/' + product.slug}>
-                          <Logo src={product.logo_url || ''} alt={product.name} />
-                          <div className="space-y-1">
-                            <Name>{product.name}</Name>
-                            <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
-                            <Tags
-                              items={[
-                                product.product_pricing_types?.title ?? 'Free',
-                                ...(product.product_categories || []).map(c => c.name),
-                              ]}
-                            />
-                          </div>
-                          <div className="flex-1 self-center flex justify-end">
-                            <Votes count={product.votes_count} />
-                          </div>
-                        </ToolCard>
-                      </li>
-                    ))
-                  }
-                </ul>
-              </>
-            ))
-          }
+        {launchDays.map(group => (
+          <>
+            <div className="text-slate-400 text-sm">
+              {group.launchDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+            <ul className="divide-y divide-slate-800/60">
+              {group.products?.map((product, idx) => (
+                <li key={idx} className="py-3">
+                  <ToolCard href={'/tool/' + product.slug}>
+                    <Logo src={product.logo_url || ''} alt={product.name} />
+                    <div className="space-y-1">
+                      <Name>{product.name}</Name>
+                      <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
+                      <Tags
+                        items={[product.product_pricing_types?.title ?? 'Free', ...(product.product_categories || []).map(c => c.name)]}
+                      />
+                    </div>
+                    <div className="flex-1 self-center flex justify-end">
+                      <Votes count={product.votes_count} />
+                    </div>
+                  </ToolCard>
+                </li>
+              ))}
+            </ul>
+          </>
+        ))}
       </div>
     </section>
   );
