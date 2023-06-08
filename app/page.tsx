@@ -38,7 +38,7 @@ export default async function Home() {
       <div className="mt-10 mb-12">
         {launchDays.map(group => (
           <>
-            <div className="text-slate-400 text-sm">
+            <div className="mt-3 text-slate-400 text-sm">
               {group.launchDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
             <ul className="mt-3 divide-y divide-slate-800/60">
