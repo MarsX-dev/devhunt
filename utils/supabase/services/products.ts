@@ -44,7 +44,9 @@ export default class ProductsService extends BaseDbService {
 
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
     // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-    return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).eq('deleted', false).order(sortBy, { ascending });
+    return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT)
+      .eq('deleted', false)
+      .order(sortBy, { ascending });
   }
 
   async getSimilarProducts(productId: number): Promise<Product[]> {
@@ -95,17 +97,26 @@ export default class ProductsService extends BaseDbService {
     const { data } = await this.supabase
       .from('products')
       .select(this.DEFULT_PRODUCT_SELECT)
-      .eq('owner_id', userId);
+      .eq('owner_id', userId)
+      .eq('deleted', false);
+
     return data;
   }
 
   async getUserVoteById(userId: string, productId: number) {
-    const { data } = await this.supabase.from('product_votes').select().eq('user_id', userId).eq('product_id', productId).single();
+    const { data } = await this.supabase.from('product_votes')
+      .select()
+      .eq('user_id', userId)
+      .eq('product_id', productId)
+      .single();
     return data;
   }
 
   async getRandomTools(limit: number): Promise<ExtendedProduct[] | null> {
-    const { data } = await this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).eq('deleted', false).limit(limit);
+    const { data } = await this.supabase.from('products')
+      .select(this.EXTENDED_PRODUCT_SELECT)
+      .eq('deleted', false)
+      .limit(limit);
     return data;
   }
 
