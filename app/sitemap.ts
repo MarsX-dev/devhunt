@@ -4,9 +4,9 @@ import { createServerClient } from '@/utils/supabase/server';
 import { Product } from '@/utils/supabase/types';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const tools: Product[] = [];
+  let tools: Product[] = [];
   new ProductsService(createServerClient()).getProducts().then(res => {
-    tools.push(...(res.data as []));
+    tools = res.data as Product[];
   });
 
   return tools.map(item => {
