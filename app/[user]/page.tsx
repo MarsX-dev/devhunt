@@ -59,7 +59,6 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     const tools = await new ProductsService(browserService).getUserProductsById(profile?.id);
 
     const activity = await profileService.getUserActivityById(profile?.id);
-    console.log(JSON.stringify(activity, null, 2));
     const votedTools = await profileService.getUserVoteTools(profile?.id);
 
     const awardService = new AwardsService(browserService);
