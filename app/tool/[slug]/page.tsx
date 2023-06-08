@@ -156,8 +156,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 // Use DOMPurify method for XSS sanitizeration
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
               ></div>
-              {product?.product_categories.length
-                ? (
+              {product?.product_categories.length ? (
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
                   <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                   <TagsGroup>
@@ -166,10 +165,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                     ))}
                   </TagsGroup>
                 </div>
-                  )
-                : (
-                    ''
-                  )}
+              ) : (
+                ''
+              )}
             </div>
             {product?.asset_urls?.length && (
               <div
@@ -195,29 +193,25 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             {isLaunchStarted ? 'in ' : 'Will be launched in '}
             {customDateFromNow(product.launch_date)}.
           </p>
-          {
-            isLaunchStarted
-              ? (
-                <div className="mt-10">
-                  <StatsWrapper>
-                    {stats.map((item, idx) => (
-                      <Stat key={idx} className="py-4">
-                        <StatCountItem>{item.count}</StatCountItem>
-                        <StatItem className="mt-2">
-                          {item.icon}
-                          {item.label}
-                        </StatItem>
-                      </Stat>
-                    ))}
-                  </StatsWrapper>
-                </div>
-                )
-              : null
-          }
+          {isLaunchStarted ? (
+            <div className="mt-10">
+              <StatsWrapper>
+                {stats.map((item, idx) => (
+                  <Stat key={idx} className="py-4">
+                    <StatCountItem>{item.count}</StatCountItem>
+                    <StatItem className="mt-2">
+                      {item.icon}
+                      {item.label}
+                    </StatItem>
+                  </Stat>
+                ))}
+              </StatsWrapper>
+            </div>
+          ) : null}
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
-          <ul className="divide-y divide-slate-800/60">
+          <ul className="mt-3 divide-y divide-slate-800/60">
             {trendingTools?.map((item, idx) => (
               <li key={idx} className="py-3">
                 <ToolCard href={`/tool/${(item.slug as string).toLowerCase()}`}>

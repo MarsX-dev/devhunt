@@ -41,7 +41,7 @@ export default async function Home() {
             <div className="text-slate-400 text-sm">
               {group.launchDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
-            <ul className="divide-y divide-slate-800/60">
+            <ul className="mt-3 divide-y divide-slate-800/60">
               {group.products?.map((product, idx) => (
                 <li key={idx} className="py-3">
                   <ToolCard href={'/tool/' + product.slug}>
