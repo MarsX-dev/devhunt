@@ -23,6 +23,7 @@ import Link from 'next/link';
 import ProfileService from '@/utils/supabase/services/profile';
 import ToolVotes from '@/components/ui/ToolCard/Tool.Votes';
 import customDateFromNow from '@/utils/customDateFromNow';
+import Page404 from '@/components/ui/Page404/Page404';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -56,11 +57,12 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const supabaseBrowserClient = createBrowserClient();
 
   const productsService = new ProductsService(supabaseClient);
-  const product = await productsService.getBySlug(slug);
-  const owned = await new ProfileService(supabaseBrowserClient).getById(product?.owner_id as string);
+  const product = await productsService.getBySlug(slug, true);
+  if (!product || product.deleted) return <Page404 />;
 
+  const owned = await new ProfileService(supabaseBrowserClient).getById(product?.owner_id as string);
   const awardService = new AwardsService(supabaseBrowserClient);
-  const toolAward = await awardService.getProductRanks(product?.id as number);
+  const toolAward = await awardService.getProductRanks(product.id);
   const dayAward = toolAward.find(i => i.award_type === 'day');
   const weekAward = toolAward.find(i => i.award_type === 'week');
 
@@ -154,7 +156,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 // Use DOMPurify method for XSS sanitizeration
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
               ></div>
-              {product?.product_categories.length ? (
+              {product?.product_categories.length
+                ? (
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
                   <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                   <TagsGroup>
@@ -163,9 +166,10 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                     ))}
                   </TagsGroup>
                 </div>
-              ) : (
-                ''
-              )}
+                  )
+                : (
+                    ''
+                  )}
             </div>
             {product?.asset_urls?.length && (
               <div
@@ -191,23 +195,25 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             {isLaunchStarted ? 'in ' : 'Will be launched in '}
             {customDateFromNow(product.launch_date)}.
           </p>
-          {isLaunchStarted ? (
-            <div className="mt-10">
-              <StatsWrapper>
-                {stats.map((item, idx) => (
-                  <Stat key={idx} className="py-4">
-                    <StatCountItem>{item.count}</StatCountItem>
-                    <StatItem className="mt-2">
-                      {item.icon}
-                      {item.label}
-                    </StatItem>
-                  </Stat>
-                ))}
-              </StatsWrapper>
-            </div>
-          ) : (
-            ''
-          )}
+          {
+            isLaunchStarted
+              ? (
+                <div className="mt-10">
+                  <StatsWrapper>
+                    {stats.map((item, idx) => (
+                      <Stat key={idx} className="py-4">
+                        <StatCountItem>{item.count}</StatCountItem>
+                        <StatItem className="mt-2">
+                          {item.icon}
+                          {item.label}
+                        </StatItem>
+                      </Stat>
+                    ))}
+                  </StatsWrapper>
+                </div>
+                )
+              : null
+          }
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
