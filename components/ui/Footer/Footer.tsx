@@ -56,7 +56,7 @@ export default () => {
             <div className="text-xs pt-2">
               Uses{' '}
               {usedTools.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" href={t.url}>
+                <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
                   {t.title}
                   {usedTools.length - 1 === i ? '' : ', '}
                 </a>
