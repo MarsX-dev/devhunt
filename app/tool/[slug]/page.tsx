@@ -40,14 +40,14 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
     openGraph: {
       type: 'article',
       title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan as string,
-      images: [tool?.asset_urls ? tool?.asset_urls[0] : ''],
+      description: tool?.slogan ?? '',
+      images: tool?.asset_urls ?? [],
     },
     twitter: {
       title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan as string,
+      description: tool?.slogan ?? '',
       card: 'summary_large_image',
-      images: [tool?.asset_urls ? tool?.asset_urls[0] : ''],
+      images: tool?.asset_urls ?? [],
     },
   };
 }
@@ -60,7 +60,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const product = await productsService.getBySlug(slug, true);
   if (!product || product.deleted) return <Page404 />;
 
-  const owned = await new ProfileService(supabaseBrowserClient).getById(product?.owner_id as string);
+  const owned = await new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
   const awardService = new AwardsService(supabaseBrowserClient);
   const toolAward = await awardService.getProductRanks(product.id);
   const dayAward = toolAward.find(i => i.award_type === 'day');

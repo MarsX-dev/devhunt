@@ -44,7 +44,7 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
       title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
       description: profile?.headline as string,
       card: 'summary_large_image',
-      images: [profile?.avatar_url || ''],
+      images: [profile?.avatar_url ?? ''],
     },
   };
 }
@@ -59,6 +59,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     const tools = await new ProductsService(browserService).getUserProductsById(profile?.id);
 
     const activity = await profileService.getUserActivityById(profile?.id);
+    console.log(JSON.stringify(activity, null, 2));
     const votedTools = await profileService.getUserVoteTools(profile?.id);
 
     const awardService = new AwardsService(browserService);
