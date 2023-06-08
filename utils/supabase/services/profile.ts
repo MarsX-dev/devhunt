@@ -12,18 +12,18 @@ type FileBody =
   | NodeJS.ReadableStream
   | ReadableStream<Uint8Array>
   | URLSearchParams
-  | string
+  | string;
 
 interface IProduct {
-  product_id: string
+  product_id: string;
   products: {
-    name: string
-    slogan: string
-    votes_count: string
-    logo_url: string
-    product_pricing_types: { title: string }
-    product_category_product: { name: string }[]
-  }
+    name: string;
+    slogan: string;
+    votes_count: string;
+    logo_url: string;
+    product_pricing_types: { title: string };
+    product_category_product: { name: string }[];
+  };
 }
 
 export default class ProfileService extends BaseDbService {
@@ -35,6 +35,11 @@ export default class ProfileService extends BaseDbService {
 
   async getByUsername(username: string): Promise<Profile | null> {
     const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
+    return data;
+  }
+
+  async getProfiles(): Promise<Profile[] | null> {
+    const { data, error } = await this.supabase.from('profiles').select();
     return data;
   }
 
@@ -61,7 +66,7 @@ export default class ProfileService extends BaseDbService {
             name
           )
         )
-        `
+        `,
       )
       .eq('user_id', userId);
 

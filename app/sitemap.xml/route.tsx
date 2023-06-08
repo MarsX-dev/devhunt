@@ -1,25 +1,44 @@
 import ProductsService from '@/utils/supabase/services/products';
 import { Product } from '@/utils/supabase/types';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import ProfileService from '@/utils/supabase/services/profile';
+
+const URL = 'https://devhunt.org';
 
 async function generateSiteMap() {
   const productsService = new ProductsService(createBrowserClient());
+  const profiles = await new ProfileService(createBrowserClient()).getProfiles();
   const res = await productsService.getProducts();
   const tools = res.data as Product[];
   return `<?xml version="1.0" encoding="UTF-8"?>
    <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
      <url>
-       <loc>https://devhunt.org</loc>
+       <loc>${URL}</loc>
      </url>
+     <url>
+     <loc>${URL}/about</loc>
+   </url>
      ${
        tools &&
        tools
          .map(({ slug }) => {
            return `
            <url>
-               <loc>${`https://devhunt.org/tool/${slug}`}</loc>
+               <loc>${`${URL}/tool/${slug}`}</loc>
            </url>
          `;
+         })
+         .join('')
+     }
+     ${
+       profiles &&
+       profiles
+         .map(({ username }) => {
+           return `
+          <url>
+              <loc>${`${URL}/@${username}`}</loc>
+          </url>
+        `;
          })
          .join('')
      }
