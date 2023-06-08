@@ -50,6 +50,7 @@ export default () => {
     handleSubmit,
     control,
     formState: { errors },
+    getValues,
   } = useForm();
 
   const [categories, setCategory] = useState<ProductCategory[]>([]);
@@ -115,8 +116,16 @@ export default () => {
     else return true;
   };
 
+  const validateToolName = async () => {
+    const tool = await productService.getBySlug(createSlug(getValues('tool_name')));
+    if (tool?.slug) {
+      alert('This tool name is already exist, please use another name for your tool.');
+      return false;
+    } else return true;
+  };
+
   const onSubmit: SubmitHandler<Inputs> = async data => {
-    if (validateImages()) {
+    if (validateImages() && (await validateToolName())) {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, launch_date } = data;
       const categoryIds = categories.map(item => item.id);
       setLaunching(true);
