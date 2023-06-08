@@ -34,6 +34,44 @@ export interface Database {
           user_id?: string;
           votes_count?: number;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'comment_parent_id_fkey';
+            columns: ['parent_id'];
+            referencedRelation: 'comment';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'comment_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       comment_vote: {
         Row: {
@@ -51,6 +89,20 @@ export interface Database {
           created_at?: string | null;
           user_id?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'comment_vote_comment_id_fkey';
+            columns: ['comment_id'];
+            referencedRelation: 'comment';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_vote_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       product_categories: {
         Row: {
@@ -71,6 +123,7 @@ export interface Database {
           name?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       product_category_product: {
         Row: {
@@ -88,6 +141,38 @@ export interface Database {
           created_at?: string | null;
           product_id?: number;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'product_category_product_category_id_fkey';
+            columns: ['category_id'];
+            referencedRelation: 'product_categories';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+        ];
       };
       product_pricing_types: {
         Row: {
@@ -108,6 +193,7 @@ export interface Database {
           title?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       product_votes: {
         Row: {
@@ -125,6 +211,38 @@ export interface Database {
           product_id?: number;
           user_id?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'product_votes_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       products: {
         Row: {
@@ -208,6 +326,20 @@ export interface Database {
           votes_count?: number;
           votes_counter?: number;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'products_owner_id_fkey';
+            columns: ['owner_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_pricing_type_fkey';
+            columns: ['pricing_type'];
+            referencedRelation: 'product_pricing_types';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       profiles: {
         Row: {
@@ -243,6 +375,14 @@ export interface Database {
           username?: string | null;
           website_url?: string | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {
@@ -256,6 +396,7 @@ export interface Database {
           week: number | null;
           year: number | null;
         };
+        Relationships: [];
       };
       product_ranks: {
         Row: {
@@ -267,6 +408,7 @@ export interface Database {
           week: number | null;
           year: number | null;
         };
+        Relationships: [];
       };
       winner_of_the_day: {
         Row: {
@@ -287,6 +429,7 @@ export interface Database {
           slug: string | null;
           votes_count: number | null;
         };
+        Relationships: [];
       };
       winner_of_the_month: {
         Row: {
@@ -310,6 +453,7 @@ export interface Database {
           votes_count: number | null;
           year: number | null;
         };
+        Relationships: [];
       };
       winner_of_the_week: {
         Row: {
@@ -333,6 +477,7 @@ export interface Database {
           week: number | null;
           year: number | null;
         };
+        Relationships: [];
       };
     };
     Functions: {
@@ -343,7 +488,7 @@ export interface Database {
         };
         Returns: {
           launch_date: string;
-          data: Json;
+          products: Json;
         }[];
       };
       get_prev_launch_days: {

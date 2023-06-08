@@ -9,6 +9,7 @@ export default class ProductsService extends BaseDbService {
   async getPrevLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
     const { data, error } = await this.supabase.rpc('get_prev_launch_days', { _launch_date: launchDate.toISOString(), _limit: limit });
     if (error !== null) throw new Error(error.message);
+    console.log('getPrevLaunchDays', JSON.stringify(data, null, 2));
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
       products: i.products.map(i => ({
@@ -21,6 +22,7 @@ export default class ProductsService extends BaseDbService {
 
   async getNextLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
     const { data, error } = await this.supabase.rpc('get_next_launch_days', { _launch_date: launchDate.toISOString(), _limit: limit });
+    console.log('getNextLaunchDays', JSON.stringify(data, null, 2));
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
       launchDate: new Date(i.launch_date),

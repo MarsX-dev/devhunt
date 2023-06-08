@@ -10,13 +10,13 @@ import { createServerClient } from '@/utils/supabase/server';
 export default async function Home() {
   let launchDays = [];
   const today = new Date();
+  const endOfJuly = new Date('2023-06-30');
 
   // before the official launch
-  if (today > new Date('2023-06-30')) {
+  if (today > endOfJuly) {
     launchDays = await new ProductsService(createServerClient()).getPrevLaunchDays(today, 10);
   } else {
-    const endOfJuly = new Date('2023-07-31');
-    launchDays = await new ProductsService(createServerClient()).getPrevLaunchDays(endOfJuly, 10);
+    launchDays = await new ProductsService(createServerClient()).getNextLaunchDays(endOfJuly, 10);
   }
 
   return (
