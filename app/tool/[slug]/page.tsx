@@ -40,13 +40,13 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
       type: 'article',
       title: `${tool?.name} - ${tool?.slogan}`,
       description: tool?.slogan as string,
-      images: tool?.asset_urls as [],
+      images: [tool?.asset_urls ? tool?.asset_urls[0] : ''],
     },
     twitter: {
       title: `${tool?.name} - ${tool?.slogan}`,
       description: tool?.slogan as string,
       card: 'summary_large_image',
-      images: tool?.asset_urls as [],
+      images: [tool?.asset_urls ? tool?.asset_urls[0] : ''],
     },
   };
 }
