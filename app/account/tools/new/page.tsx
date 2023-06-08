@@ -21,7 +21,7 @@ import { type File } from 'buffer';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import SelectmenuDate from '@/components/ui/SelectmenuDate';
+import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
 
 interface Inputs {
   tool_name: string;
@@ -306,7 +306,7 @@ export default () => {
                 </li>
               </ul>
               <div className="relative mt-4 mb-3">
-                <SelectmenuDate
+                <SelectLaunchDate
                   label="Launch date"
                   className="w-full"
                   date={{ month: 6 }}
