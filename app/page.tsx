@@ -26,8 +26,7 @@ export default async function Home() {
         <div className="whitespace-pre-wrap">
           📢 DevHunt's public launch: July 1st, 2023.
           <div className="p-1 w-full" id="id1"></div>
-          Submit your dev tools & schedule launches from July 1st onwards ASAP. First submitted shown on top of the list
-          on the launch day
+          Submit your dev tools & schedule launches from July 1st onwards ASAP. First submitted shown on top of the list on the launch day
           🔝.
           <p className="w-full"></p>
           ⏸️ Voting paused until then.
@@ -46,7 +45,7 @@ export default async function Home() {
               {group.products?.map((product, idx) => (
                 <li key={idx} className="py-3">
                   <ToolCard href={'/tool/' + product.slug}>
-                    <Logo src={product.logo_url || ''} alt={product.name}/>
+                    <Logo src={product.logo_url || ''} alt={product.name} />
                     <div className="space-y-1">
                       <Name>{product.name}</Name>
                       <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
@@ -55,7 +54,7 @@ export default async function Home() {
                       />
                     </div>
                     <div className="flex-1 self-center flex justify-end">
-                      <Votes count={product.votes_count}/>
+                      <Votes count={product.votes_count} />
                     </div>
                   </ToolCard>
                 </li>
