@@ -13,7 +13,7 @@ import AvatarMenu from '../AvatarMenu';
 import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
-import { Product } from '@/utils/supabase/types';
+import { type Product } from '@/utils/supabase/types';
 
 export default () => {
   const [isActive, setActive] = useState(false);
@@ -28,7 +28,7 @@ export default () => {
 
   const { supabase, session } = useSupabase();
 
-  const isLoggedin = session && session.user;
+  const isLoggedin = session?.user;
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();

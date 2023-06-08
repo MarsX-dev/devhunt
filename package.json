@@ -13,8 +13,8 @@
     "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > utils/supabase/types.ts && npm run format:better-supabase-types"
   },
   "dependencies": {
-    "@supabase/auth-helpers-nextjs": "^0.6.1",
-    "@supabase/supabase-js": "^2.22.0",
+    "@supabase/auth-helpers-nextjs": "^0.7.2",
+    "@supabase/supabase-js": "^2.24.0",
     "axios": "^1.4.0",
     "dompurify": "^3.0.3",
     "jsdom": "^22.1.0",
