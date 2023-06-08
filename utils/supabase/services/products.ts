@@ -4,6 +4,7 @@ import { type InsertProduct, type Product, type UpdateProduct } from '@/utils/su
 import { omit } from '@/utils/helpers';
 
 export default class ProductsService extends BaseDbService {
+  private readonly DEFULT_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name, id)';
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
 
   async getPrevLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
@@ -12,10 +13,10 @@ export default class ProductsService extends BaseDbService {
     console.log('getPrevLaunchDays', JSON.stringify(data, null, 2));
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
-      products: i.products.map(i => ({
-        ...i.product,
-        product_pricing_types: i.product_pricing_types,
-        product_categories: i.product_categories,
+      products: (i.products as Array<any> || []).map(k => ({
+        ...k.product,
+        product_pricing_types: k.product_pricing_types,
+        product_categories: k.product_categories,
       })) as ExtendedProduct[],
     }));
   }
@@ -26,10 +27,10 @@ export default class ProductsService extends BaseDbService {
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
-      products: i.products.map(i => ({
-        ...i.product,
-        product_pricing_types: i.product_pricing_types,
-        product_categories: i.product_categories,
+      products: (i.products as Array<any> || []).map(k => ({
+        ...k.product,
+        product_pricing_types: k.product_pricing_types,
+        product_categories: k.product_categories,
       })) as ExtendedProduct[],
     }));
   }
@@ -95,7 +96,7 @@ export default class ProductsService extends BaseDbService {
   async getUserProductsById(userId: string) {
     const { data } = await this.supabase
       .from('products')
-      .select('*, product_pricing_types(*), product_categories(*)')
+      .select(this.DEFULT_PRODUCT_SELECT)
       .eq('owner_id', userId);
     return data;
   }
@@ -111,13 +112,16 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getById(id: number): Promise<ExtendedProduct | null> {
-    return this._getOne('id', id);
+    return await this._getOne('id', id);
   }
 
-  async getBySlug(slug: string): Promise<ExtendedProduct | null> {
-    const product = await this._getOne('slug', slug);
-    await this.viewed(product?.id);
-    return product;
+  async getBySlug(slug: string, trackViews = false): Promise<ExtendedProduct | null> {
+    const { data } = await this.supabase.from('products')
+      .select(this.DEFULT_PRODUCT_SELECT)
+      .eq('slug', slug).single();
+
+    if (trackViews && data && !data.deleted) await this.viewed(data.id);
+    return data as ExtendedProduct;
   }
 
   async toggleVote(productId: number, userId: string): Promise<number> {
@@ -172,7 +176,7 @@ export default class ProductsService extends BaseDbService {
   }
 
   private async _addProductToCategory(productId: number, categoryId: number): Promise<boolean> {
-    const { data, error } = await this.supabase.from('product_category_product').insert({
+    const { error } = await this.supabase.from('product_category_product').insert({
       product_id: productId,
       category_id: categoryId,
     });
@@ -182,8 +186,8 @@ export default class ProductsService extends BaseDbService {
     return true;
   }
 
-  private async _getOne(column: string, value: unknown, select = '*, product_pricing_types(*), product_categories(name, id)') {
-    const { data, error } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).single();
-    return data || null;
+  private async _getOne(column: string, value: unknown, select = this.DEFULT_PRODUCT_SELECT) {
+    const { data } = await this.supabase.from('products').select(select).eq('deleted', false).eq(column, value).single();
+    return data;
   }
 }

@@ -41,10 +41,9 @@ export default () => {
 
   const tool = productService.getById(+id);
 
-  const router = useRouter();
-
-  const { session } = useSupabase();
-  const user = session && session.user;
+  // const router = useRouter();
+  // const { session } = useSupabase();
+  // const user = session && session.user;
 
   const {
     register,
@@ -125,7 +124,7 @@ export default () => {
   const validateImages = () => {
     setImageError('');
     setLogoError('');
-    if (imagePreviews.length == 0) setImageError('Please choose some screenshots');
+    if (imagePreviews.length === 0) setImageError('Please choose some screenshots');
     else if (!logoPreview) setLogoError('Please choose product logo');
     else return true;
   };
