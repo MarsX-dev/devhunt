@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { File } from 'buffer';
+import { type File } from 'buffer';
 
 export default async ({ files, options }: { files: File | Blob; options?: string }) => {
   const formdata = new FormData();
@@ -18,7 +18,7 @@ export default async ({ files, options }: { files: File | Blob; options?: string
 // Converts asset url into a imgix url to have better pages loading speed
 function getCdnImageUrl(url: string, options?: string) {
   return (
-    url.replace(/\'/g, "\\'")
+    url.replace(/'/g, "\\'")
       .replace('https://marscode.s3.eu-north-1.amazonaws.com/assets/img', 'https://mars-images.imgix.net') +
     '?auto=compress&fit=max' +
     (options ? `&${options}` : '')

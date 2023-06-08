@@ -41,12 +41,12 @@ export default class ProfileService extends BaseDbService {
   async getUserActivityById(userId: string): Promise<ProductComment[] | null> {
     const { data, error } = await this.supabase
       .from('comment')
-      .select('*, profiles(full_name, avatar_url), products(name, slug, slogan, logo_url, votes_count)')
+      .select('*, profiles(full_name, avatar_url), products(name, slug, slogan, logo_url, votes_count, deleted)')
       .eq('user_id', userId);
 
     if (error !== null) throw new Error(error.message);
 
-    return data;
+    return (data || []).filter(i => !i.products.deleted);
   }
 
   async getUserVoteTools(userId: string): Promise<IProduct[] | any> {
