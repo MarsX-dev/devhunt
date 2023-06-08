@@ -31,9 +31,7 @@ export const revalidate = 0;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const supabase = createServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
   const profileService = new ProfileService(createServerClient());
   const profile = user ? await profileService.getById(user?.id) : null;
