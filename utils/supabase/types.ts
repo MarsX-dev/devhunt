@@ -50,6 +50,12 @@ export interface Database {
           {
             foreignKeyName: 'comment_product_id_fkey';
             columns: ['product_id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
             referencedRelation: 'winner_of_the_day';
             referencedColumns: ['product_id'];
           },
@@ -157,6 +163,12 @@ export interface Database {
           {
             foreignKeyName: 'product_category_product_product_id_fkey';
             columns: ['product_id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
             referencedRelation: 'winner_of_the_day';
             referencedColumns: ['product_id'];
           },
@@ -216,6 +228,12 @@ export interface Database {
             foreignKeyName: 'product_votes_product_id_fkey';
             columns: ['product_id'];
             referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'product_votes_view';
             referencedColumns: ['id'];
           },
           {
@@ -409,6 +427,32 @@ export interface Database {
           year: number | null;
         };
         Relationships: [];
+      };
+      product_votes_view: {
+        Row: {
+          id: number | null;
+          logo_url: string | null;
+          name: string | null;
+          pricing_type: number | null;
+          slogan: string | null;
+          slug: string | null;
+          user_id: string | null;
+          votes_count: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_votes_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_pricing_type_fkey';
+            columns: ['pricing_type'];
+            referencedRelation: 'product_pricing_types';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       winner_of_the_day: {
         Row: {

@@ -1,4 +1,4 @@
-import type { Product, Profile, UpdateProfile } from '@/utils/supabase/types';
+import type { Profile, UpdateProfile } from '@/utils/supabase/types';
 import BaseDbService from './BaseDbService';
 import { type ProductComment } from './comments';
 
@@ -51,29 +51,21 @@ export default class ProfileService extends BaseDbService {
 
   async getUserVoteTools(userId: string): Promise<IProduct[] | any> {
     const { data, error } = await this.supabase
-      .from('product_votes')
+      .from('product_votes_view')
       .select(
         `
-      product_id,
-      products (
-        name,
-        slug,
-        slogan,
-        votes_count,
-        logo_url,
+        *,
         product_pricing_types (title),
         product_category_product (
           product_categories (
             name
           )
         )
-      )
-    `
+        `
       )
       .eq('user_id', userId);
 
     if (error !== null) throw new Error(error.message);
-
     return data;
   }
 

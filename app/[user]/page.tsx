@@ -88,20 +88,20 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
             <ul className="mt-3 divide-y divide-slate-800/60">
               {votedTools.map((tool: any, idx: number) => (
                 <li key={idx} className="py-3">
-                  <ToolCard href={`/tool/${tool.products.slug}`}>
-                    <Logo src={tool.products.logo_url || ''} alt={tool.products.name} />
+                  <ToolCard href={`/tool/${tool.slug}`}>
+                    <Logo src={tool.logo_url || ''} alt={tool.name} />
                     <div className="space-y-1">
-                      <Name>{tool.products.name}</Name>
-                      <Title className="line-clamp-1 sm:line-clamp-2">{tool.products.slogan}</Title>
+                      <Name>{tool.name}</Name>
+                      <Title className="line-clamp-1 sm:line-clamp-2">{tool.slogan}</Title>
                       <Tags
                         items={[
-                          (tool.products.product_pricing_types as { title: string }).title || 'Free',
-                          ...(tool.products.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
+                          (tool.product_pricing_types as { title: string }).title || 'Free',
+                          ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
                         ]}
                       />
                     </div>
                     <div className="flex-1 self-center flex justify-end">
-                      <Votes className="text-orange-500" count={tool.products.votes_count} />
+                      <Votes className="text-orange-500" count={tool.votes_count} />
                     </div>
                   </ToolCard>
                 </li>
