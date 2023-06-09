@@ -24,6 +24,8 @@ import ProfileService from '@/utils/supabase/services/profile';
 import ToolVotes from '@/components/ui/ToolCard/Tool.Votes';
 import customDateFromNow from '@/utils/customDateFromNow';
 import Page404 from '@/components/ui/Page404/Page404';
+import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
+import ToolViews from '@/components/ui/ToolCard/Tool.views';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -216,12 +218,15 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               <li key={idx} className="py-3">
                 <ToolCard href={`/tool/${(item.slug as string).toLowerCase()}`}>
                   <ProductLogo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
-                  <div className="space-y-1">
+                  <div className="w-full space-y-1">
                     <ToolName>{item.name}</ToolName>
                     <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
-                    <Tags items={[item.product_pricing, ...(item.product_categories ?? [])]} />
+                    <ToolFooter>
+                      <Tags items={[item.product_pricing, ...(item.product_categories ?? [])]} />
+                      <ToolViews count={product.views_count} />
+                    </ToolFooter>
                   </div>
-                  <div className="flex-1 self-center flex justify-end">
+                  <div className="self-center flex justify-end">
                     <ToolVotes count={item.votes_count as number} />
                   </div>
                 </ToolCard>
