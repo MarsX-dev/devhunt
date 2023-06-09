@@ -6,6 +6,8 @@ import Votes from '@/components/ui/ToolCard/Tool.Votes';
 import ToolCard from '@/components/ui/ToolCard/ToolCard';
 import ProductsService from '@/utils/supabase/services/products';
 import { createServerClient } from '@/utils/supabase/server';
+import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
+import ToolViews from '@/components/ui/ToolCard/Tool.views';
 
 export default async function Home() {
   let launchDays = [];
@@ -46,12 +48,15 @@ export default async function Home() {
                 <li key={idx} className="py-3">
                   <ToolCard href={'/tool/' + product.slug}>
                     <Logo src={product.logo_url || ''} alt={product.name} />
-                    <div className="space-y-1">
+                    <div className="w-full space-y-1">
                       <Name>{product.name}</Name>
                       <Title className="line-clamp-1 sm:line-clamp-2">{product.slogan}</Title>
-                      <Tags
-                        items={[product.product_pricing_types?.title ?? 'Free', ...(product.product_categories || []).map(c => c.name)]}
-                      />
+                      <ToolFooter>
+                        <Tags
+                          items={[product.product_pricing_types?.title ?? 'Free', ...(product.product_categories || []).map(c => c.name)]}
+                        />
+                        <ToolViews count={product.views_count} />
+                      </ToolFooter>
                     </div>
                     <div className="flex-1 self-center flex justify-end">
                       <Votes count={product.votes_count} />
