@@ -70,12 +70,12 @@ export default ({ count, productId, className = '', launchDate = '', ...props }:
       <Modal
         isActive={isModalActive}
         icon={<IconInformationCircle className="text-blue-500 w-6 h-6" />}
-        title="Haven't launched yet!"
-        description={`Sorry this tool haven't launched yet! you can check it again in ${customDateFromNow(launchDate)}`}
+        title="Not Launched Yet!"
+        description={`Oops, this tool hasn't launched yet! Check back on ${customDateFromNow(launchDate)}.`}
         onCancel={() => setModalActive(false)}
       >
         <LinkItem href="/" className="flex-1 block w-full text-sm bg-orange-500 hover:bg-orange-400">
-          Browse other tools
+          Explore other tools
         </LinkItem>
         <Button
           onClick={() => setModalActive(false)}
