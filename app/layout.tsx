@@ -31,7 +31,9 @@ export const revalidate = 0;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const supabase = createServerClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   const user = session?.user;
   const profileService = new ProfileService(createServerClient());
   const profile = user ? await profileService.getById(user?.id) : null;
@@ -61,6 +63,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
+        <meta property="og:image" content="/devhuntog.png" />
+        <meta name="twitter:image" content="/devhuntog.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
         <meta name="twitter:card" content="summary_large_image" />
       </head>
