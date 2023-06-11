@@ -1,6 +1,6 @@
 import { IconLoading } from '@/components/Icons';
 import mergeTW from '@/utils/mergeTW';
-import { HTMLAttributes, ReactNode } from 'react';
+import { HTMLAttributes, ReactNode, RefObject } from 'react';
 
 interface Props extends HTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -9,6 +9,7 @@ interface Props extends HTMLAttributes<HTMLButtonElement> {
   isLoad?: boolean;
   variant?: 'shiny' | 'default';
   type?: 'button' | 'submit' | 'reset';
+  ref?: RefObject<HTMLButtonElement>;
 }
 
 export default ({ children, child, className = '', variant = 'default', isLoad = false, ...props }: Props) => {
