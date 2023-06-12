@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.24.0",
     "axios": "^1.4.0",
     "dompurify": "^3.0.3",
+    "framer-motion": "^10.12.16",
     "jsdom": "^22.1.0",
     "moment": "^2.29.4",
     "next": "13.4.4",
