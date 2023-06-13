@@ -74,7 +74,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
 
-  const trendingTools = await awardService.getWinnersOfTheDay(new Date().toISOString(), 10);
+  const trendingTools = await awardService.getWinnersOfTheWeek(new Date().getDay(), 10);
 
   const commentService = new CommentService(supabaseClient);
   const comments = (await commentService.getByProductId(product.id)) ?? [];

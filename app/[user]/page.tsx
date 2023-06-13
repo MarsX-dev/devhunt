@@ -64,7 +64,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
     const votedTools = await profileService.getUserVoteTools(profile?.id);
 
     const awardService = new AwardsService(browserService);
-    const trendingTools = await awardService.getWinnersOfTheDay(new Date().toISOString(), 10);
+    const trendingTools = await awardService.getWinnersOfTheWeek(new Date().getDay(), 10);
 
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
