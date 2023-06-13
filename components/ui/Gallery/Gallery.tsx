@@ -70,7 +70,7 @@ export const Gallery = ({
       </ul>
       {isZoomActive ? (
         <div>
-          <div className="fixed z-40 inset-0 flex items-center justify-center w-full h-full zoom">
+          <div className="fixed z-40 inset-0 px-4 flex items-center justify-center w-full h-full zoom">
             <ul className="relative flex-1 max-w-5xl aspect-[3/2] max-h-full">
               <ButtonHandler
                 className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto"
