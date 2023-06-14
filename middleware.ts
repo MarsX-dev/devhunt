@@ -7,7 +7,9 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   const res = NextResponse.next();
   const supabase = createMiddlewareClient<Database>({ req, res });
 
-  const { data: { session } } = await supabase.auth.getSession(); // destructure the data object to obtain the session object
+  const {
+    data: { session },
+  } = await supabase.auth.getSession(); // destructure the data object to obtain the session object
   if (session === null) return NextResponse.redirect(new URL('/login', req.nextUrl));
   return res;
 }

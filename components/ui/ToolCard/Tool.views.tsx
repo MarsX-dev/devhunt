@@ -5,7 +5,7 @@ export default ({ className, count }: { className?: string; count: number }) => 
     <span className="block flex-none w-1 h-1 bg-slate-500 rounded-full"></span>
     <div className="flex items-center gap-x-1">
       {count}
-      <span>Views</span>
+      <span>Impressions</span>
     </div>
   </div>
 );

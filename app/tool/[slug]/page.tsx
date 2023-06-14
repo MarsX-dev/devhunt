@@ -1,4 +1,4 @@
-import { IconVote, IconChartBar, IconArrowTopRight, IconEye } from '@/components/Icons';
+import { IconVote, IconChartBar, IconArrowTopRight, IconFire } from '@/components/Icons';
 import ButtonUpvote from '@/components/ui/ButtonUpvote';
 import { Gallery, GalleryImage } from '@/components/ui/Gallery';
 import LinkShiny from '@/components/ui/LinkShiny';
@@ -106,8 +106,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     },
     {
       count: product.views_count,
-      icon: <IconEye />,
-      label: 'Views',
+      icon: <IconFire />,
+      label: 'Impressions',
     },
     // TODO add calculation of rank in week and day
     {
