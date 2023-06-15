@@ -54,22 +54,19 @@ export default () => {
         </div>
       </div>
       <ul className="mt-6 divide-y divide-slate-800/60">
-        {isLoad
-          ? (
+        {isLoad ? (
           <div>
             <IconLoading className="w-6 h-6 mx-auto text-orange-500" />
           </div>
-            )
-          : tools.length > 0
-            ? (
-                tools.map((tool: ProductType, idx: number) => (
+        ) : tools.length > 0 ? (
+          tools.map((tool: ProductType, idx: number) => (
             <li key={idx} className="py-3">
               <div className="p-2 flex items-start gap-x-4">
                 <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
                 <div>
                   <Link href={`/tool/${tool.slug}`}>
                     <Name>{tool.name}</Name>
-                    <Title className="line-clamp-1 sm:line-clamp-2">{tool.slogan}</Title>
+                    <Title className="line-clamp-2">{tool.slogan}</Title>
                     <Tags
                       items={[
                         (tool.product_pricing_types as { title: string }).title || 'Free',
@@ -82,7 +79,9 @@ export default () => {
                       <IconPencilSquare />
                     </Link>
                     <button
-                      onClick={() => { handleDeleteConfirm(tool.id, idx); }}
+                      onClick={() => {
+                        handleDeleteConfirm(tool.id, idx);
+                      }}
                       className="inline-block text-slate-400 hover:text-slate-500 duration-150"
                     >
                       <IconTrash />
@@ -94,11 +93,10 @@ export default () => {
                 </div>
               </div>
             </li>
-                ))
-              )
-            : (
+          ))
+        ) : (
           <div className="font-medium text-slate-400">No launches found.</div>
-              )}
+        )}
       </ul>
     </section>
   );

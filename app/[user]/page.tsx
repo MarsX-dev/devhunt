@@ -91,7 +91,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                     <Logo src={tool.logo_url || ''} alt={tool.name} />
                     <div className="space-y-1">
                       <Name>{tool.name}</Name>
-                      <Title className="line-clamp-1 sm:line-clamp-2">{tool.slogan}</Title>
+                      <Title className="line-clamp-2">{tool.slogan}</Title>
                       <Tags
                         items={[
                           (tool.product_pricing_types as { title: string }).title || 'Free',
@@ -127,7 +127,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
                       <div className="space-y-1">
                         <Name>{item.products.name}</Name>
-                        <Title className="line-clamp-1 text-sm sm:line-clamp-2">{item.products.slogan}</Title>
+                        <Title className="line-clamp-2">{item.products.slogan}</Title>
                       </div>
                       <div className="flex-1 self-center flex justify-end">
                         <Votes count={item.products.votes_count} />
@@ -151,7 +151,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                     <Logo src={tool.logo_url ?? ''} alt={tool.name as string} />
                     <div className="w-full space-y-1">
                       <Name>{tool.name}</Name>
-                      <Title className="line-clamp-1 sm:line-clamp-2">{tool?.slogan}</Title>
+                      <Title className="line-clamp-2">{tool?.slogan}</Title>
                       <ToolFooter>
                         <Tags items={[tool.product_pricing, ...(tool.product_categories ?? [])]} />
                         <ToolViews count={(tool as any).views_count} />

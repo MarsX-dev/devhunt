@@ -22,7 +22,7 @@ export default ({ tool }: { tool: ProductType }) => {
         <Logo src={tool.logo_url || ''} alt={tool.name} />
         <div className="w-full space-y-1">
           <Name>{tool.name}</Name>
-          <Title className="line-clamp-1 sm:line-clamp-2">{tool.slogan}</Title>
+          <Title className="line-clamp-2">{tool.slogan}</Title>
           <ToolFooter>
             <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
             <ToolViews count={tool.views_count} />
