@@ -32,7 +32,7 @@ const DOMPurify = createDOMPurify(window);
 
 // set dynamic metadata
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-  const supabaseClient = createServerClient();
+  const supabaseClient = createBrowserClient();
   const productsService = new ProductsService(supabaseClient);
   const tool = await productsService.getBySlug(slug);
 
