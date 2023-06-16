@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true
+    ignoreDuringBuilds: true,
   },
   typescript: {
     // !! WARN !!
@@ -10,5 +10,8 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-}
-module.exports = nextConfig
+  env: {
+    DISCOR_TOOL_WEBHOOK: process.env.DISCOR_TOOL_WEBHOOK,
+  },
+};
+module.exports = nextConfig;

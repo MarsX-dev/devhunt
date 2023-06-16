@@ -16,12 +16,14 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import fileUploader from '@/utils/supabase/fileUploader';
 import ProductPricingTypesService from '@/utils/supabase/services/pricing-types';
 import ProductsService from '@/utils/supabase/services/products';
-import { type ProductCategory, type ProductPricingType } from '@/utils/supabase/types';
+import { Profile, type ProductCategory, type ProductPricingType } from '@/utils/supabase/types';
 import { type File } from 'buffer';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import axios from 'axios';
+import ProfileService from '@/utils/supabase/services/profile';
 
 interface Inputs {
   tool_name: string;
@@ -38,6 +40,7 @@ export default () => {
   const browserService = createBrowserClient();
   const pricingTypesList = new ProductPricingTypesService(browserService).getAll();
   const productService = new ProductsService(browserService);
+  const profileService = new ProfileService(browserService);
   // const productCategoryService = new CategoryService(browserService);
 
   const router = useRouter();
@@ -52,6 +55,8 @@ export default () => {
     formState: { errors },
     getValues,
   } = useForm();
+
+  const [profile, setProfile] = useState<Profile>();
 
   const [categories, setCategory] = useState<ProductCategory[]>([]);
   const [pricingType, setPricingType] = useState<ProductPricingType[]>([]);
@@ -71,6 +76,9 @@ export default () => {
   useEffect(() => {
     pricingTypesList.then(types => {
       setPricingType([...(types as ProductPricingType[])]);
+    });
+    profileService.getById(user?.id as string).then(user => {
+      setProfile(user as Profile);
     });
   }, []);
 
@@ -150,7 +158,10 @@ export default () => {
           },
           categoryIds,
         )
-        .then(res => {
+        .then(async res => {
+          const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
+          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](https://devhunt.org/tool/${res?.slug})`;
+          await axios.post(DISCORD_TOOL_WEBHOOK, { content });
           setLaunching(false);
           window.open(`/tool/${res?.slug}`);
           router.push('/account/tools');
@@ -160,6 +171,7 @@ export default () => {
 
   return (
     <section className="container-custom-screen">
+      <button onClick={() => console.log(JSON.stringify(process.env.DISCOR_TOOL_WEBHOOK as string))}>Click</button>
       <h1 className="text-xl text-slate-50 font-semibold">Launch a tool</h1>
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>

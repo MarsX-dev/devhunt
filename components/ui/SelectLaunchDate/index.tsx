@@ -10,11 +10,14 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;
   value?: string | number;
   className?: string;
-  validate?: undefined;
+  validate?: {};
+  date?: {
+    month?: number;
+  };
 }
 
 export default ({ label, value, className = '', validate, ...props }: Props) => {
-  const [days, setDays] = useState<{ date: Date; count: number; }[]>([]);
+  const [days, setDays] = useState<{ date: Date; count: number }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,9 +46,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
           {label}
         </option>
         {days.map(i => (
-          <option value={i.date.toISOString()}>
-            {`${moment(i.date).format('LL')} (${i.count})`}
-          </option>
+          <option value={i.date.toISOString()}>{`${moment(i.date).format('LL')} (${i.count})`}</option>
         ))}
       </select>
     </div>
