@@ -59,7 +59,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </>
         )}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
-        <meta name="twitter:card" content="summary_large_image" />
       </head>
       <body className={inter.className}>
         <main>

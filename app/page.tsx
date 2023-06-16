@@ -4,7 +4,7 @@ import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { ProductType } from '@/type';
 
 const { title, description, ogImage } = {
-  title: 'Dev Hunt – The best new DevTools in tech.',
+  title: 'Dev Hunt – The best new DevTools every day.',
   description: 'Discover and explore the best new Dev Tools in the tech industry with Dev Hunt.',
   ogImage: 'https://devhunt.org/devhuntog.png',
 };
