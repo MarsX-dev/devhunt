@@ -21,11 +21,6 @@ declare global {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata = {
-  title: 'Dev Hunt – The best new DevTools in tech.',
-  description: 'Discover and explore the best new Dev Tools in the tech industry with Dev Hunt.',
-};
-
 // do not cache this layout
 export const revalidate = 0;
 
@@ -63,8 +58,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
-        <meta property="og:image" content="/devhuntog.png" />
-        <meta name="twitter:image" content="/devhuntog.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
         <meta name="twitter:card" content="summary_large_image" />
       </head>

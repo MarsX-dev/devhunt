@@ -3,6 +3,28 @@ import { createServerClient } from '@/utils/supabase/server';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { ProductType } from '@/type';
 
+const { title, description, ogImage } = {
+  title: 'Dev Hunt – The best new DevTools in tech.',
+  description: 'Discover and explore the best new Dev Tools in the tech industry with Dev Hunt.',
+  ogImage: 'https://devhunt.org/devhuntog.png',
+};
+
+export const metadata = {
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    images: ogImage,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: [ogImage],
+  },
+};
+
 export default async function Home() {
   let launchDays = [];
   const today = new Date();

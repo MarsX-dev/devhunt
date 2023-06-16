@@ -8,13 +8,13 @@ import { useSupabase } from './provider';
 // this method avoids the need to pass a session down to child components
 // in order to re-render when the user's session changes
 // #elegant!
-export default function SupabaseListener ({ serverAccessToken }: { serverAccessToken?: string }): void {
+export default function SupabaseListener({ serverAccessToken }: { serverAccessToken?: string }): void {
   const { supabase } = useSupabase();
   const router = useRouter();
 
   useEffect(() => {
     const {
-      data: { subscription }
+      data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.access_token !== serverAccessToken) {
         // server and client are out of sync
