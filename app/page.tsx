@@ -29,12 +29,13 @@ export default async function Home() {
   let launchDays = [];
   const today = new Date();
   const endOfJuly = new Date('2023-06-30');
+  const endOfYear = new Date('2023-12-31');
 
   // before the official launch
   if (today > endOfJuly) {
     launchDays = await new ProductsService(createServerClient()).getPrevLaunchDays(today, 10);
   } else {
-    launchDays = await new ProductsService(createServerClient()).getNextLaunchDays(endOfJuly, 10);
+    launchDays = await new ProductsService(createServerClient()).getNextLaunchDays(endOfYear, 10);
   }
 
   return (
