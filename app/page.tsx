@@ -34,7 +34,7 @@ export default async function Home() {
   if (today > endOfJuly) {
     launchDays = await new ProductsService(createServerClient()).getPrevLaunchDays(today, 10);
   } else {
-    launchDays = await new ProductsService(createServerClient()).getNextLaunchDays(endOfJuly, 10);
+    launchDays = await new ProductsService(createServerClient()).getNextLaunchDays(endOfJuly, 100);
   }
 
   return (
