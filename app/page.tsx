@@ -6,7 +6,7 @@ import { ProductType } from '@/type';
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
   description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
-  ogImage: '/devhuntog.png',
+  ogImage: 'https://devhunt.org/devhuntog.png?v=2',
 };
 
 export const metadata = {
