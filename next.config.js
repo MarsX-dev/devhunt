@@ -12,6 +12,7 @@ const nextConfig = {
   },
   env: {
     DISCOR_TOOL_WEBHOOK: process.env.DISCOR_TOOL_WEBHOOK,
+    DISCORD_USER_WEBHOOK: process.env.DISCORD_USER_WEBHOOK,
   },
 };
 module.exports = nextConfig;
