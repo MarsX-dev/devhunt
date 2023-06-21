@@ -15,7 +15,7 @@ export const metadata = {
   openGraph: {
     title,
     description,
-    images: ogImage,
+    images: [ogImage],
   },
   twitter: {
     card: 'summary_large_image',
