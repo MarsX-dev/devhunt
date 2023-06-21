@@ -21,7 +21,7 @@ export const metadata = {
     card: 'summary_large_image',
     title,
     description,
-    images: [ogImage],
+    images: ['https://devhunt.org/devhuntog-twitter.png'],
   },
 };
 
