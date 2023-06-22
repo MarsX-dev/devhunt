@@ -7,6 +7,9 @@ dependencies:
   '@supabase/supabase-js':
     specifier: ^2.24.0
     version: 2.24.0(encoding@0.1.13)
+  '@usermaven/sdk-js':
+    specifier: ^1.2.2
+    version: 1.2.2
   axios:
     specifier: ^1.4.0
     version: 1.4.0
@@ -672,6 +675,10 @@ packages:
       '@typescript-eslint/types': 5.59.7
       eslint-visitor-keys: 3.4.1
     dev: true
+
+  /@usermaven/sdk-js@1.2.2:
+    resolution: {integrity: sha512-iPOeAFqTwa6OqDr4SDAWeUY0zh/9kPm4ClhKUy5LTV1PjKCJ2tvt+DZT3ewpVKsn63z3JI6r2RgMSr2nmujAow==}
+    dev: false
 
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}

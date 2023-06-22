@@ -5,6 +5,7 @@ import Button from '../Button';
 import { useEffect, useState } from 'react';
 import AvatarMenu from '../AvatarMenu';
 import axios from 'axios';
+import { usermaven } from '@/utils/usermaven';
 // Supabase auth needs to be triggered client-side
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
   const { supabase, session, user } = useSupabase();
@@ -31,6 +32,12 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
           const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
           const content = `**${full_name}** [open the profile](https://devhunt.org/@${username})`;
           await axios.post(DISCORD_USER_WEBHOOK, { content });
+          await usermaven.id({
+            id: user?.id,
+            email: user?.email,
+            created_at: Date.now().toLocaleString(),
+            first_name: full_name,
+          });
           await supabase.auth.signInWithOAuth({ provider: 'github' });
         }
       });

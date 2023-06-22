@@ -16,6 +16,7 @@ export const metadata = {
     title,
     description,
     images: [ogImage],
+    url: 'https://devhunt.org',
   },
   twitter: {
     card: 'summary_large_image',
