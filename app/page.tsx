@@ -2,6 +2,7 @@ import ProductsService from '@/utils/supabase/services/products';
 import { createServerClient } from '@/utils/supabase/server';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { ProductType } from '@/type';
+import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
@@ -61,7 +62,7 @@ export default async function Home() {
               {group.launchDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
             <ul className="mt-3 divide-y divide-slate-800/60">
-              {group.products?.map((product, idx) => (
+              {shuffleToolsBasedOnDate(group.products).map((product, idx) => (
                 <ToolCardEffect key={idx} tool={product as ProductType} />
               ))}
             </ul>
