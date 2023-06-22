@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
+import { usermaven } from '@/utils/usermaven';
 
 interface Inputs {
   tool_name: string;
@@ -162,6 +163,16 @@ export default () => {
           const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
           const content = `**${res?.name}** by ${profile?.full_name} [open the tool](https://devhunt.org/tool/${res?.slug})`;
           await axios.post(DISCORD_TOOL_WEBHOOK, { content });
+          await usermaven.id({
+            company: {
+              id: res?.id + '',
+              name: res?.name as string,
+              created_at: new Date().toLocaleString(),
+              custom: {
+                url: `https://devhunt.org/tool/${res?.slug}`,
+              }, // Add the 'custom' property
+            },
+          });
           setLaunching(false);
           window.open(`/tool/${res?.slug}`);
           router.push('/account/tools');
