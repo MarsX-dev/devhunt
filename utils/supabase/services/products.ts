@@ -120,6 +120,18 @@ export default class ProductsService extends BaseDbService {
     return data;
   }
 
+  async getToolsByNameOrDescription(input: string, limit: number): Promise<ExtendedProduct[] | null> {
+    const query = `%${input}%`;
+    console.log(query);
+    const { data } = await this.supabase.from('products')
+      .select(this.EXTENDED_PRODUCT_SELECT)
+      .eq('deleted', false)
+      .or(`description.ilike.${query},slogan.ilike.${query},name.ilike.${query}`)
+      .limit(limit);
+
+    return data;
+  }
+
   async getById(id: number): Promise<ExtendedProduct | null> {
     return await this._getOne('id', id);
   }

@@ -9,6 +9,7 @@ import {
 export type ExtendedProduct = Product & {
   product_pricing_types: ProductPricingType
   product_categories: ProductCategory[]
+  profiles: Profile
 }
 
 export type ExtendedComment = Comment & {
