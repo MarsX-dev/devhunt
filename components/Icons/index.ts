@@ -17,3 +17,4 @@ export * from './IconCalendar';
 export * from './IconEye';
 export * from './IconInformationCircle';
 export * from './IconFire';
+export * from './IconGoogle';
