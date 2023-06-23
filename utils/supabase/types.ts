@@ -288,7 +288,6 @@ export interface Database {
           updated_at: string;
           views_count: number;
           votes_count: number;
-          votes_counter: number;
         };
         Insert: {
           asset_urls?: string[] | null;
@@ -315,7 +314,6 @@ export interface Database {
           updated_at?: string;
           views_count?: number;
           votes_count?: number;
-          votes_counter: number;
         };
         Update: {
           asset_urls?: string[] | null;
@@ -342,7 +340,6 @@ export interface Database {
           updated_at?: string;
           views_count?: number;
           votes_count?: number;
-          votes_counter?: number;
         };
         Relationships: [
           {
@@ -584,7 +581,6 @@ export interface Database {
           updated_at: string;
           views_count: number;
           votes_count: number;
-          votes_counter: number;
         }[];
       };
       toggleCommentVote: {
