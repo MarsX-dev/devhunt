@@ -163,16 +163,17 @@ export default () => {
           const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
           const content = `**${res?.name}** by ${profile?.full_name} [open the tool](https://devhunt.org/tool/${res?.slug})`;
           await axios.post(DISCORD_TOOL_WEBHOOK, { content });
-          await usermaven.id({
-            company: {
-              id: res?.id + '',
-              name: res?.name as string,
-              created_at: new Date().toLocaleString(),
-              custom: {
-                url: `https://devhunt.org/tool/${res?.slug}`,
-              }, // Add the 'custom' property
-            },
-          });
+          // await usermaven.id({
+          //   id: profile?.id,
+          //   company: {
+          //     id: res?.id + '',
+          //     name: res?.name as string,
+          //     created_at: new Date().toLocaleString(),
+          //     custom: {
+          //       url: `https://devhunt.org/tool/${res?.slug}`,
+          //     }, // Add the 'custom' property
+          //   },
+          // });
           setLaunching(false);
           window.open(`/tool/${res?.slug}`);
           router.push('/account/tools');
@@ -182,7 +183,6 @@ export default () => {
 
   return (
     <section className="container-custom-screen">
-      <button onClick={() => console.log(JSON.stringify(process.env.DISCOR_TOOL_WEBHOOK as string))}>Click</button>
       <h1 className="text-xl text-slate-50 font-semibold">Launch a tool</h1>
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
