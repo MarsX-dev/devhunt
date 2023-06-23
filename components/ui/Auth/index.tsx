@@ -63,15 +63,19 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
 
   return Boolean(session) ? (
     <div className="hidden md:block">
-      <AvatarMenu session={session} onLogout={onLogout}/>
+      <AvatarMenu session={session} onLogout={onLogout} />
     </div>
   ) : (
     <div className="flex items-center">
       <span className="me-3">Sign In</span>
-      <Button isLoad={isLoad} variant="shiny"
-              className="flex w-full md:w-auto me-2" onClick={handleGitHubLogin}><IconGithub className="flex-none text-slate-400 me-2" fill={'#fff'} />Github</Button>
-      <Button isLoad={isLoad} variant="shiny"
-              className="flex w-full md:w-auto" onClick={handleGoogleLogin}><IconGoogle className="flex-none text-slate-400 me-2" fill={'#fff'} />Google</Button>
+      <Button isLoad={isLoad} variant="shiny" className="flex w-full md:w-auto me-2" onClick={handleGitHubLogin}>
+        <IconGithub className="flex-none text-slate-50 me-2" />
+        Github
+      </Button>
+      <Button isLoad={isLoad} variant="shiny" className="flex w-full md:w-auto" onClick={handleGoogleLogin}>
+        <IconGoogle className="flex-none text-slate-400 me-2" />
+        Google
+      </Button>
     </div>
   );
 }
