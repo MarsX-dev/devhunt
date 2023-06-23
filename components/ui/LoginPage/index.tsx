@@ -1,6 +1,6 @@
 'use client';
 
-import { IconGithub } from '@/components/Icons';
+import { IconGithub, IconGoogle } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import Brand from '@/components/ui/Brand';
 import Button from '@/components/ui/Button/Button';
@@ -20,10 +20,21 @@ const getURL = () => {
 
 export default () => {
   const { supabase } = useSupabase();
-  const [isLoad, setLoad] = useState(false);
+  const [isGoogleAuthLoad, setGoogleAuthLoad] = useState<boolean>(false);
+  const [isGithubAuthLoad, setGithubAuthLoad] = useState<boolean>(false);
 
-  const handleLogin = async () => {
-    setLoad(true);
+  const handleGoogleLogin = async () => {
+    setGoogleAuthLoad(true);
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: getURL(),
+      },
+    });
+  };
+
+  const handleGithubLogin = async () => {
+    setGithubAuthLoad(true);
     await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
@@ -39,16 +50,25 @@ export default () => {
           <div className="space-y-3">
             <Brand w="180" h="50" className="mx-auto" />
             <h1 className="text-slate-50 text-2xl font-semibold">Log in to your account</h1>
-            <p className="text-slate-300 whitespace-pre-wrap">We use GitHub login to keep it real and ensure no fake accounts sneak in for those pesky fake upvotes.
-            Let's explore together, the legit way!</p>
+            <p className="text-slate-300 whitespace-pre-wrap">
+              We use GitHub, and Google provider to keep it simple and easy for our users to login. Let's explore together, the legit way!
+            </p>
           </div>
           <Button
-            isLoad={isLoad}
+            isLoad={isGithubAuthLoad}
             child={<IconGithub />}
-            onClick={handleLogin}
+            onClick={handleGithubLogin}
             className="text-sm font-medium mt-8 mx-auto flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
           >
             Continue with Github
+          </Button>
+          <Button
+            isLoad={isGoogleAuthLoad}
+            child={<IconGoogle />}
+            onClick={handleGoogleLogin}
+            className="text-sm font-medium mt-2 mx-auto flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
+          >
+            Continue with Google
           </Button>
         </div>
       </div>

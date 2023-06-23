@@ -1,23 +1,24 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 import BlurBackground from '../BlurBackground/BlurBackground';
-import Button from '../Button/Button';
+import mergeTW from '@/utils/mergeTW';
 
 type Props = {
-  title: string;
-  description: string;
-  icon: ReactNode;
+  title?: string;
+  description?: string;
+  icon?: ReactNode;
   children: ReactNode;
   isActive: boolean;
   variant?: 'default' | 'custom';
+  className?: string;
   onCancel?: () => void;
 };
 
-export default ({ children, title, description, icon, isActive, variant = 'default', onCancel }: Props) => {
+export default ({ children, title, description, icon, isActive, variant = 'default', className = '', onCancel }: Props) => {
   return isActive ? (
     <div className="fixed inset-0 z-30 overflow-y-auto">
       <BlurBackground isActive={true} setActive={onCancel} />
       <div className="flex items-center min-h-screen px-4 py-8">
-        <div className="relative z-10 w-full max-w-lg p-4 mx-auto bg-slate-800 rounded-md shadow-lg">
+        <div className={mergeTW(`relative z-10 w-full max-w-lg p-4 mx-auto bg-slate-800 rounded-md shadow-lg ${className}`)}>
           {variant == 'default' ? (
             <div className="py-3 sm:flex">
               <div className="flex items-center justify-center flex-none w-12 h-12 mx-auto bg-slate-900 rounded-full">{icon}</div>

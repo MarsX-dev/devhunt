@@ -7,29 +7,34 @@ import axios from 'axios';
 import { usermaven } from '@/utils/usermaven';
 import Button from '@/components/ui/Button';
 import { IconGithub, IconGoogle, IconSearch } from '@/components/Icons';
+import Modal from '@/components/ui/Modal';
+import Brand from '@/components/ui/Brand';
 // Supabase auth needs to be triggered client-side
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
   const { supabase, session, user } = useSupabase();
-  const [isLoad, setLoad] = useState(false);
+  const [isGoogleAuthLoad, setGoogleAuthLoad] = useState<boolean>(false);
+  const [isGithubAuthLoad, setGithubAuthLoad] = useState<boolean>(false);
+  const [isModalActive, setModalActive] = useState<boolean>(false);
 
   const handleGoogleLogin = async () => {
-    setLoad(true);
+    setGoogleAuthLoad(true);
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
 
     if (error != null) {
       console.log({ error });
-      setLoad(false);
     }
+    setGoogleAuthLoad(false);
   };
 
   const handleGitHubLogin = async () => {
-    setLoad(true);
+    setGithubAuthLoad(true);
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'github' });
 
     if (error != null) {
       console.log({ error });
-      setLoad(false);
     }
+    setGithubAuthLoad(false);
+    setModalActive(false);
   };
 
   useEffect(() => {
@@ -67,15 +72,34 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
     </div>
   ) : (
     <div className="flex items-center">
-      <span className="me-3">Sign In</span>
-      <Button isLoad={isLoad} variant="shiny" className="flex w-full md:w-auto me-2" onClick={handleGitHubLogin}>
-        <IconGithub className="flex-none text-slate-50 me-2" />
-        Github
+      <Button variant="shiny" onClick={() => setModalActive(true)}>
+        Sign In
       </Button>
-      <Button isLoad={isLoad} variant="shiny" className="flex w-full md:w-auto" onClick={handleGoogleLogin}>
-        <IconGoogle className="flex-none text-slate-400 me-2" />
-        Google
-      </Button>
+      <Modal variant="custom" isActive={isModalActive} onCancel={() => setModalActive(false)} className="max-w-md">
+        <div className="text-center p-2">
+          <div className="">
+            <Brand w="130" h="40" className="mx-auto" />
+            <h1 className="text-slate-50 text-lg font-semibold">Log in to your account</h1>
+            <p className="text-slate-300">Let's explore together, the legit way!</p>
+          </div>
+          <Button
+            isLoad={isGithubAuthLoad}
+            child={<IconGithub className="flex-none text-slate-700" />}
+            onClick={handleGitHubLogin}
+            className="w-full justify-center text-sm font-medium mx-auto mt-4 flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
+          >
+            Continue with Github
+          </Button>
+          <Button
+            isLoad={isGoogleAuthLoad}
+            child={<IconGoogle className="flex-none text-slate-700" />}
+            onClick={handleGoogleLogin}
+            className="w-full justify-center text-sm font-medium mt-2 mx-auto flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
+          >
+            Continue with Google
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
