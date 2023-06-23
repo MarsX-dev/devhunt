@@ -8,7 +8,10 @@ export default class ProductsService extends BaseDbService {
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
 
   async getPrevLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
-    const { data, error } = await this.supabase.rpc('get_prev_launch_days', { _launch_date: launchDate.toISOString(), _limit: limit });
+    const { data, error } = await this.supabase.rpc('get_prev_launch_days', {
+      _launch_date: launchDate.toISOString(),
+      _limit: limit
+    });
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
@@ -21,7 +24,10 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getNextLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
-    const { data, error } = await this.supabase.rpc('get_next_launch_days', { _launch_date: launchDate.toISOString(), _limit: limit });
+    const { data, error } = await this.supabase.rpc('get_next_launch_days', {
+      _launch_date: launchDate.toISOString(),
+      _limit: limit
+    });
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
@@ -127,7 +133,8 @@ export default class ProductsService extends BaseDbService {
       .select(this.EXTENDED_PRODUCT_SELECT)
       .eq('deleted', false)
       .or(`description.ilike.${query},slogan.ilike.${query},name.ilike.${query}`)
-      .limit(limit);
+      .limit(limit)
+      .order('votes_count', { ascending: false });
 
     return data;
   }
@@ -190,7 +197,10 @@ export default class ProductsService extends BaseDbService {
   }
 
   async search(searchTerm: string): Promise<Product[] | null> {
-    const { data, error } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).eq('deleted', false).limit(8);
+    const {
+      data,
+      error
+    } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).eq('deleted', false).limit(8);
 
     if (error !== null) throw new Error(error.message);
     return data;

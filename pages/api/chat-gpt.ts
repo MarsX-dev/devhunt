@@ -41,13 +41,14 @@ function prepareSuccessDto(input: string, tools: ExtendedProduct[]): ChatGtpDto 
         developer: t.profiles.full_name,
         upvotes: t.votes_count,
         upvote_link: `https://devhunt.org/tool/${t.slug}`
-      }))
+      })),
+      footer: 'Discover your next tool https://devhunt.org/ ![DevHunt](https://ucarecdn.com/e59542d4-3ede-4f62-855e-b668cdbaef02/)'
     }
   };
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { input } = req.query;
+  let { input } = req.query;
 
   const errorPayload = {
     status: 'error',
@@ -55,8 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
 
   if (!input) {
-    res.json({ ...errorPayload, message: 'Empty input' });
-    return;
+    input = '';
   }
 
   const tools = await new ProductsService(createBrowserClient()).getToolsByNameOrDescription(input as string, 10);
