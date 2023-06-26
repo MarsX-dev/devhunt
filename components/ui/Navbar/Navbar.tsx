@@ -44,7 +44,7 @@ export default () => {
     {
       title: 'Submit your Dev Tool',
       path: isLoggedin ? '/account/tools' : '/login',
-      className: 'border border-slate-700 hover:border-slate-600 rounded-lg px-3 p-2',
+      className: 'bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-3 p-2 duration-150',
     },
   ];
 

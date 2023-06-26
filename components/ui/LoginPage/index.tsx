@@ -1,10 +1,9 @@
 'use client';
 
-import { IconGithub, IconGoogle } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import Brand from '@/components/ui/Brand';
-import Button from '@/components/ui/Button/Button';
 import { useState } from 'react';
+import { GithubProvider, GoogleProvider } from '../AuthProviderButtons';
 
 const getURL = () => {
   let url =
@@ -54,22 +53,8 @@ export default () => {
               We use GitHub, and Google provider to keep it simple and easy for our users to login. Let's explore together, the legit way!
             </p>
           </div>
-          <Button
-            isLoad={isGithubAuthLoad}
-            child={<IconGithub />}
-            onClick={handleGithubLogin}
-            className="text-sm font-medium mt-8 mx-auto flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
-          >
-            Continue with Github
-          </Button>
-          <Button
-            isLoad={isGoogleAuthLoad}
-            child={<IconGoogle />}
-            onClick={handleGoogleLogin}
-            className="text-sm font-medium mt-2 mx-auto flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
-          >
-            Continue with Google
-          </Button>
+          <GithubProvider isLoad={isGithubAuthLoad} onClick={handleGithubLogin} />
+          <GoogleProvider isLoad={isGoogleAuthLoad} onClick={handleGoogleLogin} />
         </div>
       </div>
     </section>
