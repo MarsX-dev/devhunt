@@ -18,3 +18,4 @@ export * from './IconEye';
 export * from './IconInformationCircle';
 export * from './IconFire';
 export * from './IconGoogle';
+export * from './IconchatBubbleOvalLeftEllipsis';
