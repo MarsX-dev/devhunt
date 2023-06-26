@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import { IconGithub, IconGoogle, IconSearch } from '@/components/Icons';
 import Modal from '@/components/ui/Modal';
 import Brand from '@/components/ui/Brand';
+import { GithubProvider, GoogleProvider } from '../AuthProviderButtons';
 // Supabase auth needs to be triggered client-side
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
   const { supabase, session, user } = useSupabase();
@@ -82,22 +83,8 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
             <h1 className="text-slate-50 text-lg font-semibold">Log in to your account</h1>
             <p className="text-slate-300">Let's explore together, the legit way!</p>
           </div>
-          <Button
-            isLoad={isGithubAuthLoad}
-            child={<IconGithub className="flex-none text-slate-700" />}
-            onClick={handleGitHubLogin}
-            className="w-full justify-center text-sm font-medium mx-auto mt-4 flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
-          >
-            Continue with Github
-          </Button>
-          <Button
-            isLoad={isGoogleAuthLoad}
-            child={<IconGoogle className="flex-none text-slate-700" />}
-            onClick={handleGoogleLogin}
-            className="w-full justify-center text-sm font-medium mt-2 mx-auto flex text-slate-800 bg-slate-50 hover:bg-slate-200 active:bg-slate-100"
-          >
-            Continue with Google
-          </Button>
+          <GithubProvider isLoad={isGithubAuthLoad} onClick={handleGitHubLogin} className="w-full justify-center mt-4" />
+          <GoogleProvider isLoad={isGoogleAuthLoad} onClick={handleGoogleLogin} className="w-full justify-center mt-2" />
         </div>
       </Modal>
     </div>
