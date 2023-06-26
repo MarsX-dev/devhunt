@@ -23,7 +23,7 @@ export interface ChatGtpDtoDataTool {
   image_link: string
   date_added: string
   developer: string
-  upvotes: number
+  upvotes: string
   upvote_link: string
 }
 
@@ -39,7 +39,7 @@ function prepareSuccessDto(input: string, tools: ExtendedProduct[]): ChatGtpDto 
         image_link: t.logo_url,
         data_added: new Date(t.created_at).toISOString().split('T')[0],
         developer: t.profiles.full_name,
-        upvotes: t.votes_count,
+        upvotes: t.votes_count || '-',
         upvote_link: `https://devhunt.org/tool/${t.slug}`
       })),
       footer: 'Discover your next tool https://devhunt.org/ ![DevHunt](https://ucarecdn.com/e59542d4-3ede-4f62-855e-b668cdbaef02/)'
