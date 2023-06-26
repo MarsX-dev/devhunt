@@ -153,7 +153,7 @@ export default () => {
             slug: createSlug(tool_name),
             is_draft: false,
             comments_count: 0,
-            votes_counter: 0,
+            votes_count: 0,
             demo_video_url: demo_video,
             launch_date: launch_date,
           },
