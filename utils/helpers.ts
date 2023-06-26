@@ -1,8 +1,5 @@
 export function omit(obj: object, keys: string[]): object {
-  return Object.fromEntries(
-    Object.entries(obj)
-      .filter(([k, _]) => !keys.includes(k))
-  );
+  return Object.fromEntries(Object.entries(obj).filter(([k, _]) => !keys.includes(k)));
 }
 
 export function shuffleToolsBasedOnDate(tools) {
@@ -12,7 +9,7 @@ export function shuffleToolsBasedOnDate(tools) {
 
   const _copy = Array.from(tools);
 
-  for (let i = 0; i < (new Date().getDate()); i++) {
+  for (let i = 0; i < new Date().getDate(); i++) {
     _copy.unshift(_copy.pop());
   }
 
