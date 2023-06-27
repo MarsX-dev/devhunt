@@ -11,6 +11,7 @@ import type { SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import Footer from '@/components/ui/Footer/Footer';
 import ProfileService from '@/utils/supabase/services/profile';
 import ChatWindow from '@/components/ui/ChatWindow';
+import Banner from '@/components/ui/Banner';
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -67,6 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ChatWindow />
           <SupabaseProvider user={profile as Profile} session={session}>
             <SupabaseListener serverAccessToken={session?.access_token} />
+            <Banner />
             <Navbar />
             {children}
             <Footer />
