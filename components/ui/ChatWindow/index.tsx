@@ -16,7 +16,7 @@ export default () => {
       onMouseEnter={() => setPopupActive(true)}
       onMouseLeave={() => setPopupActive(false)}
       onClick={() => setPopupActive(!isPopupActive)}
-      className="fixed z-10 bottom-4 right-4 lg:bottom-14"
+      className="fixed z-10 bottom-4 right-4"
     >
       <button className="w-10 h-10 rounded-full text-white bg-orange-500 flex items-center justify-center group">
         <IconChatBubbleLeft />
@@ -26,7 +26,7 @@ export default () => {
         transition={{ delay: 0.3 }}
         animate={{ display: isPopupActive ? '' : 'none' }}
         style={{ display: 'none' }}
-        className="fixed right-4 bottom-20 pl-4 sm:pl-0 lg:bottom-28"
+        className="fixed right-4 bottom-[4.5rem] pl-4 sm:pl-0"
       >
         <div className="p-4 flex flex-wrap items-start gap-3 max-w-xs shadow-md rounded-lg bg-slate-800 border-slate-800">
           <img src="/johnrush.png" className="flex-none w-8 h-8 object-cover rounded-full" />
