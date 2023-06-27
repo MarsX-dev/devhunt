@@ -8,6 +8,7 @@ export * from './IconGithub';
 export * from './IconHeart';
 export * from './IconEllipsisVertical';
 export * from './IconArrowLongLeft';
+export * from './IconArrowLongRight';
 export * from './IconPhoto';
 export * from './IconXmark';
 export * from './IconPlus';
