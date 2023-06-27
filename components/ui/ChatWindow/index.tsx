@@ -2,18 +2,21 @@
 import { IconChatBubbleLeft } from '@/components/Icons';
 import LinkItem from '../Link/LinkItem';
 import { IconChatBubbleOvalLeftEllipsis } from '@/components/Icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 export default () => {
-  const [isPoppupActive, setPoppupActive] = useState(false);
+  const [isPopupActive, setPopupActive] = useState(true);
 
+  useEffect(() => {
+    setTimeout(() => setPopupActive(false), 6000);
+  }, []);
   return (
     <div
-      onMouseEnter={() => setPoppupActive(true)}
-      onMouseLeave={() => setPoppupActive(false)}
-      onClick={() => setPoppupActive(!isPoppupActive)}
-      className="fixed z-10 bottom-4 right-4 lg:right-32 lg:bottom-14"
+      onMouseEnter={() => setPopupActive(true)}
+      onMouseLeave={() => setPopupActive(false)}
+      onClick={() => setPopupActive(!isPopupActive)}
+      className="fixed z-10 bottom-4 right-4 lg:bottom-14"
     >
       <button className="w-10 h-10 rounded-full text-white bg-orange-500 flex items-center justify-center group">
         <IconChatBubbleLeft />
@@ -21,9 +24,9 @@ export default () => {
       <motion.div
         layout
         transition={{ delay: 0.3 }}
-        animate={{ display: isPoppupActive ? '' : 'none' }}
+        animate={{ display: isPopupActive ? '' : 'none' }}
         style={{ display: 'none' }}
-        className="fixed right-4 bottom-20 pl-4 sm:pl-0 lg:right-32 lg:bottom-28"
+        className="fixed right-4 bottom-20 pl-4 sm:pl-0 lg:bottom-28"
       >
         <div className="p-4 flex flex-wrap items-start gap-3 max-w-xs shadow-md rounded-lg bg-slate-800 border-slate-800">
           <img src="/johnrush.png" className="flex-none w-8 h-8 object-cover rounded-full" />
