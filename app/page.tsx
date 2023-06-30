@@ -30,7 +30,8 @@ export const metadata = {
 export default async function Home() {
   let launchDays = [];
   const today = new Date();
-  const endOfJuly = new Date('2023-06-30T23:59:59.999Z');
+  // const today = new Date('2023-07-01T00:00:01Z');
+  const endOfJuly = new Date('2023-07-31T23:59:59Z');
 
   // before the official launch
   if (today > endOfJuly) {
@@ -44,9 +45,9 @@ export default async function Home() {
       <div className="prose prose-invert">
         <h1 className="text-slate-50 text-lg font-semibold">Hey Developers!</h1>
         <div className="whitespace-pre-wrap">
-          📢 DevHunt's public launch: July 1st, 2023.
+          📢 DevHunt's public launch: August 1st, 2023.
           <div className="p-1 w-full" id="id1"></div>
-          Submit your dev tools & schedule launches from July 1st onwards ASAP. First submitted shown on top of the list on the launch day
+          Submit your dev tools & schedule launches from August 1st onwards ASAP. First submitted shown on top of the list on the launch day
           🔝.
           <p className="w-full"></p>
           ⏸️ Voting paused until then.
