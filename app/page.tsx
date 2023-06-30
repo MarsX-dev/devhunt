@@ -30,7 +30,7 @@ export const metadata = {
 export default async function Home() {
   let launchDays = [];
   const today = new Date();
-  const endOfJuly = new Date('2023-06-30');
+  const endOfJuly = new Date('2023-06-30T23:59:59.999Z');
 
   // before the official launch
   if (today > endOfJuly) {
