@@ -1,17 +1,17 @@
 'use client';
 
 import { useSupabase } from '@/components/supabase/provider';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AvatarMenu from '../AvatarMenu';
 import axios from 'axios';
 import { usermaven } from '@/utils/usermaven';
 import Button from '@/components/ui/Button';
-import { IconGithub, IconGoogle, IconSearch } from '@/components/Icons';
 import Modal from '@/components/ui/Modal';
 import Brand from '@/components/ui/Brand';
 import { GithubProvider, GoogleProvider } from '../AuthProviderButtons';
 import ProfileService from '@/utils/supabase/services/profile';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import { useRouter } from 'next/navigation';
 // Supabase auth needs to be triggered client-side
 
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
@@ -19,6 +19,8 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
   const [isGoogleAuthLoad, setGoogleAuthLoad] = useState<boolean>(false);
   const [isGithubAuthLoad, setGithubAuthLoad] = useState<boolean>(false);
   const [isModalActive, setModalActive] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const profile = new ProfileService(createBrowserClient());
 
@@ -43,38 +45,35 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
     setModalActive(false);
   };
 
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event == 'SIGNED_IN') {
-      profile.getById(session?.user.id as string).then(user => {
-        if (!user?.updated_at) {
-          console.log('Send notification');
-        }
-      });
-    }
-  });
+  const HandleSignInNotification = useCallback(() => {
+    const eventListener = supabase.auth.onAuthStateChange((event, session) => {
+      if (event == 'SIGNED_IN' && session?.user) {
+        profile.getById(session?.user.id as string).then(async user => {
+          if (!user?.updated_at) {
+            const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
+            const content = `**${user?.full_name}** [open the profile](https://devhunt.org/@${user?.username})`;
+            await axios.post(DISCORD_USER_WEBHOOK, { content });
+            await usermaven.id({
+              id: user?.id,
+              email: session?.user?.email,
+              created_at: Date.now().toLocaleString(),
+              first_name: user?.full_name,
+            });
+            await profile.update(user?.id as string, {
+              updated_at: new Date().toISOString(),
+            });
+            router.replace('/');
+          }
+        });
+        router.replace('/');
+        eventListener.data.subscription.unsubscribe();
+      }
+    });
+  }, []);
 
   useEffect(() => {
-    // console.log(session);
-    if (session) {
-      const { username, full_name } = user;
-      // supabase.auth.getUser(session?.access_token).then(async res => {
-      //   const { user } = res.data;
-      //   const identities = user?.identities?.[0];
-      //   if (identities?.created_at == identities?.updated_at) {
-      //     const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
-      //     const content = `**${full_name}** [open the profile](https://devhunt.org/@${username})`;
-      //     await axios.post(DISCORD_USER_WEBHOOK, { content });
-      //     await usermaven.id({
-      //       id: user?.id,
-      //       email: user?.email,
-      //       created_at: Date.now().toLocaleString(),
-      //       first_name: full_name,
-      //     });
-      //     await supabase.auth.signInWithOAuth({ provider: 'github' });
-      //   }
-      // });
-    }
-  }, [session]);
+    HandleSignInNotification();
+  }, []);
 
   // console.log(session && session.user)
 
