@@ -22,7 +22,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
   useEffect(() => {
     const fetchData = async () => {
       const today = new Date();
-      const launchDate = new Date('2023-07-01');
+      const launchDate = new Date('2023-08-01');
       const startDate = today < launchDate ? launchDate : today;
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 30);

@@ -332,7 +332,7 @@ export default () => {
                 <SelectLaunchDate
                   label="Launch date"
                   className="w-full"
-                  date={{ month: 7 }}
+                  date={{ month: 8 }}
                   validate={{
                     ...register('launch_date', { required: true }),
                   }}
