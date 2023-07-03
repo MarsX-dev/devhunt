@@ -10,21 +10,26 @@ import { IconGithub, IconGoogle, IconSearch } from '@/components/Icons';
 import Modal from '@/components/ui/Modal';
 import Brand from '@/components/ui/Brand';
 import { GithubProvider, GoogleProvider } from '../AuthProviderButtons';
+import ProfileService from '@/utils/supabase/services/profile';
+import { createBrowserClient } from '@/utils/supabase/browser';
 // Supabase auth needs to be triggered client-side
+
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
   const { supabase, session, user } = useSupabase();
   const [isGoogleAuthLoad, setGoogleAuthLoad] = useState<boolean>(false);
   const [isGithubAuthLoad, setGithubAuthLoad] = useState<boolean>(false);
   const [isModalActive, setModalActive] = useState<boolean>(false);
 
+  const profile = new ProfileService(createBrowserClient());
+
   const handleGoogleLogin = async () => {
     setGoogleAuthLoad(true);
     const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-
     if (error != null) {
       console.log({ error });
     }
     setGoogleAuthLoad(false);
+    setModalActive(false);
   };
 
   const handleGitHubLogin = async () => {
@@ -37,6 +42,16 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
     setGithubAuthLoad(false);
     setModalActive(false);
   };
+
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event == 'SIGNED_IN') {
+      profile.getById(session?.user.id as string).then(user => {
+        if (!user?.updated_at) {
+          console.log('Send notification');
+        }
+      });
+    }
+  });
 
   useEffect(() => {
     // console.log(session);
