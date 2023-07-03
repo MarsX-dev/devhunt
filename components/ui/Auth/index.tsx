@@ -12,6 +12,7 @@ import { GithubProvider, GoogleProvider } from '../AuthProviderButtons';
 import ProfileService from '@/utils/supabase/services/profile';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { useRouter } from 'next/navigation';
+import sendWelcomeEmail from '@/utils/sendWelcomeEmail';
 // Supabase auth needs to be triggered client-side
 
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
@@ -53,6 +54,7 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
             const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
             const content = `**${user?.full_name}** [open the profile](https://devhunt.org/@${user?.username})`;
             await axios.post(DISCORD_USER_WEBHOOK, { content });
+            await sendWelcomeEmail({ FirstName: user?.full_name as string, PersonalEMail: session.user.email as string });
             await usermaven.id({
               id: user?.id,
               email: session?.user?.email,
