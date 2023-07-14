@@ -111,11 +111,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       label: 'Impressions',
     },
     // TODO add calculation of rank in week and day
-    {
-      count: `#${dayAward?.rank}`,
-      icon: <IconChartBar />,
-      label: 'Day rank',
-    },
+    // {
+    //   count: `#${dayAward?.rank}`,
+    //   icon: <IconChartBar />,
+    //   label: 'Day rank',
+    // },
     {
       count: `#${weekAward?.rank}`,
       icon: <IconChartBar />,
