@@ -60,7 +60,7 @@ export default ({ className, categories = [], setCategory = () => [] }: Props) =
           <input
             type="text"
             value={value}
-            placeholder="Add a skill"
+            placeholder="Add a category"
             className="text-sm text-slate-500 placeholder-slate-500 py-2 border-0 outline-none bg-transparent appearance-none"
             onFocus={() => setIsActive(true)}
             onBlur={handleBlur}
