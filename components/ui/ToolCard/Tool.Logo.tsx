@@ -1,17 +1,8 @@
-import mergeTW from '@/utils/mergeTW'
+import mergeTW from '@/utils/mergeTW';
+import Image from 'next/image';
 
-export default ({
-  src,
-  className,
-  imgClassName,
-  alt,
-}: {
-  src: string
-  className?: string
-  imgClassName?: string
-  alt?: string
-}) => (
+export default ({ src, className, imgClassName, alt }: { src: string; className?: string; imgClassName?: string; alt?: string }) => (
   <div className={mergeTW(`flex-none  ${className}`)}>
-    <img src={src} alt={alt} className={mergeTW(`bg-slate-300 w-16 h-16 rounded-full  ${imgClassName}`)} />
+    <Image src={src} alt={alt as string} className={mergeTW(`rounded-full object-fill  ${imgClassName}`)} width={65} height={65} priority />
   </div>
-)
+);
