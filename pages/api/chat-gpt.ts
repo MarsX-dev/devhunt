@@ -35,7 +35,7 @@ function prepareSuccessDto(input: string, tools: ExtendedProduct[]): ChatGtpDto 
       tools: tools.map((t: ExtendedProduct) => ({
         tool_id: t.id,
         name: t.name,
-        description: t.name,
+        description: t.description,
         image_link: t.logo_url,
         data_added: new Date(t.created_at).toISOString().split('T')[0],
         developer: t.profiles.full_name,
