@@ -196,7 +196,7 @@ export default class ProductsService extends BaseDbService {
   async getBySlug(slug: string, trackViews = false): Promise<ExtendedProduct | null> {
     const key = `product-details-slug-${slug}`;
 
-    const product = cache.get(key,  async () => {
+    const product = await cache.get(key,  async () => {
       const { data } = await this.supabase.from('products')
           .select(this.DEFULT_PRODUCT_SELECT)
           .eq('slug', slug).single();
@@ -205,6 +205,7 @@ export default class ProductsService extends BaseDbService {
     });
 
     if (trackViews && product && !product.deleted) {
+      console.log('jupdating views for', product.id);
       this.viewed(product.id);
     }
 
