@@ -95,7 +95,7 @@ export default () => {
     if (file && file.type.includes('image') && imagePreviews.length < 5) {
       setImageFile([...(imageFiles as any), file]);
       setImagesLoad(true);
-      fileUploader({ files: file as Blob }).then(data => {
+      fileUploader({ files: file as Blob, options: 'w=750' }).then(data => {
         if (data?.file) {
           setImagePreview([...imagePreviews, data.file]);
           setImagesLoad(false);
@@ -110,7 +110,7 @@ export default () => {
     if (file && file.type.includes('image')) {
       setLogoFile(file);
       setLogoLoad(true);
-      fileUploader({ files: file as Blob, options: 'w=220' }).then(data => {
+      fileUploader({ files: file as Blob, options: 'w=128' }).then(data => {
         setLogoPreview(data?.file as string);
         setLogoLoad(false);
       });
