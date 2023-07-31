@@ -1,7 +1,7 @@
 import mergeTW from '@/utils/mergeTW';
 
 const regexPattern = /w=\d+/g;
-const replacement = 'w=64';
+const replacement = 'w=128';
 
 export default ({ src, className, imgClassName, alt }: { src: string; className?: string; imgClassName?: string; alt?: string }) => (
   <div className={mergeTW(`flex-none  ${className}`)}>
