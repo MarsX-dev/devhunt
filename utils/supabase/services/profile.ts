@@ -2,6 +2,7 @@ import type { Profile, UpdateProfile } from '@/utils/supabase/types';
 import BaseDbService from './BaseDbService';
 import { type ProductComment } from './comments';
 
+
 type FileBody =
   | ArrayBuffer
   | ArrayBufferView
@@ -25,6 +26,7 @@ interface IProduct {
     product_category_product: { name: string }[];
   };
 }
+
 
 export default class ProfileService extends BaseDbService {
   async getById(id: string): Promise<Profile | null> {

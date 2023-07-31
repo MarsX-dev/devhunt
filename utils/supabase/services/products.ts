@@ -148,7 +148,10 @@ export default class ProductsService extends BaseDbService {
       .select(this.DEFULT_PRODUCT_SELECT)
       .eq('slug', slug).single();
 
-    if (trackViews && data && !data.deleted) await this.viewed(data.id);
+    if (trackViews && data && !data.deleted) {
+      this.viewed(data.id);
+    }
+
     return data as ExtendedProduct;
   }
 

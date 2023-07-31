@@ -63,22 +63,20 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const product = await productsService.getBySlug(slug, true);
   if (!product || product.deleted) return <Page404 />;
 
-  const owned = await new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
   const awardService = new AwardsService(supabaseBrowserClient);
-  const toolAward = await awardService.getProductRanks(product.id);
+  const commentService = new CommentService(supabaseClient);
+
+  const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
+  const toolAward$ = awardService.getProductRanks(product.id);
+  const trendingTools$ = awardService.getWinnersOfTheWeek(new Date().getDay(), 10);
+  const comments$ = commentService.getByProductId(product.id);
+
+  const [owned, toolAward, trendingTools, comments] = await Promise.all([owned$, toolAward$, trendingTools$, comments$]);
+
   const dayAward = toolAward.find(i => i.award_type === 'day');
   const weekAward = toolAward.find(i => i.award_type === 'week');
 
-  if (!product) {
-    return <div>Not found</div>;
-  }
-
   const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
-
-  const trendingTools = await awardService.getWinnersOfTheWeek(new Date().getDay(), 10);
-
-  const commentService = new CommentService(supabaseClient);
-  const comments = (await commentService.getByProductId(product.id)) ?? [];
 
   const tabs = [
     {
