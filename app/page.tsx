@@ -1,5 +1,4 @@
 import ProductsService from '@/utils/supabase/services/products';
-// import { createServerClient } from '@/utils/supabase/server';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { ProductType } from '@/type';
 import { shuffleToolsBasedOnDate } from '@/utils/helpers';
