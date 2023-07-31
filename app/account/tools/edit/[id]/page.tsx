@@ -308,8 +308,8 @@ export default () => {
           </FormLaunchSection>
           <FormLaunchSection
             number={4}
-            title="Launch Date for Your Dev Tool"
-            description="Setting the perfect launch date is essential to make a splash in the dev world."
+            title="Launch Week for Your Dev Tool"
+            description="Setting the perfect launch week is essential to make a splash in the dev world."
           >
             <div>
               <ul className="text-sm text-slate-300">

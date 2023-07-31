@@ -10,23 +10,21 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;
   value?: string | number;
   className?: string;
-  validate?: {};
-  date?: {
-    month?: number;
-  };
+  validate?: { };
 }
 
 export default ({ label, value, className = '', validate, ...props }: Props) => {
-  const [days, setDays] = useState<{ date: Date; count: number }[]>([]);
+  const [days, setDays] = useState<{ week: number; startDate: Date, endDate: Date, count: number; }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const today = new Date();
       const launchDate = new Date('2023-08-01');
       const startDate = today < launchDate ? launchDate : today;
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 30);
-      const result = await new ProductsService(createBrowserClient()).getProductsCountByDay(startDate, endDate);
+
+      const productsService = new ProductsService(createBrowserClient());
+      const startWeek = await productsService.getWeekNumber(startDate, 2);
+      const result = await productsService.getProductsCountByWeek(startWeek, startWeek + 5, startDate.getFullYear());
       setDays(result);
     };
 
@@ -46,7 +44,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
           {label}
         </option>
         {days.map(i => (
-          <option value={i.date.toISOString()}>{`${moment(i.date).format('LL')} (${i.count})`}</option>
+          <option value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count})`}</option>
         ))}
       </select>
     </div>
