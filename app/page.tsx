@@ -1,8 +1,9 @@
 import ProductsService from '@/utils/supabase/services/products';
-import { createServerClient } from '@/utils/supabase/server';
+// import { createServerClient } from '@/utils/supabase/server';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { ProductType } from '@/type';
 import { shuffleToolsBasedOnDate } from '@/utils/helpers';
+import { createBrowserClient } from '@/utils/supabase/browser';
 
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
@@ -35,9 +36,9 @@ export default async function Home() {
 
   // before the official launch
   if (today > endOfJuly) {
-    launchDays = await new ProductsService(createServerClient()).getPrevLaunchDays(today, 10);
+    launchDays = await new ProductsService(createBrowserClient()).getPrevLaunchDays(today, 10);
   } else {
-    launchDays = await new ProductsService(createServerClient()).getNextLaunchDays(endOfJuly, 100);
+    launchDays = await new ProductsService(createBrowserClient()).getNextLaunchDays(endOfJuly, 100);
   }
 
   return (
