@@ -12,7 +12,7 @@ export const GalleryImage = ({
   className?: string;
   imgClassName?: string;
 }) => {
-    src += 'w=750';
+    src += '&w=750';
 
     return (
         <li {...props}
