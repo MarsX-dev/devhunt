@@ -2,18 +2,23 @@ import { type ExtendedProduct } from '@/utils/supabase/CustomTypes';
 import BaseDbService from '@/utils/supabase/services/BaseDbService';
 import { type InsertProduct, type Product, type UpdateProduct } from '@/utils/supabase/types';
 import { omit } from '@/utils/helpers';
+import { cache } from "@/utils/supabase/services/CacheService";
 
 export default class ProductsService extends BaseDbService {
   private readonly DEFULT_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name, id)';
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
 
   async getWeekNumber(dateIn: Date, startDay: number): Promise<number> {
-    const { data, error } = await this.supabase.rpc('get_week_number', {
-      date_in: dateIn,
-      start_day: startDay,
+    const key = `week-number-${dateIn}-${startDay}`;
+
+    return cache.get(key, async () => {
+      const {data, error} = await this.supabase.rpc('get_week_number', {
+        date_in: dateIn,
+        start_day: startDay,
+      });
+      if (error !== null) throw new Error(error.message);
+      return data as number;
     });
-    if (error !== null) throw new Error(error.message);
-    return data as number;
   }
 
   async getWeeks(year: number, startDay: number) {
@@ -82,10 +87,14 @@ export default class ProductsService extends BaseDbService {
   }
 
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
-    // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-    return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT)
-      .eq('deleted', false)
-      .order(sortBy, { ascending });
+    const key = `products-${sortBy}-${ascending}`;
+
+    return cache.get(key, async () => {
+      // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
+      return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT)
+          .eq('deleted', false)
+          .order(sortBy, {ascending});
+    });
   }
 
   async getSimilarProducts(productId: number): Promise<Product[]> {
@@ -160,32 +169,46 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getToolsByNameOrDescription(input: string, limit: number): Promise<ExtendedProduct[] | null> {
-    const query = `%${input}%`;
-    console.log(query);
-    const { data } = await this.supabase.from('products')
-      .select(this.EXTENDED_PRODUCT_SELECT)
-      .eq('deleted', false)
-      .or(`description.ilike.${query},slogan.ilike.${query},name.ilike.${query}`)
-      .limit(limit)
-      .order('votes_count', { ascending: false });
+    const key = `product-search-by-text-${input}-${limit}`;
 
-    return data;
+    return cache.get(key, async () => {
+      const query = `%${input}%`;
+      console.log(query);
+      const {data} = await this.supabase.from('products')
+          .select(this.EXTENDED_PRODUCT_SELECT)
+          .eq('deleted', false)
+          .or(`description.ilike.${query},slogan.ilike.${query},name.ilike.${query}`)
+          .limit(limit)
+          .order('votes_count', {ascending: false});
+
+      return data;
+    });
   }
 
   async getById(id: number): Promise<ExtendedProduct | null> {
-    return await this._getOne('id', id);
+    const key = `product-details-id-${id}`;
+
+    return cache.get(key, async () => {
+      return this._getOne('id', id);
+    });
   }
 
   async getBySlug(slug: string, trackViews = false): Promise<ExtendedProduct | null> {
-    const { data } = await this.supabase.from('products')
-      .select(this.DEFULT_PRODUCT_SELECT)
-      .eq('slug', slug).single();
+    const key = `product-details-slug-${slug}`;
 
-    if (trackViews && data && !data.deleted) {
-      this.viewed(data.id);
+    const product = cache.get(key,  async () => {
+      const { data } = await this.supabase.from('products')
+          .select(this.DEFULT_PRODUCT_SELECT)
+          .eq('slug', slug).single();
+
+      return data;
+    });
+
+    if (trackViews && product && !product.deleted) {
+      this.viewed(product.id);
     }
 
-    return data as ExtendedProduct;
+    return product as ExtendedProduct;
   }
 
   async toggleVote(productId: number, userId: string): Promise<number> {
