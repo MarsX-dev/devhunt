@@ -34,7 +34,10 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
-  launch_date: string;
+  week: number;
+  launch_date: Date;
+  launch_start: Date;
+  launch_end: Date;
 }
 
 export default () => {
@@ -135,9 +138,11 @@ export default () => {
 
   const onSubmit: SubmitHandler<Inputs> = async data => {
     if (validateImages() && (await validateToolName())) {
-      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, launch_date } = data;
+      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const categoryIds = categories.map(item => item.id);
       setLaunching(true);
+      const weeks = await productService.getWeeks(new Date().getFullYear(), 2);
+      const weekData = weeks.find(i => i.week === parseInt(week));
       await productService
         .insert(
           {
@@ -155,14 +160,17 @@ export default () => {
             comments_count: 0,
             votes_count: 0,
             demo_video_url: demo_video,
-            launch_date: launch_date,
+            launch_date: weekData?.startDate,
+            launch_start: weekData?.startDate,
+            launch_end: weekData?.endDate,
+            week: parseInt(week),
           },
           categoryIds,
         )
         .then(async res => {
           const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
           const content = `**${res?.name}** by ${profile?.full_name} [open the tool](https://devhunt.org/tool/${res?.slug})`;
-          await axios.post(DISCORD_TOOL_WEBHOOK, { content });
+          if (DISCORD_TOOL_WEBHOOK) await axios.post(DISCORD_TOOL_WEBHOOK, { content });
           // await usermaven.id({
           //   id: profile?.id,
           //   company: {
@@ -209,7 +217,7 @@ export default () => {
               <Input
                 placeholder="Supercharge Your Development Workflow!"
                 className="w-full mt-2"
-                validate={{ ...register('slogan', { required: true, minLength: 20 }) }}
+                validate={{ ...register('slogan', { required: true, minLength: 10 }) }}
               />
               <LabelError className="mt-2">{errors.slogan && 'Please enter your tool slogan'}</LabelError>
             </div>
@@ -312,8 +320,8 @@ export default () => {
 
           <FormLaunchSection
             number={4}
-            title="Launch Date for Your Dev Tool"
-            description="Setting the perfect launch date is essential to make a splash in the dev world."
+            title="Launch Week for Your Dev Tool"
+            description="Setting the perfect launch week is essential to make a splash in the dev world."
           >
             <div>
               <ul className="text-sm text-slate-400">
@@ -330,14 +338,13 @@ export default () => {
               </ul>
               <div className="relative mt-4 mb-3">
                 <SelectLaunchDate
-                  label="Launch date"
+                  label="Launch week"
                   className="w-full"
-                  date={{ month: 8 }}
                   validate={{
-                    ...register('launch_date', { required: true }),
+                    ...register('week', { required: true }),
                   }}
                 />
-                <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
+                <LabelError className="mt-2">{errors.weel && 'Please pick a launch week'}</LabelError>
               </div>
             </div>
             <div className="pt-7">

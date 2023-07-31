@@ -7,10 +7,32 @@ export default class ProductsService extends BaseDbService {
   private readonly DEFULT_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name, id)';
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
 
+  async getWeekNumber(dateIn: Date, startDay: number): Promise<number> {
+    const { data, error } = await this.supabase.rpc('get_week_number', {
+      date_in: dateIn,
+      start_day: startDay,
+    });
+    if (error !== null) throw new Error(error.message);
+    return data as number;
+  }
+
+  async getWeeks(year: number, startDay: number) {
+    const { data, error } = await this.supabase.rpc('get_weeks', {
+      year_in: year,
+      start_day: startDay,
+    });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({
+      week: i.week_number,
+      startDate: i.start_date,
+      endDate: i.end_date
+    }));
+  }
+
   async getPrevLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
     const { data, error } = await this.supabase.rpc('get_prev_launch_days', {
       _launch_date: launchDate.toISOString(),
-      _limit: limit
+      _limit: limit,
     });
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
@@ -46,6 +68,17 @@ export default class ProductsService extends BaseDbService {
     });
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({ date: new Date(i.date), count: i.product_count }));
+  }
+
+  async getProductsCountByWeek(startWeek: number, endWeek: number, year: number): Promise<{ week: number; startDate: Date, endDate: Date, count: number; }[]> {
+    const { data, error } = await this.supabase.rpc('get_products_count_by_week', {
+      start_week: startWeek,
+      end_week: endWeek,
+      year_in: year,
+      start_day: 2, // Tuesday
+    });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({ week: i.week_number, startDate: i.start_date, endDate: i.end_date, count: i.product_count }));
   }
 
   getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
