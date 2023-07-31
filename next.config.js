@@ -17,15 +17,15 @@ const nextConfig = {
     WELCOME_EMAIL_API_KEY: process.env.WELCOME_EMAIL_API_KEY,
     SIGNUP_FORM_ID: process.env.SIGNUP_FORM_ID,
   },
-  // images: {
-  //   remotePatterns: [
-  //     {
-  //       protocol: 'https',
-  //       hostname: 'mars-images.imgix.net',
-  //       port: '',
-  //       pathname: '/**',
-  //     },
-  //   ],
-  // },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'mars-images.imgix.net',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 module.exports = nextConfig;
