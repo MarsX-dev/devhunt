@@ -83,14 +83,14 @@ export const Gallery = ({
               <li className="h-full">
                 {(currentIdx === 0 && media[currentIdx].includes('youtube')) || media[currentIdx].includes('.mp4') ? (
                   media[0].includes('youtube') ? (
-                    <iframe src={extractVideoId(src as string) as string} className="rounded-lg w-full h-full"></iframe>
+                    <iframe loading="lazy" src={extractVideoId(src as string) as string} className="rounded-lg w-full h-full"></iframe>
                   ) : (
                     <video controls className="w-full">
                       <source src={src} />
                     </video>
                   )
                 ) : (
-                  <img src={media[currentIdx]} className="w-full h-full rounded-lg object-cover" />
+                  <img src={media[currentIdx]} loading="lazy" className="w-full h-full rounded-lg object-cover" />
                 )}
               </li>
               <ButtonHandler onClick={handleLeftSide} className="absolute inset-y-0 left-4 my-auto">
