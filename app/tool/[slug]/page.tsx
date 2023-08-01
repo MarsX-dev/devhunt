@@ -27,6 +27,7 @@ import Page404 from '@/components/ui/Page404/Page404';
 import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
 import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
+import TrendingToolsList from '@/components/ui/TrendingToolsList';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -68,10 +69,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
   const toolAward$ = awardService.getProductRanks(product.id);
-  const trendingTools$ = awardService.getWinnersOfTheWeek(new Date().getDay(), 10);
   const comments$ = commentService.getByProductId(product.id);
 
-  const [owned, toolAward, trendingTools, comments] = await Promise.all([owned$, toolAward$, trendingTools$, comments$]);
+  const [owned, toolAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
 
   const dayAward = toolAward.find(i => i.award_type === 'day');
   const weekAward = toolAward.find(i => i.award_type === 'week');
@@ -156,7 +156,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
                   <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                   <TagsGroup>
-                    {product?.product_categories.map(pc => (
+                    {product?.product_categories.map((pc: { name: string }) => (
                       <Tag>{pc.name}</Tag>
                     ))}
                   </TagsGroup>
@@ -207,26 +207,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         </div>
         <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
-          <ul className="mt-3 divide-y divide-slate-800/60">
-            {trendingTools?.map((item, idx) => (
-              <li key={idx} className="py-3">
-                <ToolCard href={`/tool/${(item.slug as string).toLowerCase()}`}>
-                  <ProductLogo src={item.logo_url as string} alt={item?.slogan as string} imgClassName="w-14 h-14" />
-                  <div className="w-full space-y-1">
-                    <ToolName>{item.name}</ToolName>
-                    <Title className="line-clamp-1 sm:line-clamp-2">{item?.slogan}</Title>
-                    <ToolFooter>
-                      <Tags items={[item.product_pricing, ...(item.product_categories ?? [])]} />
-                      <ToolViews count={product.views_count} />
-                    </ToolFooter>
-                  </div>
-                  <div className="self-center flex justify-end">
-                    <ToolVotes count={item.votes_count as number} />
-                  </div>
-                </ToolCard>
-              </li>
-            ))}
-          </ul>
+          <TrendingToolsList />
         </div>
       </div>
     </section>

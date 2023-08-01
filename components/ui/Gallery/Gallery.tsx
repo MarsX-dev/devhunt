@@ -56,7 +56,7 @@ export const Gallery = ({
         {src ? (
           <li className={mergeTW(`flex-none w-[400px] aspect-[4/3] snap-start py-3 pointer-events-none ${className}`)}>
             {media[0].includes('youtube') ? (
-              <iframe src={extractVideoId(src) as string} width={448} height={252} className="rounded-lg"></iframe>
+              <iframe loading="lazy" src={extractVideoId(src) as string} width={448} height={252} className="rounded-lg"></iframe>
             ) : (
               <video controls className="w-[400px] rounded-lg">
                 <source src={src} />
