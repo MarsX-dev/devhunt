@@ -66,6 +66,46 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
+  async getPrevLaunchWeeks(year: number, weekStartDay: number, launchWeek: number, limit = 1): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[]; }[]> {
+    const { data, error } = await this.supabase.rpc('get_prev_launch_weeks', {
+      _year: year,
+      _start_day: weekStartDay,
+      _launch_week: launchWeek,
+      _limit: limit,
+    });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({
+      week: i.week,
+      startDate: new Date(i.start_date),
+      endDate: new Date(i.end_date),
+      products: (i.products as Array<any> || []).map(k => ({
+        ...k.product,
+        product_pricing_types: k.product_pricing_types,
+        product_categories: k.product_categories,
+      })) as ExtendedProduct[],
+    }));
+  }
+
+  async getNextLaunchWeeks(year: number, weekStartDay: number, launchWeek: number, limit = 1): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[]; }[]> {
+    const { data, error } = await this.supabase.rpc('get_prev_launch_weeks', {
+      _year: year,
+      _start_day: weekStartDay,
+      _launch_week: launchWeek,
+      _limit: limit,
+    });
+    if (error !== null) throw new Error(error.message);
+    return data.map(i => ({
+      week: i.week,
+      startDate: new Date(i.start_date),
+      endDate: new Date(i.end_date),
+      products: (i.products as Array<any> || []).map(k => ({
+        ...k.product,
+        product_pricing_types: k.product_pricing_types,
+        product_categories: k.product_categories,
+      })) as ExtendedProduct[],
+    }));
+  }
+
   async getProductsCountByDay(startDate: Date, endDate: Date): Promise<{ date: Date; count: number }[]> {
     const { data, error } = await this.supabase.rpc('get_products_count_by_date', {
       _start_date: startDate.toISOString(),
