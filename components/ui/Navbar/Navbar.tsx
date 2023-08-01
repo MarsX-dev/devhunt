@@ -39,7 +39,8 @@ export default () => {
   };
 
   const navigation = [
-    { title: 'Dev Tools', path: '/' },
+    { title: 'This Week', path: '/' },
+    { title: 'Upcoming Tools', path: '/upcoming' },
     { title: 'The Story', path: '/about' },
     {
       title: 'Submit your Dev Tool',
