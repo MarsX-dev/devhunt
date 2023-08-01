@@ -28,6 +28,15 @@ export default () => {
     { title: 'UnicornPlatform', url: 'https://unicornplatform.com/' },
   ];
 
+  const builtBy = [
+    { title: '@johnrushx', url: 'https://twitter.com/johnrushx' },
+    { title: '@sidi_jeddou_dev', url: 'https://twitter.com/sidi_jeddou_dev' },
+    { title: '@vitalik_may', url: 'https://twitter.com/vitalik_may' },
+    { title: '@BotanMan', url: 'https://twitter.com/BotanMan' },
+    { title: '@chris_byrne', url: 'https://twitter.com/chris_byrne' },
+    { title: 'see all', url: '/about' },
+  ];
+
   return (
     <footer className="mt-20 text-slate-400 bg-slate-900 px-4 py-5 max-w-screen-xl mx-auto md:px-8">
       <div className="border-t border-slate-800 pt-8">
@@ -59,6 +68,16 @@ export default () => {
                 <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
                   {t.title}
                   {usedTools.length - 1 === i ? '' : ', '}
+                </a>
+              ))}
+              {'.'}
+            </div>
+            <div className="text-xs pt-2">
+              Built by{' '}
+              {builtBy.map((t, i) => (
+                <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
+                  {t.title}
+                  {builtBy.length - 1 === i ? '' : ', '}
                 </a>
               ))}
               {'.'}

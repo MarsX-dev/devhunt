@@ -36,16 +36,25 @@ export default async function Home() {
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
       <div className="prose prose-invert">
-        <h1 className="text-slate-50 text-lg font-semibold">Hey Developers!</h1>
-        <div className="whitespace-pre-wrap">
-          📢 DevHunt's public launch: August 1st, 2023.
-          <div className="p-1 w-full" id="id1"></div>
-          Submit your dev tools & schedule launches from August 1st onwards ASAP. First submitted shown on top of the list on the launch day
-          🔝.
-          <p className="w-full"></p>
-          {/* ⏸️ Voting paused until then. */}
-          <p className="w-full"></p>
-          Let's build this together - by us, for us 💪😎
+        <div className="font-sans p-6 bg-slate-800 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold mb-4 text-orange-500">Hey Devs 🙌</h1>
+
+          <p className="mb-4 text-red-400">It's on! DevHunt is live and kicking.</p>
+
+          <p className="mb-1 ">
+            It's a weekly contest where your tools compete for the <b className='text-orange-400'>'Tool of The Week'</b> prize. <br/>🏆 Winners get some cool
+            stuff from us:
+          </p>
+
+          <ul className="list-disc pl-5 mt-1 mb-4 text-green-400">
+            <li>A feature in our newsletter 📨</li>
+            <li>Shout-outs with tech influencers on Twitter 🐦</li>
+            <li>A sweet winner badge on their listing 👑</li>
+          </ul>
+
+          <p>Voting ends every Monday night (UTC), so make sure you get your votes in before then!</p>
+
+          <div className="mt-6">We built this platform together; now let's make it shine.<br/> Happy hunting! 😎🚀 👇 👇 👇 </div>
         </div>
       </div>
 
