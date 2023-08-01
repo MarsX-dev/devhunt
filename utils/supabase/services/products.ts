@@ -87,7 +87,7 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getNextLaunchWeeks(year: number, weekStartDay: number, launchWeek: number, limit = 1): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[]; }[]> {
-    const { data, error } = await this.supabase.rpc('get_prev_launch_weeks', {
+    const { data, error } = await this.supabase.rpc('get_next_launch_weeks', {
       _year: year,
       _start_day: weekStartDay,
       _launch_week: launchWeek,

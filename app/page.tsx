@@ -62,7 +62,7 @@ export default async function Home() {
         {launchWeeks.map(group => (
           <>
             <div className="mt-3 text-slate-400 text-sm">
-              {group.startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              Trending launches
             </div>
             <ul className="mt-3 divide-y divide-slate-800/60">
               {/* {shuffleToolsBasedOnDate(group.products).map((product, idx) => (
