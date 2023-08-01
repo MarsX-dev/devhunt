@@ -9,7 +9,7 @@ import { Tag, TagsGroup } from '@/components/ui/TagsGroup';
 import Title from '@/components/ui/ToolCard/Tool.Title';
 import ProductsService from '@/utils/supabase/services/products';
 import CommentService from '@/utils/supabase/services/comments';
-// import CommentSection from '@/components/ui/Client/CommentSection';
+import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import AwardsService from '@/utils/supabase/services/awards';
@@ -22,9 +22,6 @@ import customDateFromNow from '@/utils/customDateFromNow';
 import Page404 from '@/components/ui/Page404/Page404';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import TrendingToolsList from '@/components/ui/TrendingToolsList';
-
-import dynamic from 'next/dynamic';
-const CommentSection = dynamic(() => import('@/components/ui/Client/CommentSection'));
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -70,7 +67,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const [owned, toolAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
 
-  const dayAward = toolAward.find(i => i.award_type === 'day');
   const weekAward = toolAward.find(i => i.award_type === 'week');
 
   const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
