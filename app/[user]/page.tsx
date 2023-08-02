@@ -100,7 +100,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       />
                     </div>
                     <div className="flex-1 self-center flex justify-end">
-                      <Votes className="text-orange-500" count={tool.votes_count} />
+                      <Votes className="text-orange-500" count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
                     </div>
                   </ToolCard>
                 </li>
@@ -130,7 +130,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                         <Title className="line-clamp-2">{item.products.slogan}</Title>
                       </div>
                       <div className="flex-1 self-center flex justify-end">
-                        <Votes count={item.products.votes_count} />
+                        <Votes count={item.products.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
                       </div>
                     </ToolCard>
                   </div>
@@ -158,7 +158,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       </ToolFooter>
                     </div>
                     <div className="flex-1 self-center flex justify-end">
-                      <Votes count={tool.votes_count as number} />
+                      <Votes count={tool.votes_count as number} productId={tool?.id} launchDate={tool.launch_date} />
                     </div>
                   </ToolCard>
                 </li>

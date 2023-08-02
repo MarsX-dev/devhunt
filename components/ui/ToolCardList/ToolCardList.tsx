@@ -28,7 +28,7 @@ export default ({ tool }: { tool: ITool }) => (
         />
       </div>
       <div className="flex-1 self-center flex justify-end">
-        <Votes count={tool.votes_count} />
+        <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
       </div>
     </ToolCard>
   </li>

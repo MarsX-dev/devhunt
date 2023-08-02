@@ -33,7 +33,9 @@ export default ({ tool }: { tool: ProductType }) => {
             isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <Votes count={tool.votes_count} />
+          <button onClick={() => console.log('Hello world')}>
+            <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
+          </button>
         </div>
       </ToolCard>
     </li>
