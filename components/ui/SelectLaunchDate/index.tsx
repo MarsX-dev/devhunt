@@ -44,7 +44,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
           {label}
         </option>
         {days.map(i => (
-          <option disabled={i.count >= 10} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count}/${i.count > 11 ? i.count : 11})`}</option>
+          <option disabled={i.count >= 11} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count}/${i.count > 11 ? i.count : 11})`}</option>
         ))}
       </select>
     </div>
