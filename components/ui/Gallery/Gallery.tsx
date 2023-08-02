@@ -8,6 +8,7 @@ import { ButtonHandler } from './ButtonHandler';
 import { IconChevronLeft } from '@/components/Icons/IconChevronLeft';
 import { IconChevronRight } from '@/components/Icons/IconChevronRight';
 import { IconXmark } from '@/components/Icons';
+import VideoThumbnail from './VideoThumbnail';
 
 export const Gallery = ({
   children,
@@ -56,7 +57,7 @@ export const Gallery = ({
         {src ? (
           <li className={mergeTW(`flex-none w-[400px] aspect-[4/3] snap-start py-3 pointer-events-none ${className}`)}>
             {media[0].includes('youtube') ? (
-              <iframe loading="lazy" src={extractVideoId(src) as string} width={448} height={252} className="rounded-lg"></iframe>
+              <VideoThumbnail src={`https://img.youtube.com/vi/${extractVideoId(src as string)?.id}/maxresdefault.jpg`} />
             ) : (
               <video controls className="w-[400px] rounded-lg">
                 <source src={src} />
@@ -83,7 +84,11 @@ export const Gallery = ({
               <li className="h-full">
                 {(currentIdx === 0 && media[currentIdx].includes('youtube')) || media[currentIdx].includes('.mp4') ? (
                   media[0].includes('youtube') ? (
-                    <iframe loading="lazy" src={extractVideoId(src as string) as string} className="rounded-lg w-full h-full"></iframe>
+                    <iframe
+                      loading="lazy"
+                      src={extractVideoId(src as string)?.embed as string}
+                      className="rounded-lg w-full h-full"
+                    ></iframe>
                   ) : (
                     <video controls className="w-full">
                       <source src={src} />
