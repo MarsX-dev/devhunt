@@ -51,15 +51,15 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 }
 
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
-  const supabaseClient = createServerClient();
+  // const supabaseBrowserClient = createServerClient();
   const supabaseBrowserClient = createBrowserClient();
 
-  const productsService = new ProductsService(supabaseClient);
+  const productsService = new ProductsService(supabaseBrowserClient);
   const product = await productsService.getBySlug(slug, true);
   if (!product || product.deleted) return <Page404 />;
 
   const awardService = new AwardsService(supabaseBrowserClient);
-  const commentService = new CommentService(supabaseClient);
+  const commentService = new CommentService(supabaseBrowserClient);
 
   const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
   const toolAward$ = awardService.getProductRanks(product.id);
