@@ -1,3 +1,5 @@
+'use client';
+
 import { IconInformationCircle, IconVote } from '@/components/Icons';
 import mergeTW from '@/utils/mergeTW';
 import { useSupabase } from '@/components/supabase/provider';
