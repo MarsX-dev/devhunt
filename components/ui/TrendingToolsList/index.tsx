@@ -25,8 +25,6 @@ export default () => {
 
   useEffect(() => {
     getTrendingTools().then(tools => {
-      console.log(tools);
-
       const allTools = tools?.map(tool => tool);
       setTrendingTools(allTools as any);
     });
@@ -48,7 +46,7 @@ export default () => {
                     <ToolViews count={tool.views_count} />
                   </ToolFooter>
                 </div>
-                <ToolVotes count={tool.votes_count} />
+                <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
               </ToolCard>
             </li>
           ))}

@@ -15,11 +15,9 @@ import { Comment, CommentContext, CommentDate, CommentUserAvatar, CommentUserNam
 import { createBrowserClient } from '@/utils/supabase/browser';
 import moment from 'moment';
 import Link from 'next/link';
-import AwardsService from '@/utils/supabase/services/awards';
 import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
-import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
-import ToolViews from '@/components/ui/ToolCard/Tool.views';
+import TrendingToolsList from '@/components/ui/TrendingToolsList';
 
 interface IComment extends CommentType {
   profiles: Profile;
@@ -62,9 +60,6 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
 
     const activity = await profileService.getUserActivityById(profile?.id);
     const votedTools = await profileService.getUserVoteTools(profile?.id);
-
-    const awardService = new AwardsService(browserService);
-    const trendingTools = await awardService.getWinnersOfTheWeek(new Date().getDay(), 10);
 
     return (
       <div className="container-custom-screen mt-10 mb-32 space-y-10">
@@ -141,33 +136,11 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
         ) : (
           ''
         )}
-        {trendingTools && trendingTools?.length > 0 ? (
-          <div>
-            <h3 className="font-medium text-slate-50">Trending tools</h3>
-            <ul className="mt-3 divide-y divide-slate-800/60">
-              {trendingTools.map((tool, idx) => (
-                <li key={idx} className="py-3">
-                  <ToolCard href={`/tool/${tool.slug}`}>
-                    <Logo src={tool.logo_url ?? ''} alt={tool.name as string} />
-                    <div className="w-full space-y-1">
-                      <Name>{tool.name}</Name>
-                      <Title className="line-clamp-2">{tool?.slogan}</Title>
-                      <ToolFooter>
-                        <Tags items={[tool.product_pricing, ...(tool.product_categories ?? [])]} />
-                        <ToolViews count={(tool as any).views_count} />
-                      </ToolFooter>
-                    </div>
-                    <div className="flex-1 self-center flex justify-end">
-                      <Votes count={tool.votes_count as number} productId={tool?.id} launchDate={tool.launch_date} />
-                    </div>
-                  </ToolCard>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          ''
-        )}
+
+        <div>
+          <h3 className="font-medium text-slate-50">Trending tools</h3>
+          <TrendingToolsList />
+        </div>
       </div>
     );
   } else return <Page404 />;
