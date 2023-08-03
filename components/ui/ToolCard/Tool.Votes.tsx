@@ -35,9 +35,9 @@ export default ({
   const toggleVote = async () => {
     if (session && session.user) {
       if (isLaunchStarted) {
-        const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
         setUpvoted(!isUpvoted);
-        setVotesCount(newVotesCount);
+        setVotesCount(isUpvoted ? (count as number) + 1 : count);
+        const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
       } else setModalActive(true);
     } else router.push('/login');
   };
