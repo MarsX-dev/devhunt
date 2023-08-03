@@ -192,11 +192,12 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getUserVoteById(userId: string, productId: number) {
+    if (!userId || !productId) return 0;
     const { data } = await this.supabase.from('product_votes')
       .select()
       .eq('user_id', userId)
       .eq('product_id', productId)
-      .single();
+      .maybeSingle();
     return data;
   }
 

@@ -8,13 +8,16 @@ import Votes from '@/components/ui/ToolCard/Tool.Votes';
 import ToolCard from '@/components/ui/ToolCard/ToolCard';
 import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
 import ToolViews from '@/components/ui/ToolCard/Tool.views';
-import { ProductType } from '@/type';
+import { type ProductType } from '@/type';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { createBrowserClient } from '@/utils/supabase/browser';
+import ProductsService from '@/utils/supabase/services/products';
 
 export default ({ tool }: { tool: ProductType }) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true });
+  new ProductsService(createBrowserClient()).viewed(tool.id); // track views
 
   return (
     <li ref={cardRef} className="py-3">
