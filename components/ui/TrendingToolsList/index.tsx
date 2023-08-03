@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { ProductType } from '@/type';
 import ProductsService from '@/utils/supabase/services/products';
 import ToolLogo from '@/components/ui/ToolCard/Tool.Logo';
+import Link from 'next/link';
 
 const getTrendingTools = async () => {
   const today = new Date();
@@ -37,15 +38,17 @@ export default () => {
           {group.products.map((tool, idx) => (
             <li key={idx} className="py-3">
               <ToolCard href={'/tool/' + tool.slug}>
-                <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
-                <div className="w-full space-y-1">
-                  <ToolName>{tool.name}</ToolName>
-                  <Title className="line-clamp-2">{tool.slogan}</Title>
-                  <ToolFooter>
-                    <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
-                    <ToolViews count={tool.views_count} />
-                  </ToolFooter>
-                </div>
+                <Link href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+                  <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
+                  <div className="w-full space-y-1">
+                    <ToolName>{tool.name}</ToolName>
+                    <Title className="line-clamp-2">{tool.slogan}</Title>
+                    <ToolFooter>
+                      <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
+                      <ToolViews count={tool.views_count} />
+                    </ToolFooter>
+                  </div>
+                </Link>
                 <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
               </ToolCard>
             </li>

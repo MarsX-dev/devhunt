@@ -83,17 +83,19 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
               {votedTools.map((tool: any, idx: number) => (
                 <li key={idx} className="py-3">
                   <ToolCard href={`/tool/${tool.slug}`}>
-                    <Logo src={tool.logo_url || ''} alt={tool.name} />
-                    <div className="space-y-1">
-                      <Name>{tool.name}</Name>
-                      <Title className="line-clamp-2">{tool.slogan}</Title>
-                      <Tags
-                        items={[
-                          (tool.product_pricing_types as { title: string }).title || 'Free',
-                          ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
-                        ]}
-                      />
-                    </div>
+                    <Link href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+                      <Logo src={tool.logo_url || ''} alt={tool.name} />
+                      <div className="space-y-1">
+                        <Name>{tool.name}</Name>
+                        <Title className="line-clamp-2">{tool.slogan}</Title>
+                        <Tags
+                          items={[
+                            (tool.product_pricing_types as { title: string }).title || 'Free',
+                            ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
+                          ]}
+                        />
+                      </div>
+                    </Link>
                     <div className="flex-1 self-center flex justify-end">
                       <Votes className="text-orange-500" count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
                     </div>
@@ -119,11 +121,13 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
                     </Link>
                     <ToolCard className="mt-3 border border-slate-800" href={'/tool/' + item.products.slug}>
-                      <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
-                      <div className="space-y-1">
-                        <Name>{item.products.name}</Name>
-                        <Title className="line-clamp-2">{item.products.slogan}</Title>
-                      </div>
+                      <Link href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+                        <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
+                        <div className="space-y-1">
+                          <Name>{item.products.name}</Name>
+                          <Title className="line-clamp-2">{item.products.slogan}</Title>
+                        </div>
+                      </Link>
                       <div className="flex-1 self-center flex justify-end">
                         <Votes count={item.products.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
                       </div>
