@@ -7,16 +7,16 @@ class CacheService {
     async get(key: string, asyncFetcher: () => Promise<any>, ttl: number = stdTTL) {
         const value = this._cache.get(key)
 
-        console.log('getting by key', key, value);
+        // console.log('getting by key', key, value);
 
         if (value !== undefined && value !== null) {
             return value
         }
 
-        console.log('fetching data for key', key);
+        // console.log('fetching data for key', key);
         const newValue = await asyncFetcher();
 
-        console.log('value is', newValue);
+        // console.log('value is', newValue);
 
         this._cache.set(key, newValue, ttl);
         return newValue;

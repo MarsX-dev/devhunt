@@ -246,7 +246,6 @@ export default class ProductsService extends BaseDbService {
     });
 
     if (trackViews && product && !product.deleted) {
-      console.log('jupdating views for', product.id);
       this.viewed(product.id);
     }
 

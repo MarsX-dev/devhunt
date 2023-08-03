@@ -17,7 +17,10 @@ import ProductsService from '@/utils/supabase/services/products';
 export default ({ tool }: { tool: ProductType }) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true });
-  new ProductsService(createBrowserClient()).viewed(tool.id); // track views
+
+  if (isInView) {
+    new ProductsService(createBrowserClient()).viewed(tool.id); // track views
+  }
 
   return (
     <li ref={cardRef} className="py-3">
@@ -36,7 +39,7 @@ export default ({ tool }: { tool: ProductType }) => {
             isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <button onClick={() => console.log('Hello world')}>
+          <button onClick={() => { console.log('Hello world'); }}>
             <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
           </button>
         </div>
