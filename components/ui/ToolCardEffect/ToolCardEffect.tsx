@@ -18,7 +18,10 @@ import Link from 'next/link';
 export default ({ tool }: { tool: ProductType }) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true });
-  new ProductsService(createBrowserClient()).viewed(tool.id); // track views
+
+  if (isInView) {
+    new ProductsService(createBrowserClient()).viewed(tool.id); // track views
+  }
 
   return (
     <li ref={cardRef} className="py-3">
