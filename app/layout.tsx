@@ -12,6 +12,7 @@ import Footer from '@/components/ui/Footer/Footer';
 import ProfileService from '@/utils/supabase/services/profile';
 import ChatWindow from '@/components/ui/ChatWindow';
 import Banner from '@/components/ui/Banner';
+import ProgressBarClient from '@/components/ui/ProgressBarClient';
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -71,6 +72,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Banner />
             <Navbar />
             {children}
+            <ProgressBarClient />
             <Footer />
           </SupabaseProvider>
         </main>

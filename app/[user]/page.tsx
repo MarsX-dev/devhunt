@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
 import TrendingToolsList from '@/components/ui/TrendingToolsList';
+import ToolCardLink from '@/components/ui/ToolCard/ToolCardLink';
 
 interface IComment extends CommentType {
   profiles: Profile;
@@ -82,8 +83,8 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
             <ul className="mt-3 divide-y divide-slate-800/60">
               {votedTools.map((tool: any, idx: number) => (
                 <li key={idx} className="py-3">
-                  <ToolCard href={`/tool/${tool.slug}`}>
-                    <Link href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+                  <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
+                    <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
                       <Logo src={tool.logo_url || ''} alt={tool.name} />
                       <div className="space-y-1">
                         <Name>{tool.name}</Name>
@@ -120,7 +121,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <CommentDate className="mt-1">Commented {moment(item.created_at).format('LL')}</CommentDate>
                       <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
                     </Link>
-                    <ToolCard className="mt-3 border border-slate-800" href={'/tool/' + item.products.slug}>
+                    <ToolCardLink className="mt-3 border border-slate-800" href={'/tool/' + item.products.slug}>
                       <Link href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
                         <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
                         <div className="space-y-1">
@@ -131,7 +132,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <div className="flex-1 self-center flex justify-end">
                         <Votes count={item.products.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
                       </div>
-                    </ToolCard>
+                    </ToolCardLink>
                   </div>
                 </Comment>
               ))}

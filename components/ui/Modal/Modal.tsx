@@ -10,14 +10,25 @@ type Props = {
   isActive: boolean;
   variant?: 'default' | 'custom';
   className?: string;
+  classNameContainer?: string;
   onCancel?: () => void;
 };
 
-export default ({ children, title, description, icon, isActive, variant = 'default', className = '', onCancel }: Props) => {
+export default ({
+  children,
+  title,
+  description,
+  icon,
+  isActive,
+  variant = 'default',
+  className = '',
+  classNameContainer,
+  onCancel,
+}: Props) => {
   return isActive ? (
-    <div className="fixed inset-0 z-30 overflow-y-auto">
+    <div className="fixed w-full h-full inset-0 z-30 overflow-y-auto">
       <BlurBackground isActive={true} setActive={onCancel} />
-      <div className="flex items-center min-h-screen px-4 py-8">
+      <div className={mergeTW(`flex items-center min-h-screen px-4 py-8 ${classNameContainer}`)}>
         <div className={mergeTW(`relative z-10 w-full max-w-lg p-4 mx-auto bg-slate-800 rounded-md shadow-lg ${className}`)}>
           {variant == 'default' ? (
             <div className="py-3 sm:flex">

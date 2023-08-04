@@ -10,7 +10,7 @@ import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
 import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import { type ProductType } from '@/type';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
@@ -25,8 +25,8 @@ export default ({ tool }: { tool: ProductType }) => {
 
   return (
     <li ref={cardRef} className="py-3">
-      <ToolCard href={'/tool/' + tool.slug}>
-        <Link href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+      <ToolCard tool={tool} href={'/tool/' + tool.slug}>
+        <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
           <Logo src={tool.logo_url || ''} alt={tool.name} />
           <div className="w-full space-y-1">
             <Name>{tool.name}</Name>
