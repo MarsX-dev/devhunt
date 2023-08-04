@@ -12,6 +12,11 @@ export default ({ href, className, tool, children }: { href: string; className?:
 
   const router = useRouter();
 
+  const closeViewModal = () => {
+    setToolViewActive(false);
+    document.body.classList.remove('overflow-hidden');
+  };
+
   const handleClick = (e: MouseEvent) => {
     e.preventDefault();
     if ((e.target as HTMLDivElement).getAttribute('id') != 'vote-item') {
@@ -42,7 +47,7 @@ export default ({ href, className, tool, children }: { href: string; className?:
         {children}
         <div className="absolute -z-10 -inset-2 rounded-2xl group-hover:bg-slate-800/60 opacity-0 group-hover:opacity-100 duration-150 sm:-inset-3"></div>
       </div>
-      {isToolViewActive ? <ToolViewModal tool={toolState as ProductType} href={href} /> : ''}
+      {isToolViewActive ? <ToolViewModal close={closeViewModal} tool={toolState as ProductType} href={href} /> : ''}
     </>
   );
 };

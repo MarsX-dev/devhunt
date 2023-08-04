@@ -27,7 +27,7 @@ import { ProductAward } from '@/utils/supabase/CustomTypes';
 import { useRouter } from 'next/navigation';
 import TrendingToolsList from './TrendingToolsList';
 
-export default ({ href, tool }: { href: string; tool: ProductType }) => {
+export default ({ href, tool, close }: { href: string; tool: ProductType; close: () => void }) => {
   // const window = new JSDOM('').window;
   // const DOMPurify = createDOMPurify(window);
 
@@ -101,7 +101,13 @@ export default ({ href, tool }: { href: string; tool: ProductType }) => {
 
   return (
     <>
-      <Modal isActive={true} variant="custom" classNameContainer="px-0 py-0 sm:py-8" className="max-w-4xl bg-slate-900 py-8">
+      <Modal
+        isActive={true}
+        onCancel={close}
+        variant="custom"
+        classNameContainer="px-0 py-0 sm:py-8"
+        className="max-w-4xl bg-slate-900 py-8"
+      >
         <div>
           <div className="container-custom-screen pt-4 pb-10">
             <button
