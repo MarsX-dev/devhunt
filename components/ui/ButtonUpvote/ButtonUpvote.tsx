@@ -37,6 +37,7 @@ export default ({ count, productId, className = '', launchDate = '', ...props }:
     if (session && session.user) {
       if (isLaunchStarted) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
+        router.refresh();
         setUpvoted(!isUpvoted);
         voteCountEffect();
         setTimeout(() => setVotesCount(newVotesCount), 50);
