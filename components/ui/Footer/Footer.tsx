@@ -82,6 +82,9 @@ export default () => {
               ))}
               {'.'}
             </div>
+            <div className='text-xs pt-2'>
+              <a href="https://devhunt.openstatus.dev/">Status page</a>
+            </div>
             <a href="https://usermaven.com/?utm_source=badge" className='mt-5 block' rel="nofollow">
               <img
                 className='w-32'
@@ -93,7 +96,7 @@ export default () => {
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
               <li>
-                <a href="https://twitter.com/johnrushx">
+                <a href="https://twitter.com/devhunt_">
                   <svg className="svg-icon w-6 h-6 text-slate-500 hover:text-slate-300" viewBox="0 0 20 20">
                     <path
                       fill="none"

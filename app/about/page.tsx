@@ -53,6 +53,15 @@ export default () => {
           Our project is all about being open and collaborative - that's why we've made it super simple to list your dev tool. Plus, users
           can only vote or comment after logging in with their GitHub accounts, keeping things genuine and focused.
         </p>
+        <h2>Perks for the Winners</h2>
+        <p>
+          <ul>
+            <li>A feature in our weekly newsletter reaching thousands of DevHunt developers.</li>
+            <li>A dedicated post and mention on our social media channels.</li>
+            <li>An exclusive winner badge to show off your win!</li>
+            <li>Exclusive discounts and free credits from our partner products.</li>
+          </ul>
+        </p>
         <h2>Join Us!</h2>
         <p>
           Want to be part of the fun? Awesome! You can contribute directly through our GitHub repository or spread the word among fellow
