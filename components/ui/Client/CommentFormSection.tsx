@@ -62,7 +62,6 @@ export default ({
         <CommentTextarea
           value={comment}
           onChange={e => { setComment((e.target as HTMLTextAreaElement).value); }}
-          defaultValue={comment}
           placeholder="Type here..."
         />
       </CommentFormWrapper>
