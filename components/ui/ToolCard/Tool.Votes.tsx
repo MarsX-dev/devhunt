@@ -36,6 +36,7 @@ export default ({
     if (session && session.user) {
       if (isLaunchStarted) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
+        router.refresh();
         setUpvoted(!isUpvoted);
         setVotesCount(newVotesCount);
       } else setModalActive(true);

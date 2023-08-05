@@ -11,6 +11,8 @@ const { title, description, ogImage } = {
   ogImage: 'https://devhunt.org/devhuntog.png?v=2',
 };
 
+export const revalidate = 60;
+
 export const metadata = {
   title,
   description,

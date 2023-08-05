@@ -26,6 +26,8 @@ import TrendingToolsList from '@/components/ui/TrendingToolsList';
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
+export const revalidate = 60;
+
 // set dynamic metadata
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
   const supabaseClient = createServerClient();
