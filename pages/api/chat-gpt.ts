@@ -3,6 +3,7 @@ import ProductsService from '@/utils/supabase/services/products';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { Product } from '@/utils/supabase/types';
 import { ExtendedProduct } from '@/utils/supabase/CustomTypes';
+import {checkAuthToken} from "@/pages/api/auth-token";
 
 export interface ChatGptDto {
   status: string
@@ -48,6 +49,7 @@ function prepareSuccessDto(input: string, tools: ExtendedProduct[]): ChatGtpDto 
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
   let { input } = req.query;
 
   const errorPayload = {
