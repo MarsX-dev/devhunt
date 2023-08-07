@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Brand from '../Brand';
 import Link from 'next/link';
 import ButtonMenu from './ButtonMenu';
-import { IconSearch } from '@/components/Icons';
 import Auth from '../Auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import CommandPalette from '../CommandPalette/CommandPalette';
 import BlurBackground from '../BlurBackground/BlurBackground';
 import AvatarMenu from '../AvatarMenu';
@@ -25,6 +24,7 @@ export default () => {
   const toolsService = new ProductsService(browserService);
 
   const router = useRouter();
+  const pathname = usePathname();
 
   const { supabase, session } = useSupabase();
 
@@ -76,6 +76,8 @@ export default () => {
       });
     }, 50);
   };
+
+  useEffect(() => setActive(false), [pathname]);
 
   return (
     <>
