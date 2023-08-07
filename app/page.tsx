@@ -52,14 +52,14 @@ function RenderCountdown() {
   }
   const diff = moment.duration(nextMondayNight.diff(now));
 
-  const days = Math.floor(diff.asDays());
+  const days = Math.floor(diff.hours() / 24);
   const hours = diff.hours();
   const minutes = diff.minutes();
   const seconds = diff.seconds();
 
   return (
     <>
-      <RenderDatePart number={days} letter="d" /> :
+      {days > 0? (<><RenderDatePart number={days} letter="d" /> : </> ) : <></>}
       <RenderDatePart number={hours} letter="h" /> :
       <RenderDatePart number={minutes} letter="m" /> :
       <RenderDatePart number={seconds} letter="s" />
@@ -75,7 +75,7 @@ const banner = (
       </p>
       <div className="text-slate-100">
         <div className="flex gap-1 items-center">
-          <RenderCountdown />:
+          <RenderCountdown />
         </div>
       </div>
       <div className="max-w-lg text-slate-400">
