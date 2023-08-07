@@ -6,10 +6,6 @@ import {simpleToolApiDtoFormatter} from "@/pages/api/api-formatters";
 import {cache} from "@/utils/supabase/services/CacheService";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (!checkAuthToken(req, res)) {
-        return
-    }
-
     let {week, limit = 3, year = (new Date()).getFullYear()} = req.query;
 
     let weekNumber = +week;
