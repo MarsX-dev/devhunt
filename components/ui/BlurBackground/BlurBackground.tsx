@@ -14,7 +14,7 @@ export default ({
     {...props}
     className={`${
       isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
-    } transform duration-200 z-10 fixed inset-0 w-screen h-screen bg-black/20 backdrop-blur-sm ${mergeTW(className)}`}
+    } transform duration-200 z-10 fixed inset-0 w-full h-full bg-black/20 backdrop-blur-sm ${mergeTW(className)}`}
     onClick={() => setActive(false)}
   ></div>
 );

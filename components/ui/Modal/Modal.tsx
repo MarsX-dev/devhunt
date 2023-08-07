@@ -26,7 +26,7 @@ export default ({
   onCancel,
 }: Props) => {
   return isActive ? (
-    <div className="fixed w-full h-full inset-0 z-30 overflow-y-auto">
+    <div className="fixed w-full h-full inset-0 z-40 m-auto overflow-y-auto">
       <BlurBackground isActive={true} setActive={onCancel} />
       <div className={mergeTW(`flex items-center min-h-screen px-4 py-8 ${classNameContainer}`)}>
         <div className={mergeTW(`relative z-10 w-full max-w-lg p-4 mx-auto bg-slate-800 rounded-md shadow-lg ${className}`)}>
