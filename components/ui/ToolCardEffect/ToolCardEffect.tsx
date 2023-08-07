@@ -38,7 +38,7 @@ export default ({ tool }: { tool: ProductType }) => {
           </div>
         </Link>
         <div className={`flex-1 self-center flex justify-end duration-1000 delay-150 ${isInView ? 'opacity-100 mt-0' : 'opacity-0 mt-8'}`}>
-          <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
+          <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
         </div>
       </ToolCard>
     </li>

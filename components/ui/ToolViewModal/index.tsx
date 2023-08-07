@@ -127,7 +127,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 Live preview
                 <IconArrowTopRight />
               </LinkShiny>
-              <ButtonUpvote productId={tool?.id} count={tool?.votes_count} launchDate={tool?.launch_date} />
+              <ButtonUpvote productId={tool?.id} count={tool?.votes_count} launchDate={tool?.launch_date} launchEnd={tool.launch_end} />
             </div>
           </div>
           <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">

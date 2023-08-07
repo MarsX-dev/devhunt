@@ -16,11 +16,13 @@ import { createPortal } from 'react-dom';
 export default ({
   count,
   launchDate,
+  launchEnd,
   productId = null,
   className = '',
 }: {
   count?: number;
   launchDate: string | number;
+  launchEnd: string | number;
   productId?: number | null;
   className?: string;
 }) => {
@@ -32,10 +34,16 @@ export default ({
   const [votesCount, setVotesCount] = useState(count);
   const [isUpvoted, setUpvoted] = useState(false);
   const [isModalActive, setModalActive] = useState(false);
+  const [modalInfo, setMoadlInfo] = useState({ title: '', desc: '' });
 
   const toggleVote = async () => {
     if (session && session.user) {
-      if (isLaunchStarted) {
+      setMoadlInfo(
+        new Date(launchEnd).getTime() >= Date.now()
+          ? { title: 'Not Launched Yet!', desc: `Oops, this tool hasn't launched yet! Check back on ${customDateFromNow(launchDate)}.` }
+          : { title: 'This tool week is ends', desc: `Oops, you missed this tool week, it was launched ${customDateFromNow(launchDate)}.` },
+      );
+      if (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now()) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
         router.refresh();
         setUpvoted(!isUpvoted);
@@ -71,8 +79,8 @@ export default ({
         <Modal
           isActive={isModalActive}
           icon={<IconInformationCircle className="text-blue-500 w-6 h-6" />}
-          title="Not Launched Yet!"
-          description={`Oops, this tool hasn't launched yet! Check back on ${customDateFromNow(launchDate)}.`}
+          title={modalInfo.title}
+          description={modalInfo.desc}
           onCancel={() => setModalActive(false)}
         >
           <LinkItem href="/" className="flex-1 block w-full text-sm bg-orange-500 hover:bg-orange-400">

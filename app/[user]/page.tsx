@@ -98,7 +98,13 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       </div>
                     </Link>
                     <div className="flex-1 self-center flex justify-end">
-                      <Votes className="text-orange-500" count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
+                      <Votes
+                        className="text-orange-500"
+                        count={tool.votes_count}
+                        productId={tool?.id}
+                        launchDate={tool.launch_date}
+                        launchEnd={tool.launch_end}
+                      />
                     </div>
                   </ToolCard>
                 </li>
@@ -130,7 +136,12 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                         </div>
                       </Link>
                       <div className="flex-1 self-center flex justify-end">
-                        <Votes count={item.products.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
+                        <Votes
+                          count={item.products.votes_count}
+                          productId={tool?.id}
+                          launchDate={tool.launch_date}
+                          launchEnd={tool.launch_end}
+                        />
                       </div>
                     </ToolCardLink>
                   </div>
