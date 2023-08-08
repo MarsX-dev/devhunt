@@ -1,3 +1,5 @@
+'use client';
+
 import { Product } from '@/utils/supabase/types';
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
 import Name from '@/components/ui/ToolCard/Tool.Name';
