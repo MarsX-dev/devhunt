@@ -51,4 +51,10 @@ export default class AwardsService extends BaseDbService {
     if (error !== null) throw new Error(error.message);
     return data;
   }
+
+  async getWeeklyRank(productId: number): Promise<ProductAward[]> {
+    const { data, error } = await this.supabase.from('weekly_rank').select().eq('productid', productId).maybeSingle();
+    if (error !== null) throw new Error(error.message);
+    return data;
+  }
 }
