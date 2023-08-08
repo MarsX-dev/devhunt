@@ -62,6 +62,28 @@ export default () => {
             <li>Exclusive discounts and free credits from our partner products.</li>
           </ul>
         </p>
+        <h2>What Tools Can Launch Here?</h2>
+        <ul>
+          <li>
+            <strong>Open Source Tools:</strong> Got a project that can help devs? Share it here.
+          </li>
+          <li>
+            <strong>APIs & SDKs:</strong> If your tool makes coding easier, launch it with us!
+          </li>
+          <li>
+            <strong>Frameworks & Libraries:</strong> Created something to save fellow devs some time? We'd love to see it.
+          </li>
+          <li>
+            <strong>IDEs & Code Editors:</strong>Built an environment where devs can write and debug code efficiently? Bring it on!
+          </li>
+          <li>
+            <strong>Testing Tools: </strong>All tools related to testing are welcome here.
+          </li>
+          <li>
+            <strong>Monitoring/Performance tracking Tools: </strong> Real-time system performance or app health monitoring tools - all
+            game-changers welcomed!{' '}
+          </li>
+        </ul>
         <h2>Join Us!</h2>
         <p>
           Want to be part of the fun? Awesome! You can contribute directly through our GitHub repository or spread the word among fellow
