@@ -24,7 +24,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
 
       const productsService = new ProductsService(createBrowserClient());
       const startWeek = await productsService.getWeekNumber(startDate, 2);
-      const result = await productsService.getProductsCountByWeek(startWeek, startWeek + 15, startDate.getFullYear());
+      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 15, startDate.getFullYear());
       setDays(result);
     };
 
@@ -44,7 +44,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
           {label}
         </option>
         {days.map(i => (
-          <option disabled={i.count >= 11} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count}/${i.count > 11 ? i.count : 11})`}</option>
+          <option disabled={i.count >= 15} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count}/${i.count > 15 ? i.count : 15})`}</option>
         ))}
       </select>
     </div>
