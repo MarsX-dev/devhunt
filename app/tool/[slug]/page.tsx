@@ -64,13 +64,10 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const commentService = new CommentService(supabaseBrowserClient);
 
   const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
-  const toolAward$ = awardService.getProductRanks(product.id);
+  const toolAward$ = awardService.getWeeklyRank(product.id);
   const comments$ = commentService.getByProductId(product.id);
 
-  const [owned, toolAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
-
-  const weekAward = toolAward.find(i => i.award_type === 'week');
-
+  const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
   const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
 
   const tabs = [
