@@ -100,7 +100,7 @@ export default async function Home() {
     const today = new Date();
     const productService = new ProductsService(createBrowserClient());
     const week = await productService.getWeekNumber(today, 2);
-    const launchWeeks = await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 2);
+    const launchWeeks = await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1);
 
     function weekTools(group) {
         return <>
