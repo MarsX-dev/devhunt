@@ -89,7 +89,7 @@ export default () => {
                   </div>
                 </div>
                 <div className="flex-1 self-center flex justify-end">
-                  <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
+                  <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
                 </div>
               </div>
             </li>

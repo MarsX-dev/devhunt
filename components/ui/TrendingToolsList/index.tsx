@@ -49,7 +49,7 @@ export default () => {
                     </ToolFooter>
                   </div>
                 </Link>
-                <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} />
+                <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
               </ToolCard>
             </li>
           ))}
