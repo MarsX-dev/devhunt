@@ -19,19 +19,17 @@ export interface ITool extends Product {
 export default ({ tool }: { tool: ITool }) => (
   <li className="py-3">
     <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
-      <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
-        <Logo src={tool.logo_url || ''} alt={tool.name} />
-        <div className="space-y-1">
-          <Name>{tool.name}</Name>
-          <Title className="line-clamp-2">{tool.slogan}</Title>
-          <Tags
-            items={[
-              (tool.product_pricing_types as { title: string }).title || 'Free',
-              ...(tool.product_categories as { name: string }[]).map((c: { name: string }) => c.name),
-            ]}
-          />
-        </div>
-      </Link>
+      <Logo src={tool.logo_url || ''} alt={tool.name} />
+      <div className="space-y-1">
+        <Name>{tool.name}</Name>
+        <Title className="line-clamp-2">{tool.slogan}</Title>
+        <Tags
+          items={[
+            (tool.product_pricing_types as { title: string }).title || 'Free',
+            ...(tool.product_categories as { name: string }[]).map((c: { name: string }) => c.name),
+          ]}
+        />
+      </div>
       <div className="flex-1 self-center flex justify-end">
         <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
       </div>
