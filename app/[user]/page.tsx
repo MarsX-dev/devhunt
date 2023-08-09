@@ -136,7 +136,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                           count={item.products.votes_count}
                           productId={item?.id}
                           launchDate={item.products.launch_date}
-                          launchEnd={item.products.launch_end}
+                          launchEnd={item.products.launch_end as string}
                         />
                       </div>
                     </ToolCardLink>
