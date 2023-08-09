@@ -63,18 +63,18 @@ export default ({
 
   return (
     <>
-      <div
+      <button
         onClick={toggleVote}
         id="vote-item"
         className={mergeTW(
-          `text-center text-slate-400 active:scale-[1.5] duration-200 ${
-            isUpvoted ? 'text-orange-600' : 'hover:text-orange-300'
+          `px-4 py-1 text-center text-slate-400 active:scale-[1.5] duration-200 rounded-md border bg-[linear-gradient(180deg,_#1E293B_0%,_rgba(30,_41,_59,_0.00)_100%)] ${
+            isUpvoted ? 'text-orange-600 border-orange-600' : 'border-slate-700 hover:text-orange-300'
           } ${className}`,
         )}
       >
-        <IconVote className="w-6 h-6 mx-auto pointer-events-none" />
+        <IconVote className="mt-1 w-4 h-4 mx-auto pointer-events-none" />
         <span className="text-sm pointer-events-none">{votesCount}</span>
-      </div>
+      </button>
       {createPortal(
         <Modal
           isActive={isModalActive}
