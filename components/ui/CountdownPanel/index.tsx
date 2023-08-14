@@ -15,13 +15,17 @@ function RenderDatePart({ number, letter }: { number: number; letter: string }) 
 }
 
 function RenderCountdown() {
-  const [now, setNow] = useState(moment());
+  let [now, setNow] = useState(moment());
   let nextMondayNight;
 
   // Set hours to 24 (end of day), minutes and seconds to zero
   if (now.day() === 0 || (now.day() === 1 && now.hour() < 24)) {
     // If today is Sunday or Monday but before midnight
-    nextMondayNight = now.clone().add(1, 'days').hour(24).minute(0).second(0);
+    nextMondayNight = now.clone().endOf('d');
+
+    if(now.day() === 0) {
+      nextMondayNight = nextMondayNight.add(1, 'd');
+    }
   } else {
     nextMondayNight = now.clone().startOf('isoWeek').add(1, 'week').day('Monday').endOf('d');
   }
