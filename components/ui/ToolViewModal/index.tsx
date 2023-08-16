@@ -49,8 +49,8 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
       setOwner(ownerData as Profile);
     });
 
-    new AwardsService(supabaseBrowserClient).getProductRanks(tool.id).then((toolAward: ProductAward[]) => {
-      setWeekRank(toolAward[1].rank + '');
+    new AwardsService(supabaseBrowserClient).getWeeklyRank(tool.id).then((toolAward: ProductAward[]) => {
+      setWeekRank(toolAward.rank + '');
     });
   }, [href]);
 
