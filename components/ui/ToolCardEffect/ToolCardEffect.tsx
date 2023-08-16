@@ -26,7 +26,7 @@ export default ({ tool }: { tool: ProductType }) => {
   return (
     <li ref={cardRef} className="py-3">
       <ToolCard tool={tool} href={'/tool/' + tool.slug}>
-        <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+        <div className="w-full flex items-center gap-x-4">
           <Logo src={tool.logo_url || ''} alt={tool.name} />
           <div className="w-full space-y-1">
             <Name>{tool.name}</Name>
@@ -36,7 +36,7 @@ export default ({ tool }: { tool: ProductType }) => {
               <ToolViews count={tool.views_count} />
             </ToolFooter>
           </div>
-        </Link>
+        </div>
         <div className={`flex-1 self-center flex justify-end duration-1000 delay-150 ${isInView ? 'opacity-100 mt-0' : 'opacity-0 mt-8'}`}>
           <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
         </div>
