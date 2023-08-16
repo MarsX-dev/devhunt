@@ -16,6 +16,7 @@ export default ({ href, className, tool, children }: { href: string; className?:
   const closeViewModal = () => {
     setToolViewActive(false);
     document.body.classList.remove('overflow-hidden');
+    router.back();
   };
 
   const handleClick = (e: MouseEvent) => {

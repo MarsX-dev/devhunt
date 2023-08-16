@@ -59,19 +59,19 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
   const tabs = [
     {
       name: 'About product',
-      hash: '#',
+      sectionId: 'about',
     },
     {
       name: 'Comments',
-      hash: '#comments',
+      sectionId: 'comments',
     },
     {
       name: 'Launch details',
-      hash: '#details',
+      sectionId: 'details',
     },
     {
       name: 'Related launches',
-      hash: '#launches',
+      sectionId: 'launches',
     },
   ];
 
@@ -106,7 +106,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
         onCancel={close}
         variant="custom"
         classNameContainer="px-0 py-0 sm:py-8"
-        className="max-w-4xl bg-slate-900 py-8"
+        className="max-w-4xl bg-slate-900 px-0 py-8 view-modal"
       >
         <div>
           <div className="container-custom-screen pt-4 pb-10">
@@ -127,17 +127,22 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 Live preview
                 <IconArrowTopRight />
               </LinkShiny>
-              <ButtonUpvote productId={tool?.id} count={tool?.votes_count} launchDate={tool?.launch_date} launchEnd={tool.launch_end} />
+              <ButtonUpvote
+                productId={tool?.id}
+                count={tool?.votes_count}
+                launchDate={tool?.launch_date}
+                launchEnd={tool.launch_end as string}
+              />
             </div>
           </div>
-          <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
-            {tabs.map((item, idx) => (
-              <TabLink hash={item.hash} key={idx}>
-                {item.name}
-              </TabLink>
-            ))}
-          </Tabs>
         </div>
+        <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-0 z-10 bg-slate-900">
+          {tabs.map((item, idx) => (
+            <TabLink variant="nonlink" sectionId={item.sectionId} key={idx}>
+              {item.name}
+            </TabLink>
+          ))}
+        </Tabs>
         <div className="space-y-20">
           <div>
             <div className="relative overflow-hidden pb-12">
