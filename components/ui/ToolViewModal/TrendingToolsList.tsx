@@ -39,7 +39,7 @@ export default () => {
             <li key={idx} className="py-3">
               <ToolCardLink href={'/tool/' + tool.slug}>
                 <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
-                <div className="w-full space-y-1">
+                <div className="w-full space-y-1 overflow-hidden">
                   <ToolName>{tool.name}</ToolName>
                   <Title className="line-clamp-2">{tool.slogan}</Title>
                   <ToolFooter>
