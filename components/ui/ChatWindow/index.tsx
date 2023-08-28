@@ -31,7 +31,7 @@ export default () => {
         <div className="p-4 flex flex-wrap items-start gap-3 max-w-xs shadow-md rounded-lg bg-slate-800 border-slate-800">
           <img src="/johnrush.png" className="flex-none w-8 h-8 object-cover rounded-full" />
           <div className="w-full text-sm text-left sm:w-auto">
-            <p className="text-slate-100">You got a quetion? You can DM me!</p>
+            <p className="text-slate-100">You got a question? You can DM me!</p>
             <div className="flex items-center gap-x-2 mt-1">
               <span className="flex-none block w-2 h-2 rounded-full bg-green-500"></span>
               <p className="text-xs text-slate-300">Online, replies near instant</p>
