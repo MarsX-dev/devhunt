@@ -23,6 +23,7 @@ function Profile() {
   const [username, setUsername] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [email, setEmail] = useState('');
+  const [isEmailTyping, setEmailTyping] = useState(false);
   const [about, setAbout] = useState('');
   const [headline, setHeadLine] = useState('');
 
@@ -80,6 +81,12 @@ function Profile() {
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      setEmailTyping(false);
+    }, 6000);
+  }, [isEmailTyping]);
+
   return (
     <div className="container-custom-screen h-screen mt-20">
       <div>
@@ -97,31 +104,72 @@ function Profile() {
           <div className="space-y-4">
             <div>
               <Label>Full name</Label>
-              <Input value={fullName} onChange={e => { setFullName((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
+              <Input
+                value={fullName}
+                onChange={e => {
+                  setFullName((e.target as HTMLInputElement).value);
+                }}
+                className="w-full mt-2"
+              />
               <LabelError className="mt">{fullNameError}</LabelError>
             </div>
             <div>
               <Label>Username</Label>
-              <Input value={username} onChange={e => { setUsername((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
+              <Input
+                value={username}
+                onChange={e => {
+                  setUsername((e.target as HTMLInputElement).value);
+                }}
+                className="w-full mt-2"
+              />
               <LabelError className="mt">{usernameError}</LabelError>
             </div>
-            <div>
+            <div className="relative">
               <Label>Email</Label>
-              <Input type="email" value={email} className="w-full mt-2" />
+              <Input type="email" value={email} onClick={() => setEmailTyping(true)} className="w-full mt-2" disabled={isEmailTyping} />
+              {isEmailTyping ? (
+                <span className="absolute left-0 -top-1 text-sm bg-green-500 text-green-50 border border-green-600 rounded-full px-2 py-1">
+                  Please{' '}
+                  <a href="https://twitter.com/devhunt_" target="_blank" className="font-medium underline">
+                    contact us
+                  </a>{' '}
+                  on twitter to change your email
+                </span>
+              ) : (
+                ''
+              )}
             </div>
             <div>
               <Label>Headline</Label>
-              <Input value={headline} onChange={e => { setHeadLine((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
+              <Input
+                value={headline}
+                onChange={e => {
+                  setHeadLine((e.target as HTMLInputElement).value);
+                }}
+                className="w-full mt-2"
+              />
               <LabelError>{headlineError}</LabelError>
             </div>
             <div>
               <Label>Website URL</Label>
-              <Input value={websiteUrl} onChange={e => { setWebsiteUrl((e.target as HTMLInputElement).value); }} className="w-full mt-2" />
+              <Input
+                value={websiteUrl}
+                onChange={e => {
+                  setWebsiteUrl((e.target as HTMLInputElement).value);
+                }}
+                className="w-full mt-2"
+              />
               <LabelError>{websiteUrlError}</LabelError>
             </div>
             <div>
               <Label>About</Label>
-              <Textarea value={about} onChange={e => { setAbout((e.target as HTMLInputElement).value); }} className="w-full h-28 mt-2" />
+              <Textarea
+                value={about}
+                onChange={e => {
+                  setAbout((e.target as HTMLInputElement).value);
+                }}
+                className="w-full h-28 mt-2"
+              />
               <LabelError className="mt">{aboutError}</LabelError>
             </div>
             <Button isLoad={isLoad} className="flex justify-center w-full ring-offset-2 ring-orange-500 focus:ring-2 hover:bg-orange-400">

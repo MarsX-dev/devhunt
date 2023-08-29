@@ -8,6 +8,7 @@ interface Props extends HTMLAttributes<HTMLInputElement> {
   name?: string;
   validate?: {};
   required?: boolean;
+  disabled?: boolean;
 }
 
 export default ({ className, required, validate, ...props }: Props) => (
