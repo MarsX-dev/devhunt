@@ -20,7 +20,7 @@ import ProfileService from '@/utils/supabase/services/profile';
 import customDateFromNow from '@/utils/customDateFromNow';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import { useEffect, useState } from 'react';
-import Modal from '../Modal/Modal';
+import Modal from '../Modal';
 import { type ProductType } from '@/type';
 import { Profile } from '@/utils/supabase/types';
 import { ProductAward } from '@/utils/supabase/CustomTypes';

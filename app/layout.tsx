@@ -1,5 +1,6 @@
 import Navbar from '@/components/ui/Navbar';
 import './globals.css';
+import './prismjs-theme.css';
 import { Inter } from 'next/font/google';
 import Script from 'next/script';
 
@@ -59,15 +60,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           `,
               }}
             />
-            <Script strategy="afterInteractive" dangerouslySetInnerHTML={{__html:`
+            <Script
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "ic87ytbm3p");
-`}} />
+`,
+              }}
+            />
           </>
         )}
+        {/* <Script defer data-url="https://devhunt.org/tool/maige" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" /> */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
       </head>

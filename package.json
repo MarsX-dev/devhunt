@@ -15,6 +15,7 @@
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.7.2",
     "@supabase/supabase-js": "^2.24.0",
+    "@types/prismjs": "^1.26.0",
     "@usermaven/sdk-js": "^1.2.2",
     "axios": "^1.4.0",
     "dompurify": "^3.0.3",
@@ -24,6 +25,7 @@
     "next": "13.4.12",
     "next-nprogress-bar": "^2.0.3",
     "node-cache": "^5.1.2",
+    "prismjs": "^1.29.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.44.2",

@@ -1,8 +1,10 @@
 'use client';
 
-import { IconLoading, IconPencilSquare, IconTrash } from '@/components/Icons';
+import CodeBlock from '@/components/CodeBlock';
+import { IconCodeBracket, IconLoading, IconPencilSquare, IconTrash } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import LinkItem from '@/components/ui/Link/LinkItem';
+import Modal from '@/components/ui/Modal';
 
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
 import Name from '@/components/ui/ToolCard/Tool.Name';
@@ -23,6 +25,7 @@ export default () => {
   const toolsList = new ProductsService(browserService).getUserProductsById(user?.id as string);
   const [isLoad, setLoad] = useState(true);
   const [tools, setTools] = useState([]);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     toolsList.then(data => {
@@ -60,39 +63,63 @@ export default () => {
           </div>
         ) : tools.length > 0 ? (
           tools.map((tool: ProductType, idx: number) => (
-            <li key={idx} className="py-3">
-              <div className="p-2 flex items-start gap-x-4">
-                <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
-                <div>
-                  <Link href={`/tool/${tool.slug}`}>
-                    <Name>{tool.name}</Name>
-                    <Title className="line-clamp-2">{tool.slogan}</Title>
-                    <Tags
-                      items={[
-                        (tool.product_pricing_types as { title: string }).title || 'Free',
-                        ...(tool.product_categories as { name: string }[]).map((c: { name: string }) => c.name),
-                      ]}
-                    />
-                  </Link>
-                  <div className="mt-2.5 flex items-center gap-x-4">
-                    <Link href={`/account/tools/edit/${tool.id}`} className="inline-block text-slate-400 hover:text-slate-500 duration-150">
-                      <IconPencilSquare />
+            <>
+              <li key={idx} className="py-3">
+                <div className="p-2 flex items-start gap-x-4">
+                  <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
+                  <div>
+                    <Link href={`/tool/${tool.slug}`}>
+                      <Name>{tool.name}</Name>
+                      <Title className="line-clamp-2">{tool.slogan}</Title>
+                      <Tags
+                        items={[
+                          (tool.product_pricing_types as { title: string }).title || 'Free',
+                          ...(tool.product_categories as { name: string }[]).map((c: { name: string }) => c.name),
+                        ]}
+                      />
                     </Link>
-                    <button
-                      onClick={() => {
-                        handleDeleteConfirm(tool.id, idx);
-                      }}
-                      className="inline-block text-slate-400 hover:text-slate-500 duration-150"
-                    >
-                      <IconTrash />
-                    </button>
+                    <div className="mt-2.5 flex items-center gap-x-4">
+                      <Link
+                        href={`/account/tools/edit/${tool.id}`}
+                        className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                      >
+                        <IconPencilSquare />
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleDeleteConfirm(tool.id, idx);
+                        }}
+                        className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                      >
+                        <IconTrash />
+                      </button>
+                      <button onClick={() => setModalOpen(true)} className="inline-block text-slate-400 hover:text-slate-500 duration-150">
+                        <IconCodeBracket />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 self-center flex justify-end">
+                    <Votes
+                      count={tool.votes_count}
+                      productId={tool?.id}
+                      launchDate={tool.launch_date}
+                      launchEnd={tool.launch_end as string}
+                    />
                   </div>
                 </div>
-                <div className="flex-1 self-center flex justify-end">
-                  <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
+              </li>
+              <Modal variant="custom" isActive={isModalOpen} onCancel={() => setModalOpen(false)}>
+                <h3 className="text-slate-50 font-medium">Add banner</h3>
+                <p className="text-slate-300 text-sm mt-2">
+                  Add this code between <b>{'<head>'}</b> tags in your website to show a banner about your launch.
+                </p>
+                <div className="mt-6">
+                  <CodeBlock>
+                    {`<script defer data-url="https://devhunt.org/tool/${tool.slug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" />`}
+                  </CodeBlock>
                 </div>
-              </div>
-            </li>
+              </Modal>
+            </>
           ))
         ) : (
           <div className="font-medium text-slate-400">No launches found.</div>
