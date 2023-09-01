@@ -5,10 +5,11 @@ import { IconClipboard } from './Icons';
 
 type Props = {
   children?: string;
+  onCopy?: () => void;
 };
 
 export default (props: Props) => {
-  const { children } = props;
+  const { children, onCopy = () => {} } = props;
 
   const [copyState, setCopyState] = useState<boolean>(false);
 
@@ -17,6 +18,7 @@ export default (props: Props) => {
     navigator.clipboard.writeText(children || '').then(
       function () {
         setCopyState(true);
+        onCopy();
       },
       function (err) {
         console.error('Async: Could not copy text: ', err);

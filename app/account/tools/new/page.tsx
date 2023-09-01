@@ -160,7 +160,7 @@ export default () => {
             comments_count: 0,
             votes_count: 0,
             demo_video_url: demo_video,
-            launch_date: weekData?.startDate,
+            launch_date: weekData?.startDate as string,
             launch_start: weekData?.startDate,
             launch_end: weekData?.endDate,
             week: parseInt(week),
@@ -169,20 +169,18 @@ export default () => {
         )
         .then(async res => {
           const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](https://devhunt.org/tool/${res?.slug})`;
-          if (DISCORD_TOOL_WEBHOOK) await axios.post(DISCORD_TOOL_WEBHOOK, { content });
-          // await usermaven.id({
-          //   id: profile?.id,
-          //   company: {
-          //     id: res?.id + '',
-          //     name: res?.name as string,
-          //     created_at: new Date().toLocaleString(),
-          //     custom: {
-          //       url: `https://devhunt.org/tool/${res?.slug}`,
-          //     }, // Add the 'custom' property
-          //   },
-          // });
+          const toolURL = `https://devhunt.org/tool/${res?.slug}`;
+          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
+          DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
           setLaunching(false);
+          localStorage.setItem(
+            'last-tool',
+            JSON.stringify({
+              toolSlug: res?.slug,
+              launchDate: res?.launch_date,
+              launchEnd: res?.launch_end,
+            }),
+          );
           window.open(`/tool/${res?.slug}`);
           router.push('/account/tools');
         });

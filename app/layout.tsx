@@ -74,7 +74,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
-        {/* <Script defer data-url="https://devhunt.org/tool/maige" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" /> */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
       </head>
