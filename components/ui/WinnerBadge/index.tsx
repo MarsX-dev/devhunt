@@ -28,7 +28,7 @@ export default ({ weekAward, isLaunchEnd }: { weekAward: ProductAward; isLaunchE
     jsConfettiRef.current = new JSConfetti();
     const toolHref = localStorage.getItem('tool_href');
     const currentHref = window.location.href;
-    if (jsConfettiRef.current && !toolHref && isLaunchEnd) {
+    if (jsConfettiRef.current && !toolHref && isLaunchEnd && (badges as any)[`winner${weekAward.rank}`]) {
       jsConfettiRef.current && jsConfettiRef.current.addConfetti({ confettiNumber: 600 });
       if (confettiTimes < 3) {
         setTimeout(() => {
