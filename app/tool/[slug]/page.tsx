@@ -70,6 +70,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
   const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
+  const isLaunchEnd = new Date(product.launch_end as string).getTime() <= Date.now();
 
   const tabs = [
     {
@@ -119,17 +120,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       <div className="container-custom-screen" id="about">
         <div className="flex items-center justify-between">
           <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
-          {/* {(WinnerBadge as any)[`winner${(weekAward as any).rank}`] ? (
-            <div className="text-center text-slate-300 text-sm">
-              {(WinnerBadge as any)[`winner${(weekAward as any).rank}`].badge}
-              <span className="block text-xl text-slate-50 font-semibold mt-2">
-                {(WinnerBadge as any)[`winner${(weekAward as any).rank}`].rank}
-              </span>
-              Product of the week
-            </div>
-          ) : (
-            ''
-          )} */}
+          <WinnerBadge weekAward={weekAward as any} isLaunchEnd={isLaunchEnd} />
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
