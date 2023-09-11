@@ -101,7 +101,7 @@ export const TabLink = ({
             {children}
           </Link>
         ) : (
-          <a {...props} href={`${window.location.pathname}${hash}`} className={customClassName}>
+          <a {...props} href={`${window && window.location.pathname}${hash}`} className={customClassName}>
             {children}
           </a>
         )

@@ -120,7 +120,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny href={addHttpsToUrl(product?.demo_url as string)} target="_blank" className="flex items-center gap-x-2">
+          <LinkShiny
+            href={`${addHttpsToUrl(product?.demo_url as string)}?ref=devhunt`}
+            target="_blank"
+            className="flex items-center gap-x-2"
+          >
             Live preview
             <IconArrowTopRight />
           </LinkShiny>
