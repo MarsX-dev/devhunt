@@ -23,3 +23,6 @@ export * from './IconChatBubbleOvalLeftEllipsis';
 export * from './IconPlay';
 export * from './IconCodeBracket';
 export * from './IconClipboard';
+export * from './IconFirstWinnerBadge';
+export * from './IconSecondWinnerBadge';
+export * from './IconThirdWinnerBadge';

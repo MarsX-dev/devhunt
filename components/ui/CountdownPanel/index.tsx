@@ -15,7 +15,7 @@ function RenderDatePart({ number, letter }: { number: number; letter: string }) 
 }
 
 function RenderCountdown() {
-  let [now, setNow] = useState(moment());
+  let [now, setNow] = useState(moment().utc());
   let nextMondayNight;
 
   // Set hours to 24 (end of day), minutes and seconds to zero
@@ -23,7 +23,7 @@ function RenderCountdown() {
     // If today is Sunday or Monday but before midnight
     nextMondayNight = now.clone().endOf('d');
 
-    if(now.day() === 0) {
+    if (now.day() === 0) {
       nextMondayNight = nextMondayNight.add(1, 'd');
     }
   } else {
@@ -38,7 +38,7 @@ function RenderCountdown() {
 
   useEffect(() => {
     setTimeout(() => {
-      setNow(moment());
+      setNow(moment().utc());
       setSeconds(diff.seconds());
       setMinutes(diff.minutes());
       setHours(diff.hours());

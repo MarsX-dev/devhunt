@@ -22,6 +22,7 @@ import customDateFromNow from '@/utils/customDateFromNow';
 import Page404 from '@/components/ui/Page404/Page404';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import TrendingToolsList from '@/components/ui/TrendingToolsList';
+import WinnerBadge from '@/components/ui/WinnerBadge';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -116,7 +117,20 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
-        <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
+        <div className="flex items-center justify-between">
+          <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
+          {/* {(WinnerBadge as any)[`winner${(weekAward as any).rank}`] ? (
+            <div className="text-center text-slate-300 text-sm">
+              {(WinnerBadge as any)[`winner${(weekAward as any).rank}`].badge}
+              <span className="block text-xl text-slate-50 font-semibold mt-2">
+                {(WinnerBadge as any)[`winner${(weekAward as any).rank}`].rank}
+              </span>
+              Product of the week
+            </div>
+          ) : (
+            ''
+          )} */}
+        </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
@@ -132,7 +146,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             productId={product?.id}
             count={product?.votes_count}
             launchDate={product.launch_date}
-            launchEnd={product.launch_end}
+            launchEnd={product.launch_end as string}
           />
         </div>
       </div>
