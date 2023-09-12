@@ -120,7 +120,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       <div className="container-custom-screen" id="about">
         <div className="flex items-center justify-between">
           <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
-          <WinnerBadge weekAward={weekAward as any} isLaunchEnd={isLaunchEnd} />
+          <WinnerBadge weekRank={weekAward?.rank} isLaunchEnd={isLaunchEnd} />
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>

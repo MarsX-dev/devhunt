@@ -20,7 +20,7 @@ const badges = {
   },
 };
 
-export default ({ weekAward, isLaunchEnd }: { weekAward: ProductAward; isLaunchEnd: boolean }) => {
+export default ({ weekRank, isLaunchEnd }: { weekRank: number | string; isLaunchEnd: boolean }) => {
   const jsConfettiRef = useRef<JSConfetti>();
   const [confettiTimes, setConfettiTime] = useState(1);
 
@@ -28,7 +28,7 @@ export default ({ weekAward, isLaunchEnd }: { weekAward: ProductAward; isLaunchE
     jsConfettiRef.current = new JSConfetti();
     const toolHref = localStorage.getItem('tool_href');
     const currentHref = window.location.href;
-    if (jsConfettiRef.current && !toolHref && isLaunchEnd && (badges as any)[`winner${weekAward.rank}`]) {
+    if (jsConfettiRef.current && !toolHref && isLaunchEnd && (badges as any)[`winner${weekRank}`]) {
       jsConfettiRef.current && jsConfettiRef.current.addConfetti({ confettiNumber: 600 });
       if (confettiTimes < 3) {
         setTimeout(() => {
@@ -39,10 +39,10 @@ export default ({ weekAward, isLaunchEnd }: { weekAward: ProductAward; isLaunchE
     }
   }, [confettiTimes]);
 
-  return isLaunchEnd && (badges as any)[`winner${weekAward.rank}`] ? (
+  return isLaunchEnd && (badges as any)[`winner${weekRank}`] ? (
     <div className="text-center text-slate-300 text-sm">
-      {(badges as any)[`winner${weekAward.rank}`].badge}
-      <span className="block text-xl text-slate-50 font-semibold mt-2">{(badges as any)[`winner${weekAward.rank}`].rank}</span>
+      {(badges as any)[`winner${weekRank}`].badge}
+      <span className="block text-xl text-slate-50 font-semibold mt-2">{(badges as any)[`winner${weekRank}`].rank}</span>
       Product of the week
     </div>
   ) : (

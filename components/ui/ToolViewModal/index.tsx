@@ -26,6 +26,7 @@ import { Profile } from '@/utils/supabase/types';
 import { ProductAward } from '@/utils/supabase/CustomTypes';
 import { useRouter } from 'next/navigation';
 import TrendingToolsList from './TrendingToolsList';
+import WinnerBadge from '../WinnerBadge';
 
 export default ({ href, tool, close }: { href: string; tool: ProductType; close: () => void }) => {
   // const window = new JSDOM('').window;
@@ -55,6 +56,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
   }, [href]);
 
   const isLaunchStarted = new Date(tool?.launch_date).getTime() <= Date.now();
+  const isLaunchEnd = new Date(tool.launch_end as string).getTime() <= Date.now();
 
   const tabs = [
     {
@@ -119,7 +121,10 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
             </button>
           </div>
           <div className="container-custom-screen" id="about">
-            <ProductLogo src={tool?.logo_url} alt={tool?.slogan as string} />
+            <div className="flex items-center justify-between">
+              <ProductLogo src={tool?.logo_url} alt={tool?.slogan as string} />
+              <WinnerBadge weekRank={weekRank} isLaunchEnd={isLaunchEnd} />
+            </div>
             <h1 className="mt-3 text-slate-100 font-medium">{tool?.name}</h1>
             <Title className="mt-1">{tool?.slogan}</Title>
             <div className="text-sm mt-3 flex items-center gap-x-3">
