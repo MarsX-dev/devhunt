@@ -63,6 +63,7 @@ export default ({
           <IconSearch className="flex-none text-slate-400" />
           <input
             type="text"
+            autoFocus
             onChange={e => setSearch(e.target.value)}
             value={searchValue}
             placeholder="Search for tools"
