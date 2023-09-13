@@ -1,11 +1,9 @@
 'use client';
 
-import CodeBlock from '@/components/CodeBlock';
 import { IconCodeBracket, IconLoading, IconPencilSquare, IconTrash } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
-import Button from '@/components/ui/Button/Button';
 import LinkItem from '@/components/ui/Link/LinkItem';
-import Modal from '@/components/ui/Modal';
+import ModalBannerCode from '@/components/ui/ModalBannerCode';
 
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
 import Name from '@/components/ui/ToolCard/Tool.Name';
@@ -34,15 +32,6 @@ export default () => {
       setTools([...(data as [])]);
       setLoad(false);
     });
-    let getToolFromLocalStorage = localStorage.getItem('last-tool');
-
-    if (getToolFromLocalStorage) {
-      const parsedTool = JSON.parse(getToolFromLocalStorage) as { toolSlug: string; launchEnd: string; launchDate: string };
-      if (new Date(parsedTool.launchEnd).getTime() >= Date.now()) {
-        setToolSlug(parsedTool.toolSlug);
-        setModalOpen(true);
-      }
-    }
   }, []);
 
   const handleDeleteConfirm = (id: number, idx: number) => {
@@ -136,20 +125,13 @@ export default () => {
           <div className="font-medium text-slate-400">No launches found.</div>
         )}
       </ul>
-      <Modal variant="custom" isActive={isModalOpen} onCancel={() => setModalOpen(false)}>
-        <h3 className="text-slate-50 font-medium">Add banner</h3>
-        <p className="text-slate-300 text-sm mt-2">
-          Add this code between <b>{'<head>'}</b> tags in your website to show a banner about your launch.
-        </p>
-        <div className="mt-6">
-          <CodeBlock onCopy={copyDone}>
-            {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" />`}
-          </CodeBlock>
-        </div>
-        <Button className="mt-3 ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
-          I've done this
-        </Button>
-      </Modal>
+      <ModalBannerCode
+        isModalOpen={isModalOpen}
+        toolSlug={toolSlug}
+        setModalOpen={setModalOpen}
+        setToolSlug={setToolSlug}
+        copyDone={copyDone}
+      />
     </section>
   );
 };

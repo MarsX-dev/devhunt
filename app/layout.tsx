@@ -14,6 +14,7 @@ import ProfileService from '@/utils/supabase/services/profile';
 import ChatWindow from '@/components/ui/ChatWindow';
 import Banner from '@/components/ui/Banner';
 import ProgressBarClient from '@/components/ui/ProgressBarClient';
+import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCodeClient';
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -84,6 +85,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <SupabaseListener serverAccessToken={session?.access_token} />
             <Banner />
             <Navbar />
+            <ModalBannerCodeClient />
             {children}
             <ProgressBarClient />
             <Footer />

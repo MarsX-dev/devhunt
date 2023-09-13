@@ -53,8 +53,6 @@ export default ({
     setCommandActive(false);
   };
 
-  console.log(trendingTools);
-
   return isCommandActive ? (
     <div className="fixed z-30 w-full h-full inset-0 rounded-xl flex items-center justify-center px-4">
       <BlurBackground isActive={true} setActive={setCommandActive} />
