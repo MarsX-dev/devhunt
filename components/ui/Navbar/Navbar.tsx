@@ -13,6 +13,7 @@ import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { type Product } from '@/utils/supabase/types';
+import { IconSearch } from '@/components/Icons';
 
 export default () => {
   const [isActive, setActive] = useState(false);
@@ -88,9 +89,9 @@ export default () => {
               <Brand />
             </Link>
             <div className="flex gap-x-4 items-center md:hidden">
-              {/* <button onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
+              <button onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
                 <IconSearch />
-              </button> */}
+              </button>
               <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
               <div className="md:hidden">
                 <AvatarMenu session={session} onLogout={handleLogout} />
@@ -109,11 +110,11 @@ export default () => {
                     </li>
                   );
                 })}
-                {/* <li className="hidden md:block">
+                <li className="hidden md:block">
                   <button onClick={() => setCommandActive(true)} className="hover:text-slate-200">
                     <IconSearch />
                   </button>
-                </li> */}
+                </li>
                 <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
                 <li className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${isLoggedin ? 'hidden md:flex' : ''}`}>
                   <Auth onLogout={handleLogout} />
