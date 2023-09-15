@@ -10,7 +10,7 @@ export default () => {
           <p>Support us: DevHunt is on Product Hunt now</p>
         </div>
         <LinkItem
-          href="https://www.producthunt.com/products/devhunt-2"
+          href="https://www.producthunt.com/posts/devhunt-2"
           target="_blank"
           className="flex-none inline-block w-full mt-3 py-2 text-center text-orange-600 font-medium bg-white duration-150 hover:bg-gray-100 active:bg-gray-200 sm:w-auto sm:mt-0 btnshake"
         >
