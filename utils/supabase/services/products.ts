@@ -66,6 +66,17 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
+  async getWeeklyWinners(excludeWeek: number = 0): Promise<ExtendedProduct[]> {
+    const { data, error } = await this.supabase.from('weekly_winners').select();
+    if (error !== null) throw new Error(error.message);
+    console.log(data);
+    return data.filter(i => i.week !== excludeWeek).map(i => ({
+      ...i.product_data.product,
+      product_pricing_types: i.product_data.product_pricing_types,
+      product_categories: i.product_data.product_categories,
+    })) as ExtendedProduct[];
+  }
+
   async getPrevLaunchWeeks(year: number, weekStartDay: number, launchWeek: number, limit = 1): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[]; }[]> {
     const { data, error } = await this.supabase.rpc('get_prev_launch_weeks', {
       _year: year,

@@ -34,8 +34,10 @@ export default async function Home() {
   const today = new Date();
   const productService = new ProductsService(createBrowserClient());
   const week = await productService.getWeekNumber(today, 2);
-  const launchWeeks = await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 2);
-  console.log('launchWeeks', launchWeeks);
+  const [launchWeeks, weeklyWinners] = await Promise.all([
+    productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1),
+    productService.getWeeklyWinners(week),
+  ]);
 
   function weekTools(group) {
     return (
@@ -66,10 +68,26 @@ export default async function Home() {
     );
   }
 
+  function weekWinnerTools(products) {
+    return (
+      <>
+        <div className="mt-3 text-white text-sm">Previous weeks winners 👑</div>
+        <ul className="mt-3 divide-y divide-slate-800/60">
+          {products.map((product, idx) => (
+            <ToolCardEffect key={idx} tool={product as ProductType} />
+          ))}
+        </ul>
+      </>
+    );
+  }
+
   return (
     <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
       <CountdownPanel />
-      <div className="mt-10 mb-12">{launchWeeks.map((group, index) => (index > 0 ? prevWeekTools(group) : weekTools(group)))}</div>
+      <div className="mt-10 mb-12">
+        {launchWeeks.map((group, index) => (index > 0 ? prevWeekTools(group) : weekTools(group)))}
+        {weekWinnerTools(weeklyWinners)}
+      </div>
     </section>
   );
 }
