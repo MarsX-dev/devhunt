@@ -1,3 +1,5 @@
+'use client';
+
 import mergeTW from '@/utils/mergeTW';
 import { ReactNode } from 'react';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
@@ -8,7 +10,7 @@ export default ({ className, children, href }: { className?: string; href: strin
     <a
       id="tool-title"
       href={`${href}?ref=devhunt`}
-      onClick={() => window.open(href)}
+      onClick={() => window.open(`${href}?ref=devhunt`)}
       target="_blank"
       className="hidden group-hover/card:block"
     >
