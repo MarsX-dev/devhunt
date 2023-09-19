@@ -87,7 +87,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Navbar />
             <ModalBannerCodeClient />
             {children}
-            <ProgressBarClient />
+            {/* <ProgressBarClient /> */}
             <Footer />
           </SupabaseProvider>
         </main>

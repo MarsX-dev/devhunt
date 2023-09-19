@@ -41,7 +41,7 @@ export default () => {
                 <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
                   <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
                   <div className="w-full space-y-1">
-                    <ToolName>{tool.name}</ToolName>
+                    <ToolName href={tool.demo_url as string}>{tool.name}</ToolName>
                     <Title className="line-clamp-2">{tool.slogan}</Title>
                     <ToolFooter>
                       <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
