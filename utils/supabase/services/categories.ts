@@ -6,6 +6,7 @@ import type {
   ProductCategory,
   ProductCategoryProduct,
 } from '@/utils/supabase/types';
+import {cache} from "@/utils/supabase/services/CacheService";
 
 export default class CategoryService extends BaseDbService {
   async getProducts(categoryId: number): Promise<Product[] | null> {
@@ -39,16 +40,24 @@ export default class CategoryService extends BaseDbService {
   }
 
   async search(searchTerm: string): Promise<ProductCategory[] | null> {
-    const { data, error } = await this.supabase.from('product_categories').select().ilike('name', `%${searchTerm}%`).limit(5);
+    return cache.get(`categories-${searchTerm}`, async () => {
+      const {
+        data,
+        error
+      } = await this.supabase.from('product_categories').select().ilike('name', `%${searchTerm}%`).limit(5);
 
-    if (error !== null) throw new Error(error.message);
-    return data;
+      if (error !== null) throw new Error(error.message);
+      return data;
+    });
   }
 
   async getAll(): Promise<ProductCategory[] | null> {
-    const { data, error } = await this.supabase.from('product_categories').select();
+    return cache.get('all-categories', async () => {
+      const {data, error} = await this.supabase.from('product_categories').select();
 
-    if (error !== null) throw new Error(error.message);
-    return data;
+      if (error !== null) throw new Error(error.message);
+
+      return data;
+    }, 60 * 60);
   }
 }

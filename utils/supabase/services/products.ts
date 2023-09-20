@@ -141,7 +141,7 @@ export default class ProductsService extends BaseDbService {
               pageSize=20, pageNumber = 1,
               categoryId?: number,
               selectQuery = this.EXTENDED_PRODUCT_SELECT) {
-    const key = `products-${sortBy}-${ascending}`;
+    const key = `products-${sortBy}-${ascending}-${categoryId}-${pageNumber}-${pageSize}-${selectQuery}`;
 
     return cache.get(key, async () => {
       // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
