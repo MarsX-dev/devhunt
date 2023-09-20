@@ -64,10 +64,8 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
             await profile.update(user?.id as string, {
               updated_at: new Date().toISOString(),
             });
-            router.replace('/');
           }
         });
-        router.replace('/');
         eventListener.data.subscription.unsubscribe();
       }
     });
