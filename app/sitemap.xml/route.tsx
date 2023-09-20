@@ -8,7 +8,7 @@ const URL = 'https://devhunt.org';
 async function generateSiteMap() {
   const productsService = new ProductsService(createBrowserClient());
   const profiles = await new ProfileService(createBrowserClient()).getProfiles();
-  const res = await productsService.getProducts();
+  const res = await productsService.getProducts('id', false, 10000);
   const tools = res.data as Product[];
   return `<?xml version="1.0" encoding="UTF-8"?>
    <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
