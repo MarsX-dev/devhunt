@@ -7,6 +7,7 @@ import { cache } from "@/utils/supabase/services/CacheService";
 export default class ProductsService extends BaseDbService {
   private readonly DEFULT_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name, id)';
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
+  public readonly EXTENDED_PRODUCT_SELECT_WITH_CATEGORIES = '*, product_pricing_types(*), product_categories!inner(*), profiles (full_name)';
 
   async getWeekNumber(dateIn: Date, startDay: number): Promise<number> {
     const key = `week-number-${dateIn}-${startDay}`;
@@ -69,7 +70,6 @@ export default class ProductsService extends BaseDbService {
   async getWeeklyWinners(excludeWeek: number = 0): Promise<ExtendedProduct[]> {
     const { data, error } = await this.supabase.from('weekly_winners').select();
     if (error !== null) throw new Error(error.message);
-    console.log(data);
     return data.filter(i => i.week !== excludeWeek).map(i => ({
       ...i.product_data.product,
       product_pricing_types: i.product_data.product_pricing_types,
@@ -137,13 +137,24 @@ export default class ProductsService extends BaseDbService {
     return data.map(i => ({ week: i.week_number, startDate: i.start_date, endDate: i.end_date, count: i.product_count }));
   }
 
-  getProducts(sortBy: string = 'votes_count', ascending: boolean = false) {
+  getProducts(sortBy: string = 'votes_count', ascending: boolean = false,
+              pageSize=20, pageNumber = 1,
+              categoryId?: number,
+              selectQuery = this.EXTENDED_PRODUCT_SELECT) {
     const key = `products-${sortBy}-${ascending}`;
 
     return cache.get(key, async () => {
       // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-      return this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT)
+      let products = this.supabase.from('products')
+          .select(selectQuery)
           .eq('deleted', false)
+
+      if (categoryId) {
+        products = products.eq('product_categories.id', categoryId);
+      }
+
+      return products
+          .range(pageSize * (pageNumber - 1),pageSize * pageNumber - 1)
           .order(sortBy, {ascending});
     });
   }
@@ -225,7 +236,7 @@ export default class ProductsService extends BaseDbService {
 
     return cache.get(key, async () => {
       const query = `%${input}%`;
-      console.log(query);
+
       const {data} = await this.supabase.from('products')
           .select(this.EXTENDED_PRODUCT_SELECT)
           .eq('deleted', false)
