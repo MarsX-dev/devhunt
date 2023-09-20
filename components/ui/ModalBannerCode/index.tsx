@@ -33,8 +33,10 @@ export default ({
 
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
-      const iframeDocHeight = iframeDoc.contentDocument?.documentElement.offsetHeight;
-      iframeDoc.style.height = `${iframeDocHeight}px`;
+      if (iframeDoc) {
+        const iframeDocHeight = iframeDoc.contentDocument?.documentElement.offsetHeight;
+        iframeDoc.style.height = `${iframeDocHeight}px`;
+      }
     };
 
     setTimeout(() => {
