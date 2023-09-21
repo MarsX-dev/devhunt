@@ -21,10 +21,15 @@ export default () => {
   const [isLoading, setLoading] = useState(true);
   const [isCategoryValid, setCategoryValidation] = useState(true);
 
+  const getOriginalSlug = () => {
+    const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.toLowerCase());
+    return getValidSlug[0];
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.toLowerCase());
+        const getValidSlug = getOriginalSlug();
 
         const decodedSlug = decodeURIComponent(getValidSlug[0]);
 
@@ -68,7 +73,7 @@ export default () => {
         <>
           {isCategoryValid ? (
             <>
-              <h1 className="text-xl text-slate-50 font-extrabold">{decodeURIComponent(slug)}</h1>
+              <h1 className="text-xl text-slate-50 font-extrabold">{getOriginalSlug()}</h1>
               <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
                 {tools && tools.length > 0 ? (
                   tools.map((product, idx) => <ToolCardEffect key={idx} tool={product} />)
