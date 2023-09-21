@@ -2,12 +2,14 @@
 
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import CategoryService from '@/utils/supabase/services/categories';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { IconLoading } from '@/components/Icons';
 import EmptyState from '@/components/ui/CommandPalette/EmptyState';
+import Page404 from '@/components/ui/Page404/Page404';
+import categories from '@/utils/categories';
 
 export default () => {
   const query = useParams();
@@ -17,19 +19,23 @@ export default () => {
 
   const [tools, setTools] = useState([]);
   const [isLoading, setLoading] = useState(true);
-
-  const router = useRouter();
+  const [isCategoryValid, setCategoryValidation] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const decodedSlug = decodeURIComponent(slug);
+        const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.toLowerCase());
+
+        const decodedSlug = decodeURIComponent(getValidSlug[0]);
 
         // Fetch the category
         const [category]: any = await categoryService.search(decodedSlug);
         if (!category) {
-          router.push('/404');
+          setCategoryValidation(false);
+          setLoading(false);
         }
+
+        console.log(category);
 
         // Fetch the products
         const { data: products } = await productService.getProducts(
@@ -60,16 +66,22 @@ export default () => {
         </div>
       ) : (
         <>
-          <h1 className="text-xl text-slate-50 font-extrabold">{decodeURIComponent(slug)}</h1>
-          <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
-            {tools.length > 0 ? (
-              tools.map((product, idx) => <ToolCardEffect key={idx} tool={product} />)
-            ) : (
-              <div>
-                <EmptyState />
-              </div>
-            )}
-          </ul>
+          {isCategoryValid ? (
+            <>
+              <h1 className="text-xl text-slate-50 font-extrabold">{decodeURIComponent(slug)}</h1>
+              <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
+                {tools && tools.length > 0 ? (
+                  tools.map((product, idx) => <ToolCardEffect key={idx} tool={product} />)
+                ) : (
+                  <div>
+                    <EmptyState />
+                  </div>
+                )}
+              </ul>
+            </>
+          ) : (
+            <Page404 />
+          )}
         </>
       )}
     </section>
