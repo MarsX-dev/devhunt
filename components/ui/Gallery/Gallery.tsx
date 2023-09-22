@@ -56,8 +56,8 @@ export const Gallery = ({
       >
         {src ? (
           <li className={mergeTW(`flex-none w-[400px] aspect-[4/3] snap-start py-3 pointer-events-none ${className}`)}>
-            {media[0].includes('youtube') ? (
-              <VideoThumbnail src={`https://img.youtube.com/vi/${extractVideoId(src as string)?.id}/maxresdefault.jpg`} />
+            {media[0].includes('youtube') || media[0].includes('youtu.be') ? (
+              <VideoThumbnail src={`https://img.youtube.com/vi/${extractVideoId(src as string)?.id}/mqdefault.jpg`} />
             ) : (
               <video controls className="w-[400px] rounded-lg">
                 <source src={src} />
@@ -82,8 +82,10 @@ export const Gallery = ({
                 <IconXmark />
               </ButtonHandler>
               <li className="h-full">
-                {(currentIdx === 0 && media[currentIdx].includes('youtube')) || media[currentIdx].includes('.mp4') ? (
-                  media[0].includes('youtube') ? (
+                {(currentIdx === 0 && media[currentIdx].includes('youtube')) ||
+                media[0].includes('youtu.be') ||
+                media[currentIdx].includes('.mp4') ? (
+                  media[0].includes('youtube') || media[0].includes('youtu.be') ? (
                     <iframe
                       loading="lazy"
                       src={extractVideoId(src as string)?.embed as string}
