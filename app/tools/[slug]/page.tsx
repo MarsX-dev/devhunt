@@ -29,18 +29,15 @@ export default () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const getValidSlug = getOriginalSlug();
-
-        const decodedSlug = decodeURIComponent(getValidSlug[0]);
+        const categoryName = getOriginalSlug();
 
         // Fetch the category
-        const [category]: any = await categoryService.search(decodedSlug);
+        const categories: any = await categoryService.search(categoryName);
+        const category = categories.find((c) => c.name.toLowerCase() === categoryName.toLowerCase());
         if (!category) {
           setCategoryValidation(false);
           setLoading(false);
         }
-
-        console.log(category);
 
         // Fetch the products
         const { data: products } = await productService.getProducts(
