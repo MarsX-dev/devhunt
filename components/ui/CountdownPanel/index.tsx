@@ -14,7 +14,16 @@ function RenderDatePart({ number, letter }: { number: number; letter: string }) 
   );
 }
 
+function DatePartSkeleton() {
+  return (
+    <div className="rounded-md p-[1px] bg-slate-700 animate-pulse">
+      <div className="w-9 h-7"></div>
+    </div>
+  );
+}
+
 function RenderCountdown() {
+  const [isLoading, setLoading] = useState(true);
   let [now, setNow] = useState(moment().utc());
   let nextMondayNight;
 
@@ -46,7 +55,21 @@ function RenderCountdown() {
     }, 1000);
   }, [now]);
 
-  return (
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  return isLoading ? (
+    <>
+      <DatePartSkeleton />
+      :
+      <DatePartSkeleton />
+      :
+      <DatePartSkeleton />
+      :
+      <DatePartSkeleton />
+    </>
+  ) : (
     <>
       {days > 0 ? (
         <>
@@ -69,21 +92,19 @@ export default () => {
         <p>
           <span className="text-2xl font-bold mb-4 text-orange-500">Vote Closing In: </span>
         </p>
-        <div className="text-slate-100">
-          <div className="flex gap-1 items-center">
-            <RenderCountdown />
-          </div>
+        <div className="text-slate-100 flex gap-1 items-center">
+          <RenderCountdown />
         </div>
         <div className="max-w-lg text-slate-400">
           Winners get a free shout-out in our newsletter, social media mentions, a winner's badge and more perks.
-          <span className="inline sm:block">
+          <div className="inline sm:block">
             {' '}
             See details{' '}
             <a className="underline transition-opacity hover:text-scale-1200" href="/about">
               here
             </a>
             .
-          </span>
+          </div>
         </div>
       </div>
     </div>
