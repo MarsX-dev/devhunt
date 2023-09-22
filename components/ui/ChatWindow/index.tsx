@@ -4,6 +4,8 @@ import LinkItem from '../Link/LinkItem';
 import { IconChatBubbleOvalLeftEllipsis } from '@/components/Icons';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import johnPicture from '@/public/johnrush.jpeg';
+import Image from 'next/image';
 
 export default () => {
   const [isPopupActive, setPopupActive] = useState(true);
@@ -29,7 +31,7 @@ export default () => {
         className="fixed right-4 bottom-[4.5rem] pl-4 sm:pl-0"
       >
         <div className="p-4 flex flex-wrap items-start gap-3 max-w-xs shadow-md rounded-lg bg-slate-800 border-slate-800">
-          <img src="/johnrush.png" className="flex-none w-8 h-8 object-cover rounded-full" />
+          <Image src={johnPicture} width={32} height={32} className="flex-none w-8 h-8 object-cover rounded-full" alt="John rush" />
           <div className="w-full text-sm text-left sm:w-auto">
             <p className="text-slate-100">You got a question? You can DM me!</p>
             <div className="flex items-center gap-x-2 mt-1">
