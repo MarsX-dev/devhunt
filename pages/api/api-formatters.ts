@@ -3,6 +3,7 @@ import { ExtendedProduct } from '@/utils/supabase/CustomTypes';
 export function simpleToolApiDtoFormatter(t: ExtendedProduct) {
   return {
     id: t.id,
+    email: t.email,
     name: t.name,
     description: t.description,
     logo_url: t.logo_url,

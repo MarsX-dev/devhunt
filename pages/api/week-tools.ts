@@ -1,43 +1,39 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import ProductsService from '@/utils/supabase/services/products';
-import {createBrowserClient} from '@/utils/supabase/browser';
-import {checkAuthToken} from "@/pages/api/auth-token";
-import {simpleToolApiDtoFormatter} from "@/pages/api/api-formatters";
-import {cache} from "@/utils/supabase/services/CacheService";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import ApiService from '@/utils/supabase/services/api';
+import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    let {week, limit = 3, year = (new Date()).getFullYear()} = req.query;
+  let { week, limit = 3, year = new Date().getFullYear(), key } = req.query;
+  if (key !== process.env.API_KEY) {
+    throw new Error('Forbidden');
+  }
 
-    let weekNumber = +week;
-    if (week && Number.isNaN(weekNumber)) {
-        return res.status(400).json({message: "Please provide week number as number"});
-    }
+  let weekNumber = +week;
+  if (week && Number.isNaN(weekNumber)) {
+    return res.status(400).json({ message: 'Please provide week number as number' });
+  }
 
-    const productService = new ProductsService(createBrowserClient());
+  const apiService = new ApiService();
 
-    const today = new Date();
-    const currentWeek = await productService.getWeekNumber(today, 2);
+  const today = new Date();
+  const currentWeek = await apiService.getWeekNumber(today, 2);
 
-    if (weekNumber === -1) {
-        weekNumber = currentWeek > 1 ? currentWeek - 1 : 52;
-        year = currentWeek > 1 ? today.getFullYear() : today.getFullYear() - 1;
-    }
+  if (weekNumber === -1) {
+    weekNumber = currentWeek > 1 ? currentWeek - 1 : 52;
+    year = currentWeek > 1 ? today.getFullYear() : today.getFullYear() - 1;
+  }
 
-    if (!weekNumber) {
-        weekNumber = currentWeek;
-    }
+  if (!weekNumber) {
+    weekNumber = currentWeek;
+  }
 
-    const tools = await cache.get(`week-tools-api-${year}-${weekNumber}-${limit}`,
-        async () => {
-            const weeks = await productService.getPrevLaunchWeeks(year, 2, weekNumber, 1);
-            if (!weeks || weeks.length === 0) {
-                return [];
-            }
+  const weeks = await apiService.getPrevLaunchWeeks(year, 2, weekNumber, 1);
+  if (!weeks || weeks.length === 0) {
+    return [];
+  }
 
-            const {products} = weeks[0];
-            return products.slice(0, limit);
-        }, 60);
+  const { products } = weeks[0];
+  const tools = products.slice(0, limit);
 
-
-    res.json(tools.map(simpleToolApiDtoFormatter));
+  res.json(tools.map(simpleToolApiDtoFormatter));
 }
