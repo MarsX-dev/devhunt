@@ -16,6 +16,7 @@ import { type Product } from '@/utils/supabase/types';
 import { IconSearch } from '@/components/Icons';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import categories from '@/utils/categories';
+import { ChevronDownIcon } from '@heroicons/react/24/solid';
 
 export default () => {
   const [isActive, setActive] = useState(false);
@@ -43,7 +44,7 @@ export default () => {
 
   const navigation = [
     { title: 'This Week', path: '/' },
-    // { title: 'Browse tools', path: '/upcoming' },
+    { title: 'Upcoming Tools', path: '/upcoming' },
     { title: 'The Story', path: '/about' },
     {
       title: 'Submit your Dev Tool',
@@ -89,12 +90,14 @@ export default () => {
           <div className={`flex-1 md:static  ${isActive ? 'w-full fixed top-20 inset-x-0 px-4 md:px-0' : 'hidden md:block'}`}>
             <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg md:block md:mt-0 md:p-0 md:bg-transparent">
               <ul className="justify-end items-center space-y-6 text-slate-400 md:flex md:space-x-6 md:space-y-0">
-                <li>
+                {/* <li>
                   <NavigationMenu.Root>
                     <NavigationMenu.List className="">
                       <NavigationMenu.Item>
-                        <NavigationMenu.Trigger className="hover:text-slate-200">Browse tools</NavigationMenu.Trigger>
-
+                        <NavigationMenu.Trigger className="flex items-center gap-x-2 hover:text-slate-200 group">
+                          Browse tools
+                          <ChevronDownIcon className="w-4 h-4 transition-transform duration-[250] ease-in group-data-[state=open]:-rotate-180" />
+                        </NavigationMenu.Trigger>
                         <NavigationMenu.Content className="top-8 left-0 text-sm py-4 rounded-lg w-80 md:px-4 md:bg-slate-800 md:absolute">
                           <div className="space-y-4">
                             <ul className="mt-2 space-y-3">
@@ -108,12 +111,12 @@ export default () => {
                                 );
                               })}
                             </ul>
-                            <h3 className="text-sm font-medium text-slate-300">Categories</h3>
+                            <h3 className="text-[0.855rem] font-medium text-slate-300">Categories</h3>
                             <ul className="mt-2 gap-y-3 grid grid-cols-2">
                               {categories.map((item, idx) => {
                                 return (
                                   <li key={idx} className="hover:text-slate-200 duration-150">
-                                    <Link href={`/tools/${item}`} className="block">
+                                    <Link href={`/tools/${item.toLowerCase().replaceAll(' ', '-')}`} className="block">
                                       {item}
                                     </Link>
                                   </li>
@@ -125,7 +128,7 @@ export default () => {
                       </NavigationMenu.Item>
                     </NavigationMenu.List>
                   </NavigationMenu.Root>
-                </li>
+                </li> */}
                 {navigation.map((item, idx) => {
                   return (
                     <li key={idx} className="hover:text-slate-200">
