@@ -22,4 +22,5 @@ export default [
   'Charts',
   'IDE',
   'Monitoring',
+  'Boilerplate',
 ];
