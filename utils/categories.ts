@@ -26,4 +26,5 @@ export default [
   'CMS',
   'Security',
   'Tailwind CSS',
+  'Boilerplate',
 ];
