@@ -22,5 +22,9 @@ export default [
   'Charts',
   'IDE',
   'Monitoring',
+  'Workflow automation',
+  'CMS',
+  'Security',
+  'Tailwind CSS',
   'Boilerplate',
 ];
