@@ -12,12 +12,15 @@ async function generateSiteMap() {
   const tools = res.data as Product[];
   return `<?xml version="1.0" encoding="UTF-8"?>
    <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-     <url>
-       <loc>${URL}</loc>
-     </url>
-     <url>
-     <loc>${URL}/about</loc>
-   </url>
+    <url>
+      <loc>${URL}</loc>
+    </url>
+    <url>
+      <loc>${URL}/about</loc>
+    </url>
+    <url>
+      <loc>https://blog.devhunt.org/</loc>
+    </url>
      ${
        tools &&
        tools
