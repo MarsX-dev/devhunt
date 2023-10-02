@@ -36,10 +36,10 @@ export default ({
       }
     }
 
-    if (isBannerActive) {
-      setToolSlug(slug);
-      setModalOpen(true);
-    }
+    // if (isBannerActive) {
+    //   setToolSlug(slug);
+    //   setModalOpen(true);
+    // }
 
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
