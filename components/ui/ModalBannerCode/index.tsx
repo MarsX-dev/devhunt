@@ -3,6 +3,7 @@
 import CodeBlock from '@/components/CodeBlock';
 import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal';
+import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 export default ({
@@ -19,6 +20,10 @@ export default ({
   copyDone: () => void;
 }) => {
   const bannerIframeRef = useRef<HTMLIFrameElement>(null);
+  const params = useParams();
+  const pathname = usePathname();
+  const { slug } = params as { slug: string };
+  const isBannerActive = pathname?.includes('/tool') && slug ? true : false;
 
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
@@ -31,10 +36,15 @@ export default ({
       }
     }
 
+    if (isBannerActive) {
+      setToolSlug(slug);
+      setModalOpen(true);
+    }
+
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
       if (iframeDoc) {
-        const iframeDocHeight = iframeDoc.contentDocument?.documentElement.offsetHeight;
+        const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
         iframeDoc.style.height = `${iframeDocHeight}px`;
       }
     };
