@@ -56,6 +56,18 @@ export interface Database {
           {
             foreignKeyName: 'comment_product_id_fkey';
             columns: ['product_id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_product_id_fkey';
+            columns: ['product_id'];
             referencedRelation: 'winner_of_the_day';
             referencedColumns: ['product_id'];
           },
@@ -129,22 +141,29 @@ export interface Database {
           name?: string | null;
           updated_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'product_categories_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'product_categories';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       product_category_product: {
         Row: {
           category_id: number;
-          created_at: string | null;
+          created_at: string;
           product_id: number;
         };
         Insert: {
-          category_id?: number;
-          created_at?: string | null;
+          category_id: number;
+          created_at?: string;
           product_id: number;
         };
         Update: {
           category_id?: number;
-          created_at?: string | null;
+          created_at?: string;
           product_id?: number;
         };
         Relationships: [
@@ -164,6 +183,18 @@ export interface Database {
             foreignKeyName: 'product_category_product_product_id_fkey';
             columns: ['product_id'];
             referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'product_category_product_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_winners';
             referencedColumns: ['id'];
           },
           {
@@ -239,6 +270,18 @@ export interface Database {
           {
             foreignKeyName: 'product_votes_product_id_fkey';
             columns: ['product_id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'product_votes_product_id_fkey';
+            columns: ['product_id'];
             referencedRelation: 'winner_of_the_day';
             referencedColumns: ['product_id'];
           },
@@ -272,7 +315,6 @@ export interface Database {
           demo_url: string | null;
           demo_video_url: string | null;
           description: string | null;
-          'e-mail': string | null;
           github_url: string | null;
           id: number;
           is_draft: boolean;
@@ -300,7 +342,6 @@ export interface Database {
           demo_url?: string | null;
           demo_video_url?: string | null;
           description?: string | null;
-          'e-mail'?: string | null;
           github_url?: string | null;
           id?: number;
           is_draft: boolean;
@@ -328,7 +369,6 @@ export interface Database {
           demo_url?: string | null;
           demo_video_url?: string | null;
           description?: string | null;
-          'e-mail'?: string | null;
           github_url?: string | null;
           id?: number;
           is_draft?: boolean;
@@ -348,6 +388,48 @@ export interface Database {
           week?: number | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
           {
             foreignKeyName: 'products_owner_id_fkey';
             columns: ['owner_id'];
@@ -450,10 +532,161 @@ export interface Database {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+          {
             foreignKeyName: 'products_pricing_type_fkey';
             columns: ['pricing_type'];
             referencedRelation: 'product_pricing_types';
             referencedColumns: ['id'];
+          },
+        ];
+      };
+      weekly_rank: {
+        Row: {
+          end: string | null;
+          name: string | null;
+          productid: number | null;
+          rank: number | null;
+          slug: string | null;
+          start: string | null;
+          vote_count: number | null;
+          week: number | null;
+          year: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['productid'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+        ];
+      };
+      weekly_winners: {
+        Row: {
+          id: number | null;
+          product_data: Json | null;
+          total_upvotes: number | null;
+          week: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
           },
         ];
       };
@@ -476,7 +709,50 @@ export interface Database {
           slug: string | null;
           votes_count: number | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+        ];
       };
       winner_of_the_month: {
         Row: {
@@ -500,7 +776,50 @@ export interface Database {
           votes_count: number | null;
           year: number | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+        ];
       };
       winner_of_the_week: {
         Row: {
@@ -524,7 +843,50 @@ export interface Database {
           week: number | null;
           year: number | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'products';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'product_votes_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_rank';
+            referencedColumns: ['productid'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'weekly_winners';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_day';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_month';
+            referencedColumns: ['product_id'];
+          },
+          {
+            foreignKeyName: 'products_id_fkey';
+            columns: ['product_id'];
+            referencedRelation: 'winner_of_the_week';
+            referencedColumns: ['product_id'];
+          },
+        ];
       };
     };
     Functions: {
@@ -635,7 +997,6 @@ export interface Database {
           demo_url: string | null;
           demo_video_url: string | null;
           description: string | null;
-          'e-mail': string | null;
           github_url: string | null;
           id: number;
           is_draft: boolean;
@@ -702,38 +1063,6 @@ export interface Database {
     };
   };
 }
-
-export type Comment = Database['public']['Tables']['comment']['Row'];
-export type InsertComment = Database['public']['Tables']['comment']['Insert'];
-export type UpdateComment = Database['public']['Tables']['comment']['Update'];
-
-export type CommentVote = Database['public']['Tables']['comment_vote']['Row'];
-export type InsertCommentVote = Database['public']['Tables']['comment_vote']['Insert'];
-export type UpdateCommentVote = Database['public']['Tables']['comment_vote']['Update'];
-
-export type ProductCategory = Database['public']['Tables']['product_categories']['Row'];
-export type InsertProductCategory = Database['public']['Tables']['product_categories']['Insert'];
-export type UpdateProductCategory = Database['public']['Tables']['product_categories']['Update'];
-
-export type ProductCategoryProduct = Database['public']['Tables']['product_category_product']['Row'];
-export type InsertProductCategoryProduct = Database['public']['Tables']['product_category_product']['Insert'];
-export type UpdateProductCategoryProduct = Database['public']['Tables']['product_category_product']['Update'];
-
-export type ProductPricingType = Database['public']['Tables']['product_pricing_types']['Row'];
-export type InsertProductPricingType = Database['public']['Tables']['product_pricing_types']['Insert'];
-export type UpdateProductPricingType = Database['public']['Tables']['product_pricing_types']['Update'];
-
-export type ProductVote = Database['public']['Tables']['product_votes']['Row'];
-export type InsertProductVote = Database['public']['Tables']['product_votes']['Insert'];
-export type UpdateProductVote = Database['public']['Tables']['product_votes']['Update'];
-
-export type Product = Database['public']['Tables']['products']['Row'];
-export type InsertProduct = Database['public']['Tables']['products']['Insert'];
-export type UpdateProduct = Database['public']['Tables']['products']['Update'];
-
-export type Profile = Database['public']['Tables']['profiles']['Row'];
-export type InsertProfile = Database['public']['Tables']['profiles']['Insert'];
-export type UpdateProfile = Database['public']['Tables']['profiles']['Update'];
 
 export type Comment = Database['public']['Tables']['comment']['Row'];
 export type InsertComment = Database['public']['Tables']['comment']['Insert'];
