@@ -30,10 +30,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<Your_Anonymous_Key>
 SUPABASE_SERVICE_ROLE_KEY=<Your_Service_Role_Key>
 ```
 
-Toy can find the key values here:
-`<Your_Project_URL>` -  Navigate to `Project Settings` -> `API` -> `Project URL` and copy the `URL`
-`<Your_Anonymous_Key>` - Go to `Project Settings` -> `API` -> `Project API keys` and find the `anon` `public` key.
-`<Your_Service_Role_Key>` - Under `Project Settings` -> `API` -> `Project API keys` locate the `service_role` `secret` key.
+You can find the key values here:
+1. `<Your_Project_URL>` -  Navigate to `Project Settings` -> `API` -> `Project URL` and copy the `URL`
+2. `<Your_Anonymous_Key>` - Go to `Project Settings` -> `API` -> `Project API keys` and find the `anon` `public` key.
+3. `<Your_Service_Role_Key>` - Under `Project Settings` -> `API` -> `Project API keys` locate the `service_role` `secret` key.
 
 ### Launch the app
 
