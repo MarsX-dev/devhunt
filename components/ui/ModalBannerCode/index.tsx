@@ -6,6 +6,9 @@ import Modal from '@/components/ui/Modal';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@/utils/supabase/browser';
+import ProductsService from '@/utils/supabase/services/products';
 
 export default ({
   toolSlug = '',
@@ -20,7 +23,12 @@ export default ({
   setToolSlug: (val: string) => void;
   copyDone: () => void;
 }) => {
-  // const { supabase, session } = useSupabase();
+  const { supabase, session } = useSupabase();
+  const user = session?.user;
+
+  const supabaseBrowserClient = createBrowserClient();
+
+  const productsService = new ProductsService(supabaseBrowserClient);
 
   const bannerIframeRef = useRef<HTMLIFrameElement>(null);
   const params = useParams();
@@ -29,6 +37,14 @@ export default ({
   const search = searchParams.get('banner');
   const { slug } = params as { slug: string };
   const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
+
+  const handleBannerIframeHeight = () => {
+    const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
+    if (iframeDoc) {
+      const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
+      iframeDoc.style.height = `${iframeDocHeight}px`;
+    }
+  };
 
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
@@ -41,26 +57,26 @@ export default ({
       }
     }
 
-    // console.log(search);
-
-    // if (isBannerActive) {
-    //   setToolSlug(slug);
-    //   setModalOpen(true);
-    // }
-
-    const handleBannerIframeHeight = () => {
-      const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
-      if (iframeDoc) {
-        const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
-        iframeDoc.style.height = `${iframeDocHeight}px`;
-      }
-    };
+    if (user && isBannerActive) {
+      productsService.getBySlug(slug, false).then(data => {
+        if (user.id == data?.owner_id) {
+          setToolSlug(slug);
+          setModalOpen(true);
+        }
+      });
+    }
 
     setTimeout(() => {
       handleBannerIframeHeight();
     }, 100);
 
     window.onresize = () => handleBannerIframeHeight();
+  }, [pathname]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      handleBannerIframeHeight();
+    }, 100);
   }, [pathname, isModalOpen]);
 
   const srcDoc = `<!DOCTYPE html>

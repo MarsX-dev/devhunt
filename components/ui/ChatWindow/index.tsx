@@ -27,7 +27,7 @@ export default () => {
           </button>
         </Popover.Trigger>
         <Popover.Portal>
-          <Popover.Content className="mr-4 mb-4">
+          <Popover.Content className="mr-4 mb-4 relative z-20">
             <div className="p-4 flex flex-wrap items-start gap-3 shadow-md rounded-lg bg-slate-800 border-slate-800">
               <Image src={johnPicture} width={32} height={32} className="flex-none w-8 h-8 object-cover rounded-full" alt="John rush" />
               <div className="w-full text-sm text-left sm:w-auto">
