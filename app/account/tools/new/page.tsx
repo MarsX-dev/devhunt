@@ -181,7 +181,7 @@ export default () => {
               launchEnd: res?.launch_end,
             }),
           );
-          window.open(`/tool/${res?.slug}`);
+          window.open(`/tool/${res?.slug}?banner=true`);
           router.push('/account/tools');
         });
     }
