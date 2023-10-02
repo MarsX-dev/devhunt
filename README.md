@@ -1,6 +1,34 @@
-# devhunt
+# DevHunt
 
-A launching platform for dev tools, built by developers. Open-source and collaborative, we use GitHub pull requests for listings and user logins for genuine voting. Join us at DevHunt to showcase your innovations and empower developer tools across the web!
+A launching platform for dev tools, built by developers. Open-source and collaborative, we use GitHub pull requests for listings and user logins for genuine voting. Join us at [DevHunt.org](https://devhunt.org) to showcase your innovations and empower developer tools across the web!
+
+## Quick Start
+
+Create a `.env.local` file at the root of your project and populate it with the following environment variables:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://jxdveanqfynuzaolpgjl.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4ZHZlYW5xZnludXphb2xwZ2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYyNTE1NzcsImV4cCI6MjAxMTgyNzU3N30.GsG-YZVPSSqD-wAuM6-2Oz-gsZ8GuIGeCWYoFm0-NM8
+```
+
+Install packages
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+Run dev server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. Done!
+
 
 ## Getting Started
 
@@ -34,6 +62,15 @@ You can find the key values here:
 1. `<Your_Project_URL>` -  Navigate to `Project Settings` -> `API` -> `Project URL` and copy the `URL`
 2. `<Your_Anonymous_Key>` - Go to `Project Settings` -> `API` -> `Project API keys` and find the `anon` `public` key.
 3. `<Your_Service_Role_Key>` - Under `Project Settings` -> `API` -> `Project API keys` locate the `service_role` `secret` key.
+
+### Set Up Social Login (OAuth)
+
+To enable social login features, follow the guides below for each platform:
+- **GitHub login**: Simply configure your Supabase settings. For detailed instructions, refer to the Supabase [GitHub OAuth Guide](https://supabase.com/docs/guides/auth/social-login/auth-github) - you need only to configure Supabase
+- **Google login**: Follow the steps outlined in the Supabase [Google OAuth Guide](https://supabase.com/docs/guides/auth/social-login/auth-google)
+- **More Providers**: For a complete list of all available social login methods, consult the [Supabase Social Login](https://supabase.com/docs/guides/auth/social-login) documentation
+
+These guides will walk you through the necessary configurations for enabling OAuth-based social logins.
 
 ### Launch the app
 
