@@ -3,9 +3,7 @@
 import CodeBlock from '@/components/CodeBlock';
 import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal';
-import { useParams, usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 export default ({
   toolSlug = '',
@@ -21,12 +19,6 @@ export default ({
   copyDone: () => void;
 }) => {
   const bannerIframeRef = useRef<HTMLIFrameElement>(null);
-  const params = useParams();
-  const pathname = usePathname();
-  const searchParams: any = useSearchParams();
-  const search = searchParams.get('banner');
-  const { slug } = params as { slug: string };
-  const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
 
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
@@ -39,17 +31,10 @@ export default ({
       }
     }
 
-    // console.log(search);
-
-    if (isBannerActive) {
-      setToolSlug(slug);
-      setModalOpen(true);
-    }
-
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
       if (iframeDoc) {
-        const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
+        const iframeDocHeight = iframeDoc.contentDocument?.documentElement.offsetHeight;
         iframeDoc.style.height = `${iframeDocHeight}px`;
       }
     };
@@ -88,14 +73,9 @@ export default ({
           {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" />`}
         </CodeBlock>
       </div>
-      <div className="mt-3 flex gap-x-3">
-        <Button className="ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
-          I've done this
-        </Button>
-        <Button className="bg-slate-700 hover:bg-slate-600" onClick={() => setModalOpen(false)}>
-          Close
-        </Button>
-      </div>
+      <Button className="mt-3 ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
+        I've done this
+      </Button>
     </Modal>
   );
 };
