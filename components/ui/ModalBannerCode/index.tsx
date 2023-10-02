@@ -4,7 +4,8 @@ import CodeBlock from '@/components/CodeBlock';
 import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal';
 import { useParams, usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export default ({
   toolSlug = '',
@@ -22,8 +23,10 @@ export default ({
   const bannerIframeRef = useRef<HTMLIFrameElement>(null);
   const params = useParams();
   const pathname = usePathname();
+  const searchParams: any = useSearchParams();
+  const search = searchParams.get('banner');
   const { slug } = params as { slug: string };
-  const isBannerActive = pathname?.includes('/tool') && slug ? true : false;
+  const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
 
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
@@ -36,10 +39,12 @@ export default ({
       }
     }
 
-    // if (isBannerActive) {
-    //   setToolSlug(slug);
-    //   setModalOpen(true);
-    // }
+    // console.log(search);
+
+    if (isBannerActive) {
+      setToolSlug(slug);
+      setModalOpen(true);
+    }
 
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
