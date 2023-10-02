@@ -1,5 +1,5 @@
 import ProductsService from '@/utils/supabase/services/products';
-import { Product } from '@/utils/supabase/types';
+import { type Product } from '@/utils/supabase/types';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProfileService from '@/utils/supabase/services/profile';
 
