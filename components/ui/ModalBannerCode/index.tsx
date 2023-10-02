@@ -20,6 +20,8 @@ export default ({
   setToolSlug: (val: string) => void;
   copyDone: () => void;
 }) => {
+  // const { supabase, session } = useSupabase();
+
   const bannerIframeRef = useRef<HTMLIFrameElement>(null);
   const params = useParams();
   const pathname = usePathname();
@@ -41,10 +43,10 @@ export default ({
 
     // console.log(search);
 
-    if (isBannerActive) {
-      setToolSlug(slug);
-      setModalOpen(true);
-    }
+    // if (isBannerActive) {
+    //   setToolSlug(slug);
+    //   setModalOpen(true);
+    // }
 
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
@@ -56,10 +58,10 @@ export default ({
 
     setTimeout(() => {
       handleBannerIframeHeight();
-    }, 300);
+    }, 100);
 
     window.onresize = () => handleBannerIframeHeight();
-  }, [pathname]);
+  }, [pathname, isModalOpen]);
 
   const srcDoc = `<!DOCTYPE html>
   <html lang="en">
@@ -67,7 +69,7 @@ export default ({
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Document</title>
-      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js"></script>
+      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>
   </head>
   <body>
       
@@ -85,7 +87,7 @@ export default ({
       </div>
       <div className="mt-2">
         <CodeBlock onCopy={copyDone}>
-          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" />`}
+          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js" />`}
         </CodeBlock>
       </div>
       <div className="mt-3 flex gap-x-3">

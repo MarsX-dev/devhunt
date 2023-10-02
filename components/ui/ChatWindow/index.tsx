@@ -4,10 +4,8 @@ import { IconChatBubbleLeft } from '@/components/Icons';
 import LinkItem from '../Link/LinkItem';
 import { IconChatBubbleOvalLeftEllipsis } from '@/components/Icons';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import johnPicture from '@/public/johnrush.jpeg';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import * as Popover from '@radix-ui/react-popover';
 
