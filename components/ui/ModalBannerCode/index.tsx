@@ -83,9 +83,14 @@ export default ({
           {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" />`}
         </CodeBlock>
       </div>
-      <Button className="mt-3 ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
-        I've done this
-      </Button>
+      <div className="mt-3 flex gap-x-3">
+        <Button className="ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
+          I've done this
+        </Button>
+        <Button className="bg-slate-700 hover:bg-slate-600" onClick={() => setModalOpen(false)}>
+          Close
+        </Button>
+      </div>
     </Modal>
   );
 };
