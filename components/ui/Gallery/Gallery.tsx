@@ -15,10 +15,12 @@ export const Gallery = ({
   className,
   src,
   assets,
+  alt,
 }: {
   children: ReactNode;
   className?: string;
   src?: string;
+  alt?: string;
   assets: string[];
 }) => {
   const [media, setMedia] = useState(src ? [src, ...assets] : assets);
@@ -97,7 +99,7 @@ export const Gallery = ({
                     </video>
                   )
                 ) : (
-                  <img src={media[currentIdx]} loading="lazy" className="w-full h-full rounded-lg object-cover" />
+                  <img src={media[currentIdx]} alt={alt} loading="lazy" className="w-full h-full rounded-lg object-cover" />
                 )}
               </li>
               <ButtonHandler onClick={handleLeftSide} className="absolute inset-y-0 left-4 my-auto">

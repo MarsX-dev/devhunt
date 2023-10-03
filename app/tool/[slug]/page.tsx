@@ -179,9 +179,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               <div
                 className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}
               >
-                <Gallery assets={product?.asset_urls} src={product.demo_video_url as string}>
+                <Gallery assets={product?.asset_urls} alt={product.name} src={product.demo_video_url as string}>
                   {product?.asset_urls &&
-                    product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
+                    product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt={product.name} />)}
                 </Gallery>
               </div>
             )}

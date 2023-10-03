@@ -179,8 +179,9 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 <div
                   className={`max-w-screen-2xl ${tool?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}
                 >
-                  <Gallery assets={tool?.asset_urls} src={tool.demo_video_url as string}>
-                    {tool?.asset_urls && tool?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt="" />)}
+                  <Gallery assets={tool?.asset_urls} src={tool.demo_video_url as string} alt={tool.name}>
+                    {tool?.asset_urls &&
+                      tool?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt={tool.name} />)}
                   </Gallery>
                 </div>
               )}
