@@ -73,7 +73,7 @@ export default () => {
                 <div className="p-2 flex items-start gap-x-4">
                   <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
                   <div>
-                    <Link href={`/tool/${tool.slug}?banner=true`}>
+                    <Link href={`/tool/${tool.slug}`}>
                       <Name>{tool.name}</Name>
                       <Title className="line-clamp-2">{tool.slogan}</Title>
                       <Tags
