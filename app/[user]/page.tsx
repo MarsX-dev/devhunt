@@ -35,6 +35,10 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
   return {
     title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
     description: profile?.headline,
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: {
+      canonical: `/@${user}`,
+    },
     openGraph: {
       type: 'article',
       title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,

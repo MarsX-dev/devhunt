@@ -38,6 +38,10 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
   return {
     title: `${tool?.name} - ${tool?.slogan}`,
     description: tool?.slogan,
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: {
+      canonical: `/tool/${slug}`,
+    },
     openGraph: {
       type: 'article',
       title: `${tool?.name} - ${tool?.slogan}`,
