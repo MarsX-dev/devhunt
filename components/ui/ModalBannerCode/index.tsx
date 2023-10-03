@@ -38,6 +38,14 @@ export default ({
   const { slug } = params as { slug: string };
   const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
 
+  const handleBannerIframeHeight = () => {
+    const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
+    if (iframeDoc) {
+      const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
+      iframeDoc.style.height = `${iframeDocHeight}px`;
+    }
+  };
+
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
 
@@ -49,27 +57,27 @@ export default ({
       }
     }
 
-    // console.log(search);
-
-    if (isBannerActive) {
-      setToolSlug(slug);
-      setModalOpen(true);
+    if (user && isBannerActive) {
+      productsService.getBySlug(slug, false).then(data => {
+        if (user.id == data?.owner_id) {
+          setToolSlug(slug);
+          setModalOpen(true);
+        }
+      });
     }
-
-    const handleBannerIframeHeight = () => {
-      const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
-      if (iframeDoc) {
-        const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
-        iframeDoc.style.height = `${iframeDocHeight}px`;
-      }
-    };
 
     setTimeout(() => {
       handleBannerIframeHeight();
     }, 100);
 
     window.onresize = () => handleBannerIframeHeight();
-  }, [pathname]);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      handleBannerIframeHeight();
+    }, 100);
+  }, [pathname, isModalOpen]);
 
   const srcDoc = `<!DOCTYPE html>
   <html lang="en">
@@ -98,9 +106,14 @@ export default ({
           {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js" />`}
         </CodeBlock>
       </div>
-      <Button className="mt-3 ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
-        I've done this
-      </Button>
+      <div className="mt-3 flex gap-x-3">
+        <Button className="ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
+          I've done this
+        </Button>
+        <Button className="bg-slate-700 hover:bg-slate-600" onClick={() => setModalOpen(false)}>
+          Close
+        </Button>
+      </div>
     </Modal>
   );
 };
