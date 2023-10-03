@@ -100,7 +100,7 @@ export default () => {
           <div className="inline sm:block">
             {' '}
             See details{' '}
-            <a className="underline transition-opacity hover:text-scale-1200" href="/about">
+            <a className="underline transition-opacity hover:text-scale-1200" href="/the-story">
               here
             </a>
             .
