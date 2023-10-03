@@ -17,7 +17,7 @@ async function generateSiteMap() {
       <loc>${URL}</loc>
     </url>
     <url>
-      <loc>${URL}/about</loc>
+      <loc>${URL}/the-story</loc>
     </url>
     <url>
       <loc>https://blog.devhunt.org/</loc>

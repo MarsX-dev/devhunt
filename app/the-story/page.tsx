@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'About - Dev Hunt',
+  title: 'The Story - Dev Hunt',
 };
 
 // this way of writing static pages with content is not professional, we gonna use MDX later.
