@@ -44,7 +44,7 @@ export default ({
     }, 300);
 
     window.onresize = () => handleBannerIframeHeight();
-  }, [pathname]);
+  }, [/*pathname*/]);
 
   const srcDoc = `<!DOCTYPE html>
   <html lang="en">

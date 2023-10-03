@@ -4,7 +4,7 @@ import { type File } from 'buffer';
 export default async ({ files, options }: { files: File | Blob; options?: string }) => {
   const formdata = new FormData();
 
-  const fileName = (files as File).name.replaceAll(' ', '-') + Date.now();
+  const fileName = Date.now() + (files as File).name.replaceAll(' ', '-');
   formdata.append('image', files as any, fileName);
 
   try {

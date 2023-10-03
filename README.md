@@ -7,8 +7,8 @@ Open-source and collaborative launching platform for dev tools, built by develop
 Create a `.env.local` file at the root of your project and populate it with the following environment variables:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://jxdveanqfynuzaolpgjl.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4ZHZlYW5xZnludXphb2xwZ2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYyNTE1NzcsImV4cCI6MjAxMTgyNzU3N30.GsG-YZVPSSqD-wAuM6-2Oz-gsZ8GuIGeCWYoFm0-NM8
+NEXT_PUBLIC_SUPABASE_URL=https://tusrbkspwpvucxzqhrgo.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1c3Jia3Nwd3B2dWN4enFocmdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYyNzI2OTUsImV4cCI6MjAxMTg0ODY5NX0.-HdjMYlbwVMggJiQ4cFxpr-AmNH1ueXBEgqxMPDlSJY
 ```
 
 Install packages
