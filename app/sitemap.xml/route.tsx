@@ -2,6 +2,7 @@ import ProductsService from '@/utils/supabase/services/products';
 import { type Product } from '@/utils/supabase/types';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProfileService from '@/utils/supabase/services/profile';
+import categories from '@/utils/categories';
 
 const URL = 'https://devhunt.org';
 
@@ -33,6 +34,15 @@ async function generateSiteMap() {
          })
          .join('')
      }
+     ${categories
+       .map(slug => {
+         return `
+          <url>
+              <loc>${`${URL}/tools/${slug.toLowerCase().replaceAll(' ', '-')}`}</loc>
+          </url>
+        `;
+       })
+       .join('')}
      ${
        profiles &&
        profiles
