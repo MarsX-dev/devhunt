@@ -11,10 +11,13 @@ import type { Database, Profile } from '@/utils/supabase/types';
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import Footer from '@/components/ui/Footer/Footer';
 import ProfileService from '@/utils/supabase/services/profile';
-import ChatWindow from '@/components/ui/ChatWindow';
 import Banner from '@/components/ui/Banner';
 import ProgressBarClient from '@/components/ui/ProgressBarClient';
 import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCodeClient';
+
+import dynamic from 'next/dynamic';
+
+const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 

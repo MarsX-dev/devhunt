@@ -3,7 +3,12 @@
 import CodeBlock from '@/components/CodeBlock';
 import Button from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal';
-import { useEffect, useRef, useState } from 'react';
+import { useParams, usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@/utils/supabase/browser';
+import ProductsService from '@/utils/supabase/services/products';
 
 export default ({
   toolSlug = '',
@@ -18,7 +23,20 @@ export default ({
   setToolSlug: (val: string) => void;
   copyDone: () => void;
 }) => {
+  const { supabase, session } = useSupabase();
+  const user = session?.user;
+
+  const supabaseBrowserClient = createBrowserClient();
+
+  const productsService = new ProductsService(supabaseBrowserClient);
+
   const bannerIframeRef = useRef<HTMLIFrameElement>(null);
+  const params = useParams();
+  const pathname = usePathname();
+  const searchParams: any = useSearchParams();
+  const search = searchParams.get('banner');
+  const { slug } = params as { slug: string };
+  const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
 
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
@@ -31,20 +49,27 @@ export default ({
       }
     }
 
+    // console.log(search);
+
+    if (isBannerActive) {
+      setToolSlug(slug);
+      setModalOpen(true);
+    }
+
     const handleBannerIframeHeight = () => {
       const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
       if (iframeDoc) {
-        const iframeDocHeight = iframeDoc.contentDocument?.documentElement.offsetHeight;
+        const iframeDocHeight = iframeDoc.contentDocument?.documentElement?.offsetHeight;
         iframeDoc.style.height = `${iframeDocHeight}px`;
       }
     };
 
     setTimeout(() => {
       handleBannerIframeHeight();
-    }, 300);
+    }, 100);
 
     window.onresize = () => handleBannerIframeHeight();
-  }, [/*pathname*/]);
+  }, [pathname]);
 
   const srcDoc = `<!DOCTYPE html>
   <html lang="en">
@@ -52,7 +77,7 @@ export default ({
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Document</title>
-      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js"></script>
+      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>
   </head>
   <body>
       
@@ -70,7 +95,7 @@ export default ({
       </div>
       <div className="mt-2">
         <CodeBlock onCopy={copyDone}>
-          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/index.js" />`}
+          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js" />`}
         </CodeBlock>
       </div>
       <Button className="mt-3 ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
