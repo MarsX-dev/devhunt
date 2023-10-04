@@ -37,14 +37,14 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
     description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
-      canonical: `/@${user}`,
+      canonical: `${decodeURIComponent(user)}`,
     },
     openGraph: {
       type: 'article',
       title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
       description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
       images: [(profile?.avatar_url as string) || ''],
-      url: `https://devhunt.org/@${user}`,
+      url: `https://devhunt.org/${decodeURIComponent(user)}`,
     },
     twitter: {
       title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,

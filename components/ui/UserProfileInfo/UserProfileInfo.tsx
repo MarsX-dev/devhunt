@@ -7,14 +7,13 @@ export default ({ profile }: { profile: Profile }) => (
     <div className="items-center gap-x-6 sm:flex">
       <Avatar className="w-20 h-20 flex-none" src={(profile?.avatar_url as string) || '/user.svg'} alt={profile?.full_name as string} />
       <div className="mt-4 sm:mt-0">
-        <h1 className="text-2xl text-slate-50 font-medium">{profile?.full_name}</h1>
+        <h1 className="text-2xl text-slate-50 font-medium">{profile?.full_name || 'DevHunt user'}</h1>
         <p className="mt-1 text-sm text-slate-400">{profile?.headline}</p>
       </div>
     </div>
     <div>
       <p className="text-slate-400">{profile?.about}</p>
-      {profile?.website_url
-        ? (
+      {profile?.website_url ? (
         <div className="mt-3">
           <a
             href={profile.website_url.startsWith('http') ? profile.website_url : `https://${profile.website_url}`}
@@ -25,10 +24,9 @@ export default ({ profile }: { profile: Profile }) => (
             Website
           </a>
         </div>
-          )
-        : (
-            ''
-          )}
+      ) : (
+        ''
+      )}
     </div>
   </div>
 );
