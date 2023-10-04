@@ -47,6 +47,7 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
       title: `${tool?.name} - ${tool?.slogan}`,
       description: tool?.slogan ?? '',
       images: tool?.asset_urls ?? [],
+      url: `https://devhunt.org/tool/${slug}`,
     },
     twitter: {
       title: `${tool?.name} - ${tool?.slogan}`,

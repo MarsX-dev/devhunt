@@ -34,7 +34,7 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
 
   return {
     title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
-    description: profile?.headline,
+    description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
       canonical: `/@${user}`,
@@ -42,12 +42,13 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
     openGraph: {
       type: 'article',
       title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
-      description: profile?.headline as string,
+      description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
       images: [(profile?.avatar_url as string) || ''],
+      url: `https://devhunt.org/@${user}`,
     },
     twitter: {
       title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
-      description: profile?.headline as string,
+      description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
       card: 'summary_large_image',
       images: [profile?.avatar_url ?? ''],
     },
