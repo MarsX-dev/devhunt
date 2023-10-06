@@ -70,7 +70,7 @@ export default () => {
         <>
           {isCategoryValid ? (
             <>
-              <h1 className="text-xl text-slate-50 font-extrabold">Best {getOriginalSlug()}</h1>
+              <h1 className="text-xl text-slate-50 font-extrabold">Best {getOriginalSlug()} tools</h1>
               <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
                 {tools && tools.length > 0 ? (
                   tools.map((product, idx) => <ToolCardEffect key={idx} tool={product} />)
