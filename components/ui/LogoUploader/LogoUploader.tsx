@@ -40,7 +40,7 @@ export default ({
         </div>
       </div>
       <input
-        required={required}
+        // required={required}
         ref={inputRef}
         id="logo-upload"
         name="logo-upload"
