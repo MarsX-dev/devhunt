@@ -167,7 +167,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                     <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                     <TagsGroup>
                       {tool?.product_categories.map((pc: { name: string }) => (
-                        <Tag>{pc.name}</Tag>
+                        <Tag href={`/tools/${pc.name.toLowerCase().replaceAll(' ', '-')}`}>{pc.name}</Tag>
                       ))}
                     </TagsGroup>
                   </div>

@@ -9,16 +9,16 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
   };
 
   return {
-    title: `Dev Hunt - ${getOriginalSlug()} Tools`,
+    title: `Best ${getOriginalSlug()} Tools`,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
       canonical: `/tools/${slug}`,
     },
     openGraph: {
-      title: `Dev Hunt - ${getOriginalSlug()} Tools`,
+      title: `Best ${getOriginalSlug()} Tools`,
     },
     twitter: {
-      title: `Dev Hunt - ${getOriginalSlug()} Tools`,
+      title: `Best ${getOriginalSlug()} Tools`,
     },
   };
 }
