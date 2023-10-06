@@ -18,11 +18,13 @@ import Button from '../Button/Button';
 import CommentService from '@/utils/supabase/services/comments';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { useSupabase } from '@/components/supabase/provider';
+import Link from 'next/link';
 
 interface CommentTypeProp extends CommentType {
   profiles: {
     avatar_url: string;
     full_name: string;
+    username: string;
   };
 }
 
@@ -96,10 +98,14 @@ export default ({ comment, productId }: Props) => {
   return (
     <Comment id={`${newComment.id}`} className="items-start gap-x-2">
       {/*TODO add First Letters Like avatars if there is no avatar */}
-      <CommentUserAvatar alt={newComment.profiles.full_name} src={newComment.profiles.avatar_url} />
+      <Link className="flex-none" href={`/@${newComment.profiles.username}`}>
+        <CommentUserAvatar alt={newComment.profiles.full_name} src={newComment.profiles.avatar_url} />
+      </Link>
       <div className="flex-1">
         <div className="flex items-center gap-x-3">
-          <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
+          <Link className="block" href={`/@${newComment.profiles.username}`}>
+            <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
+          </Link>
           {user && user.id == productId ? (
             <div className="text-xs px-2 py-0.5 rounded-full bg-indigo-400 border-indigo-600 text-white font-medium">Maker</div>
           ) : (
