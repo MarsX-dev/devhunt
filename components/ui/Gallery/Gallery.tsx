@@ -74,15 +74,15 @@ export const Gallery = ({
       {isZoomActive ? (
         <div>
           <div className="fixed z-40 inset-0 px-4 flex items-center justify-center w-full h-full zoom">
+            <ButtonHandler
+              className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto md:right-8"
+              onClick={() => {
+                setZoomActive(false);
+              }}
+            >
+              <IconXmark />
+            </ButtonHandler>
             <ul className="relative flex-1 max-w-5xl">
-              <ButtonHandler
-                className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto"
-                onClick={() => {
-                  setZoomActive(false);
-                }}
-              >
-                <IconXmark />
-              </ButtonHandler>
               <li className="h-full">
                 {(currentIdx === 0 && media[currentIdx].includes('youtube')) ||
                 media[0].includes('youtu.be') ||
