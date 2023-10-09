@@ -182,7 +182,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               >
                 <Gallery assets={product?.asset_urls} alt={product.name} src={product.demo_video_url as string}>
                   {product?.asset_urls &&
-                    product?.asset_urls.map((item: string, idx: number) => <GalleryImage key={idx} src={item} alt={product.name} />)}
+                    product?.asset_urls.map((item: string, idx: number) => (
+                      <GalleryImage key={idx} src={item.replaceAll('&fit=max&w=750', '')} alt={product.name} />
+                    ))}
                 </Gallery>
               </div>
             )}

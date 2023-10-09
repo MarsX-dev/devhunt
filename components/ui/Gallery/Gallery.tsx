@@ -57,11 +57,11 @@ export const Gallery = ({
         }}
       >
         {src ? (
-          <li className={mergeTW(`flex-none w-[400px] aspect-[4/3] snap-start py-3 pointer-events-none ${className}`)}>
+          <li className={mergeTW(`flex-none w-[459px] h-[220px] snap-start pointer-events-none ${className}`)}>
             {media[0].includes('youtube') || media[0].includes('youtu.be') ? (
               <VideoThumbnail src={`https://img.youtube.com/vi/${extractVideoId(src as string)?.id}/mqdefault.jpg`} />
             ) : (
-              <video controls className="w-[400px] rounded-lg">
+              <video controls className="w-[459px] h-[220px] rounded-lg">
                 <source src={src} />
               </video>
             )}
@@ -74,7 +74,7 @@ export const Gallery = ({
       {isZoomActive ? (
         <div>
           <div className="fixed z-40 inset-0 px-4 flex items-center justify-center w-full h-full zoom">
-            <ul className="relative flex-1 max-w-5xl aspect-[3/2] max-h-full">
+            <ul className="relative flex-1 max-w-5xl">
               <ButtonHandler
                 className="absolute z-20 top-4 bg-white text-slate-800 right-4 my-auto"
                 onClick={() => {
@@ -91,7 +91,7 @@ export const Gallery = ({
                     <iframe
                       loading="lazy"
                       src={extractVideoId(src as string)?.embed as string}
-                      className="rounded-lg w-full h-full"
+                      className="rounded-lg w-full h-full aspect-[3/2]"
                     ></iframe>
                   ) : (
                     <video controls className="w-full">
@@ -99,7 +99,12 @@ export const Gallery = ({
                     </video>
                   )
                 ) : (
-                  <img src={media[currentIdx]} alt={alt} loading="lazy" className="w-full h-full rounded-lg object-cover" />
+                  <img
+                    src={media[currentIdx].replaceAll('&fit=max&w=750', '')}
+                    alt={alt}
+                    loading="eager"
+                    className="w-full object-contain rounded-lg"
+                  />
                 )}
               </li>
               <ButtonHandler onClick={handleLeftSide} className="absolute inset-y-0 left-4 my-auto">
