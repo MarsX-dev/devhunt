@@ -2,18 +2,19 @@ import { type ExtendedProduct } from '@/utils/supabase/CustomTypes';
 import BaseDbService from '@/utils/supabase/services/BaseDbService';
 import { type InsertProduct, type Product, type UpdateProduct } from '@/utils/supabase/types';
 import { omit } from '@/utils/helpers';
-import { cache } from "@/utils/supabase/services/CacheService";
+import { cache } from '@/utils/supabase/services/CacheService';
 
 export default class ProductsService extends BaseDbService {
   private readonly DEFULT_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name, id)';
   private readonly EXTENDED_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(*), profiles (full_name)';
-  public readonly EXTENDED_PRODUCT_SELECT_WITH_CATEGORIES = '*, product_pricing_types(*), product_categories!inner(*), profiles (full_name)';
+  public readonly EXTENDED_PRODUCT_SELECT_WITH_CATEGORIES =
+    '*, product_pricing_types(*), product_categories!inner(*), profiles (full_name)';
 
   async getWeekNumber(dateIn: Date, startDay: number): Promise<number> {
     const key = `week-number-${dateIn}-${startDay}`;
 
     return cache.get(key, async () => {
-      const {data, error} = await this.supabase.rpc('get_week_number', {
+      const { data, error } = await this.supabase.rpc('get_week_number', {
         date_in: dateIn,
         start_day: startDay,
       });
@@ -31,7 +32,7 @@ export default class ProductsService extends BaseDbService {
     return data.map(i => ({
       week: i.week_number,
       startDate: i.start_date,
-      endDate: i.end_date
+      endDate: i.end_date,
     }));
   }
 
@@ -43,7 +44,7 @@ export default class ProductsService extends BaseDbService {
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
-      products: (i.products as Array<any> || []).map(k => ({
+      products: ((i.products as Array<any>) || []).map(k => ({
         ...k.product,
         product_pricing_types: k.product_pricing_types,
         product_categories: k.product_categories,
@@ -54,12 +55,12 @@ export default class ProductsService extends BaseDbService {
   async getNextLaunchDays(launchDate: Date, limit = 1): Promise<{ launchDate: Date; products: ExtendedProduct[] }[]> {
     const { data, error } = await this.supabase.rpc('get_next_launch_days', {
       _launch_date: launchDate.toISOString(),
-      _limit: limit
+      _limit: limit,
     });
     if (error !== null) throw new Error(error.message);
     return data.map(i => ({
       launchDate: new Date(i.launch_date),
-      products: (i.products as Array<any> || []).map(k => ({
+      products: ((i.products as Array<any>) || []).map(k => ({
         ...k.product,
         product_pricing_types: k.product_pricing_types,
         product_categories: k.product_categories,
@@ -70,14 +71,21 @@ export default class ProductsService extends BaseDbService {
   async getWeeklyWinners(excludeWeek: number = 0): Promise<ExtendedProduct[]> {
     const { data, error } = await this.supabase.from('weekly_winners').select();
     if (error !== null) throw new Error(error.message);
-    return data.filter(i => i.week !== excludeWeek).map(i => ({
-      ...i.product_data.product,
-      product_pricing_types: i.product_data.product_pricing_types,
-      product_categories: i.product_data.product_categories,
-    })) as ExtendedProduct[];
+    return data
+      .filter(i => i.week !== excludeWeek)
+      .map(i => ({
+        ...i.product_data.product,
+        product_pricing_types: i.product_data.product_pricing_types,
+        product_categories: i.product_data.product_categories,
+      })) as ExtendedProduct[];
   }
 
-  async getPrevLaunchWeeks(year: number, weekStartDay: number, launchWeek: number, limit = 1): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[]; }[]> {
+  async getPrevLaunchWeeks(
+    year: number,
+    weekStartDay: number,
+    launchWeek: number,
+    limit = 1,
+  ): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[] }[]> {
     const { data, error } = await this.supabase.rpc('get_prev_launch_weeks', {
       _year: year,
       _start_day: weekStartDay,
@@ -89,7 +97,7 @@ export default class ProductsService extends BaseDbService {
       week: i.week,
       startDate: new Date(i.start_date),
       endDate: new Date(i.end_date),
-      products: (i.products as Array<any> || []).map(k => ({
+      products: ((i.products as Array<any>) || []).map(k => ({
         ...k.product,
         product_pricing_types: k.product_pricing_types,
         product_categories: k.product_categories,
@@ -97,7 +105,12 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
-  async getNextLaunchWeeks(year: number, weekStartDay: number, launchWeek: number, limit = 1): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[]; }[]> {
+  async getNextLaunchWeeks(
+    year: number,
+    weekStartDay: number,
+    launchWeek: number,
+    limit = 1,
+  ): Promise<{ week: number; startDate: Date; endDate: Date; products: ExtendedProduct[] }[]> {
     const { data, error } = await this.supabase.rpc('get_next_launch_weeks', {
       _year: year,
       _start_day: weekStartDay,
@@ -109,7 +122,7 @@ export default class ProductsService extends BaseDbService {
       week: i.week,
       startDate: new Date(i.start_date),
       endDate: new Date(i.end_date),
-      products: (i.products as Array<any> || []).map(k => ({
+      products: ((i.products as Array<any>) || []).map(k => ({
         ...k.product,
         product_pricing_types: k.product_pricing_types,
         product_categories: k.product_categories,
@@ -126,7 +139,11 @@ export default class ProductsService extends BaseDbService {
     return data.map(i => ({ date: new Date(i.date), count: i.product_count }));
   }
 
-  async getProductsCountByWeek(startWeek: number, endWeek: number, year: number): Promise<{ week: number; startDate: Date, endDate: Date, count: number; }[]> {
+  async getProductsCountByWeek(
+    startWeek: number,
+    endWeek: number,
+    year: number,
+  ): Promise<{ week: number; startDate: Date; endDate: Date; count: number }[]> {
     const { data, error } = await this.supabase.rpc('get_products_count_by_week', {
       start_week: startWeek,
       end_week: endWeek,
@@ -137,25 +154,25 @@ export default class ProductsService extends BaseDbService {
     return data.map(i => ({ week: i.week_number, startDate: i.start_date, endDate: i.end_date, count: i.product_count }));
   }
 
-  getProducts(sortBy: string = 'votes_count', ascending: boolean = false,
-              pageSize=20, pageNumber = 1,
-              categoryId?: number,
-              selectQuery = this.EXTENDED_PRODUCT_SELECT) {
+  getProducts(
+    sortBy: string = 'votes_count',
+    ascending: boolean = false,
+    pageSize = 20,
+    pageNumber = 1,
+    categoryId?: number,
+    selectQuery = this.EXTENDED_PRODUCT_SELECT,
+  ) {
     const key = `products-${sortBy}-${ascending}-${categoryId}-${pageNumber}-${pageSize}-${selectQuery}`;
 
     return cache.get(key, async () => {
       // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-      let products = this.supabase.from('products')
-          .select(selectQuery)
-          .eq('deleted', false)
+      let products = this.supabase.from('products').select(selectQuery).eq('deleted', false);
 
       if (categoryId) {
         products = products.eq('product_categories.id', categoryId);
       }
 
-      return products
-          .range(pageSize * (pageNumber - 1),pageSize * pageNumber - 1)
-          .order(sortBy, {ascending});
+      return products.range(pageSize * (pageNumber - 1), pageSize * pageNumber - 1).order(sortBy, { ascending });
     });
   }
 
@@ -204,30 +221,19 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getUserProductsById(userId: string) {
-    const { data } = await this.supabase
-      .from('products')
-      .select(this.DEFULT_PRODUCT_SELECT)
-      .eq('owner_id', userId)
-      .eq('deleted', false);
+    const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('owner_id', userId).eq('deleted', false);
 
     return data;
   }
 
   async getUserVoteById(userId: string, productId: number) {
     if (!userId || !productId) return 0;
-    const { data } = await this.supabase.from('product_votes')
-      .select()
-      .eq('user_id', userId)
-      .eq('product_id', productId)
-      .maybeSingle();
+    const { data } = await this.supabase.from('product_votes').select().eq('user_id', userId).eq('product_id', productId).maybeSingle();
     return data;
   }
 
   async getRandomTools(limit: number): Promise<ExtendedProduct[] | null> {
-    const { data } = await this.supabase.from('products')
-      .select(this.EXTENDED_PRODUCT_SELECT)
-      .eq('deleted', false)
-      .limit(limit);
+    const { data } = await this.supabase.from('products').select(this.EXTENDED_PRODUCT_SELECT).eq('deleted', false).limit(limit);
     return data;
   }
 
@@ -237,12 +243,13 @@ export default class ProductsService extends BaseDbService {
     return cache.get(key, async () => {
       const query = `%${input}%`;
 
-      const {data} = await this.supabase.from('products')
-          .select(this.EXTENDED_PRODUCT_SELECT)
-          .eq('deleted', false)
-          .or(`description.ilike.${query},slogan.ilike.${query},name.ilike.${query}`)
-          .limit(limit)
-          .order('votes_count', {ascending: false});
+      const { data } = await this.supabase
+        .from('products')
+        .select(this.EXTENDED_PRODUCT_SELECT)
+        .eq('deleted', false)
+        .or(`description.ilike.${query},slogan.ilike.${query},name.ilike.${query}`)
+        .limit(limit)
+        .order('votes_count', { ascending: false });
 
       return data;
     });
@@ -259,10 +266,8 @@ export default class ProductsService extends BaseDbService {
   async getBySlug(slug: string, trackViews = false): Promise<ExtendedProduct | null> {
     const key = `product-details-slug-${slug}`;
 
-    const product = await cache.get(key,  async () => {
-      const { data } = await this.supabase.from('products')
-          .select(this.DEFULT_PRODUCT_SELECT)
-          .eq('slug', slug).single();
+    const product = await cache.get(key, async () => {
+      const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('slug', slug).single();
 
       return data;
     });
@@ -319,10 +324,7 @@ export default class ProductsService extends BaseDbService {
   }
 
   async search(searchTerm: string): Promise<Product[] | null> {
-    const {
-      data,
-      error
-    } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).eq('deleted', false).limit(8);
+    const { data, error } = await this.supabase.from('products').select('*').ilike('name', `%${searchTerm}%`).eq('deleted', false).limit(8);
 
     if (error !== null) throw new Error(error.message);
     return data;

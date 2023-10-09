@@ -6,12 +6,12 @@ import type { TypedSupabaseClient } from '@/app/layout';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { type Profile } from '@/utils/supabase/types';
 
-type MaybeSession = Session | null
+type MaybeSession = Session | null;
 
 interface SupabaseContext {
-  supabase: TypedSupabaseClient
-  session: MaybeSession
-  user: Profile
+  supabase: TypedSupabaseClient;
+  session: MaybeSession;
+  user: Profile;
 }
 
 // @ts-expect-error disable args error
@@ -22,9 +22,9 @@ export default function SupabaseProvider({
   session,
   user,
 }: {
-  children: React.ReactNode
-  session: MaybeSession
-  user: Profile
+  children: React.ReactNode;
+  session: MaybeSession;
+  user: Profile;
 }): JSX.Element {
   const [supabase] = useState(() => createBrowserClient());
 
