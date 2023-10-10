@@ -27,6 +27,7 @@ import { ProductAward } from '@/utils/supabase/CustomTypes';
 import { useRouter } from 'next/navigation';
 import TrendingToolsList from './TrendingToolsList';
 import WinnerBadge from '../WinnerBadge';
+import handleURLQuery from '@/utils/handleURLQuery';
 
 export default ({ href, tool, close }: { href: string; tool: ProductType; close: () => void }) => {
   // const window = new JSDOM('').window;
@@ -129,7 +130,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
             <Title className="mt-1">{tool?.slogan}</Title>
             <div className="text-sm mt-3 flex items-center gap-x-3">
               <LinkShiny
-                href={`${addHttpsToUrl(tool?.demo_url as string)}?ref=devhunt`}
+                href={handleURLQuery(addHttpsToUrl(tool?.demo_url as string))}
                 target="_blank"
                 className="flex items-center gap-x-2"
               >

@@ -23,43 +23,11 @@ import Page404 from '@/components/ui/Page404/Page404';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import TrendingToolsList from '@/components/ui/TrendingToolsList';
 import WinnerBadge from '@/components/ui/WinnerBadge';
-import handleURLQuery from '@/utils/handleURLQuery';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
-export const revalidate = 60;
-
-// set dynamic metadata
-export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-  const supabaseClient = createServerClient();
-  const productsService = new ProductsService(supabaseClient);
-  const tool = await productsService.getBySlug(slug);
-
-  return {
-    title: `${tool?.name} - ${tool?.slogan}`,
-    description: tool?.slogan,
-    metadataBase: new URL('https://devhunt.org'),
-    alternates: {
-      canonical: `/tool/${slug}`,
-    },
-    openGraph: {
-      type: 'article',
-      title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan ?? '',
-      images: tool?.asset_urls ?? [],
-      url: `https://devhunt.org/tool/${slug}`,
-    },
-    twitter: {
-      title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan ?? '',
-      card: 'summary_large_image',
-      images: tool?.asset_urls ?? [],
-    },
-  };
-}
-
-export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
+export default async function ToolPage({ slug }: { slug: string }): Promise<JSX.Element> {
   // const supabaseBrowserClient = createServerClient();
   const supabaseBrowserClient = createBrowserClient();
 
@@ -115,7 +83,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     //   label: 'Day rank',
     // },
     {
-      count: `#${(weekAward as any)?.rank}`,
+      count: `#${weekAward?.rank}`,
       icon: <IconChartBar />,
       label: 'Week rank',
     },
@@ -126,13 +94,13 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       <div className="container-custom-screen" id="about">
         <div className="flex items-center justify-between">
           <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
-          <WinnerBadge weekRank={(weekAward as any)?.rank} isLaunchEnd={isLaunchEnd} />
+          <WinnerBadge weekRank={weekAward?.rank} isLaunchEnd={isLaunchEnd} />
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
         <div className="text-sm mt-3 flex items-center gap-x-3">
           <LinkShiny
-            href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
+            href={`${addHttpsToUrl(product?.demo_url as string)}?ref=devhunt`}
             target="_blank"
             className="flex items-center gap-x-2"
           >
@@ -168,7 +136,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
                   <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                   <TagsGroup>
-                    {product?.product_categories.map((pc: any) => (
+                    {product?.product_categories.map((pc: { name: string }) => (
                       <Tag href={`/tools/${pc.name.toLowerCase().replaceAll(' ', '-')}`}>{pc.name}</Tag>
                     ))}
                   </TagsGroup>
