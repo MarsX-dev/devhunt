@@ -2,12 +2,10 @@ import Link from 'next/link';
 
 async function getPosts(slug: string, page: number) {
   const key = process.env.SEOBOT_API_KEY;
-  const host = process.env.WEBSITE_HOST;
   if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
-  if (!host) throw Error('WEBSITE_HOST enviroment variable must be set');
-  
+
   try {
-    const res = await fetch(`https://app.seobotai.com/api/articles?key=${key}&host=${host}&page=${page}&limit=10&tagSlug=${slug}`);
+    const res = await fetch(`https://app.seobotai.com/api/articles?key=${key}&page=${page}&limit=10&tagSlug=${slug}`);
     const result = await res.json();
     return result?.data;
   } catch {
