@@ -5,6 +5,9 @@ import Link from 'next/link';
 async function getPost(slug: string) {
   const key = process.env.SEOBOT_API_KEY;
   const host = process.env.WEBSITE_HOST;
+  if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
+  if (!host) throw Error('WEBSITE_HOST enviroment variable must be set');
+  
   try {
     const res = await fetch(`https://app.seobotai.com/api/article?key=${key}&host=${host}&slug=${slug}`);
     const result = await res.json();
