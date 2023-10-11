@@ -12,10 +12,10 @@ export default () => {
       href: 'https://github.com/MarsX-dev/devhunt',
       name: 'GitHub Repository',
     },
-    // {
-    //   href: 'https://blog.devhunt.org/',
-    //   name: 'Blog',
-    // },
+    {
+      href: '/blog',
+      name: 'Blog',
+    },
     {
       href: 'https://twitter.com/johnrushx',
       name: 'Contact',

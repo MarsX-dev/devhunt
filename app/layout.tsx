@@ -105,7 +105,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
-        <meta http-equiv="Content-Language" content="en" />
+        <meta httpEquiv="Content-Language" content="en" />
         <meta property="og:locale" content="en_US" />
         <meta name="language" content="English" />
         <meta name="twitter:card" content="summary_large_image" />
