@@ -16,17 +16,7 @@ interface Props {
   variant?: 'nonlink' | 'link';
 }
 
-export const TabLink = ({
-  children,
-  hash,
-  href,
-  sectionId,
-  className = '',
-  linkClassName,
-  isActive,
-  variant = 'link',
-  ...props
-}: Props) => {
+export default ({ children, hash, href, sectionId, className = '', linkClassName, isActive, variant = 'link', ...props }: Props) => {
   const [isLinkActive, setLinkActive] = useState(isActive);
   const [selectedSection, setSelectedSection] = useState('');
   const pathname = usePathname();

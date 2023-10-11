@@ -1,10 +1,12 @@
 import { IconVote, IconChartBar, IconArrowTopRight, IconFire } from '@/components/Icons';
+import dynamic from 'next/dynamic';
 import ButtonUpvote from '@/components/ui/ButtonUpvote';
 import { Gallery, GalleryImage } from '@/components/ui/Gallery';
 import LinkShiny from '@/components/ui/LinkShiny';
 import ProductLogo from '@/components/ui/ToolCard/Tool.Logo';
 import { Stat, StatsWrapper, StatCountItem, StatItem } from '@/components/ui/Stats';
-import { TabLink, Tabs } from '@/components/ui/TabsLink';
+import { Tabs } from '@/components/ui/TabsLink';
+const TabLink = dynamic(() => import('@/components/ui/TabsLink/TabLink'), { ssr: false });
 import { Tag, TagsGroup } from '@/components/ui/TagsGroup';
 import Title from '@/components/ui/ToolCard/Tool.Title';
 import ProductsService from '@/utils/supabase/services/products';
@@ -21,7 +23,7 @@ import ProfileService from '@/utils/supabase/services/profile';
 import customDateFromNow from '@/utils/customDateFromNow';
 import Page404 from '@/components/ui/Page404/Page404';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
-import TrendingToolsList from '@/components/ui/TrendingToolsList';
+const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 import WinnerBadge from '@/components/ui/WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
 
@@ -168,7 +170,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
                   <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
                   <TagsGroup>
-                    {product?.product_categories.map((pc: any) => (
+                    {product?.product_categories.map((pc: any, idx) => (
                       <Tag href={`/tools/${pc.name.toLowerCase().replaceAll(' ', '-')}`}>{pc.name}</Tag>
                     ))}
                   </TagsGroup>
