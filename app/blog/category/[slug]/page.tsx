@@ -1,3 +1,5 @@
+import ArticleCard from '@/components/ui/Blog/ArticleCard';
+import Pagination from '@/components/ui/Blog/Pagination';
 import { type Metadata } from 'next';
 import Link from 'next/link';
 
@@ -55,7 +57,7 @@ export default async function Category({
   const lastPage = Math.ceil(total / 10);
 
   return (
-    <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8 dark:text-white">
+    <section className="max-w-3xl my-8 lg:mt-10 mx-auto px-4 md:px-8 dark:text-white">
       <div className="flex flex-wrap items-center gap-2 mb-1 w-full dark:text-slate-400 text-sm mb-4">
         <a href="/" className='text-orange-500'>Home</a>
         <svg width="12" height="12" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -66,59 +68,13 @@ export default async function Category({
         </svg>
         <Link href="/blog/" className='text-orange-500'>Blog</Link>
       </div>
-      <h1 className='text-4xl mb-4 font-black'>Category: {slug}</h1>
+      <h1 className='text-4xl my-4 font-black'>Category: {slug}</h1>
       <ul>
-        {posts.map((i: any) => (
-          <li key={i.id} className="border-b border-gray-200 dark:border-slate-700 py-6">
-            <div className="flex flex-wrap gap-2 items-center w-full text-sm dark:text-slate-400">
-              <span>
-                Published{' '}
-                {new Date(i.publishedAt || i.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </span>
-              {i.readingTime ? <span>{` ⦁ ${i.readingTime}`} min read</span> : null}
-            </div>
-            <Link href={`/blog/${i.slug}`} className="block mt-1 mb-3 text-2xl font-bold">
-              {i.headline}
-            </Link>
-            <div className="mb-3 w-full dark:text-slate-400">{i.metaDescription}</div>
-            <div className="flex flex-wrap justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
-                {(i.tags || []).splice(0, 3).map((t: any, ix: number) => (
-                  <a key={ix} href={`/blog/tag/${t.slug}`} className="bg-slate-700 px-3 rounded">
-                    {t.title}
-                  </a>
-                ))}
-              </div>
-              <Link href={`/blog/${i.slug}`} className="self-end font-bold">
-                Read More →
-              </Link>
-            </div>
-          </li>
+        {posts.map((article: any) => (
+          <ArticleCard key={article.id} article={article} />
         ))}
       </ul>
-      {lastPage > 1
-        ? (
-        <div className="flex mt-6 items-center justify-center">
-          <a
-            className={`border rounded-md px-2 py-1 w-[90px] text-center ${pageNumber ? '' : 'pointer-events-none opacity-30'}`}
-            href={pageNumber ? `/blog/category/${slug}?page=${pageNumber}` : '#'}
-          >
-            ← Prev
-          </a>
-          <div className="px-6 font-bold">
-            {pageNumber + 1} / {lastPage}
-          </div>
-          <a
-            className={`border rounded-md px-2 py-1 w-[90px] text-center ${
-              pageNumber >= lastPage - 1 ? 'pointer-events-none opacity-30' : ''
-            }`}
-            href={pageNumber >= lastPage - 1 ? '#' : `/blog/category/${slug}?page=${pageNumber + 2}`}
-          >
-            Next →
-          </a>
-        </div>
-          )
-        : null}
+      {lastPage > 1 && <Pagination slug={`/blog/category/${slug}`} pageNumber={pageNumber} lastPage={lastPage} />}
     </section>
   );
 }
