@@ -1,6 +1,8 @@
-import '../../blog.css';
+import { type Metadata } from 'next';
 import Page404 from '@/components/ui/Page404';
 import Link from 'next/link';
+
+import '../../blog.css';
 
 async function getPost(slug: string) {
   const key = process.env.SEOBOT_API_KEY;
@@ -13,6 +15,35 @@ async function getPost(slug: string) {
   } catch {
     return null;
   }
+}
+
+export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await getPost(slug);
+  if (!post) return {};
+
+  const title = post.headline;
+  const description = post.metaDescription;
+  return {
+    title,
+    description,
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      images: [post.image],
+      url: `https://devhunt.org/blog/${slug}`,
+    },
+    twitter: {
+      title,
+      description,
+      card: 'summary_large_image',
+      images: [post.image],
+    },
+  };
 }
 
 export default async function Article({ params: { slug } }: { params: { slug: string } }) {

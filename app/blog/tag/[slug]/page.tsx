@@ -1,3 +1,4 @@
+import { type Metadata } from 'next';
 import Link from 'next/link';
 
 async function getPosts(slug: string, page: number) {
@@ -11,6 +12,34 @@ async function getPosts(slug: string, page: number) {
   } catch {
     return { total: 0, articles: [] };
   }
+}
+
+function deslugify(str: string) {
+  return str.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+}
+
+export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
+  const title = `${deslugify(slug)} - DevHunt Blog`;
+  return {
+    title,
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: {
+      canonical: `/blog/tag/${slug}`,
+    },
+    openGraph: {
+      type: 'article',
+      title,
+      // description: '',
+      // images: [],
+      url: `https://devhunt.org/blog/tag/${slug}`,
+    },
+    twitter: {
+      title,
+      // description: '',
+      // card: 'summary_large_image',
+      // images: [],
+    },
+  };
 }
 
 export default async function Tag({
