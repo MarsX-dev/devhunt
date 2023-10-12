@@ -37,9 +37,6 @@ export const metadata = {
   title,
   description,
   metadataBase: new URL('https://devhunt.org'),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title,
     description,

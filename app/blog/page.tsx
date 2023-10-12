@@ -1,4 +1,31 @@
+import { type Metadata } from 'next';
 import Link from 'next/link';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = 'DevHunt Blog';
+  const description = 'The latest on developer tools and services - discover top IDEs, databases, APIs, frameworks, testing tools, deployment systems, and more on the DevHunt blog.';
+  return {
+    title,
+    description,
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: {
+      canonical: '/blog',
+    },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      // images: [],
+      url: 'https://devhunt.org/blog',
+    },
+    twitter: {
+      title,
+      description,
+      // card: 'summary_large_image',
+      // images: [],
+    },
+  };
+}
 
 async function getPosts(page: number) {
   const key = process.env.SEOBOT_API_KEY;
