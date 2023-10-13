@@ -22,7 +22,10 @@ export default () => {
     <Popover.Root open={isPopupActive} onOpenChange={val => setPopupActive(val)}>
       <div className="fixed z-10 bottom-4 right-4 max-w-xs">
         <Popover.Trigger asChild>
-          <button className="w-10 h-10 rounded-full text-white bg-orange-500 flex items-center justify-center group">
+          <button
+            aria-label="Chat button"
+            className="w-10 h-10 rounded-full text-white bg-orange-500 flex items-center justify-center group"
+          >
             {isPopupActive ? <XMarkIcon className="w-6 h-6" /> : <IconChatBubbleLeft />}
           </button>
         </Popover.Trigger>

@@ -1,5 +1,6 @@
 export default ({ isActive, setActive }: { isActive: boolean; setActive: () => void }) => (
   <button
+    aria-label="Menu button"
     className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 active:bg-slate-700 rounded-md duration-150"
     onClick={setActive}
   >
@@ -12,16 +13,9 @@ export default ({ isActive, setActive }: { isActive: boolean; setActive: () => v
         />
       </svg>
     ) : (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-5 h-5"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
       </svg>
     )}
   </button>
-)
+);
