@@ -25,6 +25,7 @@ import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
 import { usermaven } from '@/utils/usermaven';
+import Alert from '@/components/ui/Alert';
 
 interface Inputs {
   tool_name: string;
@@ -189,8 +190,9 @@ export default () => {
 
   return (
     <section className="container-custom-screen">
-      <h1 className="text-xl text-slate-50 font-semibold">Launch a tool</h1>
-      <div className="mt-14">
+      <Alert context="Any non-dev tools will be subject to removal. Please ensure that your submission is relevant to the developer community." />
+      <h1 className="text-xl text-slate-50 font-semibold mt-6">Launch a tool</h1>
+      <div className="mt-12">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection
             number={1}

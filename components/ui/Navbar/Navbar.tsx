@@ -76,7 +76,7 @@ export default () => {
               <Brand />
             </Link>
             <div className="flex gap-x-4 items-center md:hidden">
-              <button aria-label="menu button" onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
+              <button aria-label="Search button" onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
                 <IconSearch />
               </button>
               <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
