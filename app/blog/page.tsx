@@ -33,7 +33,7 @@ async function getPosts(page: number) {
   if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
 
   try {
-    const res = await fetch(`https://app.seobotai.com/api/articles?key=${key}&page=${page}&limit=10`);
+    const res = await fetch(`https://app.seobotai.com/api/articles?key=${key}&page=${page}&limit=10`, { cache: 'no-store' });
     const result = await res.json();
     return result?.data;
   } catch {
