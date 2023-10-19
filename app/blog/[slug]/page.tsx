@@ -2,6 +2,7 @@ import { type Metadata } from 'next';
 import Page404 from '@/components/ui/Page404';
 import Link from 'next/link';
 
+import HighlightCode from '@/components/ui/HighlightCode';
 import '../../blog.css';
 
 async function getPost(slug: string) {
@@ -9,7 +10,7 @@ async function getPost(slug: string) {
   if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
 
   try {
-    const res = await fetch(`https://app.seobotai.com/api/article?key=${key}&slug=${slug}`);
+    const res = await fetch(`https://app.seobotai.com/api/article?key=${key}&slug=${slug}`, { cache: 'no-store' });
     const result = await res.json();
     return result?.data?.article;
   } catch {
@@ -102,6 +103,7 @@ export default async function Article({ params: { slug } }: { params: { slug: st
           </div>
           )
         : null}
+      <HighlightCode />
     </section>
   );
 }

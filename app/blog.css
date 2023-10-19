@@ -139,11 +139,14 @@
   overflow: hidden;
   border-radius: 0.5rem;
   font-size: 16px;
+  margin: 1.5em 0;
+  background-color: #1e1e1e;
+  padding: 0.5em;
 }
 
 .article p>code,
 .article li>code {
-  background-color: #ddd;
+  background-color: #444;
   border-radius: 6px;
   padding: 0.1em 0.25em;
   font-size: 18px;

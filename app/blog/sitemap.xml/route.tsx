@@ -5,7 +5,7 @@ async function getSitemap() {
   if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
 
   try {
-    const res = await fetch(`https://app.seobotai.com/api/sitemap?key=${key}`);
+    const res = await fetch(`https://app.seobotai.com/api/sitemap?key=${key}`, { cache: 'no-store' });
     const result = await res.json();
     return result?.data;
   } catch {
