@@ -16,6 +16,7 @@ const nextConfig = {
     USER_MAVEN_KEY: process.env.USER_MAVEN_KEY,
     WELCOME_EMAIL_API_KEY: process.env.WELCOME_EMAIL_API_KEY,
     SIGNUP_FORM_ID: process.env.SIGNUP_FORM_ID,
+    NEWSLETTER_FORM_ID: process.env.NEWSLETTER_FORM_ID,
   },
 };
 module.exports = nextConfig;

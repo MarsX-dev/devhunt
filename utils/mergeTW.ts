@@ -1,3 +1,3 @@
-import { twMerge } from 'tailwind-merge'
+import { twMerge } from 'tailwind-merge';
 
-export default (ClassNameValue: string) => twMerge(ClassNameValue)
+export default (...ClassNameValue: string[]) => twMerge(ClassNameValue);

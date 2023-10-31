@@ -20,7 +20,12 @@ export default ({ children, child, className = '', variant = 'default', isLoad =
   };
 
   return (
-    <button {...props} className={mergeTW(`${variants[variant]} ${isLoad ? 'flex items-center justify-center' : ''} ${className}`)}>
+    <button
+      {...props}
+      className={mergeTW(
+        `${variants[variant]} ${isLoad ? 'flex items-center justify-center pointer-events-none opacity-70' : ''} ${className}`,
+      )}
+    >
       {isLoad ? <IconLoading /> : ''}
       {!isLoad && child ? <div className="-ml-1 mr-3">{child}</div> : ''}
       {children}

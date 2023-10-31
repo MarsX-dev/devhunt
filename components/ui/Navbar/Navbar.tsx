@@ -16,10 +16,14 @@ import { type Product } from '@/utils/supabase/types';
 import { IconSearch } from '@/components/Icons';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import categories from '@/utils/categories';
-import { ChevronDownIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import NewsletterModal from '../NewsletterModal';
+import { BellAlertIcon, BellIcon } from '@heroicons/react/24/outline';
 
 export default () => {
   const [isActive, setActive] = useState(false);
+  const [isNewsletterModalActive, setNewsletterModalActive] = useState(false);
+  const [isBannerActive, setBannerActive] = useState(false);
   const [isCommandActive, setCommandActive] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [searchResult, setSearchResult] = useState<Product[]>([]);
@@ -65,29 +69,42 @@ export default () => {
     }, 50);
   };
 
-  useEffect(() => setActive(false), [pathname]);
+  useEffect(() => {
+    setActive(false);
+    setBannerActive(localStorage.getItem('isNewsletterActive') ? false : true);
+  }, [pathname]);
 
   return (
     <>
       <nav className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 w-full">
-        <div className="custom-screen items-center py-3 md:flex">
-          <div className="flex items-center justify-between md:block">
+        <div className="custom-screen items-center py-3 lg:flex">
+          <div className="flex items-center justify-between lg:block">
             <Link href="/">
               <Brand />
             </Link>
-            <div className="flex gap-x-4 items-center md:hidden">
+            <div className="flex gap-x-4 items-center lg:hidden">
               <button aria-label="Search button" onClick={() => setCommandActive(true)} className="text-slate-400 hover:text-slate-200">
                 <IconSearch />
               </button>
               <ButtonMenu isActive={isActive} setActive={() => setActive(!isActive)} />
-              <div className="md:hidden">
+              <div className="lg:hidden">
                 <AvatarMenu session={session} onLogout={handleLogout} />
               </div>
             </div>
           </div>
-          <div className={`flex-1 md:static  ${isActive ? 'w-full fixed top-20 inset-x-0 px-4 md:px-0' : 'hidden md:block'}`}>
-            <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg md:block md:mt-0 md:p-0 md:bg-transparent">
-              <ul className="justify-end items-center space-y-6 text-slate-400 md:flex md:space-x-6 md:space-y-0">
+          <div className={`flex-1 lg:static  ${isActive ? 'w-full fixed top-20 inset-x-0 px-4 lg:px-0' : 'hidden lg:block'}`}>
+            <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg lg:block lg:mt-0 lg:p-0 lg:bg-transparent">
+              <ul className="justify-end items-center space-y-6 text-slate-400 lg:flex lg:space-x-6 lg:space-y-0">
+                {!isLoggedin ? (
+                  <li>
+                    <button onClick={() => setNewsletterModalActive(true)} className="flex items-center gap-x-2 hover:text-slate-200">
+                      <BellIcon className="w-5 h-5" />
+                      Subscribe
+                    </button>
+                  </li>
+                ) : (
+                  ''
+                )}
                 <li>
                   <NavigationMenu.Root>
                     <NavigationMenu.List className="">
@@ -96,7 +113,7 @@ export default () => {
                           Browse tools
                           <ChevronDownIcon className="w-4 h-4 transition-transform duration-[250] ease-in group-data-[state=open]:-rotate-180" />
                         </NavigationMenu.Trigger>
-                        <NavigationMenu.Content className="top-8 left-0 text-sm py-4 rounded-lg w-80 md:px-4 md:bg-slate-800 md:absolute">
+                        <NavigationMenu.Content className="top-8 left-0 text-sm py-4 rounded-lg w-80 lg:px-4 lg:bg-slate-800 lg:absolute">
                           <div className="space-y-4">
                             <ul className="mt-2 space-y-3">
                               {submenu.map((item, idx) => {
@@ -136,13 +153,13 @@ export default () => {
                     </li>
                   );
                 })}
-                <li className="hidden md:block">
+                <li className="hidden lg:block">
                   <button aria-label="Search button" onClick={() => setCommandActive(true)} className="hover:text-slate-200">
                     <IconSearch />
                   </button>
                 </li>
-                <li className="hidden w-px h-6 bg-slate-700 md:block"></li>
-                <li className={`space-y-3 items-center gap-x-6 md:flex md:space-y-0 ${isLoggedin ? 'hidden md:flex' : ''}`}>
+                <li className="hidden w-px h-6 bg-slate-700 lg:block"></li>
+                <li className={`space-y-3 items-center gap-x-6 lg:flex lg:space-y-0 ${isLoggedin ? 'hidden lg:flex' : ''}`}>
                   <Auth onLogout={handleLogout} />
                 </li>
               </ul>
@@ -150,6 +167,36 @@ export default () => {
           </div>
         </div>
       </nav>
+      {isBannerActive && !isLoggedin ? (
+        <div className="animate-bottom-bannner fixed bottom-10 inset-x-0 z-30 max-w-xl mx-auto px-4">
+          <div className=" flex items-center gap-x-3 bg-slate-800 p-3 rounded-lg">
+            <div className="flex items-center justify-center rounded-full w-12 h-12 border-slate-700 bg-slate-900/70 text-slate-300">
+              <BellAlertIcon className="w-6 h-6" />
+            </div>
+            <p className="flex-1 text-sm text-slate-300">
+              <button
+                onClick={() => setNewsletterModalActive(true)}
+                className="text-slate-100 hover:text-orange-500 duration-150 underline"
+              >
+                Subscribe
+              </button>{' '}
+              to be the first to know about new content.
+            </p>
+            <button
+              onClick={() => {
+                setBannerActive(false);
+                localStorage.setItem('isNewsletterActive', 'true');
+              }}
+              className="p-1 rounded-md text-slate-400 hover:bg-slate-700 duration-150"
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
+      <NewsletterModal isActive={isNewsletterModalActive} closeModal={setNewsletterModalActive} />
       <CommandPalette
         isCommandActive={isCommandActive}
         setCommandActive={() => {
@@ -160,7 +207,7 @@ export default () => {
         setSearch={handleSearch}
         searchResult={searchResult}
       />
-      <BlurBackground className="md:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
+      <BlurBackground className="lg:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
     </>
   );
 };

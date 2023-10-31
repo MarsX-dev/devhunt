@@ -57,3 +57,19 @@ ul > li:last-child:last-of-type .comment-divided-bar {
     transform: translate3d(4px, 0, 0);
   }
 }
+
+.animate-bottom-bannner {
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(-10%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}

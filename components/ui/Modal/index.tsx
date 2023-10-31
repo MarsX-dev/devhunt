@@ -29,7 +29,7 @@ export default ({
     <div className="fixed w-full h-full inset-0 z-40 overflow-y-auto">
       <BlurBackground isActive={true} setActive={onCancel} />
       <div className={mergeTW(`flex items-center min-h-screen px-4 py-8 ${classNameContainer}`)}>
-        <div className={mergeTW(`relative z-10 w-full max-w-lg p-4 mx-auto bg-slate-800 rounded-md shadow-lg ${className}`)}>
+        <div className={mergeTW(`relative z-10 w-full max-w-lg p-4 mx-auto bg-slate-800 rounded-md shadow-xl ${className}`)}>
           {variant == 'default' ? (
             <div className="py-3 sm:flex">
               <div className="flex items-center justify-center flex-none w-12 h-12 mx-auto bg-slate-900 rounded-full">{icon}</div>
