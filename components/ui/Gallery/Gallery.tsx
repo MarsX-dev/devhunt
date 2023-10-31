@@ -82,7 +82,7 @@ export const Gallery = ({
             >
               <IconXmark />
             </ButtonHandler>
-            <ul className="relative flex-1 max-w-5xl">
+            <ul className="relative z-40 flex-1 max-w-5xl">
               <li className="h-full">
                 {(currentIdx === 0 && media[currentIdx].includes('youtube')) ||
                 media[0].includes('youtu.be') ||
@@ -114,14 +114,14 @@ export const Gallery = ({
                 <IconChevronRight />
               </ButtonHandler>
             </ul>
+            <BlurBackground
+              className="z-30"
+              isActive={isZoomActive}
+              setActive={() => {
+                setZoomActive(false);
+              }}
+            />
           </div>
-          <BlurBackground
-            className="z-30"
-            isActive={isZoomActive}
-            setActive={() => {
-              setZoomActive(false);
-            }}
-          />
         </div>
       ) : (
         ''
