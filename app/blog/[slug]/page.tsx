@@ -3,7 +3,6 @@ import Page404 from '@/components/ui/Page404';
 import Link from 'next/link';
 
 import HighlightCode from '@/components/ui/HighlightCode';
-import '../../blog.css';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
 async function getPost(slug: string) {
