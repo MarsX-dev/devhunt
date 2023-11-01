@@ -4,7 +4,8 @@ import { type Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'DevHunt Blog';
-  const description = 'The latest on developer tools and services - discover top IDEs, databases, APIs, frameworks, testing tools, deployment systems, and more on the DevHunt blog.';
+  const description =
+    'The latest on developer tools and services - discover top IDEs, databases, APIs, frameworks, testing tools, deployment systems, and more on the DevHunt blog.';
   return {
     title,
     description,
@@ -48,8 +49,8 @@ export default async function Blog({ searchParams: { page } }: { searchParams: {
   const lastPage = Math.ceil(total / 10);
 
   return (
-    <section className="max-w-3xl my-8 lg:mt-10 mx-auto px-4 md:px-8 dark:text-white tracking-normal">
-      <h1 className="text-4xl my-4 font-black">DevHunt's Blog</h1>
+    <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8 tracking-normal">
+      <h1 className="text-white text-4xl my-4 font-black">DevHunt's Blog</h1>
       <ul>
         {posts.map((article: any) => (
           <ArticleCard key={article.id} article={article} />

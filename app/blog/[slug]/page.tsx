@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import HighlightCode from '@/components/ui/HighlightCode';
 import '../../blog.css';
+import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
 async function getPost(slug: string) {
   const key = process.env.SEOBOT_API_KEY;
@@ -52,57 +53,58 @@ export default async function Article({ params: { slug } }: { params: { slug: st
   if (!post) return <Page404 />;
 
   return (
-    <section className="article max-w-2xl lg:my-4 mx-auto px-4 md:px-8 dark:text-white">
-      {post.category
-        ? (
-        <div className="flex flex-wrap items-center gap-2 mb-1 w-full dark:text-slate-400 text-sm">
-          <a href="/">Home</a>
-          <svg width="12" height="12" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-            <path
-              fill="currentColor"
-              d="M338.752 104.704a64 64 0 0 0 0 90.496l316.8 316.8l-316.8 316.8a64 64 0 0 0 90.496 90.496l362.048-362.048a64 64 0 0 0 0-90.496L429.248 104.704a64 64 0 0 0-90.496 0z"
-            />
-          </svg>
-          <Link href="/blog/">Blog</Link>
-          <svg width="12" height="12" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-            <path
-              fill="currentColor"
-              d="M338.752 104.704a64 64 0 0 0 0 90.496l316.8 316.8l-316.8 316.8a64 64 0 0 0 90.496 90.496l362.048-362.048a64 64 0 0 0 0-90.496L429.248 104.704a64 64 0 0 0-90.496 0z"
-            />
-          </svg>
-          <Link href={`/blog/category/${post.category.slug}`}>{post.category.title}</Link>
+    <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8">
+      {post.category ? (
+        <div className="flex flex-wrap items-center gap-2 mb-1 w-full text-sm">
+          <a className="text-orange-500 hover:text-orange-400 duration-200" href="/">
+            Home
+          </a>
+          <ChevronRightIcon className="w-4 h-4 text-slate-500" />
+          <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/blog/">
+            Blog
+          </Link>
+          <ChevronRightIcon className="w-4 h-4 text-slate-500" />
+          <Link className="text-orange-500 hover:text-orange-400 duration-200" href={`/blog/category/${post.category.slug}`}>
+            {post.category.title}
+          </Link>
         </div>
-          )
-        : null}
-      <div className="flex flex-wrap gap-2 items-center w-full text-sm dark:text-slate-400">
+      ) : null}
+      <div className="mt-2 flex flex-wrap gap-2 items-center w-full text-sm text-slate-400">
         <span>
           Published{' '}
           {new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
         </span>
         {post.readingTime ? <span>{` ⦁ ${post.readingTime}`} min read</span> : null}
       </div>
-      <div className='prose prose-h1:text-slate-100 prose-h2:text-slate-100 prose-h3:text-slate-100 prose-strong:text-slate-100 dark:text-slate-100 mt-8' dangerouslySetInnerHTML={{ __html: post.html }}></div>
+      <div
+        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8"
+        dangerouslySetInnerHTML={{ __html: post.html }}
+      ></div>
       <div className="flex flex-wrap gap-2 justify-start w-full">
-          {(post.tags || []).map((t: any, ix: number) => (
-            <a key={ix} href={`/blog/tag/${t.slug}`} className="dark:bg-slate-700 px-3 rounded text-sm">
-              {t.title}
-            </a>
-          ))}
+        {(post.tags || []).map((t: any, ix: number) => (
+          <a
+            key={ix}
+            href={`/blog/tag/${t.slug}`}
+            className="bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-xs text-slate-400 font-semibold"
+          >
+            {t.title}
+          </a>
+        ))}
+      </div>
+      {post.relatedPosts?.length ? (
+        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert">
+          <h2>Related posts</h2>
+          <ul className="text-base">
+            {post.relatedPosts.map((p: any, ix: number) => (
+              <li key={ix}>
+                <a className="duration-200" href={`/blog/${p.slug}`}>
+                  {p.headline}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-      {post.relatedPosts?.length
-        ? (
-          <div>
-            <h2>Related posts</h2>
-            <ul className='text-base'>
-              {post.relatedPosts.map((p: any, ix: number) => (
-                <li key={ix}>
-                  <a href={`/blog/${p.slug}`}>{p.headline}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-          )
-        : null}
+      ) : null}
       <HighlightCode />
     </section>
   );
