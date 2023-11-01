@@ -180,7 +180,7 @@ export default () => {
               >
                 Subscribe
               </button>{' '}
-              to be the first to know about new content.
+              to get weekly email with best new dev tools.
             </p>
             <button
               onClick={() => {
