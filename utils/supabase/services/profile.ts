@@ -1,8 +1,7 @@
 import type { Profile, UpdateProfile } from '@/utils/supabase/types';
 import BaseDbService from './BaseDbService';
 import { type ProductComment } from './comments';
-import { cache } from "@/utils/supabase/services/CacheService";
-
+import { cache } from '@/utils/supabase/services/CacheService';
 
 type FileBody =
   | ArrayBuffer
@@ -32,19 +31,27 @@ export default class ProfileService extends BaseDbService {
   async getById(id: string): Promise<Profile | null> {
     const key = `users-${id}`;
 
-    return cache.get(key, async () => {
-      const { data } = await this.supabase.from('profiles').select().eq('id', id).single();
-      return data;
-    }, 180)
+    return cache.get(
+      key,
+      async () => {
+        const { data } = await this.supabase.from('profiles').select().eq('id', id).single();
+        return data;
+      },
+      180,
+    );
   }
 
   async getByUsername(username: string): Promise<Profile | null> {
     const key = `users-username-${username}`;
 
-    return cache.get(key, async () => {
-      const {data, error} = await this.supabase.from('profiles').select().eq('username', username).single();
-      return data;
-    }, 180);
+    return cache.get(
+      key,
+      async () => {
+        const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
+        return data;
+      },
+      180,
+    );
   }
 
   async getProfiles(): Promise<Profile[] | null> {

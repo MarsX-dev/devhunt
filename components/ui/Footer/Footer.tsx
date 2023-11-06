@@ -37,7 +37,7 @@ export default () => {
     { title: '@vitalik_may', url: 'https://twitter.com/vitalik_may' },
     { title: '@BotanMan', url: 'https://twitter.com/BotanMan' },
     { title: '@chris_byrne', url: 'https://twitter.com/chris_byrne' },
-    { title: 'see all', url: '/about' },
+    { title: 'see all', url: '/the-story' },
   ];
 
   return (
@@ -85,12 +85,12 @@ export default () => {
               ))}
               {'.'}
             </div>
-            <div className='text-xs pt-2'>
+            <div className="text-xs pt-2">
               <a href="https://devhunt.openstatus.dev/">Status page</a>
             </div>
-            <a href="https://usermaven.com/?utm_source=badge" className='mt-5 block' rel="nofollow">
+            <a href="https://usermaven.com/?utm_source=badge" className="mt-5 block" rel="nofollow">
               <img
-                className='w-32'
+                className="w-32"
                 src="https://usermaven.com/img/badge-dark.png"
                 alt="Usermaven | Website analytics and product insights"
               />
