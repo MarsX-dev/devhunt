@@ -133,7 +133,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                     <ToolCardLink className="mt-3 border border-slate-800" href={'/tool/' + item.products.slug}>
                       <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
                       <div className="space-y-1">
-                        <Name href={item.products.demo_url}>{item.products.name}</Name>
+                        <Name href={item.products.demo_url as string}>{item.products.name}</Name>
                         <Title className="line-clamp-2">{item.products.slogan}</Title>
                       </div>
                       <div className="flex-1 self-center flex justify-end">
