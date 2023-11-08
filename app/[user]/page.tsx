@@ -17,8 +17,10 @@ import moment from 'moment';
 import Link from 'next/link';
 import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
-import TrendingToolsList from '@/components/ui/TrendingToolsList';
 import ToolCardLink from '@/components/ui/ToolCard/ToolCardLink';
+import dynamic from 'next/dynamic';
+
+const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 
 interface IComment extends CommentType {
   profiles: Profile;
@@ -130,7 +132,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <CommentDate className="mt-1">Commented {moment(item.created_at).format('LL')}</CommentDate>
                       <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
                     </Link>
-                    <ToolCardLink className="mt-3 border border-slate-800" href={'/tool/' + item.products.slug}>
+                    <ToolCardLink className="mt-3 border border-slate-800 px-2 sm:px-4" href={'/tool/' + item.products.slug}>
                       <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
                       <div className="space-y-1">
                         <Name href={item.products.demo_url as string}>{item.products.name}</Name>
