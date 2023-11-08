@@ -21,7 +21,7 @@ export default ({ tool }: { tool: ITool }) => (
     <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
       <Logo src={tool.logo_url || ''} alt={tool.name} />
       <div className="space-y-1">
-        <Name>{tool.name}</Name>
+        <Name href={tool.demo_url as string}>{tool.name}</Name>
         <Title className="line-clamp-2">{tool.slogan}</Title>
         <Tags
           items={[
