@@ -5,7 +5,7 @@ import Brand from '../Brand/Brand';
 export default () => {
   const footerNavs = [
     {
-      href: '/about',
+      href: '/the-story',
       name: 'About',
     },
     {
