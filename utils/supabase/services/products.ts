@@ -144,14 +144,37 @@ export default class ProductsService extends BaseDbService {
     endWeek: number,
     year: number,
   ): Promise<{ week: number; startDate: Date; endDate: Date; count: number }[]> {
-    const { data, error } = await this.supabase.rpc('get_products_count_by_week', {
-      start_week: startWeek,
-      end_week: endWeek,
-      year_in: year,
-      start_day: 2, // Tuesday
-    });
-    if (error !== null) throw new Error(error.message);
-    return data.map(i => ({ week: i.week_number, startDate: i.start_date, endDate: i.end_date, count: i.product_count }));
+    const queryProductsCount = async (startWeek: number, endWeek: number, year: number) => {
+      const { data, error } = await this.supabase.rpc('get_products_count_by_week', {
+        start_week: startWeek,
+        end_week: endWeek,
+        year_in: year,
+        start_day: 2, // Tuesday
+      });
+
+      if (error !== null) throw new Error(error.message);
+
+      return data.map(i => ({
+        week: i.week_number,
+        startDate: new Date(i.start_date),
+        endDate: new Date(i.end_date),
+        count: i.product_count
+      }));
+    };
+
+    let results = [];
+
+    // If endWeek is in the current year
+    if (endWeek <= 52) {
+      results = await queryProductsCount(startWeek, endWeek, year);
+    } else {
+      // Split the query into current year and next year
+      const resultsCurrentYear = await queryProductsCount(startWeek, 52, year);
+      const resultsNextYear = await queryProductsCount(1, endWeek - 52, year + 1);
+      results = [...resultsCurrentYear, ...resultsNextYear];
+    }
+
+    return results;
   }
 
   getProducts(
