@@ -10,11 +10,11 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;
   value?: string | number;
   className?: string;
-  validate?: { };
+  validate?: {};
 }
 
 export default ({ label, value, className = '', validate, ...props }: Props) => {
-  const [days, setDays] = useState<{ week: number; startDate: Date, endDate: Date, count: number; }[]>([]);
+  const [weeks, setWeeks] = useState<{ week: number; startDate: Date, endDate: Date, count: number; }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +25,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
       const productsService = new ProductsService(createBrowserClient());
       const startWeek = await productsService.getWeekNumber(startDate, 2);
       const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 15, startDate.getFullYear());
-      setDays(result);
+      setWeeks(result);
     };
 
     void fetchData();
@@ -43,7 +43,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
         <option value="" disabled selected>
           {label}
         </option>
-        {days.map(i => (
+        {weeks.map(i => (
           <option disabled={i.count >= 15} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count}/${i.count > 15 ? i.count : 15})`}</option>
         ))}
       </select>
