@@ -3,20 +3,14 @@ import Pagination from '@/components/ui/Blog/Pagination';
 import { type Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { BlogClient } from 'seobot';
 
 async function getPosts(slug: string, page: number) {
   const key = process.env.SEOBOT_API_KEY;
   if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
 
-  try {
-    const res = await fetch(`https://app.seobotai.com/api/articles?key=${key}&page=${page}&limit=10&tagSlug=${slug}`, {
-      cache: 'no-store',
-    });
-    const result = await res.json();
-    return result?.data;
-  } catch {
-    return { total: 0, articles: [] };
-  }
+  const client = new BlogClient(key);
+  return await client.getTagArticles(slug, page, 10);
 }
 
 function deslugify(str: string) {
