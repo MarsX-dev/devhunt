@@ -34,6 +34,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.44.2",
+    "seobot": "^1.0.3",
     "tailwind-merge": "^1.12.0",
     "waypoints": "^4.0.1"
   },

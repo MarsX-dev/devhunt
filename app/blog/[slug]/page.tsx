@@ -5,18 +5,14 @@ import Image from 'next/image';
 
 import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { BlogClient } from 'seobot';
 
 async function getPost(slug: string) {
   const key = process.env.SEOBOT_API_KEY;
   if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
 
-  try {
-    const res = await fetch(`https://app.seobotai.com/api/article?key=${key}&slug=${slug}`, { cache: 'no-store' });
-    const result = await res.json();
-    return result?.data?.article;
-  } catch {
-    return null;
-  }
+  const client = new BlogClient(key);
+  return await client.getArticle(slug);
 }
 
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
