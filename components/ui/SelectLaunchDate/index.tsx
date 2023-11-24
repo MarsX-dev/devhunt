@@ -14,7 +14,7 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
 }
 
 export default ({ label, value, className = '', validate, ...props }: Props) => {
-  const [weeks, setWeeks] = useState<{ week: number; startDate: Date, endDate: Date, count: number; }[]>([]);
+  const [weeks, setWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,7 +44,9 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
           {label}
         </option>
         {weeks.map(i => (
-          <option disabled={i.count >= 15} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count}/${i.count > 15 ? i.count : 15})`}</option>
+          <option disabled={i.count >= 15} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${
+            i.count
+          }/${i.count > 15 ? i.count : 15})`}</option>
         ))}
       </select>
     </div>
