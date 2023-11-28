@@ -65,9 +65,9 @@ export const Gallery = ({
             <ul className="relative z-40 flex-1 max-w-5xl">
               <li className="h-full">
                 {(currentIdx === 0 && media[currentIdx].includes('youtube')) ||
-                media[0].includes('youtu.be') ||
+                media[currentIdx].includes('youtu.be') ||
                 media[currentIdx].includes('.mp4') ? (
-                  media[0].includes('youtube') || media[0].includes('youtu.be') ? (
+                  media[currentIdx].includes('youtube') || media[currentIdx].includes('youtu.be') ? (
                     <iframe
                       loading="lazy"
                       src={extractVideoId(src as string)?.embed as string}
@@ -87,17 +87,22 @@ export const Gallery = ({
                   />
                 )}
               </li>
-              <div className="w-full absolute -bottom-14 h-14 inset-x-0 mx-auto flex items-center gap-x-3 overflow-x-auto sm:justify-center">
+              <div className="w-full absolute z-50 -bottom-14 h-14 inset-x-0 mx-auto flex items-center gap-x-3 overflow-x-auto sm:justify-center">
                 {media.map((src, idx) => (
-                  <button onClick={() => setCurrentIdx(idx)} key={idx} className="flex-none w-14 h-10 hover:scale-110 duration-200">
-                    {(idx === 0 && media[idx].includes('youtube')) ||
-                    media[0].includes('youtu.be') ||
-                    media[currentIdx].includes('.mp4') ? (
+                  <button
+                    onClick={() => {
+                      console.log(idx);
+                      setCurrentIdx(idx);
+                    }}
+                    key={idx}
+                    className="flex-none w-14 h-10 hover:scale-110 duration-200"
+                  >
+                    {(idx === 0 && media[idx].includes('youtube')) || media[idx].includes('youtu.be') || media[idx].includes('.mp4') ? (
                       <div className="w-full h-full bg-orange-600 rounded-lg text-white flex items-center justify-center">
                         <IconPlay />
                       </div>
                     ) : (
-                      <img loading="eager" src={src} className="w-full h-full rounded-lg object-cover" />
+                      <img loading="eager" src={src + 1} className="w-full h-full rounded-lg object-cover" />
                     )}
                   </button>
                 ))}
