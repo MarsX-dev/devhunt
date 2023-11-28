@@ -9,6 +9,7 @@ import { IconChevronLeft } from '@/components/Icons/IconChevronLeft';
 import { IconChevronRight } from '@/components/Icons/IconChevronRight';
 import { IconXmark } from '@/components/Icons';
 import VideoThumbnail from './VideoThumbnail';
+import { IconPlay } from '@/components/Icons';
 
 export const Gallery = ({
   children,
@@ -26,27 +27,6 @@ export const Gallery = ({
   const [media, setMedia] = useState(src ? [src, ...assets] : assets);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [isZoomActive, setZoomActive] = useState(false);
-
-  const handleLeftSide = () => {
-    if (currentIdx === 0) {
-      // If currently on the first item,
-      // move to the last item (src item if it exists)
-      setCurrentIdx(media.length - 1);
-    } else {
-      setCurrentIdx(currentIdx - 1);
-    }
-  };
-
-  const handleRightSide = () => {
-    if (currentIdx === media.length - 1) {
-      // If currently on the last item,
-      // move to the first item (src item if it exists)
-      setCurrentIdx(0);
-    } else {
-      // Move to the next item in the carousel
-      setCurrentIdx(currentIdx + 1);
-    }
-  };
 
   return (
     <>
@@ -107,12 +87,21 @@ export const Gallery = ({
                   />
                 )}
               </li>
-              <ButtonHandler onClick={handleLeftSide} className="absolute inset-y-0 left-4 my-auto">
-                <IconChevronLeft />
-              </ButtonHandler>
-              <ButtonHandler onClick={handleRightSide} className="absolute inset-y-0 right-4 my-auto">
-                <IconChevronRight />
-              </ButtonHandler>
+              <div className="w-full absolute -bottom-14 h-14 inset-x-0 mx-auto flex items-center gap-x-3 overflow-x-auto sm:justify-center">
+                {media.map((src, idx) => (
+                  <button onClick={() => setCurrentIdx(idx)} key={idx} className="flex-none w-14 h-10 hover:scale-110 duration-200">
+                    {(idx === 0 && media[idx].includes('youtube')) ||
+                    media[0].includes('youtu.be') ||
+                    media[currentIdx].includes('.mp4') ? (
+                      <div className="w-full h-full bg-orange-600 rounded-lg text-white flex items-center justify-center">
+                        <IconPlay />
+                      </div>
+                    ) : (
+                      <img loading="eager" src={src} className="w-full h-full rounded-lg object-cover" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </ul>
             <BlurBackground
               className="z-30"
