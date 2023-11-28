@@ -85,4 +85,28 @@ export default class CommentService extends BaseDbService {
     if (error !== null) throw new Error(error.message);
     return data;
   }
+
+  private _getAllComments(rows: Comment[]): ProductComment[] {
+    return rows
+      .filter(i => i.parent_id === null)
+      .map(i => ({
+        ...i,
+        children: this._getChildren(rows, i.id),
+      }));
+  }
+
+  async getAllComments(): Promise<ProductComment[] | null> {
+    const key = 'all-comments';
+
+    return cache.get(key, async () => {
+      const { data, error } = await this.supabase
+        .from('comment')
+        .select('*, profiles (full_name, avatar_url, username)')
+        .order('created_at');
+
+      if (error !== null) throw new Error(error.message);
+
+      return this._getAllComments(data);
+    });
+  }
 }

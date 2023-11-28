@@ -57,11 +57,11 @@ export const Gallery = ({
         }}
       >
         {src ? (
-          <li className={mergeTW(`flex-none w-[459px] h-[220px] snap-start pointer-events-none ${className}`)}>
+          <li className={mergeTW(`flex-none w-[459px] h-auto rounded-lg relative snap-start pointer-events-none ${className}`)}>
             {media[0].includes('youtube') || media[0].includes('youtu.be') ? (
               <VideoThumbnail src={`https://img.youtube.com/vi/${extractVideoId(src as string)?.id}/mqdefault.jpg`} />
             ) : (
-              <video controls className="w-[459px] h-[220px] rounded-lg">
+              <video controls className="w-[459px] h-auto rounded-lg">
                 <source src={src} />
               </video>
             )}
