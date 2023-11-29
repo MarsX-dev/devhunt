@@ -1,8 +1,6 @@
-import { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
-import { ArrowSmallRightIcon } from '@heroicons/react/20/solid';
 import Button from '@/components/ui/Button';
 import LinkItem from '@/components/ui/Link/LinkItem';
 
@@ -12,8 +10,16 @@ type OSSFriend = {
   description: string;
 };
 
+const title = 'OSS Friends - Dev Hunt';
+
 export const metadata = {
-  title: 'OSS Friends - Dev Hunt',
+  title,
+  openGraph: {
+    title,
+  },
+  twitter: {
+    title,
+  },
 };
 
 export default async () => {
@@ -54,15 +60,3 @@ export default async () => {
     </section>
   );
 };
-
-function MeltUILogo() {
-  return (
-    <Image
-      src="https://avatars.githubusercontent.com/u/134972826?s=200&v=4"
-      width={50}
-      height={50}
-      alt="Melt UI"
-      className="rounded-full"
-    />
-  );
-}
