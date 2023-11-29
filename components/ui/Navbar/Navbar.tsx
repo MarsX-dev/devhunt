@@ -48,7 +48,6 @@ export default () => {
 
   const navigation = [
     { title: 'The Story', path: '/the-story' },
-    { title: 'OSS Friends', path: '/oss-friends' },
     {
       title: 'Submit your Dev Tool',
       path: isLoggedin ? '/account/tools' : '/login',

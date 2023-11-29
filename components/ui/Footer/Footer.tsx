@@ -20,6 +20,7 @@ export default () => {
       href: 'https://twitter.com/johnrushx',
       name: 'Contact',
     },
+    { name: 'OSS Friends', href: '/oss-friends' },
   ];
 
   const usedTools = [
