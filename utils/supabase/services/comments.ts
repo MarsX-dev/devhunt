@@ -102,7 +102,7 @@ export default class CommentService extends BaseDbService {
       const { data, error } = await this.supabase
         .from('comment')
         .select('*, profiles (full_name, avatar_url, username), products ( profiles!inner (id, full_name, username) )')
-        .order('created_at')
+        .order('created_at', { ascending: false })
         .limit(limit);
 
       if (error !== null) throw new Error(error.message);
