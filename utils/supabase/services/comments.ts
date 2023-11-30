@@ -95,14 +95,15 @@ export default class CommentService extends BaseDbService {
       }));
   }
 
-  async getAllComments(): Promise<ProductComment[] | null> {
-    const key = 'all-comments';
+  async getAllComments(limit: 20): Promise<ProductComment[] | null> {
+    const key = `all-comments-${limit}`;
 
     return cache.get(key, async () => {
       const { data, error } = await this.supabase
         .from('comment')
-        .select('*, profiles (full_name, avatar_url, username)')
-        .order('created_at');
+        .select('*, profiles (full_name, avatar_url, username), products ( profiles!inner (id, full_name, username) )')
+        .order('created_at')
+        .limit(limit);
 
       if (error !== null) throw new Error(error.message);
 
