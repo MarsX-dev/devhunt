@@ -12,7 +12,7 @@ const badges = {
   },
   winner2: {
     badge: <IconSecondWinnerBadge className="mx-auto" />,
-    rank: '2th',
+    rank: '2nd',
   },
   winner3: {
     badge: <IconThirdWinnerBadge className="mx-auto" />,
