@@ -194,11 +194,11 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
           <div className="container-custom-screen" id="details">
             <h3 className="text-slate-50 font-medium">About this launch</h3>
             <p className="text-slate-300 mt-6">
-              {tool?.name} {isLaunchStarted ? 'was hunted by' : 'by'}{' '}
+              {tool?.name} {isLaunchStarted ? 'was launched by' : 'by'}{' '}
               <Link href={`/@${owner?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
                 {owner?.full_name}
               </Link>{' '}
-              {isLaunchStarted ? 'in ' : 'Will be launched in '}
+              {isLaunchStarted ? ' ' : 'Will be launched in '}
               {customDateFromNow(tool?.launch_date)}.
             </p>
             {isLaunchStarted ? (

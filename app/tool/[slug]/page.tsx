@@ -198,11 +198,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
           <p className="text-slate-300 mt-6">
-            {product.name} {isLaunchStarted ? 'was hunted by' : 'by'}{' '}
+            {product.name} {isLaunchStarted ? 'was launched by' : 'by'}{' '}
             <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
               {owned?.full_name}
             </Link>{' '}
-            {isLaunchStarted ? 'in ' : 'Will be launched in '}
+            {isLaunchStarted ? ' ' : 'Will be launched in '}
             {customDateFromNow(product.launch_date)}.
           </p>
           {isLaunchStarted ? (
