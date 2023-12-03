@@ -142,8 +142,14 @@ export default () => {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const categoryIds = categories.map(item => item.id);
       setLaunching(true);
-      const weeks = await productService.getWeeks(new Date().getFullYear(), 2);
-      const weekData = weeks.find(i => i.week === parseInt(week));
+
+      const launchWeek = parseInt(week);
+
+      const currentWeek = await productService.getWeekNumber(new Date(), 2);
+      const currentYear = new Date().getFullYear();
+
+      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+      const weekData = weeks.find(i => i.week === launchWeek);
       await productService
         .insert(
           {
@@ -164,7 +170,7 @@ export default () => {
             launch_date: weekData?.startDate as string,
             launch_start: weekData?.startDate,
             launch_end: weekData?.endDate,
-            week: parseInt(week),
+            week: launchWeek,
           },
           categoryIds,
         )
