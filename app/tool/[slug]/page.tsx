@@ -72,6 +72,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const awardService = new AwardsService(supabaseBrowserClient);
   const commentService = new CommentService(supabaseBrowserClient);
 
+  const allComments = await commentService.getAllComments(10);
+  console.log(allComments);
+
   const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
   const toolAward$ = awardService.getWeeklyRank(product.id);
   const comments$ = commentService.getByProductId(product.id);
