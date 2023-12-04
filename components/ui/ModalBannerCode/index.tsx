@@ -68,7 +68,7 @@ export default ({
 
     setTimeout(() => {
       handleBannerIframeHeight();
-    }, 100);
+    }, 200);
 
     window.onresize = () => handleBannerIframeHeight();
   }, []);
@@ -85,7 +85,8 @@ export default ({
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Document</title>
-      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>
+      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://devhunt.org/banner/index.js"></script>
+      <link rel="stylesheet" href="/normalize.css">
   </head>
   <body>
       
