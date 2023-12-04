@@ -76,7 +76,7 @@ export default ({
   useEffect(() => {
     setTimeout(() => {
       handleBannerIframeHeight();
-    }, 100);
+    }, 200);
   }, [pathname, isModalOpen]);
 
   const srcDoc = `<!DOCTYPE html>
