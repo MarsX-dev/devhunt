@@ -106,7 +106,7 @@ export default ({ comment, productId }: Props) => {
           <Link className="block" href={`/@${newComment.profiles.username}`}>
             <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
           </Link>
-          {user && user.id == productId ? (
+          {newComment.user_id == productId ? (
             <div className="text-xs px-2 py-0.5 rounded-full bg-indigo-400 border-indigo-600 text-white font-medium">Maker</div>
           ) : (
             ''
