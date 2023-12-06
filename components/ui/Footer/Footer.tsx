@@ -21,6 +21,7 @@ export default () => {
       name: 'Contact',
     },
     { name: 'OSS Friends', href: '/oss-friends' },
+    { name: 'NextJS Starter', href: 'https://nextjsstarter.com/?' },
   ];
 
   const usedTools = [
