@@ -1,3 +1,8 @@
 {
-  "crons": []
+  "crons": [
+    {
+      "path": "/api/cron/upvote-comment-notification",
+      "schedule": "30 10 * * *"
+    }
+  ]
 }

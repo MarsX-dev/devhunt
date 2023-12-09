@@ -5,7 +5,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 export async function GET() {
   const supabase = createBrowserClient();
   const commentService = new CommentService(supabase);
-  commentService.getAllComments().then(res => {
-    console.log(res);
-  });
+  // commentService.getAllComments().then(res => {
+  //   console.log(res);
+  // });
 }

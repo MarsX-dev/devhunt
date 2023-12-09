@@ -2,6 +2,7 @@ import type { Comment, InsertComment, UpdateComment } from '@/utils/supabase/typ
 import BaseDbService from './BaseDbService';
 import { type ExtendedComment } from '@/utils/supabase/CustomTypes';
 import { cache } from '@/utils/supabase/services/CacheService';
+import UsersService from '@/utils/supabase/services/users';
 
 export type ProductComment = Comment & { children?: ProductComment[] };
 
@@ -95,18 +96,29 @@ export default class CommentService extends BaseDbService {
       }));
   }
 
-  async getAllComments(): Promise<ProductComment[] | null> {
-    const key = 'all-comments';
+  async getAllComments(limit: number = 20): Promise<ProductComment[] | null> {
+    const key = `all-comments-${limit}`;
 
     return cache.get(key, async () => {
-      const { data, error } = await this.supabase
+      const { data: comments, error } = await this.supabase
         .from('comment')
-        .select('*, profiles (full_name, avatar_url, username)')
-        .order('created_at');
+        .select('*, profiles (id, full_name, avatar_url, username), products ( profiles!inner (id) )')
+        .order('created_at', { ascending: false });
+
+      // EXAMPLE OF USAGE
+      const userIds = comments
+        ?.map(c => [c.products?.profiles && c.products?.profiles?.id])
+        .flat()
+        .filter(uId => Boolean(uId));
+      const userWithEmailsMap = await new UsersService(this.supabase).getUserWithEmails(userIds);
+      comments?.forEach(c => {
+        c.products.profiles.email = userWithEmailsMap.get(c.products.profiles.id);
+        c.profiles.email = userWithEmailsMap.get(c.profiles.id);
+      });
 
       if (error !== null) throw new Error(error.message);
 
-      return this._getAllComments(data);
+      return this._getAllComments(comments);
     });
   }
 }
