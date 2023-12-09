@@ -2,7 +2,7 @@ import type { Comment, InsertComment, UpdateComment } from '@/utils/supabase/typ
 import BaseDbService from './BaseDbService';
 import { type ExtendedComment } from '@/utils/supabase/CustomTypes';
 import { cache } from '@/utils/supabase/services/CacheService';
-import UsersService from "@/utils/supabase/services/users";
+import UsersService from '@/utils/supabase/services/users';
 
 export type ProductComment = Comment & { children?: ProductComment[] };
 
@@ -103,13 +103,12 @@ export default class CommentService extends BaseDbService {
       const { data: comments, error } = await this.supabase
         .from('comment')
         .select('*, profiles (id, full_name, avatar_url, username), products ( profiles!inner (id) )')
-        .order('created_at', { ascending: false })
-        .limit(limit);
+        .order('created_at', { ascending: false });
 
       // EXAMPLE OF USAGE
-      const userIds = comments?.map((c) => [c.profiles.id, c.products.profiles.id]).flat();
-      const userWithEmailsMap = await (new UsersService(this.supabase)).getUserWithEmails(userIds);
-      comments?.forEach((c) => {
+      const userIds = comments?.map(c => [c.profiles.id, c.products.profiles.id]).flat();
+      const userWithEmailsMap = await new UsersService(this.supabase).getUserWithEmails(userIds);
+      comments?.forEach(c => {
         c.products.profiles.email = userWithEmailsMap.get(c.products.profiles.id);
         c.profiles.email = userWithEmailsMap.get(c.profiles.id);
       });
