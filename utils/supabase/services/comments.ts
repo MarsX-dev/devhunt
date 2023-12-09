@@ -1,8 +1,9 @@
-import type { Comment, InsertComment, UpdateComment } from '@/utils/supabase/types';
+import type { Comment, InsertComment, Product, UpdateComment } from '@/utils/supabase/types';
 import BaseDbService from './BaseDbService';
 import { type ExtendedComment } from '@/utils/supabase/CustomTypes';
 import { cache } from '@/utils/supabase/services/CacheService';
 import UsersService from '@/utils/supabase/services/users';
+import { groupByWithRef } from "@/utils/helpers";
 
 export type ProductComment = Comment & { children?: ProductComment[] };
 
@@ -120,5 +121,29 @@ export default class CommentService extends BaseDbService {
 
       return this._getAllComments(comments);
     });
+  }
+
+  async getCommentsGroupedByProducts(afterDate: Date): Promise<{ product: Partial<Product>; comments: Partial<Comment>[] }[]> {
+    const { data: comments, error } = await this.supabase
+      .from('comment')
+      .select('*, profiles (id, full_name, avatar_url, username), products ( id, name, profiles!inner (id) )')
+      .gte('created_at', afterDate.toISOString())
+      .eq('deleted', false)
+      .order('created_at', { ascending: false });
+
+    if (error !== null) throw new Error(error.message);
+
+    const userIds = comments?.map((c) => [c.products?.profiles?.id]).flat();
+    const userWithEmailsMap = await (new UsersService(this.supabase)).getUserWithEmails(userIds);
+    comments?.forEach((c) => {
+      c.products.profiles.email = userWithEmailsMap.get(c.products.profiles.id);
+    });
+
+    const groups = groupByWithRef(comments, (c) => c.products?.id, (c) => c.products);
+
+    return Object.values(groups).map((g) => ({
+      product: g.ref,
+      comments: g.items
+    }));
   }
 }
