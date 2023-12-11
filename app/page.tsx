@@ -50,7 +50,9 @@ export default function Home() {
   function prevWeekTools(group) {
     return (
       <>
-        <div className="mt-3 text-white text-sm">Previous week winners 👑</div>
+        <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
+          <p className="mt-8">Previous weeks winners 👑</p>
+        </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.slice(0, 3).map((product, idx) => (
             <ToolCardEffect key={idx} tool={product as ProductType} />
@@ -63,7 +65,9 @@ export default function Home() {
   function weekWinnerTools(products) {
     return (
       <>
-        <div className="mt-3 text-white text-sm">Previous weeks winners 👑</div>
+        <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
+          <p className="mt-8">Previous weeks winners 👑</p>
+        </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {products.map((product, idx) => (
             <ToolCardEffect key={idx} tool={product as ProductType} />
