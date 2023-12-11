@@ -12,7 +12,7 @@ export default [
   'Design',
   'Helpers',
   'Hosting',
-  'UI Lib',
+  'UI Library',
   'Marketing',
   'Emails',
   'Framework',
