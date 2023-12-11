@@ -53,7 +53,7 @@ export default class CommentService extends BaseDbService {
         .select('*, profiles (full_name, avatar_url, username)')
         .eq('product_id', productId)
         // .eq('deleted', false)    // we can hide removed comment content but we may still want to show its replies
-        .order('created_at');
+        .order('created_at', { ascending: false });
 
       if (error !== null) throw new Error(error.message);
 
