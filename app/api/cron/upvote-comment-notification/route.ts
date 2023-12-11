@@ -73,9 +73,10 @@ export async function GET(request: NextRequest) {
   groups.forEach(item => {
     const commentItem = item as Icomment;
     const email = commentItem.product.profiles.email;
-    if (!sentEmails.has(email) && commentItem.product.profiles.id != commentItem.comments[0].profiles.id) {
+    const userProfile = commentItem.comments[0].profiles;
+    if (!sentEmails.has(email) && commentItem.product.profiles.id != userProfile.id) {
       const { name, slug } = item.product;
-      sendNotification(email, slug as string, name as string, commentItem.comments[0].profiles.full_name);
+      sendNotification(email, slug as string, name as string, userProfile.full_name);
       sentEmails.add(email);
     }
   });

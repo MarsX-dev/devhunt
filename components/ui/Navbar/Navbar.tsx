@@ -14,22 +14,27 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { type Product } from '@/utils/supabase/types';
 import { IconSearch } from '@/components/Icons';
-import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import categories from '@/utils/categories';
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import NewsletterModal from '../NewsletterModal';
 import { BellAlertIcon, BellIcon } from '@heroicons/react/24/outline';
+import useOnclickOutside from 'react-cool-onclickoutside';
 
 export default () => {
   const [isActive, setActive] = useState(false);
   const [isNewsletterModalActive, setNewsletterModalActive] = useState(false);
   const [isBannerActive, setBannerActive] = useState(false);
+  const [isNavMenuActive, setNavMenuActive] = useState(false);
   const [isCommandActive, setCommandActive] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [searchResult, setSearchResult] = useState<Product[]>([]);
 
   const browserService = createBrowserClient();
   const toolsService = new ProductsService(browserService);
+
+  const NavMenuRef = useOnclickOutside(() => {
+    setNavMenuActive(false);
+  });
 
   const router = useRouter();
   const pathname = usePathname();
@@ -106,43 +111,46 @@ export default () => {
                   ''
                 )}
                 <li>
-                  <NavigationMenu.Root>
-                    <NavigationMenu.List className="">
-                      <NavigationMenu.Item>
-                        <NavigationMenu.Trigger className="flex items-center gap-x-2 hover:text-slate-200 group">
-                          Browse tools
-                          <ChevronDownIcon className="w-4 h-4 transition-transform duration-[250] ease-in group-data-[state=open]:-rotate-180" />
-                        </NavigationMenu.Trigger>
-                        <NavigationMenu.Content className="top-8 left-0 text-sm py-4 rounded-lg w-80 lg:px-4 lg:bg-slate-800 lg:absolute">
-                          <div className="space-y-4">
-                            <ul className="mt-2 space-y-3">
-                              {submenu.map((item, idx) => {
-                                return (
-                                  <li key={idx} className="hover:text-slate-200 duration-150">
-                                    <Link href={`${item.path}`} className="block">
-                                      {item.title}
-                                    </Link>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                            <h3 className="text-[0.855rem] font-medium text-slate-300">Categories</h3>
-                            <ul className="mt-2 gap-y-3 grid grid-cols-2">
-                              {categories.map((item, idx) => {
-                                return (
-                                  <li key={idx} className="hover:text-slate-200 duration-150">
-                                    <Link href={`/tools/${item.toLowerCase().replaceAll(' ', '-')}`} className="block">
-                                      {item}
-                                    </Link>
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </div>
-                        </NavigationMenu.Content>
-                      </NavigationMenu.Item>
-                    </NavigationMenu.List>
-                  </NavigationMenu.Root>
+                  <div ref={NavMenuRef} className="relative">
+                    <button
+                      onClick={() => setNavMenuActive(!isNavMenuActive)}
+                      className="flex items-center gap-x-2 hover:text-slate-200 group"
+                    >
+                      Browse tools
+                      <ChevronDownIcon className="w-4 h-4 transition-transform duration-[250] ease-in group-data-[state=open]:-rotate-180" />
+                    </button>
+                    <div
+                      className={`top-8 left-0 text-sm py-4 rounded-lg w-80 lg:px-4 lg:bg-slate-800 lg:absolute ${
+                        isNavMenuActive ? '' : 'hidden'
+                      }`}
+                    >
+                      <div className="space-y-4">
+                        <ul className="mt-2 space-y-3">
+                          {submenu.map((item, idx) => {
+                            return (
+                              <li key={idx} className="hover:text-slate-200 duration-150">
+                                <Link href={`${item.path}`} className="block">
+                                  {item.title}
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                        <h3 className="text-[0.855rem] font-medium text-slate-300">Categories</h3>
+                        <ul className="mt-2 gap-y-3 grid grid-cols-2">
+                          {categories.map((item, idx) => {
+                            return (
+                              <li key={idx} className="hover:text-slate-200 duration-150">
+                                <Link href={`/tools/${item.toLowerCase().replaceAll(' ', '-')}`} className="block">
+                                  {item}
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </li>
                 {navigation.map((item, idx) => {
                   return (
