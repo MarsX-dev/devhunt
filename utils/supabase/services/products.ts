@@ -1,8 +1,9 @@
 import { type ExtendedProduct } from '@/utils/supabase/CustomTypes';
 import BaseDbService from '@/utils/supabase/services/BaseDbService';
-import { type InsertProduct, type Product, type UpdateProduct } from '@/utils/supabase/types';
-import { omit } from '@/utils/helpers';
+import { Profile, type InsertProduct, type Product, type UpdateProduct } from '@/utils/supabase/types';
+import { groupByWithRef, omit } from '@/utils/helpers';
 import { cache } from '@/utils/supabase/services/CacheService';
+import UsersService from './users';
 
 export default class ProductsService extends BaseDbService {
   private readonly DEFULT_PRODUCT_SELECT = '*, product_pricing_types(*), product_categories(name, id)';
@@ -158,7 +159,7 @@ export default class ProductsService extends BaseDbService {
         week: i.week_number,
         startDate: new Date(i.start_date),
         endDate: new Date(i.end_date),
-        count: i.product_count
+        count: i.product_count,
       }));
     };
 
@@ -362,6 +363,52 @@ export default class ProductsService extends BaseDbService {
     if (error != null) throw new Error(error.message);
 
     return true;
+  }
+
+  // Related to getUpvotesGroupedByProducts
+  async getUserProfileById(id: string): Promise<Profile | null> {
+    const key = `users-${id}`;
+
+    return cache.get(
+      key,
+      async () => {
+        const { data } = await this.supabase.from('profiles').select().eq('id', id).single();
+        return data;
+      },
+      180,
+    );
+  }
+
+  async getUpvotesGroupedByProducts(afterDate: Date) {
+    const { data, error } = await this.supabase
+      .from('product_votes')
+      .select('*, products ( id, name, slug, profiles!inner (id) )')
+      .gte('created_at', afterDate.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error !== null) throw new Error(error.message);
+
+    const userIds = data?.map(c => [c.products?.profiles?.id]).flat();
+    const userWithEmailsMap = await new UsersService(this.supabase).getUserWithEmails(userIds);
+    data?.forEach(c => {
+      c.products.profiles.email = userWithEmailsMap.get(c.products.profiles.id);
+    });
+
+    const groups = groupByWithRef(
+      data,
+      c => c.products?.id,
+      c => c.products,
+    );
+
+    return Promise.all(
+      Object.values(groups).map(async g => ({
+        product: g.ref,
+        voter_data: {
+          full_name: (await this.getUserProfileById(g.items[0].user_id))?.full_name,
+          id: (await this.getUserProfileById(g.items[0].user_id))?.id,
+        },
+      })),
+    );
   }
 
   private async _getOne(column: string, value: unknown, select = this.DEFULT_PRODUCT_SELECT) {
