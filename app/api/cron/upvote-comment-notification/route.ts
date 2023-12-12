@@ -19,13 +19,36 @@ type Icomment = {
       id: string;
       full_name: string;
     };
+    content: string;
   }[];
 };
 
-async function sendNotification(email: string, slug: string, product_name: string, commenter: string) {
+// Get the token that will be passed to the email api as a token.
+async function getAuthToken() {
+  let data = JSON.stringify({
+    Organization: 'devhunt',
+    User: 'apiuser',
+    Password: process.env.AUTH_TOKEN_PASSWORD,
+  });
+
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://apinie.sensorpro.net/auth/sys/signin',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-apikey': process.env.AUTH_TOKEN_API_KEY,
+    },
+    data: data,
+  };
+
+  return await axios.request(config);
+}
+
+async function sendNotification(email: string, slug: string, product_name: string, commenter: string, comment: string, token: string) {
   try {
     const response = await axios.post(
-      `https://apinie.sensorpro.net/api/Campaign/TriggerEmail/${process.env.NOTIFICATION_API_KEY}`,
+      `https://apinie.sensorpro.net/api/Campaign/TriggerEmail/${token}`,
       {
         CampId: 'eaa0d0ff-6367-46c7-a464-94abd837ac31',
         BroadcastId: 1,
@@ -36,7 +59,8 @@ async function sendNotification(email: string, slug: string, product_name: strin
         NamedPairsParameters: {
           toolname: product_name,
           link: `devhunt.org/tool/${slug}#comments`,
-          comment: `you got a new comment on your product ${product_name} from ${commenter}`,
+          author: commenter,
+          comment,
           commentlink: `devhunt.org/tool/${slug}#comments`,
         },
       },
@@ -55,13 +79,14 @@ async function sendNotification(email: string, slug: string, product_name: strin
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
-  console.log(authHeader);
 
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized', {
       status: 401,
     });
   }
+
+  const getToken = (await getAuthToken()).data.Token;
 
   const commentService = new CommentService(createServerClient());
 
@@ -76,7 +101,8 @@ export async function GET(request: NextRequest) {
     const userProfile = commentItem.comments[0].profiles;
     if (!sentEmails.has(email) && commentItem.product.profiles.id != userProfile.id) {
       const { name, slug } = item.product;
-      sendNotification(email, slug as string, name as string, userProfile.full_name);
+
+      sendNotification(email, slug as string, name as string, userProfile.full_name, commentItem.comments[0].content, getToken);
       sentEmails.add(email);
     }
   });

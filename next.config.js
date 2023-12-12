@@ -17,7 +17,8 @@ const nextConfig = {
     WELCOME_EMAIL_API_KEY: process.env.WELCOME_EMAIL_API_KEY,
     SIGNUP_FORM_ID: process.env.SIGNUP_FORM_ID,
     NEWSLETTER_FORM_ID: process.env.NEWSLETTER_FORM_ID,
-    NOTIFICATION_API_KEY: process.env.NOTIFICATION_API_KEY,
+    AUTH_TOKEN_PASSWORD: process.env.AUTH_TOKEN_PASSWORD,
+    AUTH_TOKEN_API_KEY: process.env.AUTH_TOKEN_API_KEY,
   },
   images: {
     remotePatterns: [
