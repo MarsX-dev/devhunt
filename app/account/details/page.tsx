@@ -26,6 +26,7 @@ function Profile() {
   const [isEmailTyping, setEmailTyping] = useState(false);
   const [about, setAbout] = useState('');
   const [headline, setHeadLine] = useState('');
+  const [socialMediaLink, setSocialMediaLink] = useState('');
 
   const [avatar, setAvatar] = useState('/user.svg');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -36,12 +37,14 @@ function Profile() {
   const [websiteUrlError, setWebsiteUrlError] = useState('');
   const [aboutError, setAboutError] = useState('');
   const [headlineError, setHeadLineError] = useState('');
+  const [socialMediaLinkError, setSocialMediaLinkError] = useState('');
 
   useEffect(() => {
     profile.then(res => {
       setAvatar((user?.avatar_url as string) || '/user.svg');
       setFullName(res?.full_name || '');
       setUsername(res?.username || '');
+      setSocialMediaLink(res?.social_url || '');
       setAbout(res?.about || '');
       setWebsiteUrl(res?.website_url || '');
       setEmail(userSession?.user_metadata.email || '');
@@ -52,9 +55,10 @@ function Profile() {
   const formValidator = () => {
     setFullNameError('');
     setWebsiteUrlError('');
+    setSocialMediaLinkError('');
     if (fullName.length < 2) setFullNameError('Please enter a correct full name');
     if (username.length < 4) setUsernameError('the username should at least be 4 chars or more');
-    if (websiteUrl && !validateURL(websiteUrl)) setWebsiteUrlError('Please enter a valid URL');
+    if (!socialMediaLink && !validateURL(socialMediaLink)) setSocialMediaLinkError('Please enter a valid URL');
     else return true;
   };
 
@@ -71,6 +75,7 @@ function Profile() {
           about,
           headline,
           website_url: websiteUrl,
+          social_url: socialMediaLink,
         })
         .then(() => {
           setLoad(false);
@@ -140,7 +145,18 @@ function Profile() {
               )}
             </div>
             <div>
-              <Label>Headline</Label>
+              <Label>Social Media URL</Label>
+              <Input
+                value={socialMediaLink}
+                onChange={e => {
+                  setSocialMediaLink((e.target as HTMLInputElement).value);
+                }}
+                className="w-full mt-2"
+              />
+              <LabelError className="mt">{socialMediaLinkError}</LabelError>
+            </div>
+            <div>
+              <Label>Headline (optional)</Label>
               <Input
                 value={headline}
                 onChange={e => {
@@ -151,7 +167,7 @@ function Profile() {
               <LabelError>{headlineError}</LabelError>
             </div>
             <div>
-              <Label>Website URL</Label>
+              <Label>Website URL (optional)</Label>
               <Input
                 value={websiteUrl}
                 onChange={e => {
@@ -162,7 +178,7 @@ function Profile() {
               <LabelError>{websiteUrlError}</LabelError>
             </div>
             <div>
-              <Label>About</Label>
+              <Label>About (optional)</Label>
               <Textarea
                 value={about}
                 onChange={e => {

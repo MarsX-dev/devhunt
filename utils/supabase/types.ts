@@ -492,6 +492,7 @@ export interface Database {
           updated_at: string | null;
           username: string | null;
           website_url: string | null;
+          social_url: string | null;
         };
         Insert: {
           about?: string | null;
@@ -503,6 +504,7 @@ export interface Database {
           updated_at?: string | null;
           username?: string | null;
           website_url?: string | null;
+          social_url: string | null;
         };
         Update: {
           about?: string | null;
@@ -514,6 +516,7 @@ export interface Database {
           updated_at?: string | null;
           username?: string | null;
           website_url?: string | null;
+          social_url: string | null;
         };
         Relationships: [
           {
