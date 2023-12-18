@@ -29,6 +29,7 @@ import { useRouter } from 'next/navigation';
 import TrendingToolsList from './TrendingToolsList';
 import WinnerBadge from '../WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
+import VoterAvatarsList from '../VoterAvatarsList';
 
 export default ({ href, tool, close }: { href: string; tool: ProductType; close: () => void }) => {
   // const window = new JSDOM('').window;
@@ -188,6 +189,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 </div>
               )}
             </div>
+            <VoterAvatarsList productId={tool?.id} />
           </div>
           <CommentSection productId={tool?.owner_id as string} comments={comments as any} slug={tool?.slug} />
           {/* Keep doing based on Product interface */}

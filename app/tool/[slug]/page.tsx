@@ -26,6 +26,7 @@ import addHttpsToUrl from '@/utils/addHttpsToUrl';
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 import WinnerBadge from '@/components/ui/WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
+import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -192,6 +193,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               </div>
             )}
           </div>
+          <VoterAvatarsList productId={product.id} />
         </div>
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         {/* Keep doing based on Product interface */}
