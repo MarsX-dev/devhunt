@@ -1,5 +1,4 @@
 import CommentService from '@/utils/supabase/services/comments';
-import { createServerClient } from '@/utils/supabase/server';
 import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
@@ -85,7 +84,7 @@ export async function GET(request: NextRequest) {
   const commentService = new CommentService(createBrowserClient());
   const initCommentLogsService = await commentLogsService();
 
-  const dayAgo = moment().add(-1, 'day').toDate();
+  const dayAgo = moment().add(-2, 'day').toDate();
 
   const groups = await commentService.getCommentsGroupedByProducts(dayAgo);
 
