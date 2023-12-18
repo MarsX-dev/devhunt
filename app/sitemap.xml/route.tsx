@@ -38,7 +38,7 @@ async function generateSiteMap() {
        .map(slug => {
          return `
           <url>
-              <loc>${`${URL}/tools/${slug.toLowerCase().replaceAll(' ', '-')}`}</loc>
+              <loc>${`${URL}/tools/${slug.name.toLowerCase().replaceAll(' ', '-')}`}</loc>
           </url>
         `;
        })

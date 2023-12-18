@@ -141,8 +141,8 @@ export default () => {
                           {categories.map((item, idx) => {
                             return (
                               <li key={idx} className="hover:text-slate-200 duration-150">
-                                <Link href={`/tools/${item.toLowerCase().replaceAll(' ', '-')}`} className="block">
-                                  {item}
+                                <Link href={`/tools/${item.name.toLowerCase().replaceAll(' ', '-')}`} className="block">
+                                  {item.name}
                                 </Link>
                               </li>
                             );
