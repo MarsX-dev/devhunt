@@ -23,7 +23,7 @@ export default ({
   variant = 'default',
   className = '',
   classNameContainer,
-  onCancel,
+  onCancel = () => {},
 }: Props) => {
   return isActive ? (
     <div className="fixed w-full h-full inset-0 z-40 overflow-y-auto">

@@ -108,8 +108,9 @@ function Profile() {
         <form onSubmit={handleSubmit} className="mt-4">
           <div className="space-y-4">
             <div>
-              <Label>Full name</Label>
+              <Label>Full name (required)</Label>
               <Input
+                required
                 value={fullName}
                 onChange={e => {
                   setFullName((e.target as HTMLInputElement).value);
@@ -119,8 +120,9 @@ function Profile() {
               <LabelError className="mt">{fullNameError}</LabelError>
             </div>
             <div>
-              <Label>Username</Label>
+              <Label>Username (required)</Label>
               <Input
+                required
                 value={username}
                 onChange={e => {
                   setUsername((e.target as HTMLInputElement).value);
@@ -145,8 +147,10 @@ function Profile() {
               )}
             </div>
             <div>
-              <Label>Social Media URL</Label>
+              <Label>Social Media URL (required)</Label>
               <Input
+                required
+                placeholder="Twitter/Linkedin/Facebook or Any other social media"
                 value={socialMediaLink}
                 onChange={e => {
                   setSocialMediaLink((e.target as HTMLInputElement).value);
@@ -180,6 +184,7 @@ function Profile() {
             <div>
               <Label>About (optional)</Label>
               <Textarea
+                placeholder="Tell a bit about yourself. This page is gonna be visited by other developers."
                 value={about}
                 onChange={e => {
                   setAbout((e.target as HTMLInputElement).value);

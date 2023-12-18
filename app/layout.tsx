@@ -16,6 +16,7 @@ import ProgressBarClient from '@/components/ui/ProgressBarClient';
 import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCodeClient';
 
 import dynamic from 'next/dynamic';
+import ProfileFormModal from '@/components/ui/ProfileFormModal';
 
 const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
@@ -113,6 +114,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ChatWindow />
           <SupabaseProvider user={profile as Profile} session={session}>
             <SupabaseListener serverAccessToken={session?.access_token} />
+            <ProfileFormModal isModalOpen={user && profile?.social_url ? false : true} />
             <Banner />
             <Navbar />
             <ModalBannerCodeClient />
