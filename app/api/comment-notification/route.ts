@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
 
   const groups = await commentService.getCommentsGroupedByProducts(dayAgo);
 
-  if ((await initCommentLogsService.getTodayLog(dayAgo)).length == 0) {
+  if ((await initCommentLogsService.getTodayLog()).length == 0) {
     const sentEmails = new Set();
     groups.forEach(item => {
       const commentItem = item as Icomment;

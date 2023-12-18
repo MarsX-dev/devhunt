@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { supabase } from './supabaseClient';
 
 export function commentLogsService() {
@@ -13,7 +14,8 @@ export function commentLogsService() {
       if (error) throw error;
       return data;
     },
-    getTodayLog: async function (todayDate: Date) {
+    getTodayLog: async function () {
+      const todayDate = moment().add(-1, 'day').toDate();
       const { error, data } = await supabase.from('cron_comment_logs').select('*').gte('created_at', todayDate.toISOString());
 
       if (error) throw error;
@@ -35,7 +37,8 @@ export async function upvoteLogsService() {
       if (error) throw error;
       return data;
     },
-    getTodayLog: async function (todayDate: Date) {
+    getTodayLog: async function () {
+      const todayDate = moment().add(-1, 'day').toDate();
       const { error, data } = await supabase.from('cron_upvote_logs').select('*').gte('created_at', todayDate.toISOString());
 
       if (error) throw error;
