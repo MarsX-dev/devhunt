@@ -1,24 +1,24 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import CommentFormSection from './CommentFormSection'
-import CommentsSection from './CommentsSection'
-import type { Comment as CommentType, Product } from '@/utils/supabase/types'
-import { useSupabase } from '@/components/supabase/provider'
+import { useEffect, useState } from 'react';
+import CommentFormSection from './CommentFormSection';
+import CommentsSection from './CommentsSection';
+import type { Comment as CommentType, Product } from '@/utils/supabase/types';
+import { useSupabase } from '@/components/supabase/provider';
 
 interface CommentTypeProp extends CommentType {
   profiles: {
-    avatar_url: string
-    full_name: string
-  }
+    avatar_url: string;
+    full_name: string;
+  };
 }
 
 export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; slug: string; productId: string }) => {
-  const { user } = useSupabase()
-  const [commentsCollection, setCommentsCollection] = useState<CommentTypeProp[]>(comments)
+  const { user } = useSupabase();
+  const [commentsCollection, setCommentsCollection] = useState<CommentTypeProp[]>(comments);
   useEffect(() => {
-    setCommentsCollection(comments)
-  }, [comments])
+    setCommentsCollection(comments);
+  }, [comments]);
 
   return (
     <div className="container-custom-screen" id="comments">
@@ -34,5 +34,5 @@ export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; sl
         <CommentsSection productId={productId} comments={commentsCollection as any} />
       </div>
     </div>
-  )
-}
+  );
+};

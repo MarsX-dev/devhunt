@@ -1,5 +1,4 @@
 import type { Comment as CommentType } from '@/utils/supabase/types';
-import { useSupabase } from '@/components/supabase/provider';
 import CommentSingle from './CommentSingle';
 import { Comments } from '../Comment';
 

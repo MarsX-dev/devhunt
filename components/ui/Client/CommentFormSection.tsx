@@ -16,10 +16,10 @@ export default ({
   comments,
   setCommentsCollection = () => '',
 }: {
-  slug: string
-  userAvatar: string
-  comments: any
-  setCommentsCollection?: (val: any) => void
+  slug: string;
+  userAvatar: string;
+  comments: any;
+  setCommentsCollection?: (val: any) => void;
 }) => {
   const { session } = useSupabase();
   const user = session && session.user;
@@ -61,25 +61,22 @@ export default ({
         {user ? <CommentUserAvatar src={userAvatar} /> : <CommentUserAvatar src="/user.svg" />}
         <CommentTextarea
           value={comment}
-          onChange={e => { setComment((e.target as HTMLTextAreaElement).value); }}
+          onChange={e => {
+            setComment((e.target as HTMLTextAreaElement).value);
+          }}
           placeholder="Type here..."
         />
       </CommentFormWrapper>
       <div className="mt-3 flex justify-end">
-        {user
-          ? (
-          <Button
-            isLoad={isLoad}
-            className={`text-sm bg-slate-800 hover:bg-slate-700 ${isLoad ? 'pointer-events-none opacity-60' : ''}`}
-          >
+        {user ? (
+          <Button isLoad={isLoad} className={`text-sm bg-slate-800 hover:bg-slate-700 ${isLoad ? 'pointer-events-none opacity-60' : ''}`}>
             Comment
           </Button>
-            )
-          : (
+        ) : (
           <LinkShiny href="/login" className="text-sm bg-slate-800 hover:bg-slate-700">
             Login to comment
           </LinkShiny>
-            )}
+        )}
       </div>
       <LabelError>{fieldError}</LabelError>
     </CommentForm>
