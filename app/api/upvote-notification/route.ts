@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
 
   const groups = await productsService.getUpvotesGroupedByProducts(dayAgo);
 
-  if ((await initUpvoteLogsService.getTodayLog()).length == 0) {
+  if ((await initUpvoteLogsService.getTodayLog(dayAgo)).length == 0) {
     const sentEmails = new Set();
     groups.forEach(item => {
       const voteItem = item as IVote;
