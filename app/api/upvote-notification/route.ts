@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import ProductsService from '@/utils/supabase/services/products';
 import { upvoteLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
+import { createBrowserClient } from '@/utils/supabase/browser';
 
 type IVote = {
   product: {
@@ -74,31 +75,31 @@ async function sendNotification(email: string, slug: string, product_name: strin
 }
 
 export async function GET(request: NextRequest) {
-  // const getToken = (await getAuthToken()).data.Token;
+  const getToken = (await getAuthToken()).data.Token;
 
-  const productsService = new ProductsService(createServerClient());
-  // const initUpvoteLogsService = await upvoteLogsService();
+  const productsService = new ProductsService(createBrowserClient());
+  const initUpvoteLogsService = await upvoteLogsService();
 
   const dayAgo = moment().add(-1, 'day').toDate();
 
   const groups = await productsService.getUpvotesGroupedByProducts(dayAgo);
 
-  // if ((await initUpvoteLogsService.getTodayLog()).length == 0) {
-  const sentEmails = new Set();
-  groups.forEach(item => {
-    const voteItem = item as IVote;
-    const email = voteItem.product.profiles.email;
-    const userProfile = voteItem.voter_data;
-    if (!sentEmails.has(email) && voteItem.product.profiles.id != userProfile.id) {
-      const { name, slug } = item.product;
+  if ((await initUpvoteLogsService.getTodayLog()).length == 0) {
+    const sentEmails = new Set();
+    groups.forEach(item => {
+      const voteItem = item as IVote;
+      const email = voteItem.product.profiles.email;
+      const userProfile = voteItem.voter_data;
+      if (!sentEmails.has(email) && voteItem.product.profiles.id != userProfile.id) {
+        const { name, slug } = item.product;
 
-      // sendNotification(email, slug as string, name as string, userProfile.full_name, getToken);
-      sentEmails.add(email);
-    }
-  });
+        sendNotification(email, slug as string, name as string, userProfile.full_name, getToken);
+        sentEmails.add(email);
+      }
+    });
 
-  //   await initUpvoteLogsService.insertUpvoteLogs({ upvotes_number: groups.length, emails_sent: sentEmails.size });
-  // }
+    await initUpvoteLogsService.insertUpvoteLogs({ upvotes_number: groups.length, emails_sent: sentEmails.size });
+  }
 
   return NextResponse.json({ success: true });
 }

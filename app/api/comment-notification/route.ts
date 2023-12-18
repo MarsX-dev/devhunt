@@ -4,6 +4,7 @@ import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { commentLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
+import { createBrowserClient } from '@/utils/supabase/browser';
 
 type Icomment = {
   product: {
@@ -81,29 +82,29 @@ async function sendNotification(email: string, slug: string, product_name: strin
 export async function GET(request: NextRequest) {
   const getToken = (await getAuthToken()).data.Token;
 
-  const commentService = new CommentService(createServerClient());
-  // const initCommentLogsService = await commentLogsService();
+  const commentService = new CommentService(createBrowserClient());
+  const initCommentLogsService = await commentLogsService();
 
   const dayAgo = moment().add(-1, 'day').toDate();
 
   const groups = await commentService.getCommentsGroupedByProducts(dayAgo);
 
-  // if ((await initCommentLogsService.getTodayLog()).length == 0) {
-  const sentEmails = new Set();
-  groups.forEach(item => {
-    const commentItem = item as Icomment;
-    const email = commentItem.product.profiles.email;
-    const userProfile = commentItem.comments[0].profiles;
-    if (!sentEmails.has(email) && commentItem.product.profiles.id != userProfile.id) {
-      const { name, slug } = item.product;
+  if ((await initCommentLogsService.getTodayLog()).length == 0) {
+    const sentEmails = new Set();
+    groups.forEach(item => {
+      const commentItem = item as Icomment;
+      const email = commentItem.product.profiles.email;
+      const userProfile = commentItem.comments[0].profiles;
+      if (!sentEmails.has(email) && commentItem.product.profiles.id != userProfile.id) {
+        const { name, slug } = item.product;
 
-      // sendNotification(email, slug as string, name as string, userProfile.full_name, commentItem.comments[0].content, getToken);
-      sentEmails.add(email);
-    }
-  });
+        sendNotification(email, slug as string, name as string, userProfile.full_name, commentItem.comments[0].content, getToken);
+        sentEmails.add(email);
+      }
+    });
 
-  //   await initCommentLogsService.insertCommentLogs({ comments_number: groups.length, emails_sent: sentEmails.size });
-  // }
+    await initCommentLogsService.insertCommentLogs({ comments_number: groups.length, emails_sent: sentEmails.size });
+  }
 
   return NextResponse.json({ success: true });
 }
