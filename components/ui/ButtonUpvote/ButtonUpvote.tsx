@@ -10,6 +10,7 @@ import Modal from '../Modal';
 import customDateFromNow from '@/utils/customDateFromNow';
 import { IconInformationCircle } from '@/components/Icons';
 import LinkItem from '../Link/LinkItem';
+import ProfileService from '@/utils/supabase/services/profile';
 
 interface Props extends React.HTMLAttributes<HTMLButtonElement> {
   count: number;
@@ -24,6 +25,7 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   // client only -- move to client component for Voting
   const { session } = useSupabase();
   const productsService = new ProductsService(createBrowserClient());
+  const profileService = new ProfileService(createBrowserClient());
   const router = useRouter();
   const [votesCount, setVotesCount] = useState(count);
   const [isUpvoted, setUpvoted] = useState(false);
@@ -36,6 +38,7 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
 
   const toggleVote = async () => {
+    const profile = session && session.user ? await profileService.getByIdWithNoCache(session.user?.id) : null;
     if (session && session.user) {
       setMoadlInfo(
         new Date(launchEnd).getTime() >= Date.now()
@@ -49,13 +52,14 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
         voteCountEffect();
         setTimeout(() => setVotesCount(newVotesCount), 50);
       } else setModalActive(true);
-    } else router.push('/login');
+    } else if (!session) router.push('/login');
+    else if (profile && !profile?.social_url == null) window.location.reload();
   };
 
   useEffect(() => {
     session && session.user
       ? productsService.getUserVoteById(session.user.id, productId as number).then(data => {
-          if (data?.user_id) setUpvoted(true);
+          if ((data as { user_id: string })?.user_id) setUpvoted(true);
           else setUpvoted(false);
         })
       : null;

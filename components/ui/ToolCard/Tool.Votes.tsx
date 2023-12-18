@@ -12,6 +12,7 @@ import customDateFromNow from '@/utils/customDateFromNow';
 import LinkItem from '../Link/LinkItem';
 import Button from '../Button/Button';
 import { createPortal } from 'react-dom';
+import ProfileService from '@/utils/supabase/services/profile';
 
 export default ({
   count,
@@ -28,6 +29,7 @@ export default ({
 }) => {
   const { session } = useSupabase();
   const productsService = new ProductsService(createBrowserClient());
+  const profileService = new ProfileService(createBrowserClient());
   const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
 
   const router = useRouter();
@@ -37,6 +39,7 @@ export default ({
   const [modalInfo, setMoadlInfo] = useState({ title: '', desc: '' });
 
   const toggleVote = async () => {
+    const profile = session && session.user ? await profileService.getByIdWithNoCache(session.user?.id) : null;
     if (session && session.user) {
       setMoadlInfo(
         new Date(launchEnd).getTime() >= Date.now()
@@ -49,7 +52,8 @@ export default ({
         setUpvoted(!isUpvoted);
         setVotesCount(newVotesCount);
       } else setModalActive(true);
-    } else router.push('/login');
+    } else if (!session) router.push('/login');
+    else if (profile && !profile?.social_url == null) window.location.reload();
   };
 
   useEffect(() => {

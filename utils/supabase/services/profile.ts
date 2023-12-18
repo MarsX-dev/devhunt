@@ -41,6 +41,13 @@ export default class ProfileService extends BaseDbService {
     );
   }
 
+  async getByIdWithNoCache(id: string): Promise<Profile | null> {
+    const key = `users-${id}`;
+
+    const { data } = await this.supabase.from('profiles').select().eq('id', id).single();
+    return data;
+  }
+
   async getByUsername(username: string): Promise<Profile | null> {
     const key = `users-username-${username}`;
 
