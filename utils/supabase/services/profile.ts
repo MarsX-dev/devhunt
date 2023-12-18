@@ -47,7 +47,7 @@ export default class ProfileService extends BaseDbService {
     return cache.get(
       key,
       async () => {
-        const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
+        const { data, error } = await this.supabase.from('profiles').select().ilike('username', `%${username}%`).single();
         return data;
       },
       180,
