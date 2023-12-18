@@ -26,7 +26,7 @@ export default ({ productId }: { productId: number }) => {
           <Tooltip.Provider delayDuration={200}>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
-                <Link href={`/@${item.username}`} title={item.full_name as string}>
+                <Link href={`/@${item.username}`}>
                   <Avatar.Root key={idx}>
                     <Avatar.Image
                       className="w-full h-full object-cover rounded-xl"
