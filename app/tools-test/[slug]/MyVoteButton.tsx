@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import customDateFromNow from '@/utils/customDateFromNow';
 import LinkItem from '@/components/ui/Link/LinkItem';
 import Button from '@/components/ui/Button/Button';
-import { createPortal } from 'react-dom';
 import ProfileService from '@/utils/supabase/services/profile';
 
 export default ({
@@ -79,26 +78,24 @@ export default ({
         <IconVote className="mt-1 w-4 h-4 mx-auto pointer-events-none" />
         <span className="text-sm pointer-events-none">{votesCount}</span>
       </button>
-      {createPortal(
-        <Modal
-          isActive={isModalActive}
-          icon={<IconInformationCircle className="text-blue-500 w-6 h-6" />}
-          title={modalInfo.title}
-          description={modalInfo.desc}
-          onCancel={() => setModalActive(false)}
+      <Modal
+        isActive={isModalActive}
+        icon={<IconInformationCircle className="text-blue-500 w-6 h-6" />}
+        title={modalInfo.title}
+        description={modalInfo.desc}
+        onCancel={() => setModalActive(false)}
+      >
+        <LinkItem href="/" className="flex-1 block w-full text-sm bg-orange-500 hover:bg-orange-400">
+          Explore other tools
+        </LinkItem>
+        <Button
+          onClick={() => setModalActive(false)}
+          className="flex-1 block w-full text-sm border border-slate-700 bg-transparent hover:bg-slate-900 mt-2 sm:mt-0"
         >
-          <LinkItem href="/" className="flex-1 block w-full text-sm bg-orange-500 hover:bg-orange-400">
-            Explore other tools
-          </LinkItem>
-          <Button
-            onClick={() => setModalActive(false)}
-            className="flex-1 block w-full text-sm border border-slate-700 bg-transparent hover:bg-slate-900 mt-2 sm:mt-0"
-          >
-            Continue
-          </Button>
-        </Modal>,
-        document.body,
-      )}
+          Continue
+        </Button>
+      </Modal>
+      ,
     </>
   );
 };
