@@ -8,6 +8,10 @@ import Title from '@/components/ui/ToolCard/Tool.Title';
 import Votes from '@/components/ui/ToolCard/Tool.Votes';
 import ToolCard from '@/components/ui/ToolCard/ToolCard';
 
+function preventDefault(e: MouseEvent) {
+  e.preventDefault();
+}
+
 export interface ITool extends Product {
   product_pricing_types: {
     title: string;

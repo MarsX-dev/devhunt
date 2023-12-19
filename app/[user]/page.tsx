@@ -133,10 +133,16 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
                     </Link>
                     <ToolCardLink className="mt-3 border border-slate-800 px-2 sm:px-4" href={'/tool/' + item.products.slug}>
-                      <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
+                      <Link href={'/tool/' + item.products.slug}>
+                        <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
+                      </Link>
                       <div className="space-y-1">
-                        <Name href={item.products.demo_url as string}>{item.products.name}</Name>
-                        <Title className="line-clamp-2">{item.products.slogan}</Title>
+                        <Name toolHref={'/tool/' + item.products.slug} href={item.products.demo_url as string}>
+                          {item.products.name}
+                        </Name>
+                        <Link href={'/tool/' + item.products.slug}>
+                          <Title className="line-clamp-2">{item.products.slogan}</Title>
+                        </Link>
                       </div>
                       <div className="flex-1 self-center flex justify-end">
                         <Votes
