@@ -38,11 +38,6 @@ export default ({ href, className, tool, children }: { href: string; className?:
     });
   }, []);
 
-  useEffect(() => {
-    document.body.classList.remove('overflow-hidden');
-    document.getElementById('nprogress')?.classList.remove('hidden');
-  }, [router]);
-
   return (
     <>
       <Link

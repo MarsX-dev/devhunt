@@ -12,7 +12,6 @@ import type { SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import Footer from '@/components/ui/Footer/Footer';
 import ProfileService from '@/utils/supabase/services/profile';
 import Banner from '@/components/ui/Banner';
-import ProgressBarClient from '@/components/ui/ProgressBarClient';
 import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCodeClient';
 
 import dynamic from 'next/dynamic';
@@ -120,7 +119,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Navbar />
             <ModalBannerCodeClient />
             {children}
-            {/* <ProgressBarClient /> */}
             <Footer />
           </SupabaseProvider>
         </main>
