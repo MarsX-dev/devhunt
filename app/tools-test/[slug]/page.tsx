@@ -6,6 +6,7 @@ import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import Page404 from '@/components/ui/Page404/Page404';
 import { Product } from '@/utils/supabase/types';
 import { createServerClient } from '@/utils/supabase/server';
+import ToolCardList from '@/components/ui/ToolCardList';
 
 const getOriginalSlug = (slug: string) => {
   const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.name.toLowerCase());
@@ -61,9 +62,9 @@ export default async ({ params: { slug } }: { params: { slug: string } }) => {
         <>
           <h1 className="text-xl text-slate-50 font-extrabold">Best {getOriginalSlug(slug)} tools</h1>
           <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
-            {/* {products.map((product: Product, idx: number) => (
-              <ToolCardEffect key={idx} tool={product as any} />
-            ))} */}
+            {products.map((product: Product, idx: number) => (
+              <ToolCardList key={idx} tool={product as any} />
+            ))}
           </ul>
         </>
       </>
