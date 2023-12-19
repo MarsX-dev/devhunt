@@ -1,11 +1,11 @@
 import { Metadata } from 'next';
 import categories from '@/utils/categories';
+import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import CategoryService from '@/utils/supabase/services/categories';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import Page404 from '@/components/ui/Page404/Page404';
 import { Product } from '@/utils/supabase/types';
-import { createServerClient } from '@/utils/supabase/server';
 
 const getOriginalSlug = (slug: string) => {
   const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.name.toLowerCase());
@@ -35,8 +35,8 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 }
 
 export default async ({ params: { slug } }: { params: { slug: string } }) => {
-  const productService = new ProductsService(createServerClient());
-  const categoryService = new CategoryService(createServerClient());
+  const productService = new ProductsService(createBrowserClient());
+  const categoryService = new CategoryService(createBrowserClient());
 
   const categoryName = getOriginalSlug(slug);
 
