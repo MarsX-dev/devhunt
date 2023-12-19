@@ -7,7 +7,6 @@ import Tags from '@/components/ui/ToolCard/Tool.Tags';
 import Title from '@/components/ui/ToolCard/Tool.Title';
 import Votes from '@/components/ui/ToolCard/Tool.Votes';
 import ToolCard from '@/components/ui/ToolCard/ToolCard';
-import Link from 'next/link';
 
 export interface ITool extends Product {
   product_pricing_types: {
@@ -31,7 +30,7 @@ export default ({ tool }: { tool: ITool }) => (
         />
       </div>
       <div className="flex-1 self-center flex justify-end">
-        <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
+        <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end as string} />
       </div>
     </ToolCard>
   </li>

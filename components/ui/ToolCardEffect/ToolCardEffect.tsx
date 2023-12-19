@@ -10,10 +10,9 @@ import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
 import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import { type ProductType } from '@/type';
 import { useInView } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
-import Link from 'next/link';
 
 export default ({ tool }: { tool: ProductType }) => {
   const cardRef = useRef(null);
@@ -38,7 +37,7 @@ export default ({ tool }: { tool: ProductType }) => {
           </div>
         </div>
         <div className={`flex-1 self-center flex justify-end duration-1000 delay-150 ${isInView ? 'opacity-100 mt-0' : 'opacity-0 mt-8'}`}>
-          <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
+          <Votes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end as string} />
         </div>
       </ToolCard>
     </li>
