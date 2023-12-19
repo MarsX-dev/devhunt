@@ -40,14 +40,16 @@ export default ({ href, className, tool, children }: { href: string; className?:
 
   return (
     <>
-      <Link
-        href={href}
-        onClick={handleClick}
-        className={mergeTW(`flex items-start gap-x-4 relative py-4 rounded-2xl cursor-pointer group group/card ${className}`)}
-      >
-        {children}
+      <div className="relative group group/card">
+        <Link
+          href={href}
+          onClick={handleClick}
+          className={mergeTW(`flex items-start gap-x-4 relative py-4 rounded-2xl cursor-pointer ${className}`)}
+        >
+          {children}
+        </Link>
         <div className="absolute -z-10 -inset-2 rounded-2xl group-hover:bg-slate-800/60 opacity-0 group-hover:opacity-100 duration-150 sm:-inset-3"></div>
-      </Link>
+      </div>
       {isToolViewActive ? <ToolViewModal close={closeViewModal} tool={toolState as ProductType} href={href} /> : ''}
     </>
   );

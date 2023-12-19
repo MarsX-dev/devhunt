@@ -10,7 +10,7 @@ import Logo from '@/components/ui/ToolCard/Tool.Logo';
 import Name from '@/components/ui/ToolCard/Tool.Name';
 import Tags from '@/components/ui/ToolCard/Tool.Tags';
 import Title from '@/components/ui/ToolCard/Tool.Title';
-import Votes from '@/components/ui/ToolCard/Tool.Votes';
+import Votes from './MyVoteButton';
 import ToolCard from '@/components/ui/ToolCard/ToolCard';
 
 const getOriginalSlug = (slug: string) => {
@@ -79,6 +79,14 @@ export default async ({ params: { slug } }: { params: { slug: string } }) => {
                         (product.product_pricing_types as { title: string }).title || 'Free',
                         ...(product.product_categories as { name: string }[]).map((c: { name: string }) => c.name),
                       ]}
+                    />
+                  </div>
+                  <div className="flex-1 self-center flex justify-end">
+                    <Votes
+                      count={product.votes_count}
+                      productId={product?.id}
+                      launchDate={product.launch_date}
+                      launchEnd={product.launch_end}
                     />
                   </div>
                 </ToolCard>
