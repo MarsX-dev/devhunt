@@ -146,6 +146,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 launchEnd={tool.launch_end as string}
               />
             </div>
+            <div className="mt-10">{owner ? <VoterAvatarsList productId={tool.id} owner={owner as Profile} /> : ''}</div>
           </div>
         </div>
         <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-0 z-10 bg-slate-900">
@@ -189,7 +190,6 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 </div>
               )}
             </div>
-            <VoterAvatarsList productId={tool?.id} />
           </div>
           <CommentSection productId={tool?.owner_id as string} comments={comments as any} slug={tool?.slug} />
           {/* Keep doing based on Product interface */}

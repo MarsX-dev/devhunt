@@ -27,6 +27,7 @@ const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsLis
 import WinnerBadge from '@/components/ui/WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
 import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
+import { Profile } from '@/utils/supabase/types';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -149,6 +150,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             launchEnd={product.launch_end as string}
           />
         </div>
+        <div className="mt-10">
+          <VoterAvatarsList productId={product.id} owner={owned as Profile} />
+        </div>
       </div>
       <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
         {tabs.map((item, idx) => (
@@ -193,7 +197,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               </div>
             )}
           </div>
-          <VoterAvatarsList productId={product.id} />
         </div>
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         {/* Keep doing based on Product interface */}
