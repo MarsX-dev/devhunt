@@ -30,6 +30,7 @@ export default ({
   const productsService = new ProductsService(createBrowserClient());
   const profileService = new ProfileService(createBrowserClient());
   const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
+  const isLaunchEnd = new Date(launchEnd).getTime() <= Date.now();
 
   const router = useRouter();
   const [votesCount, setVotesCount] = useState(count);
@@ -72,7 +73,7 @@ export default ({
         className={mergeTW(
           `px-4 py-1 text-center text-slate-400 active:scale-[1.5] duration-200 rounded-md border bg-[linear-gradient(180deg,_#1E293B_0%,_rgba(30,_41,_59,_0.00)_100%)] ${
             isUpvoted ? 'text-orange-600 border-orange-600' : 'border-slate-700 hover:text-orange-300'
-          } ${className}`,
+          } ${className} ${isLaunchEnd ? ' opacity-60' : ''}`,
         )}
       >
         <IconVote className="mt-1 w-4 h-4 mx-auto pointer-events-none" />

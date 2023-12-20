@@ -51,7 +51,7 @@ export default function Home() {
     return (
       <>
         <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
-          <p className="mt-8">Previous weeks winners 👑</p>
+          <p className="mt-8">Past winners 👑</p>
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.slice(0, 3).map((product, idx) => (
@@ -66,12 +66,13 @@ export default function Home() {
     return (
       <>
         <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
-          <p className="mt-8">Previous weeks winners 👑</p>
+          <p className="mt-8">Past winners 👑</p>
         </div>
-        <ul className="mt-3 divide-y divide-slate-800/60">
+        <ul className="relative mt-3 divide-y divide-slate-800/60">
           {products.map((product, idx) => (
             <ToolCardEffect key={idx} tool={product as ProductType} />
           ))}
+          <div className="absolute -inset-x-2 -inset-y-0 -z-20 bg-slate-800/40 rounded-xl sm:-inset-x-3"></div>
         </ul>
       </>
     );
