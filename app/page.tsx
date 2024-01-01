@@ -14,11 +14,9 @@ export default function Home() {
   // Get the current date
   const today = new Date();
 
-  // Calculate the start of the week (Sunday)
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
 
-  // Calculate the end of the week (Saturday)
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
 
