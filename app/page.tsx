@@ -11,18 +11,7 @@ import { useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
 
 export default function Home() {
-  // Get the current date
   const today = new Date();
-
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
-
-  const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
-
-  // Format the dates as strings (assuming YYYY-MM-DD format)
-  const startOfWeekString = startOfWeek.toISOString().split('T')[0];
-
   const productService = new ProductsService(createBrowserClient());
   const [launchWeeks, setLaunchWeeks] = useState([]);
   const [weeklyWinners, setWeeklyWinners] = useState([]);
@@ -30,7 +19,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const week = await productService.getWeekNumber(startOfWeekString as any, 2);
+      const week = await productService.getWeekNumber(today, 2);
       const [launchWeeks, weeklyWinners] = await Promise.all([
         productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1),
         productService.getWeeklyWinners(week),

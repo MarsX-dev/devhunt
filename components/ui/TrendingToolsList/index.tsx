@@ -15,19 +15,9 @@ import ToolLogo from '@/components/ui/ToolCard/Tool.Logo';
 import Link from 'next/link';
 
 const getTrendingTools = async () => {
-  // Get the current date
   const today = new Date();
-
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay());
-
-  const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
-
-  // Format the dates as strings (assuming YYYY-MM-DD format)
-  const startOfWeekString = startOfWeek.toISOString().split('T')[0];
   const productService = new ProductsService(createBrowserClient());
-  const week = await productService.getWeekNumber(startOfWeekString as any, 2);
+  const week = await productService.getWeekNumber(today, 2);
   return await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1);
 };
 
