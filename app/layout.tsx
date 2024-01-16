@@ -109,7 +109,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} id="root">
         <main>
           <ChatWindow />
           <SupabaseProvider user={profile as Profile} session={session}>
