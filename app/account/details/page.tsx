@@ -82,6 +82,10 @@ function Profile() {
           avatarPreview ? setAvatar(avatarPreview) : null;
           setAvatarPreview('');
           setSelectedImage(null);
+        })
+        .catch(err => {
+          setUsernameError('This username is already used, please use a different username');
+          setLoad(false);
         });
     }
   };
