@@ -66,7 +66,7 @@ function Profile() {
     e.preventDefault();
     if (formValidator()) {
       setLoad(true);
-
+      setUsernameError('');
       selectedImage ? await profileService.updateAvatar(userSession?.id as string, selectedImage) : null;
       profileService
         .update(userSession?.id as string, {
@@ -78,14 +78,19 @@ function Profile() {
           social_url: socialMediaLink,
         })
         .then(() => {
+          setUsernameError('');
           setLoad(false);
           avatarPreview ? setAvatar(avatarPreview) : null;
           setAvatarPreview('');
           setSelectedImage(null);
         })
         .catch(err => {
-          setUsernameError('This username is already used, please use a different username');
           setLoad(false);
+          if (err) {
+            setUsernameError('This username is already used, please use a different username');
+          } else {
+            setUsernameError('');
+          }
         });
     }
   };
