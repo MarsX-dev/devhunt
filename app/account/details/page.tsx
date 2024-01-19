@@ -193,7 +193,7 @@ function Profile() {
                 onChange={e => {
                   setAbout((e.target as HTMLInputElement).value);
                 }}
-                className="w-full h-28 mt-2"
+                className="w-full h-28 mt-2 resize-none"
               />
               <LabelError className="mt">{aboutError}</LabelError>
             </div>
