@@ -59,7 +59,7 @@ export default ({ productId, owner }: { productId: number; owner: Profile }) => 
           </Tooltip.Provider>
         </li>
       ))}
-      {votersList.length > 0 ? (
+      {votersList.length + 1 > 30 ? (
         <li>
           <Button
             onClick={() => setLimit(limit == votersList.length + 1 ? 30 : votersList.length + 1)}
