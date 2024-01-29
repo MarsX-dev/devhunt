@@ -307,7 +307,7 @@ export default class ProductsService extends BaseDbService {
     const key = `product-id-${id}`;
 
     const votersList = await cache.get(key, async () => {
-      let { data } = await this.supabase.from('product_votes').select('*').eq('product_id', id).limit(30);
+      let { data } = await this.supabase.from('product_votes').select('*').eq('product_id', id);
       const promises = data?.map(async item => this.getUserProfileById(item.user_id));
       return await Promise.all(promises as []);
     });

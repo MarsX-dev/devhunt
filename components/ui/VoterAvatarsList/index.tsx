@@ -6,10 +6,12 @@ import { Profile } from '@/utils/supabase/types';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import * as Tooltip from '@radix-ui/react-tooltip';
+import Button from '../Button';
 
 export default ({ productId, owner }: { productId: number; owner: Profile }) => {
   const productsService = new ProductsService(createBrowserClient());
   const [votersList, setVotersList] = useState([]);
+  const [limit, setLimit] = useState(30);
 
   async function getVoters() {
     let voters = await productsService.getVoters(productId);
@@ -23,7 +25,7 @@ export default ({ productId, owner }: { productId: number; owner: Profile }) => 
 
   return (
     <ul className="max-w-4xl mx-auto gap-3 flex flex-wrap items-center">
-      {[owner, ...votersList].map((item: Profile, idx) => (
+      {[owner, ...votersList].slice(0, limit).map((item: Profile, idx) => (
         <li className="flex-none w-8 h-8 hover:scale-105 duration-200 sm:w-10 sm:h-10">
           <Tooltip.Provider delayDuration={200}>
             <Tooltip.Root>
@@ -57,6 +59,18 @@ export default ({ productId, owner }: { productId: number; owner: Profile }) => 
           </Tooltip.Provider>
         </li>
       ))}
+      {votersList.length > 0 ? (
+        <li>
+          <Button
+            onClick={() => setLimit(limit == votersList.length + 1 ? 30 : votersList.length + 1)}
+            className="py-2 text-sm bg-transparent hover:bg-slate-800 border border-slate-800"
+          >
+            {limit == votersList.length + 1 ? 'Show less' : 'Show all'}
+          </Button>
+        </li>
+      ) : (
+        ''
+      )}
     </ul>
   );
 };

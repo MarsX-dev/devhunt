@@ -65,6 +65,7 @@ export default function Home() {
   function weekWinnerTools(products) {
     return (
       <>
+        {/* Active */}
         <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
           <p className="mt-8">Past winners 👑</p>
         </div>
