@@ -66,6 +66,7 @@ function ProfileFormModal() {
   const handleSubmit: FormEventHandler = async e => {
     e.preventDefault();
     if (formValidator()) {
+      setUsernameError('');
       setLoad(true);
 
       selectedImage ? await profileService.updateAvatar(userSession?.id as string, selectedImage) : null;
@@ -84,6 +85,14 @@ function ProfileFormModal() {
           setAvatarPreview('');
           setSelectedImage(null);
           window.location.reload();
+        })
+        .catch(err => {
+          setLoad(false);
+          if (err) {
+            setUsernameError('This username is already used, please use a different username');
+          } else {
+            setUsernameError('');
+          }
         });
     }
   };

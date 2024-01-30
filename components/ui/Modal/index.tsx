@@ -50,7 +50,7 @@ export default ({
           </div>
         </div>
       </>,
-      document.getElementById('root'),
+      document.body,
     )
   ) : (
     <></>
