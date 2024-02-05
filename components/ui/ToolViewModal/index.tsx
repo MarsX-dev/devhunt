@@ -200,7 +200,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
               <Link href={`/@${owner?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
                 {owner?.full_name}
               </Link>{' '}
-              {isLaunchStarted ? ' ' : 'Will be launched in '}
+              {isLaunchStarted ? 'in ' : 'Will be launched '}
               {customDateFromNow(tool?.launch_date)}.
             </p>
             {isLaunchStarted ? (

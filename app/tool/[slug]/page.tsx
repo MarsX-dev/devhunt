@@ -207,7 +207,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
               {owned?.full_name}
             </Link>{' '}
-            {isLaunchStarted ? ' ' : 'Will be launched in '}
+            {isLaunchStarted ? 'in ' : 'Will be launched '}
             {customDateFromNow(product.launch_date)}.
           </p>
           {isLaunchStarted ? (
