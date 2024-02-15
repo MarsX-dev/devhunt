@@ -3,10 +3,6 @@
     {
       "path": "/api/comment-notification",
       "schedule": "30 10 * * *"
-    },
-    {
-      "path": "/api/upvote-notification",
-      "schedule": "30 10 * * *"
     }
   ]
 }
