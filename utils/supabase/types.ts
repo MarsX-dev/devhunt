@@ -133,6 +133,48 @@ export interface Database {
           },
         ];
       };
+      cron_comment_logs: {
+        Row: {
+          comments_number: number | null;
+          created_at: string;
+          emails_sent: number | null;
+          id: number;
+        };
+        Insert: {
+          comments_number?: number | null;
+          created_at?: string;
+          emails_sent?: number | null;
+          id?: number;
+        };
+        Update: {
+          comments_number?: number | null;
+          created_at?: string;
+          emails_sent?: number | null;
+          id?: number;
+        };
+        Relationships: [];
+      };
+      cron_upvote_logs: {
+        Row: {
+          created_at: string;
+          emails_sent: number | null;
+          id: number;
+          upvotes_number: number | null;
+        };
+        Insert: {
+          created_at?: string;
+          emails_sent?: number | null;
+          id?: number;
+          upvotes_number?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          emails_sent?: number | null;
+          id?: number;
+          upvotes_number?: number | null;
+        };
+        Relationships: [];
+      };
       product_categories: {
         Row: {
           created_at: string | null;
@@ -488,11 +530,11 @@ export interface Database {
           full_name: string | null;
           headline: string | null;
           id: string;
+          social_url: string | null;
           twitter: string | null;
           updated_at: string | null;
           username: string | null;
           website_url: string | null;
-          social_url: string | null;
         };
         Insert: {
           about?: string | null;
@@ -500,11 +542,11 @@ export interface Database {
           full_name?: string | null;
           headline?: string | null;
           id: string;
+          social_url?: string | null;
           twitter?: string | null;
           updated_at?: string | null;
           username?: string | null;
           website_url?: string | null;
-          social_url: string | null;
         };
         Update: {
           about?: string | null;
@@ -512,11 +554,11 @@ export interface Database {
           full_name?: string | null;
           headline?: string | null;
           id?: string;
+          social_url?: string | null;
           twitter?: string | null;
           updated_at?: string | null;
           username?: string | null;
           website_url?: string | null;
-          social_url: string | null;
         };
         Relationships: [
           {
@@ -1171,12 +1213,12 @@ export type Tables<
     ? R
     : never
   : PublicTableNameOrOptions extends keyof (Database['public']['Tables'] & Database['public']['Views'])
-  ? (Database['public']['Tables'] & Database['public']['Views'])[PublicTableNameOrOptions] extends {
-      Row: infer R;
-    }
-    ? R
-    : never
-  : never;
+    ? (Database['public']['Tables'] & Database['public']['Views'])[PublicTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
 
 export type TablesInsert<
   PublicTableNameOrOptions extends keyof Database['public']['Tables'] | { schema: keyof Database },
@@ -1190,12 +1232,12 @@ export type TablesInsert<
     ? I
     : never
   : PublicTableNameOrOptions extends keyof Database['public']['Tables']
-  ? Database['public']['Tables'][PublicTableNameOrOptions] extends {
-      Insert: infer I;
-    }
-    ? I
-    : never
-  : never;
+    ? Database['public']['Tables'][PublicTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends keyof Database['public']['Tables'] | { schema: keyof Database },
@@ -1209,12 +1251,12 @@ export type TablesUpdate<
     ? U
     : never
   : PublicTableNameOrOptions extends keyof Database['public']['Tables']
-  ? Database['public']['Tables'][PublicTableNameOrOptions] extends {
-      Update: infer U;
-    }
-    ? U
-    : never
-  : never;
+    ? Database['public']['Tables'][PublicTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
 
 export type Enums<
   PublicEnumNameOrOptions extends keyof Database['public']['Enums'] | { schema: keyof Database },
@@ -1224,9 +1266,11 @@ export type Enums<
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
   ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
   : PublicEnumNameOrOptions extends keyof Database['public']['Enums']
-  ? Database['public']['Enums'][PublicEnumNameOrOptions]
-  : never;
+    ? Database['public']['Enums'][PublicEnumNameOrOptions]
+    : never;
 
+// Schema: public
+// Tables
 export type Comment = Database['public']['Tables']['comment']['Row'];
 export type InsertComment = Database['public']['Tables']['comment']['Insert'];
 export type UpdateComment = Database['public']['Tables']['comment']['Update'];
@@ -1234,6 +1278,14 @@ export type UpdateComment = Database['public']['Tables']['comment']['Update'];
 export type CommentVote = Database['public']['Tables']['comment_vote']['Row'];
 export type InsertCommentVote = Database['public']['Tables']['comment_vote']['Insert'];
 export type UpdateCommentVote = Database['public']['Tables']['comment_vote']['Update'];
+
+export type CronCommentLog = Database['public']['Tables']['cron_comment_logs']['Row'];
+export type InsertCronCommentLog = Database['public']['Tables']['cron_comment_logs']['Insert'];
+export type UpdateCronCommentLog = Database['public']['Tables']['cron_comment_logs']['Update'];
+
+export type CronUpvoteLog = Database['public']['Tables']['cron_upvote_logs']['Row'];
+export type InsertCronUpvoteLog = Database['public']['Tables']['cron_upvote_logs']['Insert'];
+export type UpdateCronUpvoteLog = Database['public']['Tables']['cron_upvote_logs']['Update'];
 
 export type ProductCategory = Database['public']['Tables']['product_categories']['Row'];
 export type InsertProductCategory = Database['public']['Tables']['product_categories']['Insert'];
@@ -1258,3 +1310,60 @@ export type UpdateProduct = Database['public']['Tables']['products']['Update'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type InsertProfile = Database['public']['Tables']['profiles']['Insert'];
 export type UpdateProfile = Database['public']['Tables']['profiles']['Update'];
+
+// Views
+export type ProductAward = Database['public']['Views']['product_awards']['Row'];
+
+export type ProductRank = Database['public']['Views']['product_ranks']['Row'];
+
+export type ProductVoteView = Database['public']['Views']['product_votes_view']['Row'];
+
+export type WeeklyRank = Database['public']['Views']['weekly_rank']['Row'];
+
+export type WeeklyWinner = Database['public']['Views']['weekly_winners']['Row'];
+
+export type WinnerOfTheDay = Database['public']['Views']['winner_of_the_day']['Row'];
+
+export type WinnerOfTheMonth = Database['public']['Views']['winner_of_the_month']['Row'];
+
+export type WinnerOfTheWeek = Database['public']['Views']['winner_of_the_week']['Row'];
+
+// Functions
+export type ArgsGetNextLaunchDay = Database['public']['Functions']['get_next_launch_days']['Args'];
+export type ReturnTypeGetNextLaunchDay = Database['public']['Functions']['get_next_launch_days']['Returns'];
+
+export type ArgsGetNextLaunchWeek = Database['public']['Functions']['get_next_launch_weeks']['Args'];
+export type ReturnTypeGetNextLaunchWeek = Database['public']['Functions']['get_next_launch_weeks']['Returns'];
+
+export type ArgsGetPrevLaunchDay = Database['public']['Functions']['get_prev_launch_days']['Args'];
+export type ReturnTypeGetPrevLaunchDay = Database['public']['Functions']['get_prev_launch_days']['Returns'];
+
+export type ArgsGetPrevLaunchWeek = Database['public']['Functions']['get_prev_launch_weeks']['Args'];
+export type ReturnTypeGetPrevLaunchWeek = Database['public']['Functions']['get_prev_launch_weeks']['Returns'];
+
+export type ArgsGetProductCountByDate = Database['public']['Functions']['get_products_count_by_date']['Args'];
+export type ReturnTypeGetProductCountByDate = Database['public']['Functions']['get_products_count_by_date']['Returns'];
+
+export type ArgsGetProductCountByWeek = Database['public']['Functions']['get_products_count_by_week']['Args'];
+export type ReturnTypeGetProductCountByWeek = Database['public']['Functions']['get_products_count_by_week']['Returns'];
+
+export type ArgsGetSimilarProduct = Database['public']['Functions']['get_similar_products']['Args'];
+export type ReturnTypeGetSimilarProduct = Database['public']['Functions']['get_similar_products']['Returns'];
+
+export type ArgsGetUserEmailById = Database['public']['Functions']['get_user_emails_by_ids']['Args'];
+export type ReturnTypeGetUserEmailById = Database['public']['Functions']['get_user_emails_by_ids']['Returns'];
+
+export type ArgsGetWeekNumber = Database['public']['Functions']['get_week_number']['Args'];
+export type ReturnTypeGetWeekNumber = Database['public']['Functions']['get_week_number']['Returns'];
+
+export type ArgsGetWeek = Database['public']['Functions']['get_weeks']['Args'];
+export type ReturnTypeGetWeek = Database['public']['Functions']['get_weeks']['Returns'];
+
+export type ArgsToggleCommentVote = Database['public']['Functions']['toggleCommentVote']['Args'];
+export type ReturnTypeToggleCommentVote = Database['public']['Functions']['toggleCommentVote']['Returns'];
+
+export type ArgsToggleProductVote = Database['public']['Functions']['toggleProductVote']['Args'];
+export type ReturnTypeToggleProductVote = Database['public']['Functions']['toggleProductVote']['Returns'];
+
+export type ArgsUpdateView = Database['public']['Functions']['updateViews']['Args'];
+export type ReturnTypeUpdateView = Database['public']['Functions']['updateViews']['Returns'];
