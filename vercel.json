@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/comment-notification",
-      "schedule": "30 10 * * *"
+      "schedule": "0 10 * * *"
     }
   ]
 }

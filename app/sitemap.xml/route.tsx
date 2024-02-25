@@ -22,6 +22,9 @@ async function generateSiteMap() {
     <url>
       <loc>https://devhunt.org/blog</loc>
     </url>
+    <url>
+      <loc>https://devhunt.org/best-dev-tools-this-week-on-product-hunt</loc>
+    </url>
      ${
        tools &&
        tools

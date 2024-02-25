@@ -20,6 +20,7 @@ const nextConfig = {
     AUTH_TOKEN_PASSWORD: process.env.AUTH_TOKEN_PASSWORD,
     AUTH_TOKEN_API_KEY: process.env.AUTH_TOKEN_API_KEY,
     CRON_SECRET: process.env.CRON_SECRET,
+    PH_ACCESS_TOKEN: process.env.PH_ACCESS_TOKEN,
   },
   images: {
     remotePatterns: [
@@ -28,6 +29,11 @@ const nextConfig = {
         hostname: 'mars-images.imgix.net',
         port: '',
         pathname: '/seobot/devhunt.org/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ph-files.imgix.net',
+        port: '',
       },
     ],
   },

@@ -59,10 +59,10 @@ export default () => {
       className: 'bg-orange-500 hover:bg-orange-600 text-white text-center rounded-lg px-3 p-2 duration-150 btnshake',
     },
   ];
-
   const submenu = [
     { title: 'This Week', path: '/' },
     { title: 'Upcoming Tools', path: '/upcoming' },
+    { title: 'Best DevTools On Product Hunt', path: '/best-dev-tools-this-week-on-product-hunt' },
   ];
 
   const handleSearch = (value: string) => {
