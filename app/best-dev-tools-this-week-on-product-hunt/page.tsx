@@ -95,7 +95,6 @@ export default async () => {
         {posts?.map((tool: Product, idx: number) => (
           <li key={idx} className="py-3">
             <ProductHuntCard href={websites[idx] ? `${websites[idx]}/?ref=devhunt` : tool.node.website}>
-              {/* {console.log(tool.node)} */}
               <div className="w-full flex items-center gap-x-4">
                 <Image
                   src={tool.node.thumbnail.url}
