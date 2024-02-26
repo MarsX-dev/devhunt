@@ -72,6 +72,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {process.env.USER_MAVEN_KEY && (
           <>
             <Script
+              src="https://analytic-api.marsx.dev/script.js"
+              strategy="afterInteractive"
+              data-website-id="505062d1-c921-4a96-ad67-63bcb082bdb2"
+            />
+            <Script
               strategy="afterInteractive"
               src="https://t.usermaven.com/lib.js"
               data-key={process.env.USER_MAVEN_KEY}
