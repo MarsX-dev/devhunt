@@ -58,6 +58,7 @@ export default () => {
     handleSubmit,
     control,
     formState: { errors },
+    setError,
     getValues,
   } = useForm();
 
@@ -77,6 +78,8 @@ export default () => {
   const [isLogoLoad, setLogoLoad] = useState<boolean>(false);
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isLaunching, setLaunching] = useState<boolean>(false);
+
+  const [allWeeks, setAllWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   useEffect(() => {
     pricingTypesList.then(types => {
@@ -141,56 +144,64 @@ export default () => {
     if (validateImages() && (await validateToolName())) {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const categoryIds = categories.map(item => item.id);
-      setLaunching(true);
 
       const launchWeek = parseInt(week);
 
-      const currentWeek = await productService.getWeekNumber(new Date(), 2);
-      const currentYear = new Date().getFullYear();
-
-      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-      const weekData = weeks.find(i => i.week === launchWeek);
-      await productService
-        .insert(
-          {
-            asset_urls: imagePreviews,
-            name: tool_name,
-            demo_url: tool_website,
-            github_url: github_repo,
-            pricing_type,
-            slogan,
-            description: tool_description,
-            logo_url: logoPreview,
-            owner_id: user?.id,
-            slug: createSlug(tool_name),
-            is_draft: false,
-            comments_count: 0,
-            votes_count: 0,
-            demo_video_url: demo_video,
-            launch_date: weekData?.startDate as string,
-            launch_start: weekData?.startDate,
-            launch_end: weekData?.endDate,
-            week: launchWeek,
-          },
-          categoryIds,
-        )
-        .then(async res => {
-          const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-          const toolURL = `https://devhunt.org/tool/${res?.slug}`;
-          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
-          DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
-          setLaunching(false);
-          localStorage.setItem(
-            'last-tool',
-            JSON.stringify({
-              toolSlug: res?.slug,
-              launchDate: res?.launch_date,
-              launchEnd: res?.launch_end,
-            }),
-          );
-          window.open(`/tool/${res?.slug}?banner=true`);
-          router.push('/account/tools');
+      const getCurrentWeekOfdate = allWeeks.filter(item => item.week == week);
+      if (getCurrentWeekOfdate[0].count >= 15) {
+        setError('week', {
+          type: 'manual',
+          message: 'Invalid date, please choose a correct date',
         });
+      } else {
+        setLaunching(true);
+        const currentWeek = await productService.getWeekNumber(new Date(), 2);
+        const currentYear = new Date().getFullYear();
+
+        const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+        const weekData = weeks.find(i => i.week === launchWeek);
+        await productService
+          .insert(
+            {
+              asset_urls: imagePreviews,
+              name: tool_name,
+              demo_url: tool_website,
+              github_url: github_repo,
+              pricing_type,
+              slogan,
+              description: tool_description,
+              logo_url: logoPreview,
+              owner_id: user?.id,
+              slug: createSlug(tool_name),
+              is_draft: false,
+              comments_count: 0,
+              votes_count: 0,
+              demo_video_url: demo_video,
+              launch_date: weekData?.startDate as string,
+              launch_start: weekData?.startDate,
+              launch_end: weekData?.endDate,
+              week: launchWeek,
+            },
+            categoryIds,
+          )
+          .then(async res => {
+            const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
+            const toolURL = `https://devhunt.org/tool/${res?.slug}`;
+            const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
+            DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+            setLaunching(false);
+            localStorage.setItem(
+              'last-tool',
+              JSON.stringify({
+                toolSlug: res?.slug,
+                launchDate: res?.launch_date,
+                launchEnd: res?.launch_end,
+              }),
+            );
+            window.open(`/tool/${res?.slug}?banner=true`);
+            router.push('/account/tools');
+          });
+      }
     }
   };
 
@@ -349,8 +360,9 @@ export default () => {
                   validate={{
                     ...register('week', { required: true }),
                   }}
+                  setAllWeeks={setAllWeeks}
                 />
-                <LabelError className="mt-2">{errors.weel && 'Please pick a launch week'}</LabelError>
+                <LabelError className="mt-2">{errors.week && 'Please pick a launch week'}</LabelError>
               </div>
             </div>
             <div className="pt-7">

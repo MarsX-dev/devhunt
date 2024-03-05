@@ -11,9 +11,10 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   value?: string | number;
   className?: string;
   validate?: {};
+  setAllWeeks?: (val: { week: number; startDate: Date; endDate: Date; count: number }[]) => void;
 }
 
-export default ({ label, value, className = '', validate, ...props }: Props) => {
+export default ({ label, value, className = '', validate, setAllWeeks = () => {}, ...props }: Props) => {
   const [weeks, setWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   useEffect(() => {
@@ -26,6 +27,8 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
       const startWeek = await productsService.getWeekNumber(startDate, 2);
       const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 20, startDate.getFullYear());
       setWeeks(result);
+      setAllWeeks(result);
+      // const x = weeks.filter(item => item.week == 11)
     };
 
     void fetchData();
