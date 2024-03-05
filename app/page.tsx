@@ -27,6 +27,7 @@ export default function Home() {
       setLaunchWeeks(launchWeeks as any);
       setWeeklyWinners(weeklyWinners as any);
       setLoading(false);
+      console.log(launchWeeks);
     };
     fetchData();
   }, []);
@@ -70,9 +71,11 @@ export default function Home() {
           <p className="mt-8">Past winners 👑</p>
         </div>
         <ul className="relative mt-3 divide-y divide-slate-800/60">
-          {products.map((product, idx) => (
-            <ToolCardEffect key={idx} tool={product as ProductType} />
-          ))}
+          {products
+            .sort((a, b) => b.votes_count - a.votes_count)
+            .map((product, idx) => (
+              <ToolCardEffect key={idx} tool={product as ProductType} />
+            ))}
           <div className="absolute -inset-x-2 -inset-y-0 -z-20 bg-slate-800/40 rounded-xl sm:-inset-x-3"></div>
         </ul>
       </>
