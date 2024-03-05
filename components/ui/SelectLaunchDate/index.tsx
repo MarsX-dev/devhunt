@@ -24,7 +24,7 @@ export default ({ label, value, className = '', validate, ...props }: Props) => 
 
       const productsService = new ProductsService(createBrowserClient());
       const startWeek = await productsService.getWeekNumber(startDate, 2);
-      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 15, startDate.getFullYear());
+      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 20, startDate.getFullYear());
       setWeeks(result);
     };
 
