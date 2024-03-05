@@ -145,7 +145,7 @@ export default () => {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const categoryIds = categories.map(item => item.id);
 
-      const launchWeek = parseInt(week);
+      const launchWeek = week;
 
       const getCurrentWeekOfdate = allWeeks.filter(item => item.week == week);
       if (getCurrentWeekOfdate[0].count >= 15) {
@@ -363,6 +363,12 @@ export default () => {
                   setAllWeeks={setAllWeeks}
                 />
                 <LabelError className="mt-2">{errors.week && 'Please pick a launch week'}</LabelError>
+              </div>
+              <div className="text-lg text-slate-100 font-medium">
+                Wanna skip this line?{' '}
+                <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
+                  See details
+                </a>
               </div>
             </div>
             <div className="pt-7">
