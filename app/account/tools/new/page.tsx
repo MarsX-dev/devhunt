@@ -145,7 +145,7 @@ export default () => {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const categoryIds = categories.map(item => item.id);
 
-      const launchWeek = week;
+      const launchWeek = typeof week === 'string' ? parseInt(week) : week;
 
       const getCurrentWeekOfdate = allWeeks.filter(item => item.week == week);
       if (getCurrentWeekOfdate[0].count >= 15) {
