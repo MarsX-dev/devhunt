@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { type ExtendedProduct } from '@/utils/supabase/CustomTypes';
+import { type InsertLog, type Log } from '@/utils/supabase/types';
 
 export default class ApiService {
   private supabase;
@@ -51,5 +52,11 @@ export default class ApiService {
     }));
 
     return res;
+  }
+
+  async insertLog(log: InsertLog): Promise<Log | null> {
+    const { data, error } = await this.supabase.from('logs').insert(log).select().single();
+    if (error !== null) throw new Error(error.message);
+    return data;
   }
 }

@@ -3,6 +3,7 @@ import ProductsService from '@/utils/supabase/services/products';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 import { cache } from '@/utils/supabase/services/CacheService';
+import ApiService from '@/utils/supabase/services/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let limit = parseInt((req.query.limit as string) || '2');
@@ -20,10 +21,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     60,
   );
 
-  console.log(tools);
-
-  res.json(tools.map(i => ({
+  const result = tools.map(i => ({
     ...i,
     products: i.products.map(simpleToolApiDtoFormatter),
-  })));
+  }));
+
+  const apiService = new ApiService();
+  await apiService.insertLog({ type: 'past-week-tools', data: JSON.stringify({ today, currentWeek, tools: result }) });
+
+  res.json(result);
 }

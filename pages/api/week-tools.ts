@@ -35,5 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { products } = weeks[0];
   const tools = products.slice(0, limit);
 
-  res.json(tools.map(simpleToolApiDtoFormatter));
+  const result = tools.map(simpleToolApiDtoFormatter);
+  await apiService.insertLog({ type: 'week-tools', data: JSON.stringify({ today, weekNumber, currentWeek, limit, tools: result }) });
+
+  res.json(result);
 }
