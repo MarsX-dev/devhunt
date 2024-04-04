@@ -1,6 +1,6 @@
 import { type ExtendedProduct } from '@/utils/supabase/CustomTypes';
 import BaseDbService from '@/utils/supabase/services/BaseDbService';
-import { Profile, type InsertProduct, type Product, type UpdateProduct } from '@/utils/supabase/types';
+import { type Profile, type InsertProduct, type Product, type UpdateProduct } from '@/utils/supabase/types';
 import { groupByWithRef, omit } from '@/utils/helpers';
 import { cache } from '@/utils/supabase/services/CacheService';
 import UsersService from './users';
