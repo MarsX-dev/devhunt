@@ -333,6 +333,12 @@ export default () => {
                 />
                 <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
               </div> */}
+              <div className="mt-3 text-lg text-slate-100 font-medium">
+                Wanna skip this line?{' '}
+                <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
+                  See details
+                </a>
+              </div>
             </div>
             <div className="mt-3">
               <Button isLoad={isUpdate} type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
