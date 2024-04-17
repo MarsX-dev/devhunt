@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { commentLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import Mergent from 'mergent';
 
 type Icomment = {
   product: {
