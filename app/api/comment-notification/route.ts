@@ -82,9 +82,7 @@ async function sendNotification(email: string, slug: string, product_name: strin
 export async function POST(request: NextRequest) {
   const getToken = (await getAuthToken()).data.Token;
 
-  const content = `**This Cron job was scheduled for testing purpose**`;
-  const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-  DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+  console.log('Comments notification Works');
 
   const commentService = new CommentService(createBrowserClient());
   const initCommentLogsService = await commentLogsService();

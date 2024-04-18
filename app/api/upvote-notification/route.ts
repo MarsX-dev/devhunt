@@ -4,6 +4,7 @@ import axios from 'axios';
 import ProductsService from '@/utils/supabase/services/products';
 import { upvoteLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import Mergent from 'mergent';
 
 type IVote = {
   product: {
@@ -74,6 +75,8 @@ async function sendNotification(email: string, slug: string, product_name: strin
 
 export async function GET(request: NextRequest) {
   const getToken = (await getAuthToken()).data.Token;
+
+  console.log('Upvote notification Works');
 
   const productsService = new ProductsService(createBrowserClient());
   const initUpvoteLogsService = await upvoteLogsService();
