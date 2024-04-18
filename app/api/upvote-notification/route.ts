@@ -73,7 +73,7 @@ async function sendNotification(email: string, slug: string, product_name: strin
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const getToken = (await getAuthToken()).data.Token;
 
   console.log('Upvote notification Works');
