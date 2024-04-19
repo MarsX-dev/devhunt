@@ -9,6 +9,10 @@ export async function GET() {
 
   const PH_ACCESS_TOKEN = process.env.PH_ACCESS_TOKEN;
 
+  if (!PH_ACCESS_TOKEN) {
+    return NextResponse.json({ posts: [] });
+  }
+
   const config = {
     headers: {
       Authorization: `Bearer ${PH_ACCESS_TOKEN}`,

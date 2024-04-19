@@ -2,7 +2,10 @@ const BASE_URL = 'https://devhunt.org';
 
 async function getSitemap() {
   const key = process.env.SEOBOT_API_KEY;
-  if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
+  if (!key) {
+    console.warn('SEOBOT_API_KEY enviroment variable must be set');
+    return { articles: [], categories: [], tags: [] };
+  }
 
   try {
     const res = await fetch(`https://app.seobotai.com/api/sitemap?key=${key}`, { cache: 'no-store' });
