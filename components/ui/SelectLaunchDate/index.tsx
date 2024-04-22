@@ -25,7 +25,7 @@ export default ({ label, value, className = '', validate, setAllWeeks = () => {}
 
       const productsService = new ProductsService(createBrowserClient());
       const startWeek = await productsService.getWeekNumber(startDate, 2);
-      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 20, startDate.getFullYear());
+      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 22, startDate.getFullYear());
       setWeeks(result);
       setAllWeeks(result);
       // const x = weeks.filter(item => item.week == 11)
