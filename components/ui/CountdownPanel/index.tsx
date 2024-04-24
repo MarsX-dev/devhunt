@@ -89,19 +89,27 @@ export default () => {
   return (
     <div className="flex border rounded-xl border-slate-800 bg-slate-800 p-5 flex-col gap-1 md:gap-2 items-center justify-end">
       <div className="px-2 flex flex-col items-center text-center gap-3">
+        <h1 className='text-slate-200 text-xl font-bold'>Find Best Dev Tools Voted by Developers!</h1>
         <p>
           <span className="text-2xl font-bold mb-4 text-orange-500">Vote Closing In: </span>
         </p>
         <div className="text-slate-100 flex gap-1 items-center">
           <RenderCountdown />
         </div>
-        <div className="max-w-lg text-slate-400">
-          Winners get a free shout-out in our newsletter, social media mentions, a winner's badge and more perks.
-          <div className="inline sm:block">
-            {' '}
-            See details{' '}
-            <a className="underline transition-opacity hover:text-scale-1200" href="/the-story">
-              here
+        <div className="max-w-lg mt-2 text-slate-400">
+          100k+ developers found Dev Tools here.
+          <div className="inline mt-2 sm:block">
+            See how  {' '}
+            <a className="underline transition-opacity hover:text-scale-1200" href="https://twitter.com/johnrushx/status/1661534492949872641">
+            it started
+            </a>
+            .
+          </div>
+
+          <div className="inline mt-2 sm:block">
+            Gold Sponsor ❤️  {' '}
+            <a className="underline transition-opacity hover:text-scale-1200" href="https://unicornplatform.com/">
+            Unicorn Platform
             </a>
             .
           </div>

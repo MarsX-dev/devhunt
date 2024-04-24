@@ -35,9 +35,8 @@ export default function Home() {
   function weekTools(group) {
     return (
       <>
-        <div className="mt-3 text-slate-400 text-sm">This week's tools</div>
         <div className="mt-3 text-slate-400 text-sm">
-          ❗ Vote for your favorite <b className="text-orange-400">↳</b>
+          Vote for your favorite dev tool this week<b className="text-orange-400">👇</b>
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product, idx) => (

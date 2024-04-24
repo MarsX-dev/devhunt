@@ -22,14 +22,17 @@ export default () => {
     },
     { name: 'OSS Friends', href: '/oss-friends' },
     { name: 'NextJS Starter', href: 'https://nextjsstarter.com/?' },
+    { name: 'Open Source Alternatives', href: 'https://osssoftware.org/' },
+    { name: 'John Rush (CEO)', href: 'https://johnrush.me/' },
   ];
 
   const usedTools = [
     { title: 'FloatUI', url: 'https://www.floatui.com/' },
     { title: 'Sensorpro', url: 'https://sensorpro.eu/' },
-    { title: 'Usermaven', url: 'https://usermaven.com/' },
-    { title: 'Vercel', url: 'https://vercel.com/' },
-    { title: 'Supabase', url: 'https://supabase.com/' },
+    { title: 'CountVisits', url: 'http://countvisits.com/' },
+    { title: 'SEObotAI', url: 'https://seobotai.com/' },
+    { title: 'ListingBott', url: 'https://listingbott.com/' },
+    { title: 'IndexRusher', url: 'https://indexrusher.com/' },
     { title: 'UnicornPlatform', url: 'https://unicornplatform.com/' },
   ];
 
@@ -68,7 +71,7 @@ export default () => {
             </a>{' '}
             family. <br />
             <div className="text-xs pt-2">
-              Uses{' '}
+              Uses & Sponsored by {' '}
               {usedTools.map((t, i) => (
                 <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
                   {t.title}

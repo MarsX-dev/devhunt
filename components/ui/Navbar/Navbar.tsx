@@ -52,7 +52,7 @@ export default () => {
   };
 
   const navigation = [
-    { title: 'The Story', path: '/the-story' },
+    { title: 'Advertise', path: '/the-story#ads', className:'text-orange-500' },
     {
       title: 'Submit your Dev Tool',
       path: isLoggedin ? '/account/tools' : '/login',
@@ -110,6 +110,11 @@ export default () => {
                 ) : (
                   ''
                 )}
+                 <li className="hidden lg:block mt-1">
+                  <button aria-label="Search button" onClick={() => setCommandActive(true)} className="hover:text-slate-200">
+                    <IconSearch />
+                  </button>
+                </li>
                 <li>
                   <div ref={NavMenuRef} className="relative">
                     <button
@@ -161,12 +166,8 @@ export default () => {
                     </li>
                   );
                 })}
-                <li className="hidden lg:block">
-                  <button aria-label="Search button" onClick={() => setCommandActive(true)} className="hover:text-slate-200">
-                    <IconSearch />
-                  </button>
-                </li>
-                <li className="hidden w-px h-6 bg-slate-700 lg:block"></li>
+               
+  
                 <li className={`space-y-3 items-center gap-x-6 lg:flex lg:space-y-0 ${isLoggedin ? 'hidden lg:flex' : ''}`}>
                   <Auth onLogout={handleLogout} />
                 </li>

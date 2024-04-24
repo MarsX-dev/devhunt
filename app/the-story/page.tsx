@@ -28,21 +28,11 @@ export default () => {
           <li>
             <a href="https://twitter.com/BotanMan">Igor Boky</a>
           </li>
-          <li>
-            <a href="https://twitter.com/joshmo_dev">Josh</a>
-          </li>
-          <li>
-            <a href="https://twitter.com/ahmadubahh">Ahmad Ubah</a>
-          </li>
+          
           <li>
             <a href="https://twitter.com/chris_byrne">Chris</a>
           </li>
-          <li>
-            <a href="https://twitter.com/andrenoari">Ariful Islam Khan</a>
-          </li>
-          <li>
-            <a href="https://twitter.com/thezachhan">Zach</a>
-          </li>
+
         </ul>
         <h2>Our Story</h2>
         <p>
@@ -101,6 +91,28 @@ export default () => {
           &mdash; John Rush (@johnrushx){' '}
           <a href="https://twitter.com/johnrushx/status/1661534492949872641?ref_src=twsrc%5Etfw">May 25, 2023</a>
         </blockquote>{' '}
+        <div className="border border-orange-500/40 p-3 bg-orange-950 rounded-md">
+          <h2 id="ads" className="mt-0">Advertize</h2>
+          <div className="text-slate-300 font-medium">
+            Skip the queue and launch ASAP (nearest Week){' '}
+            <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
+              See price
+            </a>
+          </div>
+          <p className="text-slate-300 mt-4 whitespace-pre-wrap">
+            Become a sponsor! 
+            <ul className="mt-0">
+              <li>banner on home page</li>
+              <li>placing in the dev tool least with "featured" label</li>
+              <li>included into all emails sent out by devhunt</li>
+              </ul>
+            Reach out to{' '}
+            <a className="text-orange-500 whitespace-pre-wrap" href="https://twitter.com/johnrushx">
+              John Rush
+            </a>{' '}
+            for details and prices.
+          </p>
+        </div>
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       </article>
     </div>

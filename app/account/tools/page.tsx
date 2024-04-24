@@ -125,6 +125,21 @@ export default () => {
           <div className="font-medium text-slate-400">No launches found.</div>
         )}
       </ul>
+      <hr className="border-slate-700 mt-5" />
+      <p className="text-slate-300 mt-5 whitespace-pre-wrap">
+        <a className="text-orange-500 whitespace-pre-wrap" href="/the-story">
+          Read the Rules{' '}
+        </a>
+        for voting and what dev tools you can submit here
+      </p>
+
+      <p className="text-slate-300 mt-2 whitespace-pre-wrap">
+        See{' '}
+        <a className="text-orange-500 whitespace-pre-wrap" href="/ads">
+          Advertizing
+        </a>{' '}
+        and other premium options to grow your Dev Tool.
+      </p>
       <ModalBannerCode
         isModalOpen={isModalOpen}
         toolSlug={toolSlug}

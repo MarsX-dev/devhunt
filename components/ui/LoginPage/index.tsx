@@ -49,9 +49,8 @@ export default () => {
           <div className="space-y-3">
             <Brand w="180" h="50" className="mx-auto" />
             <h1 className="text-slate-50 text-2xl font-semibold">Log in to your account</h1>
-            <p className="text-slate-300 whitespace-pre-wrap">
-              We use GitHub, and Google provider to keep it simple and easy for our users to login. Let's explore together, the legit way!
-            </p>
+            <p className="text-slate-300 whitespace-pre-wrap mb-2">We use GitHub, and Google provider to filter out bots and fakes.</p>
+            <p className="text-slate-300 whitespace-pre-wrap"><a className="text-orange-500 whitespace-pre-wrap" href="/the-story">Read the Rules </a>for voting and what dev tools you can submit here</p>
           </div>
           <GithubProvider isLoad={isGithubAuthLoad} onClick={handleGithubLogin} />
           <GoogleProvider isLoad={isGoogleAuthLoad} onClick={handleGoogleLogin} />
