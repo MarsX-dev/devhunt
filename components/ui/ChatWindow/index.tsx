@@ -12,7 +12,7 @@ import * as Popover from '@radix-ui/react-popover';
 function TwitterLink() {
   return (
     <a
-      className="fixed bottom-0 right-0 bg-base-100 py-1 px-2 z-10 cursor-pointer rounded-tl-xl border-t border-l border-slate-600 border-dashed text-sm font-semibold hover:bg-base-200 duration-200 group"
+      className="fixed bottom-[40px] md:bottom-0 right-0 bg-slate-900 py-1 px-2 z-10 cursor-pointer rounded-tl-xl border-t border-l border-slate-600 border-dashed text-sm font-semibold hover:bg-base-200 duration-200 group"
       href="https://twitter.com/johnrushx"
       target="_blank"
     >
