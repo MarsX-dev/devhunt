@@ -87,7 +87,7 @@ export default () => {
           <div className="w-full md:w-1/3 border border-orange-500/40 p-4 pt-0 bg-orange-950 rounded-md shadow-md flex flex-col justify-between">
             <div>
               <h3 className="text-xl font-semibold text-orange-500">Launch ASAP</h3>
-              <p className="text-slate-300 mt-2">Skip the queue and launch ASAP (nearest Week)</p>
+              <p className="text-slate-300 mt-2">Skip the queue and launch any week you choose</p>
             </div>
             <div className="mt-4">
               <ul className="list-disc   text-slate-300">
@@ -126,8 +126,8 @@ export default () => {
 
           <div className="w-full md:w-1/3 border border-yellow-500/40 p-4 pt-0 bg-yellow-950 rounded-md shadow-md flex flex-col justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-yellow-500">+ Email Outreach</h3>
-              <p className="text-slate-300 mt-2">Included in an email sent out to all users</p>
+              <h3 className="text-xl font-semibold text-yellow-500">Email Newsletter</h3>
+              <p className="text-slate-300 mt-2">Placement on the top of the email sent out to all users</p>
             </div>
             <div className="mt-4">
               <ul className="list-disc  text-slate-300">
@@ -152,18 +152,7 @@ export default () => {
           for details and prices.
         </p>
 
-        <blockquote className="twitter-tweet">
-          <p lang="en" dir="ltr">
-            DevHunt. Day 5.- 15 developers joined a discord chat today- we&#39;ve spent the day coding - created most of the backend using{' '}
-            <a href="https://twitter.com/supabase?ref_src=twsrc%5Etfw">@supabase</a> - implemented the home page, product page,{' '}
-            <a href="https://twitter.com/github?ref_src=twsrc%5Etfw">@github</a> auth...(everything &quot;almost done&quot; :D)- agreed on a
-            code style- deployed to <a href="https://twitter.com/vercel?ref_src=twsrc%5Etfw">@vercel</a>…{' '}
-            <a href="https://t.co/I6i5X3fit0">pic.twitter.com/I6i5X3fit0</a>
-          </p>
-          &mdash; John Rush (@johnrushx){' '}
-          <a href="https://twitter.com/johnrushx/status/1661534492949872641?ref_src=twsrc%5Etfw">May 25, 2023</a>
-        </blockquote>{' '}
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        
       </article>
     </div>
   );
