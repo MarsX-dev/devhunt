@@ -1,3 +1,7 @@
+import Pricing from './pricing';
+import Stats from './stats';
+import Logos from './logos';
+
 export const metadata = {
   title: 'The Story - Dev Hunt',
 };
@@ -79,81 +83,15 @@ export default () => {
           developers who might want in on this adventure too.
         </p>
         <p>Together as a community, we'll create something truly special – let's do this! 🚀</p>
-        
-        <h2 id="ads" className="">
-          Paid options
-        </h2>
-        <div className="flex flex-col mt-5 md:flex-row justify-center gap-6 bg-gray-900 text-white rmax-w-6xl mx-auto">
-          <div className="w-full md:w-1/3 border border-orange-500/40 p-4 pt-0 bg-orange-950 rounded-md shadow-md flex flex-col justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-orange-500">Launch ASAP</h3>
-              <p className="text-slate-300 mt-2">Skip the queue and launch any week you choose</p>
-            </div>
-            <div className="mt-4">
-              <ul className="list-disc   text-slate-300">
-                <li>Be first in the twitter thread</li>
-                <li>Launch demo video</li>
-              </ul>
-              <a
-                target="_blank"
-                href="https://buy.stripe.com/8wM6qfeEWdde1So3cr"
-                className="block mt-4 text-center bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md transition"
-              >
-                See price
-              </a>
-            </div>
-          </div>
 
-          <div className="w-full md:w-1/3 border border-purple-500/40 p-4 pt-0 bg-purple-950 rounded-md shadow-md flex flex-col justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-purple-500">Sponsored Spot</h3>
-              <p className="text-slate-300 mt-2">Sponsored spot on top of the home page</p>
-            </div>
-            <div className="mt-4">
-              <ul className="list-disc   text-slate-300">
-                <li>Stay on home page for 1 week</li>
-                <li>Increased Visibility</li>
-              </ul>
-              <a
-                target="_blank"
-                href="https://buy.stripe.com/eVa7ujgN48WY40w8wO"
-                className="block mt-4 text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md transition"
-              >
-                See price
-              </a>
-            </div>
-          </div>
-
-          <div className="w-full md:w-1/3 border border-yellow-500/40 p-4 pt-0 bg-yellow-950 rounded-md shadow-md flex flex-col justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-yellow-500">Email Newsletter</h3>
-              <p className="text-slate-300 mt-2">Placement on the top of the email sent out to all users</p>
-            </div>
-            <div className="mt-4">
-              <ul className="list-disc  text-slate-300">
-                <li>Email Campaign</li>
-                <li>Sent to all users & subscribers</li>
-              </ul>
-              <a
-                target="_blank"
-                href="https://buy.stripe.com/14k8yn54m3CE7cIbJ1"
-                className="block mt-4 text-center bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-md transition"
-              >
-                See price
-              </a>
-            </div>
-          </div>
-        </div>
-        <p className="text-slate-300 mt-8 text-center">
-          Reach out to{' '}
-          <a className="text-orange-500 underline" href="https://twitter.com/johnrushx">
-            John Rush
-          </a>{' '}
-          for details and prices.
-        </p>
+      
 
         
       </article>
+      <hr className='border-slate-600 mt-10'/>
+      <Stats/>
+      <Logos/>
+      <Pricing />
     </div>
   );
 };
