@@ -1,6 +1,6 @@
 export default () => {
   return (
-    <div className="py-14">
+    <div className="py-14" id="ads">
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         <div className="max-w-2xl xl:mx-auto xl:text-center">
           <h3 className="text-white text-3xl font-semibold sm:text-4xl">Best Dev Tool Startups Are on DevHunt</h3>
