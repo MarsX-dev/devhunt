@@ -135,7 +135,7 @@ export default () => {
 
       <p className="text-slate-300 mt-2 whitespace-pre-wrap">
         See{' '}
-        <a className="text-orange-500 whitespace-pre-wrap" href="/ads">
+        <a className="text-orange-500 whitespace-pre-wrap" href="/the-story#ads">
           Advertizing
         </a>{' '}
         and other premium options to grow your Dev Tool.

@@ -41,7 +41,7 @@ export default () => {
   ];
 
   return (
-    <section className="relative py-14 bg-gray-900" id="ads">
+    <section className="relative py-14 bg-gray-900">
       <div
         className="absolute inset-0 blur-[118px] max-w-lg h-[800px] mx-auto sm:max-w-3xl sm:h-[400px]"
         style={{
