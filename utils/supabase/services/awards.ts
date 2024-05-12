@@ -41,7 +41,7 @@ export default class AwardsService extends BaseDbService {
   }
 
   async getProductRanks(productId: number): Promise<ProductAward[]> {
-    const { data, error } = await this.supabase.from('product_ranks').select().eq('product_id', productId);
+    const { data, error } = await this.supabase.from('product_ranks').select().eq('product_id', productId).eq('award_type', 'week');
     if (error !== null) throw new Error(error.message);
     return data;
   }
