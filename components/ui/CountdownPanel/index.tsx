@@ -106,12 +106,13 @@ export default () => {
             .
           </div>
 
-          <div className="inline mt-2 sm:block">
-            Gold Sponsor ❤️  {' '}
-            <a className="underline transition-opacity hover:text-scale-1200" href="https://unicornplatform.com/">
-            Unicorn Platform
+          <div className="mt-3 sm:block border border-slate-500 rounded-md p-3 border-dashed">
+            This week's sponsor:  <br/>
+            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/permit-io-web">
+            <span className='underline'>Permit.io</span> - Never Build Permissions Again.
+            <br/>  <span className='text-slate-500'> $250 credit for DevHunt users.</span>
             </a>
-            .
+            
           </div>
         </div>
       </div>
