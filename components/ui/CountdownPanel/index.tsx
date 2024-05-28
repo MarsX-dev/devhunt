@@ -106,11 +106,14 @@ export default () => {
             .
           </div>
 
-          <div className="mt-3 sm:block border border-slate-500 rounded-md p-3 border-dashed">
-            This week's sponsor:  <br/>
-            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/permit-io-web">
-            <span className='underline'>Permit.io</span> - Never Build Permissions Again.
-            <br/>  <span className='text-slate-500'> $250 credit for DevHunt users.</span>
+          <div className="mt-3 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
+            <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
+
+            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/unifiedto">
+            <span className='underline'>Unified.to</span> - One API, 180+ Integrations.<br/>
+            <span className='opacity-70'> Build & launch customer-facing integrations 100x faster!</span>
+
+            <br/>  <span className='text-slate-500'> $250 credit for DevHunt users (code DevHunt)</span>
             </a>
             
           </div>
