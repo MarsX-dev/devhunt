@@ -109,11 +109,11 @@ export default () => {
           <div className="mt-3 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
             <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
 
-            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/unifiedto">
-            <span className='underline'>Unified.to</span> - One API, 180+ Integrations.<br/>
-            <span className='opacity-70'> Build & launch customer-facing integrations 100x faster!</span>
+            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/sensorpro">
+            <span className='underline'>Sensorpro.to</span> - 15k emails per month<br/>
+            <span className='opacity-70'>Why pay more to send email when you don't need to?</span>
 
-            <br/>  <span className='text-slate-500'> $250 credit for DevHunt users (code DevHunt)</span>
+            <br/>  <span className='text-slate-500'> LifeTime Deal for DevHunt users</span>
             </a>
             
           </div>
