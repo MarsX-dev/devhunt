@@ -181,7 +181,7 @@ export default class ProductsService extends BaseDbService {
   getProducts(
     sortBy: string = 'votes_count',
     ascending: boolean = false,
-    pageSize = 20,
+    pageSize = 50,
     pageNumber = 1,
     categoryId?: number,
     selectQuery = this.EXTENDED_PRODUCT_SELECT,
@@ -191,12 +191,14 @@ export default class ProductsService extends BaseDbService {
     return cache.get(key, async () => {
       // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
       let products = this.supabase.from('products').select(selectQuery).eq('deleted', false);
-
+      const count = (await products).data?.length;
       if (categoryId) {
         products = products.eq('product_categories.id', categoryId);
       }
 
-      return products.range(pageSize * (pageNumber - 1), pageSize * pageNumber - 1).order(sortBy, { ascending });
+      const getProducts = await products.range(pageSize * (pageNumber - 1), pageSize * pageNumber - 1).order(sortBy, { ascending });
+
+      return { ...getProducts, count };
     });
   }
 

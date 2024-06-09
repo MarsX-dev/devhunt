@@ -75,7 +75,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const commentService = new CommentService(supabaseBrowserClient);
 
   const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
-  const toolAward$ = awardService.getWeeklyRank(product.id);
+  const toolAward$ = awardService.getProductRanks(product.id);
   const comments$ = commentService.getByProductId(product.id);
 
   const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
@@ -119,7 +119,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     //   label: 'Day rank',
     // },
     {
-      count: `#${(weekAward as any)?.rank}`,
+      count: `#${(weekAward[0] as any)?.rank}`,
       icon: <IconChartBar />,
       label: 'Week rank',
     },
@@ -130,7 +130,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       <div className="container-custom-screen" id="about">
         <div className="flex items-center justify-between">
           <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
-          <WinnerBadge weekRank={(weekAward as any)?.rank} isLaunchEnd={isLaunchEnd} />
+          <WinnerBadge weekRank={(weekAward[0] as any)?.rank} isLaunchEnd={isLaunchEnd} />
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>

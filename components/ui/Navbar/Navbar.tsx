@@ -60,6 +60,7 @@ export default () => {
     },
   ];
   const submenu = [
+    { title: 'All DevTools', path: '/all-dev-tools' },
     { title: 'This Week', path: '/' },
     { title: 'Upcoming Tools', path: '/upcoming' },
     { title: 'Best DevTools On Product Hunt', path: '/best-dev-tools-this-week-on-product-hunt' },
