@@ -54,15 +54,15 @@ export default () => {
   const navigation = [
     { title: 'Advertise', path: '/the-story#ads', className:'text-orange-500' },
     {
-      title: 'Submit your Dev Tool',
+      title: 'Submit Channel for feedback',
       path: isLoggedin ? '/account/tools' : '/login',
       className: 'bg-orange-500 hover:bg-orange-600 text-white text-center rounded-lg px-3 p-2 duration-150 btnshake',
     },
   ];
   const submenu = [
     { title: 'This Week', path: '/' },
-    { title: 'Upcoming Tools', path: '/upcoming' },
-    { title: 'Best DevTools On Product Hunt', path: '/best-dev-tools-this-week-on-product-hunt' },
+    { title: 'Fast Growing Channels', path: '/upcoming' },
+    // { title: 'Best DevTools On Product Hunt', path: '/best-dev-tools-this-week-on-product-hunt' },
   ];
 
   const handleSearch = (value: string) => {
@@ -121,7 +121,7 @@ export default () => {
                       onClick={() => setNavMenuActive(!isNavMenuActive)}
                       className="flex items-center gap-x-2 hover:text-slate-200 group"
                     >
-                      Browse tools
+                      Browse channels
                       <ChevronDownIcon className="w-4 h-4 transition-transform duration-[250] ease-in group-data-[state=open]:-rotate-180" />
                     </button>
                     <div
@@ -189,7 +189,7 @@ export default () => {
               >
                 Subscribe
               </button>{' '}
-              to get weekly email with best new dev tools.
+              to get weekly email with best new Channels.
             </p>
             <button
               onClick={() => {

@@ -46,8 +46,8 @@ export default ({ isActive, closeModal }: { isActive: boolean; closeModal: (val:
         <div className="absolute w-full -top-16"></div>
         <form onSubmit={handleSubmit} className="relative">
           <IconNewsletterEnvolpe />
-          <h3 className="text-slate-50 font-semibold mt-6">Subscribe to DevHunt</h3>
-          <p className="text-slate-300 mt-2">Get weekly email with best new dev tools</p>
+          <h3 className="text-slate-50 font-semibold mt-6">Subscribe to Pragya</h3>
+          <p className="text-slate-300 mt-2">Get weekly email with best upcoming channels</p>
           {!isSubscribingDone ? (
             <Input
               required

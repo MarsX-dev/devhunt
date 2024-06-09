@@ -5,8 +5,8 @@ import { ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 
 const { title, description, ogImage } = {
-  title: 'Dev Hunt – The best new Dev Tools every day.',
-  description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
+  title: 'Pragya - Grow your channel',
+  description: 'A launchpad for new and upcoming Youtube channels',
   ogImage: 'https://devhunt.org/devhuntog.png?v=2',
 };
 

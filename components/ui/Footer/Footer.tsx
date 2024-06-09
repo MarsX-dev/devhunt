@@ -8,40 +8,36 @@ export default () => {
       href: '/the-story',
       name: 'About',
     },
-    {
-      href: 'https://github.com/MarsX-dev/devhunt',
-      name: 'GitHub Repository',
-    },
+    // {
+    //   href: 'https://github.com/MarsX-dev/devhunt',
+    //   name: 'GitHub Repository',
+    // },
     {
       href: '/blog',
       name: 'Blog',
     },
     {
-      href: 'https://twitter.com/johnrushx',
+      href: 'https://x.com/PravKumar1988',
       name: 'Contact',
     },
-    { name: 'OSS Friends', href: '/oss-friends' },
-    { name: 'NextJS Starter', href: 'https://nextjsstarter.com/?' },
-    { name: 'Open Source Alternatives', href: 'https://osssoftware.org/' },
-    { name: 'John Rush (CEO)', href: 'https://johnrush.me/' },
+    // { name: 'OSS Friends', href: '/oss-friends' },
+    // { name: 'NextJS Starter', href: 'https://nextjsstarter.com/?' },
+    // { name: 'Open Source Alternatives', href: 'https://osssoftware.org/' },
+    { name: 'Praveen Kumar (CEO)', href: 'https://www.linkedin.com/in/praveenkumar88/' },
   ];
 
-  const usedTools = [
-    { title: 'FloatUI', url: 'https://www.floatui.com/' },
-    { title: 'Sensorpro', url: 'https://sensorpro.eu/' },
-    { title: 'CountVisits', url: 'http://countvisits.com/' },
-    { title: 'SEObotAI', url: 'https://seobotai.com/' },
-    { title: 'ListingBott', url: 'https://listingbott.com/' },
-    { title: 'IndexRusher', url: 'https://indexrusher.com/' },
-    { title: 'UnicornPlatform', url: 'https://unicornplatform.com/' },
-  ];
+  // const usedTools = [
+  //   { title: 'FloatUI', url: 'https://www.floatui.com/' },
+  //   { title: 'Sensorpro', url: 'https://sensorpro.eu/' },
+  //   { title: 'CountVisits', url: 'http://countvisits.com/' },
+  //   { title: 'SEObotAI', url: 'https://seobotai.com/' },
+  //   { title: 'ListingBott', url: 'https://listingbott.com/' },
+  //   { title: 'IndexRusher', url: 'https://indexrusher.com/' },
+  //   { title: 'UnicornPlatform', url: 'https://unicornplatform.com/' },
+  // ];
 
   const builtBy = [
-    { title: '@johnrushx', url: 'https://twitter.com/johnrushx' },
-    { title: '@sidi_jeddou_dev', url: 'https://twitter.com/sidi_jeddou_dev' },
-    { title: '@vitalik_may', url: 'https://twitter.com/vitalik_may' },
-    { title: '@BotanMan', url: 'https://twitter.com/BotanMan' },
-    { title: '@chris_byrne', url: 'https://twitter.com/chris_byrne' },
+    { title: '@praveenkumar', url: 'https://x.com/PravKumar1988' },
     { title: 'see all', url: '/the-story' },
   ];
 
@@ -51,7 +47,7 @@ export default () => {
         <div className="max-w-lg sm:mx-auto sm:text-center">
           <Brand className="sm:m-auto" />
           <p className="leading-relaxed mt-3 text-slate-300 text-[15px]">
-            A launchpad for dev tools, built by developers. Open-source and fair.
+            A launchpad for new Youtube creators.
           </p>
         </div>
         <ul className="text-sm font-medium items-center justify-center mt-8 space-y-5 sm:flex sm:space-x-4 sm:space-y-0">
@@ -70,16 +66,16 @@ export default () => {
               MarsX.Dev
             </a>{' '}
             family. <br />
-            <div className="text-xs pt-2">
-              Uses & Sponsored by {' '}
-              {usedTools.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
-                  {t.title}
-                  {usedTools.length - 1 === i ? '' : ', '}
-                </a>
-              ))}
-              {'.'}
-            </div>
+            {/*<div className="text-xs pt-2">*/}
+            {/*  Uses & Sponsored by {' '}*/}
+            {/*  {usedTools.map((t, i) => (*/}
+            {/*    <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">*/}
+            {/*      {t.title}*/}
+            {/*      {usedTools.length - 1 === i ? '' : ', '}*/}
+            {/*    </a>*/}
+            {/*  ))}*/}
+            {/*  {'.'}*/}
+            {/*</div>*/}
             <div className="text-xs pt-2">
               Built by{' '}
               {builtBy.map((t, i) => (
