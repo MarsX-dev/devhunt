@@ -3,7 +3,7 @@
 Thank you for your interest in contributing to the DevHunt project! We appreciate your support and welcome any contributions that can help improve the project. To ensure a smooth collaboration, please follow these guidelines when making contributions:
 
 ## How to Contribute 
-- Please creat an issue before creating a pull request.
+- Please create an issue before creating a pull request.
 - Before creating a new issue, please check the existing issues to ensure that it hasn't already been reported. When creating a new issue, provide as much detail as possible.
 - Fork the repository and create a branch for any issue that you are working on.
 - Create a pull request which will be promptly reviewed and suggestions would be added to improve it.
