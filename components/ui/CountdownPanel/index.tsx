@@ -108,12 +108,14 @@ export default () => {
 
           <div className="mt-3 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
             <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
+            <img className='w-32 mx-auto my-3' style={{backgroundColor:''}} src="https://cdn.discordapp.com/attachments/1250913585874600042/1252376935225491548/reward_white.png?ex=6671fe69&is=6670ace9&hm=6203cda936883c87dbb8f2c5c0cea4d353b37edf4383e81093593e8d0100c5f2&" alt="" />
 
-            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/listingbott">
-            <span className='underline'>ListingBott.com</span> - list on all directories at once.<br/>
-            <span className='opacity-70'>Grow domain rating, get brand views and clicks.</span>
+            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/neurelo-website">
+            <span className='text-lg font-bold'>Neurelo</span> <br/> AI-powered instant Data APIs for MongoDB, Postgres & MySQL.
+<br/>
+            <span className='opacity-70'>Build apps, don't code queries!</span>
 
-            <br/>  <span className='text-slate-500'> </span>
+            <br/>  <span className='mt-4 mb-3 block w-24 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Try Now</span>
             </a>
             
           </div>
