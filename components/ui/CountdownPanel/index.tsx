@@ -108,7 +108,7 @@ export default () => {
 
           <div className="mt-3 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
             <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
-            <img className='w-32 mx-auto my-3' style={{backgroundColor:''}} src="https://cdn.discordapp.com/attachments/1250913585874600042/1252376935225491548/reward_white.png?ex=6671fe69&is=6670ace9&hm=6203cda936883c87dbb8f2c5c0cea4d353b37edf4383e81093593e8d0100c5f2&" alt="" />
+            <img className='w-32 mx-auto my-3' style={{backgroundColor:''}} src="https://mars-images.imgix.net/reward_white.png?auto=compress&w=1200&fit=max" alt="" />
 
             <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/neurelo-website">
             <span className='text-lg font-bold'>Neurelo</span> <br/> AI-powered instant Data APIs for MongoDB, Postgres & MySQL.
