@@ -43,16 +43,8 @@ export default class ProfileService extends BaseDbService {
   }
 
   async getByUsername(username: string): Promise<Profile | null> {
-    const key = `users-username-${username}`;
-
-    return cache.get(
-      key,
-      async () => {
-        const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
-        return data;
-      },
-      180,
-    );
+    const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
+    return data;
   }
 
   async getProfiles(): Promise<Profile[] | null> {
