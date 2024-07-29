@@ -133,7 +133,7 @@ export default () => {
     if (validateImages()) {
       setUpdate(true);
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
-
+      const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
       const categoryIds: number[] = categories.map(category => category.id);
 
       await productService
@@ -148,7 +148,7 @@ export default () => {
             slogan,
             description: tool_description,
             logo_url: logoPreview,
-            demo_video_url: demo_video,
+            demo_video_url: demo_video || generatedVideoUrl,
           },
           categoryIds,
         )

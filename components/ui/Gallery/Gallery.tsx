@@ -64,10 +64,8 @@ export const Gallery = ({
             </ButtonHandler>
             <ul className="relative z-40 flex-1 max-w-5xl">
               <li className="h-full">
-                {(currentIdx === 0 && media[currentIdx].includes('youtube')) ||
-                media[currentIdx].includes('youtu.be') ||
-                media[currentIdx].includes('.mp4') ? (
-                  media[currentIdx].includes('youtube') || media[currentIdx].includes('youtu.be') ? (
+                {['youtube', 'youtu.be', 'paracast', '.mp4'].some(substring => media[currentIdx].includes(substring)) ? (
+                  ['youtube', 'youtu.be'].some(substring => media[currentIdx].includes(substring)) ? (
                     <iframe
                       loading="lazy"
                       src={extractVideoId(src as string)?.embed as string}
@@ -87,6 +85,7 @@ export const Gallery = ({
                   />
                 )}
               </li>
+
               <div className="w-full absolute z-50 -bottom-14 h-14 inset-x-0 mx-auto flex items-center gap-x-3 overflow-x-auto sm:justify-center">
                 {media.map((src, idx) => (
                   <button
@@ -97,7 +96,7 @@ export const Gallery = ({
                     key={idx}
                     className="flex-none w-14 h-10 hover:scale-110 duration-200"
                   >
-                    {(idx === 0 && media[idx].includes('youtube')) || media[idx].includes('youtu.be') || media[idx].includes('.mp4') ? (
+                    {['youtube', 'youtu.be', '.mp4', 'paracast'].some(substring => media[idx].includes(substring)) ? (
                       <div className="w-full h-full bg-orange-600 rounded-lg text-white flex items-center justify-center">
                         <IconPlay />
                       </div>

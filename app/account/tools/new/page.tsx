@@ -60,6 +60,7 @@ export default () => {
     formState: { errors },
     setError,
     getValues,
+    setValue,
   } = useForm();
 
   const [profile, setProfile] = useState<Profile>();
@@ -143,6 +144,8 @@ export default () => {
   const onSubmit: SubmitHandler<Inputs> = async data => {
     if (validateImages() && (await validateToolName())) {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
+      const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
+
       const categoryIds = categories.map(item => item.id);
 
       const launchWeek = typeof week === 'string' ? parseInt(week) : week;
@@ -176,7 +179,7 @@ export default () => {
               is_draft: false,
               comments_count: 0,
               votes_count: 0,
-              demo_video_url: demo_video,
+              demo_video_url: demo_video || generatedVideoUrl,
               launch_date: weekData?.startDate as string,
               launch_start: weekData?.startDate,
               launch_end: weekData?.endDate,
