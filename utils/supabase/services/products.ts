@@ -166,12 +166,12 @@ export default class ProductsService extends BaseDbService {
     let results = [];
 
     // If endWeek is in the current year
-    if (endWeek <= 52) {
+    if (endWeek <= 53) {
       results = await queryProductsCount(startWeek, endWeek, year);
     } else {
       // Split the query into current year and next year
-      const resultsCurrentYear = await queryProductsCount(startWeek, 52, year);
-      const resultsNextYear = await queryProductsCount(1, endWeek - 52, year + 1);
+      const resultsCurrentYear = await queryProductsCount(startWeek, 53, year);
+      const resultsNextYear = await queryProductsCount(1, endWeek - 53, year + 1);
       results = [...resultsCurrentYear, ...resultsNextYear];
     }
 
