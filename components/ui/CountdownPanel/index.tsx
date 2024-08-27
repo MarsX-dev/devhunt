@@ -109,12 +109,14 @@ export default () => {
           <div className="mt-3 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
             <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
             
-            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/indexrusher">
-            <span className='text-lg text-white font-bold'>IndexRusher.com</span> <br/> 
-            Get your web pages indexed by Google to improve SEO
-
-
-           <span className='mt-4 mb-3 block w-52 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Get a LifeTime Deal</span>
+            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/sevalla">
+            <span className='text-lg text-white font-bold'>Sevalla.com</span> <br/> 
+            Deploy anything. Forget complexity!
+<br/>
+- Applications<br/>
+- Databases<br/>
+- Static sites
+           <span className='mt-4 mb-3 block w-52 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Read More</span>
             </a>
             
           </div> 
