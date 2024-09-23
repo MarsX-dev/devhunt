@@ -140,6 +140,14 @@ export default () => {
         </a>{' '}
         and other premium options to grow your Dev Tool.
       </p>
+      <p className="text-slate-300 mt-2 whitespace-pre-wrap">
+        Consider launching on{' '}
+        <a className="text-orange-500 whitespace-pre-wrap" href="https://uneed.best/?aff=A6pv1">
+          Uneed.best
+        </a>{' '}
+        to get even more traffic to your tool.
+      </p>
+    
       <ModalBannerCode
         isModalOpen={isModalOpen}
         toolSlug={toolSlug}
