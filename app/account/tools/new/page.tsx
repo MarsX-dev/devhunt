@@ -264,7 +264,7 @@ export default () => {
               <LabelError className="mt-2">{errors.github_repo && 'Please enter a valid github repo url'}</LabelError>
             </div>
             <div>
-              <Label>Quick Description (max 300 characters)</Label>
+              <Label>Quick Description</Label>
               <Textarea
                 placeholder="Briefly explain what your tool does. HTML is supported"
                 className="w-full h-36 mt-2"
