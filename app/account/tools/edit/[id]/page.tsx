@@ -227,7 +227,7 @@ export default () => {
                 placeholder="Briefly explain what your tool does. HTML is supported."
                 className="w-full h-36 mt-2"
                 validate={{
-                  ...register('tool_description', { required: true, maxLength: 350 }),
+                  ...register('tool_description', { required: true }),
                 }}
               />
               <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
