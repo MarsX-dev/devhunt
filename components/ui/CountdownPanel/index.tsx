@@ -108,14 +108,15 @@ export default () => {
 
           <div className="mt-3 w-80 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
             <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
-            <img className='w-10 mx-auto mb-1' src='https://unicorn-cdn.b-cdn.net/a757ba26-cd77-49b9-b7f5-c13bc7243f09/qnmrmdlg-400x400-(2).png?width=400&height=400'/>
-            <a target="_blank" className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://johnrush.me/directory-guide/">
-            <span className='text-lg text-white font-bold'>Directory Guide</span> <br/> 
-           <span className='w-60 text-center py-2 block'> Everything I learned by building some of the most popular Web Directories.</span>
-
-
-(Ideas, Build, Grow & Monetize)<br/>
-           <span className='mt-4 mb-3 block w-52 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Pre-Order Now</span>
+            <a target="_blank" rel='nofollow' className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/sevalla2">
+            <span className='text-lg text-white font-bold'>Sevalla.com</span> <br/> 
+            Deploy anything without complexity:
+<br/>
+- Applications<br/>
+- Databases<br/>
+- Static sites
+           <span className='mt-4 mb-3 block w-52 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Sign Up Now</span>
+           <span className='text-sm opacity-70'>$250 free credits when you sign up today</span>
             </a>
             
           </div> 
