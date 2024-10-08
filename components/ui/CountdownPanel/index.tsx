@@ -108,15 +108,14 @@ export default () => {
 
           <div className="mt-3 w-80 sm:block border border-orange-500 bg-slate-900 rounded-md p-3 pt-2 border-dasheds">
             <span className='text-xs mb-2 block text-slate-600'>sponsor</span>  
-            <a target="_blank" rel='nofollow' className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/sevalla2">
-            <span className='text-lg text-white font-bold'>Sevalla.com</span> <br/> 
-            Deploy anything without complexity:
+            <a target="_blank" rel='nofollow' className=" text-slate-300 transition-opacity hover:text-scale-1200" href="https://dub.sh/marblism-devhunt">
+            <span className='text-lg text-white font-bold'>Marblism.com</span> <br/> 
+            NextJS apps with AI in minutes 😱
 <br/>
-- Applications<br/>
-- Databases<br/>
-- Static sites
-           <span className='mt-4 mb-3 block w-52 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Sign Up Now</span>
-           <span className='text-sm opacity-70'>$250 free credits when you sign up today</span>
+- Generate<br/>
+- Host<br/>
+- Edit the code
+           <span className='mt-4 mb-3 block w-52 mx-auto bg-orange-500 text-white p-1 text-sm rounded'>Try Now</span>
             </a>
             
           </div> 
