@@ -21,9 +21,12 @@ export default () => {
       name: 'Contact',
     },
     { name: 'OSS Friends', href: '/oss-friends' },
-    { name: 'NextJS Starter', href: 'https://nextjsstarter.com/?' },
+    { name: 'NextJS Starter', href: 'https://nextjsstarter.com/' },
     { name: 'Open Source Alternatives', href: 'https://osssoftware.org/' },
     { name: 'John Rush (CEO)', href: 'https://johnrush.me/' },
+    { name: 'Submit website to directories', href: 'https://listingbott.com/' },
+    { name: 'Directory Builder', href: 'https://unicornplatform.com/' },
+    { name: 'AI blog generator', href: 'https://seobotai.com/' },
   ];
 
   const usedTools = [
@@ -31,7 +34,7 @@ export default () => {
     { title: 'Sensorpro', url: 'https://sensorpro.eu/' },
     { title: 'CountVisits', url: 'http://countvisits.com/' },
     { title: 'SEObotAI', url: 'https://seobotai.com/' },
-    { title: 'ListingBott', url: 'https://listingbott.com/' },
+    { title: 'Listing Bot', url: 'https://listingbott.com/' },
     { title: 'IndexRusher', url: 'https://indexrusher.com/' },
     { title: 'UnicornPlatform', url: 'https://unicornplatform.com/' },
   ];
@@ -71,7 +74,7 @@ export default () => {
             </a>{' '}
             family. <br />
             <div className="text-xs pt-2">
-              Uses & Sponsored by {' '}
+              Uses & Sponsored by{' '}
               {usedTools.map((t, i) => (
                 <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
                   {t.title}
