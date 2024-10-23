@@ -24,11 +24,11 @@ const SponsorCard = ({ sponsor }) => {
     <div className="mt-3 w-80 text-left sm:block border border-slate-700 bg-slate-900 rounded-md p-4 ">
       <span className="text-xs mb-1 block text-slate-600">{type}</span>
       <a href={link} target="_blank" rel="nofollow" className="text-slate-300 transition-opacity hover:text-slate-200">
-        <div className="text text-white mb-1 font-bold">{title}</div>
-        <div className="text-sm text-slate-300 justify-start mb-2 ">{description}</div>
+        <div className="text text-orange-600 mb-1 font-bold">{title}</div>
+        <div className="text-sm text-slate-300 justify-start mb-2">{description}</div>
         {features.map((feature, index) => (
-          <div key={index}>
-            → <span className='text-sm'>{feature}</span>
+          <div className='opacity-70' key={index}>
+            → <span className='text-sm '>{feature}</span>
           </div>
         ))}
         <span className="mt-4 mb-3 block w-52 w-full bg-orange-900 text-white mx-0 p-1 text-sm rounded text-center">
