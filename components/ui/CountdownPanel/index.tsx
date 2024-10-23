@@ -3,24 +3,19 @@
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-const sponsorsData = [
-  {
-    type: 'sponsor',
-    link: 'https://dub.sh/marblism-devhunt',
-    title: 'Marblism.com',
-    description: 'NextJS apps with AI in minutes 😱',
-    features: ['Generate code', 'Host apps', 'Edit the code'],
-    callToAction: 'Try Now',
-  },
-  {
-    type: 'new',
-    link: 'https://dub.sh/listingbott',
-    title: 'ListingBott.com',
-    description: 'Automated Backlinks and Directory listings',
-    features: ['Good quality domains', 'Boost Domain Rating', 'Save days of work'],
-    callToAction: 'Try Now',
-  },
-];
+const SponsorSkeleton = () => (
+  <div className="mt-3 w-80 text-left sm:block border border-slate-700 bg-slate-900 rounded-md p-4 animate-pulse">
+    <div className="h-4 w-16 bg-slate-700 rounded mb-2"></div>
+    <div className="h-6 w-3/4 bg-slate-700 rounded mb-2"></div>
+    <div className="h-4 w-full bg-slate-700 rounded mb-3"></div>
+    <div className="space-y-2">
+      <div className="h-4 w-2/3 bg-slate-700 rounded"></div>
+      <div className="h-4 w-3/4 bg-slate-700 rounded"></div>
+      <div className="h-4 w-2/3 bg-slate-700 rounded"></div>
+    </div>
+    <div className="h-8 w-full bg-orange-900/50 rounded mt-4"></div>
+  </div>
+);
 
 const SponsorCard = ({ sponsor }) => {
   const { type, link, title, description, features, callToAction } = sponsor;
@@ -30,14 +25,15 @@ const SponsorCard = ({ sponsor }) => {
       <span className="text-xs mb-1 block text-slate-600">{type}</span>
       <a href={link} target="_blank" rel="nofollow" className="text-slate-300 transition-opacity hover:text-slate-200">
         <div className="text text-white mb-1 font-bold">{title}</div>
-
         <div className="text-sm text-slate-300 justify-start mb-2 ">{description}</div>
         {features.map((feature, index) => (
           <div key={index}>
             → <span className='text-sm'>{feature}</span>
           </div>
         ))}
-        <span className="mt-4 mb-3 block w-52 w-full bg-orange-900 text-white mx-0 p-1 text-sm rounded text-center">{callToAction}</span>
+        <span className="mt-4 mb-3 block w-52 w-full bg-orange-900 text-white mx-0 p-1 text-sm rounded text-center">
+          {callToAction}
+        </span>
       </a>
     </div>
   );
@@ -67,9 +63,7 @@ function RenderCountdown() {
   let [now, setNow] = useState(moment().utc());
   let nextMondayNight;
 
-  // Set hours to 24 (end of day), minutes and seconds to zero
   if (now.day() === 0 || (now.day() === 1 && now.hour() < 24)) {
-    // If today is Sunday or Monday but before midnight
     nextMondayNight = now.clone().endOf('d');
 
     if (now.day() === 0) {
@@ -125,6 +119,48 @@ function RenderCountdown() {
   );
 }
 
+const SponsorsSection = () => {
+  const [sponsors, setSponsors] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSponsors = async () => {
+      try {
+        const response = await fetch('https://d1gl9g4ciwvjfq.cloudfront.net/api/GetDevhuntAds');
+        if (!response.ok) throw new Error('Failed to fetch sponsors');
+        const data = await response.json();
+        setSponsors(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSponsors();
+  }, []);
+
+  if (error) {
+    return <div className="text-red-500 p-4">Error loading sponsors</div>;
+  }
+
+  return (
+    <div className="block sm:flex gap-2">
+      {isLoading ? (
+        <>
+          <SponsorSkeleton />
+          <SponsorSkeleton />
+        </>
+      ) : (
+        sponsors.map((sponsor, index) => (
+          <SponsorCard key={index} sponsor={sponsor} />
+        ))
+      )}
+    </div>
+  );
+};
+
 export default () => {
   return (
     <div className="flex border rounded-xl border-slate-800 bg-slate-800 p-5 flex-col gap-1 md:gap-2 items-center justify-end">
@@ -148,11 +184,7 @@ export default () => {
             </a>
             .
           </div>
-          <div className="block sm:flex gap-2">
-            {sponsorsData.map((sponsor, index) => (
-              <SponsorCard key={index} sponsor={sponsor} />
-            ))}
-          </div>
+          <SponsorsSection />
         </div>
       </div>
     </div>
