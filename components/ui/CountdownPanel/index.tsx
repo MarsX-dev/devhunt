@@ -39,6 +39,62 @@ const SponsorCard = ({ sponsor }) => {
   );
 };
 
+const People = () => {
+  const people = [
+    { href: "/@JohnRush_bc21", name: "John Rush", image: "https://pbs.twimg.com/profile_images/1466385933612240901/qNMrMDlG_200x200.jpg" },
+    { href: "/@sididev", name: "Sidi", image: "https://xpdhqqwgprlqmqaqmnyx.supabase.co/storage/v1/object/public/avatars/a90fe249-313d-4546-8dd7-39028bdb8cbf/picture" },
+    { href: "/@vitalik_may", name: "Vitalik May", image: "https://xpdhqqwgprlqmqaqmnyx.supabase.co/storage/v1/object/public/avatars/daa6aea5-8b32-4c4a-9f31-9e2183ba7fb2/picture" },
+    { href: "/@Tpuljak", name: "Toma Puljak", image: "https://avatars.githubusercontent.com/u/26512078?v=4" },
+    { href: "/@KilianValkhof", name: "Kilian Valkhof", image: "https://avatars.githubusercontent.com/u/41970?v=4" },
+    { href: "/@LukeDavidBryant_ea5", name: "Luke David Bryant", image: "https://avatars.githubusercontent.com/u/155965955?v=4" },
+    { href: "/@osslate", name: "Fionn Kelleher", image: "https://avatars.githubusercontent.com/u/773673?v=4" },
+    { href: "/@VladIlnitskiy_0a6", name: "Vlad Ilnitskiy", image: "https://avatars.githubusercontent.com/u/17927972?v=4" },
+    { href: "/@Leech", name: "Leandro Ardissone", image: "https://avatars.githubusercontent.com/u/59826?v=4" },
+    { href: "/@gdraganic", name: "Goran Draganić", image: "https://avatars.githubusercontent.com/u/6513388?v=4" },
+    { href: "/@simonds", name: "Mark Simonds", image: "https://avatars.githubusercontent.com/u/138306?v=4" },
+    { href: "/@G_67d", name: "Will", image: "https://xpdhqqwgprlqmqaqmnyx.supabase.co/storage/v1/object/public/avatars/0cfecc23-276f-4ff9-a404-6837c47bbdfb/picture" },
+    { href: "/@NikolaosSakellarios_05e", name: "Nikolaos Sakellarios", image: "https://avatars.githubusercontent.com/u/3863839?v=4" },
+    { href: "/@KevinMarville_e30", name: "Kevin Marville", image: "https://avatars.githubusercontent.com/u/116537485?v=4" },
+    { href: "/@TomislavJakopec_26f", name: "Tomislav Jakopec", image: "https://avatars.githubusercontent.com/u/7893782?v=4" },
+    { href: "/@DavorRunje_af9", name: "Davor Runje", image: "https://avatars.githubusercontent.com/u/24715380?v=4" },
+    { href: "/@shpetimselaci", name: "Shpetim Selaci", image: "https://avatars.githubusercontent.com/u/23242179?v=4" },
+    { href: "/@ZacharySmith_edd", name: "Zachary Smith", image: "https://avatars.githubusercontent.com/u/1000528?v=4" },
+    { href: "/@amirrustam", name: "Amir R.", image: "https://avatars.githubusercontent.com/u/334337?v=4" },
+    { href: "/@FernandoBold_531", name: "Fernando Bold", initials: "..." },
+  ];
+
+  return (
+    <div className="mt-3">
+      <ul className="max-w-4xl mx-auto gap-3 flex flex-wrap items-center">
+        {people.map((person) => (
+          <li 
+            key={person.href} 
+            className="flex-none w-8 h-8 hover:scale-105 duration-200 sm:w-10 sm:h-10"
+          >
+            <a data-state="closed" href={person.href}>
+              <span>
+                {person.image ? (
+                  <img
+                    className={`w-full h-full object-cover rounded-xl ${
+                      person.hasBorder ? 'border-2 border-orange-500' : ''
+                    }`}
+                    alt={person.name}
+                    src={person.image}
+                  />
+                ) : (
+                  <span className="flex border border-2 border-slate-600 items-center justify-center text-slate-400 h-full w-full bg-slate-800 text-[10px] font-medium rounded-xl">
+                    {person.initials}
+                  </span>
+                )}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 function RenderDatePart({ number, letter }: { number: number; letter: string }) {
   return (
     <div className="rounded-md p-[1px] overflow-hidden bg-gradient-to-b from-[#514b6130] to-[#514b6100]">
@@ -163,8 +219,8 @@ const SponsorsSection = () => {
 
 export default () => {
   return (
-    <div className="flex border rounded-xl border-slate-800 bg-slate-800 p-5 flex-col gap-1 md:gap-2 items-center justify-end">
-      <div className="px-2 flex flex-col items-center text-center gap-3">
+    <div className="flex rounded-xl  flex-col gap-1 md:gap-2">
+      <div className="flex flex-col  gap-3">
         <h1 className="text-slate-200 text-xl font-bold">Find Best Dev Tools Voted by Developers!</h1>
         <p>
           <span className="text-2xl font-bold mb-4 text-orange-500">Vote Closing In: </span>
@@ -174,7 +230,8 @@ export default () => {
         </div>
         <div className="max-w-lg mt-2 text-slate-400">
           100k+ developers found Dev Tools here.
-          <div className="inline mt-2 sm:block">
+          <People/>
+          <div className="mt-3 block">
             See how{' '}
             <a
               className="underline transition-opacity hover:text-scale-1200"
@@ -184,6 +241,7 @@ export default () => {
             </a>
             .
           </div>
+          <div className='block p-2'></div>
           <SponsorsSection />
         </div>
       </div>
