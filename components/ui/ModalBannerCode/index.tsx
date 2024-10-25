@@ -67,7 +67,9 @@ export default ({
     }
 
     setTimeout(() => {
-      handleBannerIframeHeight();
+      bannerIframeRef.current?.addEventListener('load', () => {
+        handleBannerIframeHeight();
+      });
     }, 200);
 
     window.onresize = () => handleBannerIframeHeight();
@@ -75,7 +77,9 @@ export default ({
 
   useEffect(() => {
     setTimeout(() => {
-      handleBannerIframeHeight();
+      bannerIframeRef.current?.addEventListener('load', () => {
+        handleBannerIframeHeight();
+      });
     }, 200);
   }, [pathname, isModalOpen]);
 
@@ -100,7 +104,7 @@ export default ({
         Add this code between <b>{'<head>'}</b> tags in your website to show a banner about your launch.
       </p>
       <div className="mt-3">
-        <iframe ref={bannerIframeRef} srcDoc={srcDoc} className="w-full bg-transparent border-none rounded-xl" />
+        <iframe ref={bannerIframeRef} srcDoc={srcDoc} className="w-full h-12 bg-transparent border-none rounded-xl" />
       </div>
       <div className="mt-2">
         <CodeBlock onCopy={copyDone}>
