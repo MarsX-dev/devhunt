@@ -26,6 +26,7 @@ import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
 import { usermaven } from '@/utils/usermaven';
 import Alert from '@/components/ui/Alert';
+import PaymentForm from '@/components/ui/PaymentForm';
 
 interface Inputs {
   tool_name: string;
@@ -79,6 +80,9 @@ export default () => {
   const [isLogoLoad, setLogoLoad] = useState<boolean>(false);
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isLaunching, setLaunching] = useState<boolean>(false);
+
+  const [isPaymentFormActive, setPaymentFormActive] = useState<boolean>(false);
+  const [isPaid, setPaid] = useState<boolean>(false);
 
   const [allWeeks, setAllWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
@@ -157,56 +161,78 @@ export default () => {
           message: 'Invalid date, please choose a correct date',
         });
       } else {
-        setLaunching(true);
-        const currentWeek = await productService.getWeekNumber(new Date(), 2);
-        const currentYear = new Date().getFullYear();
+        if (!isPaid) {
+          setPaymentFormActive(true);
+        } else {
+          setLaunching(true);
+          const currentWeek = await productService.getWeekNumber(new Date(), 2);
+          const currentYear = new Date().getFullYear();
 
-        const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-        const weekData = weeks.find(i => i.week === launchWeek);
-        await productService
-          .insert(
-            {
-              asset_urls: imagePreviews,
-              name: tool_name,
-              demo_url: tool_website,
-              github_url: github_repo,
-              pricing_type,
-              slogan,
-              description: tool_description,
-              logo_url: logoPreview,
-              owner_id: user?.id,
-              slug: createSlug(tool_name),
-              is_draft: false,
-              comments_count: 0,
-              votes_count: 0,
-              demo_video_url: demo_video || generatedVideoUrl,
-              launch_date: weekData?.startDate as string,
-              launch_start: weekData?.startDate,
-              launch_end: weekData?.endDate,
-              week: launchWeek,
-            },
-            categoryIds,
-          )
-          .then(async res => {
-            const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-            const toolURL = `https://devhunt.org/tool/${res?.slug}`;
-            const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
-            DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
-            setLaunching(false);
-            localStorage.setItem(
-              'last-tool',
-              JSON.stringify({
-                toolSlug: res?.slug,
-                launchDate: res?.launch_date,
-                launchEnd: res?.launch_end,
-              }),
-            );
-            window.open(`/tool/${res?.slug}?banner=true`);
-            router.push('/account/tools');
-          });
+          const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+          const weekData = weeks.find(i => i.week === launchWeek);
+          await productService
+            .insert(
+              {
+                asset_urls: imagePreviews,
+                name: tool_name,
+                demo_url: tool_website,
+                github_url: github_repo,
+                pricing_type,
+                slogan,
+                description: tool_description,
+                logo_url: logoPreview,
+                owner_id: user?.id,
+                slug: createSlug(tool_name),
+                is_draft: false,
+                comments_count: 0,
+                votes_count: 0,
+                demo_video_url: demo_video || generatedVideoUrl,
+                launch_date: weekData?.startDate as string,
+                launch_start: weekData?.startDate,
+                launch_end: weekData?.endDate,
+                week: launchWeek,
+              },
+              categoryIds,
+            )
+            .then(async res => {
+              const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
+              const toolURL = `https://devhunt.org/tool/${res?.slug}`;
+              const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
+              DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+              setLaunching(false);
+              localStorage.setItem(
+                'last-tool',
+                JSON.stringify({
+                  toolSlug: res?.slug,
+                  launchDate: res?.launch_date,
+                  launchEnd: res?.launch_end,
+                }),
+              );
+              window.open(`/tool/${res?.slug}?banner=true`);
+              router.push('/account/tools');
+            });
+        }
       }
     }
   };
+
+  useEffect(() => {
+    window.addEventListener(
+      'message',
+      e => {
+        if (e.data.type == 'submission') {
+          if (e.origin == 'https://app.rapidforms.co' && e.data.data.completed) {
+            setPaid(true);
+            setTimeout(() => {
+              setPaymentFormActive(false);
+              document.getElementById('submit-btn')?.click();
+            }, 200);
+          }
+        }
+      },
+      false,
+    );
+  }, []);
 
   return (
     <section className="container-custom-screen">
@@ -375,7 +401,12 @@ export default () => {
               </div>
             </div>
             <div className="pt-7">
-              <Button type="submit" isLoad={isLaunching} className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
+              <Button
+                id="submit-btn"
+                type="submit"
+                isLoad={isLaunching}
+                className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
+              >
                 Schedule my Dev Tool for Launch
               </Button>
               <p className="text-sm text-slate-500 mt-2">* no worries, you can change it later</p>
@@ -383,6 +414,7 @@ export default () => {
           </FormLaunchSection>
         </FormLaunchWrapper>
       </div>
+      <PaymentForm isActive={isPaymentFormActive} />
     </section>
   );
 };
