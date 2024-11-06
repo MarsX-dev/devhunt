@@ -73,3 +73,10 @@ ul > li:last-child:last-of-type .comment-divided-bar {
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
 }
+
+.catchy-border {
+  border: 2px solid transparent;
+  background: linear-gradient(90deg, #fff, #fff), linear-gradient(to bottom right, #60a5fa, #de4f4a);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
