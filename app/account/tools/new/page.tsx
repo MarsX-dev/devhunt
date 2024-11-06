@@ -221,7 +221,11 @@ export default () => {
       'message',
       e => {
         if (e.data.type == 'submission') {
-          if (e.origin == 'https://app.rapidforms.co' && e.data.data.completed) {
+          if (
+            e.origin == 'https://app.rapidforms.co' &&
+            e.data.data.completed &&
+            e.data.data.url.includes('https://app.rapidforms.co/embed/9365a8')
+          ) {
             setPaid(true);
             setTimeout(() => {
               setPaymentFormActive(false);
@@ -415,6 +419,7 @@ export default () => {
         </FormLaunchWrapper>
       </div>
       <PaymentForm isActive={isPaymentFormActive} toolName={getValues('tool_name')} />
+      {/* isPaymentFormActive */}
     </section>
   );
 };
