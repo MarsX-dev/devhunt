@@ -75,6 +75,11 @@ export default () => {
                   <div>
                     <Link href={`/tool/${tool.slug}`}>
                       <Name>{tool.name}</Name>
+                      {!tool.isPaid && (
+                        <p className="text-slate-300">
+                          Status: <span className="text-orange-400">draft</span>
+                        </p>
+                      )}
                       <Title className="line-clamp-2">{tool.slogan}</Title>
                       <Tags
                         items={[
