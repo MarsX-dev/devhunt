@@ -414,7 +414,7 @@ export default () => {
           </FormLaunchSection>
         </FormLaunchWrapper>
       </div>
-      <PaymentForm isActive={true} toolName={getValues('tool_name')} />
+      <PaymentForm isActive={isPaymentFormActive} toolName={getValues('tool_name')} />
     </section>
   );
 };
