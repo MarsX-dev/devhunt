@@ -27,7 +27,6 @@ export default function Home() {
       setLaunchWeeks(launchWeeks as any);
       setWeeklyWinners(weeklyWinners as any);
       setLoading(false);
-      console.log(launchWeeks);
     };
     fetchData();
   }, []);
@@ -39,9 +38,11 @@ export default function Home() {
           Vote for your favorite dev tool this week<b className="text-orange-400">👇</b>
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
-          {group.products.map((product, idx) => (
-            <ToolCardEffect key={idx} tool={product as ProductType} />
-          ))}
+          {group.products.map(
+            (product, idx) =>
+              // <ToolCardEffect key={idx} tool={product as ProductType} />
+              !product.isPaid && <ToolCardEffect key={idx} tool={product as ProductType} />,
+          )}
         </ul>
       </>
     );

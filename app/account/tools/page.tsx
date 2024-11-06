@@ -84,6 +84,14 @@ export default () => {
                       />
                     </Link>
                     <div className="mt-2.5 flex items-center gap-x-4">
+                      {!tool.isPaid && (
+                        <Link
+                          href={`/account/tools/activate-launch/${tool.slug}`}
+                          className="inline-block text-slate-200 font-medium hover:text-slate-500 duration-150"
+                        >
+                          Pay to launch
+                        </Link>
+                      )}
                       <Link
                         href={`/account/tools/edit/${tool.id}`}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
@@ -147,7 +155,7 @@ export default () => {
         </a>{' '}
         to get even more traffic to your tool.
       </p>
-    
+
       <ModalBannerCode
         isModalOpen={isModalOpen}
         toolSlug={toolSlug}

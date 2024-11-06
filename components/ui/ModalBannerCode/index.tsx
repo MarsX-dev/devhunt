@@ -36,7 +36,7 @@ export default ({
   const searchParams: any = useSearchParams();
   const search = searchParams.get('banner');
   const { slug } = params as { slug: string };
-  const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
+  const isBannerActive = pathname?.includes('/tool') && !pathname?.includes('/activate-launch') && search == 'true' ? true : false;
 
   const handleBannerIframeHeight = () => {
     const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
@@ -49,7 +49,7 @@ export default ({
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
 
-    if (getToolFromLocalStorage) {
+    if (getToolFromLocalStorage && !pathname?.includes('/activate-launch')) {
       const parsedTool = JSON.parse(getToolFromLocalStorage) as { toolSlug: string; launchEnd: string; launchDate: string };
       if (new Date(parsedTool.launchEnd).getTime() >= Date.now()) {
         setToolSlug(parsedTool.toolSlug);
