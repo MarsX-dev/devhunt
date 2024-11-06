@@ -8,10 +8,13 @@ import { useRouter } from 'next/navigation';
 import { IconLoading } from '@/components/Icons';
 import { Check } from 'lucide-react';
 import Link from 'next/link';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default ({ params: { slug } }: { params: { slug: string } }) => {
   const [toolName, setToolName] = useState<string>('');
   const [id, setId] = useState<number>();
+
+  const [userEmail, setEmail] = useState<string>('');
 
   const [isPaymentFormActive, setPaymentFormActive] = useState<boolean>(false);
   const [isPaid, setPaid] = useState<boolean>(false);
@@ -63,6 +66,12 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
     setId(product?.id);
     setToolName(product?.name as string);
 
+    const supabase = createClientComponentClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    setEmail(user?.email as string);
+
     if (!product?.isPaid) {
       setPaymentFormActive(true);
     } else router.push('/account/tools');
@@ -90,7 +99,7 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
           </Link>
         </div>
       )}
-      <PaymentForm isActive={isPaymentFormActive} toolName={toolName} />
+      <PaymentForm isActive={isPaymentFormActive} toolName={toolName} email={userEmail} />
     </section>
   );
 };
