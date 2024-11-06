@@ -41,7 +41,7 @@ export default function Home() {
           {group.products.map(
             (product, idx) =>
               // <ToolCardEffect key={idx} tool={product as ProductType} />
-              !product.isPaid && <ToolCardEffect key={idx} tool={product as ProductType} />,
+              product.isPaid && <ToolCardEffect key={idx} tool={product as ProductType} />,
           )}
         </ul>
       </>
