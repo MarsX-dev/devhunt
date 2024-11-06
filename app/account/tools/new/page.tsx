@@ -151,61 +151,61 @@ export default () => {
       const launchWeek = typeof week === 'string' ? parseInt(week) : week;
 
       const getCurrentWeekOfdate = allWeeks.filter(item => item.week == week);
-      if (getCurrentWeekOfdate[0].count >= 15) {
-        setError('week', {
-          type: 'manual',
-          message: 'Invalid date, please choose a correct date',
-        });
-      } else {
-        setLaunching(true);
-        const currentWeek = await productService.getWeekNumber(new Date(), 2);
-        const currentYear = new Date().getFullYear();
+      // if (getCurrentWeekOfdate[0].count >= 15) {
+      //   setError('week', {
+      //     type: 'manual',
+      //     message: 'Invalid date, please choose a correct date',
+      //   });
+      // } else {
+      setLaunching(true);
+      const currentWeek = await productService.getWeekNumber(new Date(), 2);
+      const currentYear = new Date().getFullYear();
 
-        const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-        const weekData = weeks.find(i => i.week === launchWeek);
-        await productService
-          .insert(
-            {
-              asset_urls: imagePreviews,
-              name: tool_name,
-              demo_url: tool_website,
-              github_url: github_repo,
-              pricing_type,
-              slogan,
-              description: tool_description,
-              logo_url: logoPreview,
-              owner_id: user?.id,
-              slug: createSlug(tool_name),
-              is_draft: false,
-              comments_count: 0,
-              votes_count: 0,
-              demo_video_url: demo_video || generatedVideoUrl,
-              launch_date: weekData?.startDate as string,
-              launch_start: weekData?.startDate,
-              launch_end: weekData?.endDate,
-              week: launchWeek,
-              isPaid: false,
-            },
-            categoryIds,
-          )
-          .then(async res => {
-            const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-            const toolURL = `https://devhunt.org/tool/${res?.slug}`;
-            const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
-            DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
-            setLaunching(false);
-            localStorage.setItem(
-              'last-tool',
-              JSON.stringify({
-                toolSlug: res?.slug,
-                launchDate: res?.launch_date,
-                launchEnd: res?.launch_end,
-              }),
-            );
-            router.push(`/tool/${res?.slug}?banner=true`);
-            window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
-          });
-      }
+      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+      const weekData = weeks.find(i => i.week === launchWeek);
+      await productService
+        .insert(
+          {
+            asset_urls: imagePreviews,
+            name: tool_name,
+            demo_url: tool_website,
+            github_url: github_repo,
+            pricing_type,
+            slogan,
+            description: tool_description,
+            logo_url: logoPreview,
+            owner_id: user?.id,
+            slug: createSlug(tool_name),
+            is_draft: false,
+            comments_count: 0,
+            votes_count: 0,
+            demo_video_url: demo_video || generatedVideoUrl,
+            launch_date: weekData?.startDate as string,
+            launch_start: weekData?.startDate,
+            launch_end: weekData?.endDate,
+            week: launchWeek,
+            isPaid: false,
+          },
+          categoryIds,
+        )
+        .then(async res => {
+          const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
+          const toolURL = `https://devhunt.org/tool/${res?.slug}`;
+          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
+          DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+          setLaunching(false);
+          localStorage.setItem(
+            'last-tool',
+            JSON.stringify({
+              toolSlug: res?.slug,
+              launchDate: res?.launch_date,
+              launchEnd: res?.launch_end,
+            }),
+          );
+          router.push(`/tool/${res?.slug}?banner=true`);
+          window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
+        });
+      // }
     }
   };
 

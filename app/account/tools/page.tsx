@@ -87,7 +87,7 @@ export default () => {
                       {!tool.isPaid && (
                         <Link
                           href={`/account/tools/activate-launch/${tool.slug}`}
-                          className="inline-block text-slate-200 font-medium hover:text-slate-500 duration-150"
+                          className="text-sm inline-block bg-orange-500 px-2 py-1 rounded-md text-white font-medium hover:bg-orange-600 duration-150"
                         >
                           Pay to launch
                         </Link>
