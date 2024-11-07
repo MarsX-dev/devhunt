@@ -28,7 +28,6 @@ import WinnerBadge from '@/components/ui/WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
 import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
 import { Profile } from '@/utils/supabase/types';
-import { useSupabase } from '@/components/supabase/provider';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -68,7 +67,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   // const supabaseBrowserClient = createServerClient();
   const supabaseBrowserClient = createBrowserClient();
 
-  const { user } = useSupabase();
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.auth.getUser();
 
   const productsService = new ProductsService(supabaseBrowserClient);
   const product = await productsService.getBySlug(slug, true);
@@ -128,8 +128,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     },
   ];
 
-  console.log(user);
-
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
@@ -139,26 +137,43 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
-        {/* {
-          !product.isPaid && user
-        } */}
-        <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny
-            href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
-            target="_blank"
-            className="flex items-center gap-x-2"
-            rel={!product.isPaid ? 'nofollow' : ''}
-          >
-            Live preview
-            <IconArrowTopRight />
-          </LinkShiny>
-          <ButtonUpvote
-            productId={product?.id}
-            count={product?.votes_count}
-            launchDate={product.launch_date}
-            launchEnd={product.launch_end as string}
-          />
-        </div>
+        {!product.isPaid && data?.user?.id == product.owner_id ? (
+          <div className="mt-4 bg-slate-800/50 backdrop-blur-sm rounded-lg shadow-lg p-6 w-full border border-slate-700">
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="font-semibold text-slate-100">Tool Status</h2>
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-yellow-400 border-yellow-400">
+                Draft
+              </div>
+            </div>
+            <p className="text-slate-300 mb-6 text-sm">
+              Your tool is currently in draft mode. Pay now to launch it and receive a dofollow backlink.
+            </p>
+            <a
+              href={`/account/tools/activate-launch/${product.slug}`}
+              className="w-full bg-orange-500 hover:bg-orange-600 px-3 py-2 text-sm rounded-lg text-white"
+            >
+              Pay Now to Launch
+            </a>
+          </div>
+        ) : (
+          <div className="text-sm mt-3 flex items-center gap-x-3">
+            <LinkShiny
+              href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
+              target="_blank"
+              className="flex items-center gap-x-2"
+              rel={!product.isPaid ? 'nofollow' : ''}
+            >
+              Live preview
+              <IconArrowTopRight />
+            </LinkShiny>
+            <ButtonUpvote
+              productId={product?.id}
+              count={product?.votes_count}
+              launchDate={product.launch_date}
+              launchEnd={product.launch_end as string}
+            />
+          </div>
+        )}
         <div className="mt-10">
           <VoterAvatarsList productId={product.id} owner={owned as Profile} />
         </div>
