@@ -22,6 +22,7 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
 import moment from 'moment';
+import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
 
 interface Inputs {
   tool_name: string;
@@ -31,10 +32,11 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
+  week: number | string;
 }
 
 export default () => {
-  const { id } = useParams();
+  const { id } = useParams<any>();
   const browserService = createBrowserClient();
   const pricingTypesList = new ProductPricingTypesService(browserService).getAll();
   const productService = new ProductsService(browserService);
@@ -68,6 +70,9 @@ export default () => {
   const [isLogoLoad, setLogoLoad] = useState<boolean>(false);
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isUpdate, setUpdate] = useState<boolean>(false);
+  const [isPaid, setPaid] = useState<boolean>(false);
+
+  const [weekValue, setWeekValue] = useState<string | number>('');
 
   useEffect(() => {
     pricingTypesList.then(types => {
@@ -83,9 +88,11 @@ export default () => {
       setValue('pricing_type', data?.pricing_type);
       setValue('github_repo', data?.github_url);
       setValue('demo_video', data?.demo_video_url);
-      setValue('launch_date', data?.launch_date);
+      setValue('week', data?.week);
+      setWeekValue(data?.week as number);
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
+      setPaid(data?.isPaid as boolean);
     });
   }, []);
 
@@ -132,9 +139,15 @@ export default () => {
   const onSubmit: SubmitHandler<Inputs> = async data => {
     if (validateImages()) {
       setUpdate(true);
-      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
+      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
       const categoryIds: number[] = categories.map(category => category.id);
+      const launchWeek = typeof week === 'string' ? parseInt(week) : week;
+      const currentWeek = await productService.getWeekNumber(new Date(), 2);
+      const currentYear = new Date().getFullYear();
+
+      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+      const weekData = weeks.find(i => i.week === launchWeek);
 
       await productService
         .update(
@@ -149,6 +162,10 @@ export default () => {
             description: tool_description,
             logo_url: logoPreview,
             demo_video_url: demo_video || generatedVideoUrl,
+            launch_date: weekData?.startDate as string,
+            launch_start: weekData?.startDate,
+            launch_end: weekData?.endDate,
+            week: launchWeek,
           },
           categoryIds,
         )
@@ -312,31 +329,25 @@ export default () => {
             description="Setting the perfect launch week is essential to make a splash in the dev world."
           >
             <div>
-              <ul className="text-sm text-slate-300">
-                <li className="p-2 rounded-lg border border-slate-800 bg-slate-800/50">
-                  The launch date is <b>{moment(getValues('launch_date')).format('LL')}</b> Please{' '}
-                  <a href="https://twitter.com/johnrushx" target="_blank" className="text-orange-500 hover:text-orange-400">
-                    contact us
-                  </a>{' '}
-                  if you want to update or cancel the launch.
-                </li>
-              </ul>
-              {/* <div className="relative mt-4 mb-3">
-                <SelectmenuDate
-                  value={getValues('launch_date')}
-                  label="Launch date"
-                  className="w-full"
-                  date={{ month: 6 }}
-                  validate={{
-                    ...register('launch_date', { required: true }),
-                  }}
-                />
+              <div className="relative mt-4 mb-3">
+                {isPaid ? (
+                  <SelectLaunchDate
+                    validate={{
+                      ...register('week', { required: true, onChange: e => setWeekValue(e.target.value) }),
+                    }}
+                    value={weekValue}
+                    label="Launch week"
+                    className="w-full"
+                  />
+                ) : (
+                  <SelectLaunchDate value={getValues('week')} label="Launch week" className="w-full" disabled={true} />
+                )}
                 <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
-              </div> */}
-              <div className="mt-3 text-lg text-slate-100 font-medium">
-                Wanna skip this line?{' '}
-                <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
-                  See details
+              </div>
+              <div className="mt-3 text-sm text-slate-100 font-medium">
+                *To edit your launch date you need to pay{' '}
+                <a target="_blank" href={`/account/tools/activate-launch/${id}`} className="underline text-orange-500">
+                  Pay to edit
                 </a>
               </div>
             </div>

@@ -12,6 +12,7 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   className?: string;
   validate?: {};
   setAllWeeks?: (val: { week: number; startDate: Date; endDate: Date; count: number }[]) => void;
+  disabled?: boolean;
 }
 
 export default ({ label, value, className = '', validate, setAllWeeks = () => {}, ...props }: Props) => {

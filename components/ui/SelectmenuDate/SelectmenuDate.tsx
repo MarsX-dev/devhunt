@@ -11,9 +11,18 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
     month?: number;
   };
   validate?: {};
+  disabled?: boolean;
 }
 
-export default ({ label, value, className = '', date: { month = new Date().getMonth() } = {}, validate, ...props }: Props) => {
+export default ({
+  label,
+  value,
+  disabled = false,
+  className = '',
+  date: { month = new Date().getMonth() } = {},
+  validate,
+  ...props
+}: Props) => {
   const currentDate = new Date();
   const getDaysInMonth = new Date(currentDate.getFullYear(), month, 0).getDate();
   const monthDays = Array.from({ length: getDaysInMonth }, (_, index) => index + 1);
@@ -25,6 +34,7 @@ export default ({ label, value, className = '', date: { month = new Date().getMo
         {...props}
         {...validate}
         value={value}
+        disabled={disabled}
         className={`pr-3 pl-12 py-2 appearance-none rounded-lg text-sm bg-slate-800 text-slate-300 outline-none ${mergeTW(className)}`}
       >
         <option value="" disabled selected>
