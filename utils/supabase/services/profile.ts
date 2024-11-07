@@ -2,6 +2,8 @@ import type { Profile, UpdateProfile } from '@/utils/supabase/types';
 import BaseDbService from './BaseDbService';
 import { type ProductComment } from './comments';
 import { cache } from '@/utils/supabase/services/CacheService';
+import ProductsService from './products';
+import { createBrowserClient } from '../browser';
 
 type FileBody =
   | ArrayBuffer
@@ -80,7 +82,16 @@ export default class ProfileService extends BaseDbService {
       .eq('user_id', userId);
 
     if (error !== null) throw new Error(error.message);
-    return data;
+    const supabaseBrowserClient = createBrowserClient();
+
+    const productsService = new ProductsService(supabaseBrowserClient);
+
+    return await Promise.all(
+      data.map(async item => ({
+        ...item,
+        isPaid: (await productsService.getBySlug(item.slug as string, true))?.isPaid,
+      })),
+    );
   }
 
   async update(id: string, updates: UpdateProfile): Promise<UpdateProfile> {

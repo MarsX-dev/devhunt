@@ -86,32 +86,35 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
           <div>
             <h3 className="font-medium text-slate-50">{votedTools?.length} Upvotes</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
-              {votedTools.map((tool: any, idx: number) => (
-                <li key={idx} className="py-3">
-                  <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
-                    <Logo src={tool.logo_url || ''} alt={tool.name} />
-                    <div className="space-y-1">
-                      <Name href={tool.demo_url as string}>{tool.name}</Name>
-                      <Title className="line-clamp-2">{tool.slogan}</Title>
-                      <Tags
-                        items={[
-                          (tool.product_pricing_types as { title: string }).title || 'Free',
-                          ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
-                        ]}
-                      />
-                    </div>
-                    <div className="flex-1 self-center flex justify-end">
-                      <Votes
-                        className="text-orange-500"
-                        count={tool.votes_count}
-                        productId={tool?.id}
-                        launchDate={tool.launch_date}
-                        launchEnd={tool.launch_end}
-                      />
-                    </div>
-                  </ToolCard>
-                </li>
-              ))}
+              {votedTools.map(
+                (tool: any, idx: number) =>
+                  tool.isPaid && (
+                    <li key={idx} className="py-3">
+                      <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
+                        <Logo src={tool.logo_url || ''} alt={tool.name} />
+                        <div className="space-y-1">
+                          <Name href={tool.demo_url as string}>{tool.name}</Name>
+                          <Title className="line-clamp-2">{tool.slogan}</Title>
+                          <Tags
+                            items={[
+                              (tool.product_pricing_types as { title: string }).title || 'Free',
+                              ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
+                            ]}
+                          />
+                        </div>
+                        <div className="flex-1 self-center flex justify-end">
+                          <Votes
+                            className="text-orange-500"
+                            count={tool.votes_count}
+                            productId={tool?.id}
+                            launchDate={tool.launch_date}
+                            launchEnd={tool.launch_end}
+                          />
+                        </div>
+                      </ToolCard>
+                    </li>
+                  ),
+              )}
             </ul>
           </div>
         ) : (
