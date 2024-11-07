@@ -73,9 +73,7 @@ export default function Home() {
         <ul className="relative mt-3 divide-y divide-slate-800/60">
           {products
             .sort((a, b) => b.votes_count - a.votes_count)
-            .map((product, idx) => (
-              <ToolCardEffect key={idx} tool={product as ProductType} />
-            ))}
+            .map((product, idx) => product.isPaid && <ToolCardEffect key={idx} tool={product as ProductType} />)}
           <div className="absolute -inset-x-2 -inset-y-0 -z-20 bg-slate-800/40 rounded-xl sm:-inset-x-3"></div>
         </ul>
       </>
