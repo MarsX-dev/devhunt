@@ -71,6 +71,7 @@ export default () => {
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isUpdate, setUpdate] = useState<boolean>(false);
   const [isPaid, setPaid] = useState<boolean>(false);
+  const [slug, setSlug] = useState<string>('');
 
   const [weekValue, setWeekValue] = useState<string | number>('');
 
@@ -89,6 +90,7 @@ export default () => {
       setValue('github_repo', data?.github_url);
       setValue('demo_video', data?.demo_video_url);
       setValue('week', data?.week);
+      setSlug(data?.slug as string);
       setWeekValue(data?.week as number);
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
@@ -346,7 +348,7 @@ export default () => {
               </div>
               <div className="mt-3 text-sm text-slate-100 font-medium">
                 *To edit your launch date you need to pay{' '}
-                <a target="_blank" href={`/account/tools/activate-launch/${id}`} className="underline text-orange-500">
+                <a target="_blank" href={`/account/tools/activate-launch/${slug}`} className="underline text-orange-500">
                   Pay to edit
                 </a>
               </div>
