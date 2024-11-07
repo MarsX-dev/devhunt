@@ -139,6 +139,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
             target="_blank"
             className="flex items-center gap-x-2"
+            rel={!product.isPaid ? 'nofollow' : ''}
           >
             Live preview
             <IconArrowTopRight />

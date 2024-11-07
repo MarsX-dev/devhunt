@@ -190,7 +190,7 @@ export default class ProductsService extends BaseDbService {
 
     return cache.get(key, async () => {
       // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-      let products = this.supabase.from('products').select(selectQuery).eq('deleted', false);
+      let products = this.supabase.from('products').select(selectQuery).eq('deleted', false).eq('isPaid', true);
       const count = (await products).data?.length;
       if (categoryId) {
         products = products.eq('product_categories.id', categoryId);
