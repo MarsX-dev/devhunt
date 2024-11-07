@@ -91,6 +91,12 @@ export default () => {
     });
   }, []);
 
+  // useEffect(() => {
+  //   if (imagesError) {
+  //     document.getElementById('tool-screenshots-container')?.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // }, [imagesError]);
+
   const handleUploadImages = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
@@ -141,7 +147,28 @@ export default () => {
     } else return true;
   };
 
+  function scrollToErroView() {
+    if (imagesError) {
+      document.getElementById('tool-screenshots-container')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    if (logoError) {
+      document.getElementById('form-container')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    if (errors.pricing_type) {
+      document.getElementById('pricing-container')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  useEffect(() => {
+    if (logoError || imagesError || errors.pricing_type) {
+      scrollToErroView();
+    }
+  }, [imagesError, logoError, errors.pricing_type]);
+
   const onSubmit: SubmitHandler<Inputs> = async data => {
+    scrollToErroView();
     if (validateImages() && (await validateToolName())) {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
@@ -213,7 +240,7 @@ export default () => {
     <section className="container-custom-screen">
       <Alert context="Any non-dev tools will be subject to removal. Please ensure that your submission is relevant to the developer community." />
       <h1 className="text-xl text-slate-50 font-semibold mt-6">Launch a tool</h1>
-      <div className="mt-12">
+      <div id="form-container" className="mt-12">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection
             number={1}
@@ -281,7 +308,7 @@ export default () => {
             title="Extra Stuff"
             description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!"
           >
-            <div>
+            <div id="pricing-container">
               <Label>Tool pricing type</Label>
               {pricingType.map((item, idx) => (
                 <Controller
@@ -318,7 +345,7 @@ export default () => {
               />
               <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
             </div>
-            <div>
+            <div id="tool-screenshots-container">
               <Label>Tool screenshots</Label>
               <p className="text-sm text-slate-400">
                 Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
@@ -356,6 +383,9 @@ export default () => {
                 <li>
                   <b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.
                 </li>
+                <li>
+                  <b>4. DoFollow backlink(DR 57):</b> Boost your own domain rating by getting high quality dofollow link.
+                </li>
               </ul>
               <div className="relative mt-4 mb-3">
                 <SelectLaunchDate
@@ -384,7 +414,7 @@ export default () => {
               >
                 Submit & Pay $49
               </Button>
-              <p className="text-sm text-slate-500 mt-2">* no worries, you can change it later</p>
+              <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info or reschedule the launch later</p>
             </div>
           </FormLaunchSection>
         </FormLaunchWrapper>

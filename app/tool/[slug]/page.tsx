@@ -28,6 +28,7 @@ import WinnerBadge from '@/components/ui/WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
 import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
 import { Profile } from '@/utils/supabase/types';
+import { useSupabase } from '@/components/supabase/provider';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -66,6 +67,8 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
   // const supabaseBrowserClient = createServerClient();
   const supabaseBrowserClient = createBrowserClient();
+
+  const { user } = useSupabase();
 
   const productsService = new ProductsService(supabaseBrowserClient);
   const product = await productsService.getBySlug(slug, true);
@@ -125,6 +128,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     },
   ];
 
+  console.log(user);
+
   return (
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
@@ -134,6 +139,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
+        {/* {
+          !product.isPaid && user
+        } */}
         <div className="text-sm mt-3 flex items-center gap-x-3">
           <LinkShiny
             href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
