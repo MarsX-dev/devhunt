@@ -9,7 +9,15 @@ const URL = 'https://devhunt.org';
 async function generateSiteMap() {
   const productsService = new ProductsService(createBrowserClient());
   const profiles = await new ProfileService(createBrowserClient()).getProfiles();
-  const res = await productsService.getProducts('id', false, 10000);
+  const res = await productsService.getProducts(
+    'id',
+    false,
+    1000000000,
+    1,
+    null,
+    '*, product_pricing_types(*), product_categories(*), profiles (full_name)',
+    true,
+  );
   const tools = res.data as Product[];
   return `<?xml version="1.0" encoding="UTF-8"?>
    <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
