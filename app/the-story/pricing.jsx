@@ -3,7 +3,7 @@ export default () => {
     {
       name: 'Skip the queue',
       desc: 'The average wait time for a free launch is 6 months',
-      price: 297,
+      price: 46,
       link: 'https://buy.stripe.com/8wM6qfeEWdde1So3cr',
       isMostPop: true,
       features: ['Pick any launch week you want', 'Be on top of the launch tread on X', 'Get hand crafted launch video from us'],
