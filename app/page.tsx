@@ -7,8 +7,9 @@ import { ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import CountdownPanel from '@/components/ui/CountdownPanel';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
+import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
 
 export default function Home() {
   const today = new Date();
@@ -40,7 +41,7 @@ export default function Home() {
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product, idx) => (
-            <ToolCardEffect key={idx} tool={product as ProductType} />
+            <ToolCardEffect key={idx} tool={product as ProductType}/>
           ))}
         </ul>
       </>
@@ -55,7 +56,7 @@ export default function Home() {
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.slice(0, 3).map((product, idx) => (
-            <ToolCardEffect key={idx} tool={product as ProductType} />
+            <ToolCardEffect key={idx} tool={product as ProductType}/>
           ))}
         </ul>
       </>
@@ -73,7 +74,7 @@ export default function Home() {
           {products
             .sort((a, b) => b.votes_count - a.votes_count)
             .map((product, idx) => (
-              <ToolCardEffect key={idx} tool={product as ProductType} />
+              <ToolCardEffect key={idx} tool={product as ProductType}/>
             ))}
           <div className="absolute -inset-x-2 -inset-y-0 -z-20 bg-slate-800/40 rounded-xl sm:-inset-x-3"></div>
         </ul>
@@ -83,7 +84,8 @@ export default function Home() {
 
   return (
     <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
-      <CountdownPanel />
+      <CountdownPanel/>
+      <MonitizorAdCards/>
       {isLoading ? (
         <div className="mt-14">
           <div>
@@ -94,7 +96,7 @@ export default function Home() {
             {Array(25)
               .fill('')
               .map((item, idx) => (
-                <SkeletonToolCard key={idx} />
+                <SkeletonToolCard key={idx}/>
               ))}
           </ul>
         </div>
