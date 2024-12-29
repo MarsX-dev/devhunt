@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Script from "next/script";
 
 const SponsorSkeleton = () => (
   <div className="mt-3 w-60 text-left sm:block border border-slate-700 bg-slate-900 rounded-md p-4 animate-pulse">
@@ -23,7 +24,14 @@ function MonitizorAdCards() {
   }, []);
 
   const iframe = <>
-    <script src="https://selldigitals.com/libs/widget.js" type="module"></script>
+    <Script
+        src="https://selldigitals.com/libs/widget.js"
+        strategy="lazyOnload"
+      />
+    <Script
+        src="https://selldigitals.com/libs/manager.js?widgetId=67694f18ba7de28681af6e17"
+        strategy="lazyOnload"
+      />
     <iframe
       width="100%"
       height="150"
