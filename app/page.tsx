@@ -19,7 +19,8 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const week = await productService.getWeekNumber(today, 2);
+      // const week = await productService.getWeekNumber(today, 2);
+      const week = 53;
       const [launchWeeks, weeklyWinners] = await Promise.all([
         productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1),
         productService.getWeeklyWinners(week),
