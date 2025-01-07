@@ -59,9 +59,10 @@ export default function Home() {
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product, idx) => (
             <>
+              {/* {console.log(product)} */}
               {
                 // <ToolCardEffect key={idx} tool={product as ProductType} />
-                product.isPaid && product.week == currentWeek && product.created_at.includes(new Date().getFullYear()) && (
+                product.isPaid && product.week == currentWeek && product.launch_start.includes(new Date().getFullYear()) && (
                   <ToolCardEffect key={idx} tool={product as ProductType} />
                 )
               }
