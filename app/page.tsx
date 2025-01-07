@@ -19,7 +19,11 @@ function getDate(weekStartDay: number): Date {
   const offset = (weekStartDay - dow + 7) % 7;
   const firstWeekStart = new Date(jan1.getTime() + offset * 86400000);
   if (today < firstWeekStart) {
+<<<<<<< HEAD
     today = new Date(year - 1, 11, 31, 23, 59, 59);// Use last day of previous year
+=======
+    today = new Date(year - 1, 11, 31, 23, 59, 59); // Use last day of previous year
+>>>>>>> e038157 (Refactor date calculation for current week based on configurable start day)
   }
 
   return today;
@@ -28,11 +32,12 @@ function getDate(weekStartDay: number): Date {
 export default function Home() {
   const weekStartDay = 2;
   const today = getDate(weekStartDay);
-
   const productService = new ProductsService(createBrowserClient());
   const [launchWeeks, setLaunchWeeks] = useState([]);
   const [weeklyWinners, setWeeklyWinners] = useState([]);
   const [isLoading, setLoading] = useState(true);
+
+  const [currentWeek, setCurrentWeek] = useState<number>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,11 +60,17 @@ export default function Home() {
           Vote for your favorite dev tool this week<b className="text-orange-400">👇</b>
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
-          {group.products.map(
-            (product, idx) =>
-              // <ToolCardEffect key={idx} tool={product as ProductType} />
-              product.isPaid && <ToolCardEffect key={idx} tool={product as ProductType} />,
-          )}
+          {group.products.map((product, idx) => (
+            <>
+              {console.log(product)}
+              {
+                // <ToolCardEffect key={idx} tool={product as ProductType} />
+                product.isPaid && product.week == currentWeek && product.created_at.includes(new Date().getFullYear()) && (
+                  <ToolCardEffect key={idx} tool={product as ProductType} />
+                )
+              }
+            </>
+          ))}
         </ul>
       </>
     );
