@@ -27,8 +27,24 @@ export const metadata = {
   },
 };
 
+function getDate(weekStartDay: number): Date {
+  let today = new Date();
+  const year = today.getFullYear();
+  const jan1 = new Date(year, 0, 1);
+  const dow = jan1.getDay();
+  // Find first startDay on or after Jan 1
+  const offset = (weekStartDay - dow + 7) % 7;
+  const firstWeekStart = new Date(jan1.getTime() + offset * 86400000);
+  if (today < firstWeekStart) {
+    today = new Date(year - 1, 11, 31, 23, 59, 59); // Use last day of previous year
+  }
+
+  return today;
+}
+
 export default async function Home() {
-  const today = new Date();
+  const weekStartDay = 2;
+  const today = getDate(weekStartDay);
   const productService = new ProductsService(createBrowserClient());
   const week = await productService.getWeekNumber(today, 2);
   const launchWeeks = await productService.getNextLaunchWeeks(today.getFullYear(), 2, week, 5);
