@@ -75,6 +75,8 @@ export default () => {
 
   const [weekValue, setWeekValue] = useState<string | number>('');
 
+  const [launchEnd, setLaunchDate] = useState<string>();
+
   useEffect(() => {
     pricingTypesList.then(types => {
       setPricingType([...(types as ProductPricingType[])]);
@@ -95,6 +97,7 @@ export default () => {
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
       setPaid(data?.isPaid as boolean);
+      setLaunchDate(data?.launch_end as string);
     });
   }, []);
 
@@ -330,29 +333,33 @@ export default () => {
             title="Launch Week for Your Dev Tool"
             description="Setting the perfect launch week is essential to make a splash in the dev world."
           >
-            <div>
-              <div className="relative mt-4 mb-3">
-                {isPaid ? (
-                  <SelectLaunchDate
-                    validate={{
-                      ...register('week', { required: true, onChange: e => setWeekValue(e.target.value) }),
-                    }}
-                    value={weekValue}
-                    label="Launch week"
-                    className="w-full"
-                  />
-                ) : (
-                  <SelectLaunchDate value={getValues('week')} label="Launch week" className="w-full" disabled={true} />
+            {new Date(launchEnd as string) > new Date() && (
+              <div>
+                <div className="relative mt-4 mb-3">
+                  {isPaid ? (
+                    <SelectLaunchDate
+                      validate={{
+                        ...register('week', { required: true, onChange: e => setWeekValue(e.target.value) }),
+                      }}
+                      value={weekValue}
+                      label="Launch week"
+                      className="w-full"
+                    />
+                  ) : (
+                    <SelectLaunchDate value={getValues('week')} label="Launch week" className="w-full" disabled={true} />
+                  )}
+                  <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
+                </div>
+                {!isPaid && (
+                  <div className="mt-3 text-sm text-slate-100 font-medium">
+                    *To edit your launch date you need to pay{' '}
+                    <a target="_blank" href={`/account/tools/activate-launch/${slug}`} className="underline text-orange-500">
+                      Pay to edit
+                    </a>
+                  </div>
                 )}
-                <LabelError className="mt-2">{errors.launch_date && 'Please pick a launch date'}</LabelError>
               </div>
-              <div className="mt-3 text-sm text-slate-100 font-medium">
-                *To edit your launch date you need to pay{' '}
-                <a target="_blank" href={`/account/tools/activate-launch/${slug}`} className="underline text-orange-500">
-                  Pay to edit
-                </a>
-              </div>
-            </div>
+            )}
             <div className="mt-3">
               <Button isLoad={isUpdate} type="submit" className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
                 Update

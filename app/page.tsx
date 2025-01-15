@@ -60,7 +60,6 @@ export default function Home() {
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product, idx) => (
             <>
-              {/* {console.log(product)} */}
               {
                 // <ToolCardEffect key={idx} tool={product as ProductType}/>
                 product.isPaid && product.week == currentWeek && product.launch_start.includes(new Date().getFullYear()) && (
