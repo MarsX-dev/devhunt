@@ -242,7 +242,7 @@ export default () => {
             .
           </div>
           <div className='block p-2'></div>
-          <SponsorsSection />
+          {/*<SponsorsSection />*/}
         </div>
       </div>
     </div>
