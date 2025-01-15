@@ -154,6 +154,12 @@ export default () => {
       const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
       const weekData = weeks.find(i => i.week === launchWeek);
 
+      let launchDateData: { launch_start?: string; launch_end?: string } = {};
+      if (new Date(launchEnd as string) > new Date()) {
+        launchDateData.launch_start = weekData?.startDate;
+        launchDateData.launch_end = weekData?.endDate;
+      }
+
       await productService
         .update(
           +id,
@@ -168,8 +174,7 @@ export default () => {
             logo_url: logoPreview,
             demo_video_url: demo_video || generatedVideoUrl,
             launch_date: weekData?.startDate as string,
-            launch_start: weekData?.startDate,
-            launch_end: weekData?.endDate,
+            ...launchDateData,
             week: launchWeek,
           },
           categoryIds,
