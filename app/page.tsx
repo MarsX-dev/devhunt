@@ -11,8 +11,25 @@ import React, { useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
 import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
 
+function getDate(weekStartDay: number): Date {
+  let today = new Date();
+  const year = today.getFullYear();
+  const jan1 = new Date(year, 0, 1);
+  const dow = jan1.getDay();
+  // Find first startDay on or after Jan 1
+  const offset = (weekStartDay - dow + 7) % 7;
+  const firstWeekStart = new Date(jan1.getTime() + offset * 86400000);
+  if (today < firstWeekStart) {
+    today = new Date(year - 1, 11, 31, 23, 59, 59);// Use last day of previous year
+  }
+
+  return today;
+}
+
 export default function Home() {
-  const today = new Date();
+  const weekStartDay = 2;
+  const today = getDate(weekStartDay);
+
   const productService = new ProductsService(createBrowserClient());
   const [launchWeeks, setLaunchWeeks] = useState([]);
   const [weeklyWinners, setWeeklyWinners] = useState([]);
@@ -20,15 +37,15 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const week = await productService.getWeekNumber(today, 2);
+      const week = await productService.getWeekNumber(today, weekStartDay);
       const [launchWeeks, weeklyWinners] = await Promise.all([
-        productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1),
+        productService.getPrevLaunchWeeks(today.getFullYear(), weekStartDay, week, 1),
         productService.getWeeklyWinners(week),
       ]);
       setLaunchWeeks(launchWeeks as any);
       setWeeklyWinners(weeklyWinners as any);
       setLoading(false);
-      console.log(launchWeeks);
+      // console.log(launchWeeks);
     };
     fetchData();
   }, []);
