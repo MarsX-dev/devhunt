@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import Script from "next/script";
 
@@ -20,18 +22,21 @@ function MonitizorAdCards() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setLoaded(true); // Only enable rendering after hydration
+    setTimeout(() => {
+      setLoaded(true);
+    }, 500);
+    // setLoaded(true); // Only enable rendering after hydration
   }, []);
 
   const iframe = <>
     <Script
-        src="https://selldigitals.com/libs/widget.js"
-        strategy="lazyOnload"
-      />
+      src="https://selldigitals.com/libs/widget.js"
+      strategy="lazyOnload"
+    />
     <Script
-        src="https://selldigitals.com/libs/manager.js?widgetId=67694f18ba7de28681af6e17"
-        strategy="lazyOnload"
-      />
+      src="https://selldigitals.com/libs/manager.js?widgetId=67694f18ba7de28681af6e17"
+      strategy="lazyOnload"
+    />
     <iframe
       width="100%"
       height="150"
@@ -45,11 +50,13 @@ function MonitizorAdCards() {
   </>;
 
   if (!loaded) {
-    return <div className="block sm:flex gap-5"  style={{ minHeight: '305px' }}>
-      <SponsorSkeleton/>
-      <SponsorSkeleton/>
-      <SponsorSkeleton/>
-      <div style={{ display: 'none' }}>{iframe}</div>
+    return <div style={{ minHeight: '305px' }}>
+      <div className="block sm:flex gap-5">
+        <SponsorSkeleton/>
+        <SponsorSkeleton/>
+        <SponsorSkeleton/>
+        <div style={{ display: 'none' }}>{iframe}</div>
+      </div>
     </div>;
   }
 

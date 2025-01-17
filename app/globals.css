@@ -24,7 +24,8 @@
 }
 
 .container-custom-screen {
-  @apply max-w-3xl mx-auto px-4 md:px-8;
+  max-width: 54rem;
+  @apply mx-auto px-4 md:px-8;
 }
 
 ul > li:last-child:last-of-type .comment-divided-bar {

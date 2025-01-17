@@ -19,6 +19,7 @@ import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
 import ToolCardLink from '@/components/ui/ToolCard/ToolCardLink';
 import dynamic from 'next/dynamic';
+import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 
@@ -169,7 +170,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
         ) : (
           ''
         )}
-
+        <MonitizorAdCards />
         <div>
           <h3 className="font-medium text-slate-50">Trending tools</h3>
           <TrendingToolsList />
