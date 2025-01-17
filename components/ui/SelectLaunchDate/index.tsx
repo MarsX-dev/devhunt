@@ -12,6 +12,7 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   className?: string;
   validate?: {};
   setAllWeeks?: (val: { week: number; startDate: Date; endDate: Date; count: number }[]) => void;
+  disabled?: boolean;
 }
 
 export default ({ label, value, className = '', validate, setAllWeeks = () => {}, ...props }: Props) => {
@@ -47,11 +48,15 @@ export default ({ label, value, className = '', validate, setAllWeeks = () => {}
           {label}
         </option>
         {weeks.map(i => (
-          <option disabled={i.count >= 15} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${
-            i.count
-          }/${i.count > 15 ? i.count : 15})`}</option>
+          <option value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count} tools)`}</option>
         ))}
       </select>
     </div>
   );
 };
+
+{
+  /* <option disabled={i.count >= 15} value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${
+  i.count
+}/${i.count > 15 ? i.count : 15})`}</option> */
+}

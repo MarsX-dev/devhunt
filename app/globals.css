@@ -24,7 +24,8 @@
 }
 
 .container-custom-screen {
-  @apply max-w-3xl mx-auto px-4 md:px-8;
+  max-width: 54rem;
+  @apply mx-auto px-4 md:px-8;
 }
 
 ul > li:last-child:last-of-type .comment-divided-bar {
@@ -72,4 +73,11 @@ ul > li:last-child:last-of-type .comment-divided-bar {
     transform: translateY(0);
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
+}
+
+.catchy-border {
+  border: 2px solid transparent;
+  background: linear-gradient(90deg, #fff, #fff), linear-gradient(to bottom right, #60a5fa, #de4f4a);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
 }

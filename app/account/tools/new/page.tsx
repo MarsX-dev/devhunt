@@ -60,6 +60,7 @@ export default () => {
     formState: { errors },
     setError,
     getValues,
+    setValue,
   } = useForm();
 
   const [profile, setProfile] = useState<Profile>();
@@ -89,6 +90,12 @@ export default () => {
       setProfile(user as Profile);
     });
   }, []);
+
+  // useEffect(() => {
+  //   if (imagesError) {
+  //     document.getElementById('tool-screenshots-container')?.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // }, [imagesError]);
 
   const handleUploadImages = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -140,68 +147,92 @@ export default () => {
     } else return true;
   };
 
+  function scrollToErroView() {
+    if (imagesError) {
+      document.getElementById('tool-screenshots-container')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    if (logoError) {
+      document.getElementById('form-container')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    if (errors.pricing_type) {
+      document.getElementById('pricing-container')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  useEffect(() => {
+    if (logoError || imagesError || errors.pricing_type) {
+      scrollToErroView();
+    }
+  }, [imagesError, logoError, errors.pricing_type]);
+
   const onSubmit: SubmitHandler<Inputs> = async data => {
+    scrollToErroView();
     if (validateImages() && (await validateToolName())) {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
+      const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
+
       const categoryIds = categories.map(item => item.id);
 
       const launchWeek = typeof week === 'string' ? parseInt(week) : week;
 
       const getCurrentWeekOfdate = allWeeks.filter(item => item.week == week);
-      if (getCurrentWeekOfdate[0].count >= 15) {
-        setError('week', {
-          type: 'manual',
-          message: 'Invalid date, please choose a correct date',
-        });
-      } else {
-        setLaunching(true);
-        const currentWeek = await productService.getWeekNumber(new Date(), 2);
-        const currentYear = new Date().getFullYear();
+      // if (getCurrentWeekOfdate[0].count >= 15) {
+      //   setError('week', {
+      //     type: 'manual',
+      //     message: 'Invalid date, please choose a correct date',
+      //   });
+      // } else {
+      setLaunching(true);
+      const currentWeek = await productService.getWeekNumber(new Date(), 2);
+      const currentYear = new Date().getFullYear();
 
-        const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-        const weekData = weeks.find(i => i.week === launchWeek);
-        await productService
-          .insert(
-            {
-              asset_urls: imagePreviews,
-              name: tool_name,
-              demo_url: tool_website,
-              github_url: github_repo,
-              pricing_type,
-              slogan,
-              description: tool_description,
-              logo_url: logoPreview,
-              owner_id: user?.id,
-              slug: createSlug(tool_name),
-              is_draft: false,
-              comments_count: 0,
-              votes_count: 0,
-              demo_video_url: demo_video,
-              launch_date: weekData?.startDate as string,
-              launch_start: weekData?.startDate,
-              launch_end: weekData?.endDate,
-              week: launchWeek,
-            },
-            categoryIds,
-          )
-          .then(async res => {
-            const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-            const toolURL = `https://devhunt.org/tool/${res?.slug}`;
-            const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
-            DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
-            setLaunching(false);
-            localStorage.setItem(
-              'last-tool',
-              JSON.stringify({
-                toolSlug: res?.slug,
-                launchDate: res?.launch_date,
-                launchEnd: res?.launch_end,
-              }),
-            );
-            window.open(`/tool/${res?.slug}?banner=true`);
-            router.push('/account/tools');
-          });
-      }
+      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+      const weekData = weeks.find(i => i.week === launchWeek);
+      await productService
+        .insert(
+          {
+            asset_urls: imagePreviews,
+            name: tool_name,
+            demo_url: tool_website,
+            github_url: github_repo,
+            pricing_type,
+            slogan,
+            description: tool_description,
+            logo_url: logoPreview,
+            owner_id: user?.id,
+            slug: createSlug(tool_name),
+            is_draft: false,
+            comments_count: 0,
+            votes_count: 0,
+            demo_video_url: demo_video || generatedVideoUrl,
+            launch_date: weekData?.startDate as string,
+            launch_start: weekData?.startDate,
+            launch_end: weekData?.endDate,
+            week: launchWeek,
+            isPaid: false,
+          },
+          categoryIds,
+        )
+        .then(async res => {
+          const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
+          const toolURL = `https://devhunt.org/tool/${res?.slug}`;
+          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
+          DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+          setLaunching(false);
+          localStorage.setItem(
+            'last-tool',
+            JSON.stringify({
+              toolSlug: res?.slug,
+              launchDate: res?.launch_date,
+              launchEnd: res?.launch_end,
+            }),
+          );
+          router.push(`/tool/${res?.slug}?banner=true`);
+          window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
+        });
+      // }
     }
   };
 
@@ -209,7 +240,7 @@ export default () => {
     <section className="container-custom-screen">
       <Alert context="Any non-dev tools will be subject to removal. Please ensure that your submission is relevant to the developer community." />
       <h1 className="text-xl text-slate-50 font-semibold mt-6">Launch a tool</h1>
-      <div className="mt-12">
+      <div id="form-container" className="mt-12">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection
             number={1}
@@ -261,12 +292,12 @@ export default () => {
               <LabelError className="mt-2">{errors.github_repo && 'Please enter a valid github repo url'}</LabelError>
             </div>
             <div>
-              <Label>Quick Description (max 300 characters)</Label>
+              <Label>Quick Description</Label>
               <Textarea
                 placeholder="Briefly explain what your tool does. HTML is supported"
                 className="w-full h-36 mt-2"
                 validate={{
-                  ...register('tool_description', { required: true, maxLength: 350 }),
+                  ...register('tool_description', { required: true }),
                 }}
               />
               <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
@@ -277,7 +308,7 @@ export default () => {
             title="Extra Stuff"
             description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!"
           >
-            <div>
+            <div id="pricing-container">
               <Label>Tool pricing type</Label>
               {pricingType.map((item, idx) => (
                 <Controller
@@ -314,7 +345,7 @@ export default () => {
               />
               <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
             </div>
-            <div>
+            <div id="tool-screenshots-container">
               <Label>Tool screenshots</Label>
               <p className="text-sm text-slate-400">
                 Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
@@ -352,6 +383,9 @@ export default () => {
                 <li>
                   <b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.
                 </li>
+                <li>
+                  <b>4. DoFollow backlink(DR 57):</b> Boost your own domain rating by getting high quality dofollow link.
+                </li>
               </ul>
               <div className="relative mt-4 mb-3">
                 <SelectLaunchDate
@@ -364,22 +398,28 @@ export default () => {
                 />
                 <LabelError className="mt-2">{errors.week && 'Please pick a launch week'}</LabelError>
               </div>
-              <div className="text-lg text-slate-100 font-medium">
+              {/* <div className="text-lg text-slate-100 font-medium">
                 Wanna skip this line?{' '}
                 <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
                   See details
                 </a>
-              </div>
+              </div> */}
             </div>
             <div className="pt-7">
-              <Button type="submit" isLoad={isLaunching} className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring">
-                Schedule my Dev Tool for Launch
+              <Button
+                id="submit-btn"
+                type="submit"
+                isLoad={isLaunching}
+                className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
+              >
+                Submit & Pay $49
               </Button>
-              <p className="text-sm text-slate-500 mt-2">* no worries, you can change it later</p>
+              <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info or reschedule the launch later</p>
             </div>
           </FormLaunchSection>
         </FormLaunchWrapper>
       </div>
+      {/* isPaymentFormActive */}
     </section>
   );
 };

@@ -135,6 +135,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                 href={handleURLQuery(addHttpsToUrl(tool?.demo_url as string))}
                 target="_blank"
                 className="flex items-center gap-x-2"
+                rel={!tool.isPaid ? 'nofollow' : ''}
               >
                 Live preview
                 <IconArrowTopRight />

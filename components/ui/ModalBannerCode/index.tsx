@@ -36,7 +36,7 @@ export default ({
   const searchParams: any = useSearchParams();
   const search = searchParams.get('banner');
   const { slug } = params as { slug: string };
-  const isBannerActive = pathname?.includes('/tool') && search == 'true' ? true : false;
+  const isBannerActive = pathname?.includes('/tool') && !pathname?.includes('/activate-launch') && search == 'true' ? true : false;
 
   const handleBannerIframeHeight = () => {
     const iframeDoc = bannerIframeRef.current as HTMLIFrameElement;
@@ -49,7 +49,7 @@ export default ({
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
 
-    if (getToolFromLocalStorage) {
+    if (getToolFromLocalStorage && !pathname?.includes('/activate-launch')) {
       const parsedTool = JSON.parse(getToolFromLocalStorage) as { toolSlug: string; launchEnd: string; launchDate: string };
       if (new Date(parsedTool.launchEnd).getTime() >= Date.now()) {
         setToolSlug(parsedTool.toolSlug);
@@ -67,7 +67,9 @@ export default ({
     }
 
     setTimeout(() => {
-      handleBannerIframeHeight();
+      bannerIframeRef.current?.addEventListener('load', () => {
+        handleBannerIframeHeight();
+      });
     }, 200);
 
     window.onresize = () => handleBannerIframeHeight();
@@ -75,7 +77,9 @@ export default ({
 
   useEffect(() => {
     setTimeout(() => {
-      handleBannerIframeHeight();
+      bannerIframeRef.current?.addEventListener('load', () => {
+        handleBannerIframeHeight();
+      });
     }, 200);
   }, [pathname, isModalOpen]);
 
@@ -100,11 +104,11 @@ export default ({
         Add this code between <b>{'<head>'}</b> tags in your website to show a banner about your launch.
       </p>
       <div className="mt-3">
-        <iframe ref={bannerIframeRef} srcDoc={srcDoc} className="w-full bg-transparent border-none rounded-xl" />
+        <iframe ref={bannerIframeRef} srcDoc={srcDoc} className="w-full h-12 bg-transparent border-none rounded-xl" />
       </div>
       <div className="mt-2">
         <CodeBlock onCopy={copyDone}>
-          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js" />`}
+          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>`}
         </CodeBlock>
       </div>
       <div className="mt-3 flex gap-x-3">

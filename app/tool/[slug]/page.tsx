@@ -6,6 +6,7 @@ import LinkShiny from '@/components/ui/LinkShiny';
 import ProductLogo from '@/components/ui/ToolCard/Tool.Logo';
 import { Stat, StatsWrapper, StatCountItem, StatItem } from '@/components/ui/Stats';
 import { Tabs } from '@/components/ui/TabsLink';
+
 const TabLink = dynamic(() => import('@/components/ui/TabsLink/TabLink'), { ssr: false });
 import { Tag, TagsGroup } from '@/components/ui/TagsGroup';
 import Title from '@/components/ui/ToolCard/Tool.Title';
@@ -23,11 +24,13 @@ import ProfileService from '@/utils/supabase/services/profile';
 import customDateFromNow from '@/utils/customDateFromNow';
 import Page404 from '@/components/ui/Page404/Page404';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
+
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 import WinnerBadge from '@/components/ui/WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
 import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
 import { Profile } from '@/utils/supabase/types';
+import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -67,9 +70,12 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   // const supabaseBrowserClient = createServerClient();
   const supabaseBrowserClient = createBrowserClient();
 
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.auth.getUser();
+
   const productsService = new ProductsService(supabaseBrowserClient);
   const product = await productsService.getBySlug(slug, true);
-  if (!product || product.deleted) return <Page404 />;
+  if (!product || product.deleted) return <Page404/>;
 
   const awardService = new AwardsService(supabaseBrowserClient);
   const commentService = new CommentService(supabaseBrowserClient);
@@ -104,12 +110,12 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const stats = [
     {
       count: product.votes_count,
-      icon: <IconVote />,
+      icon: <IconVote/>,
       label: 'Upvotes',
     },
     {
       count: product.views_count,
-      icon: <IconFire />,
+      icon: <IconFire/>,
       label: 'Impressions',
     },
     // TODO add calculation of rank in week and day
@@ -120,7 +126,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     // },
     {
       count: `#${(weekAward[0] as any)?.rank}`,
-      icon: <IconChartBar />,
+      icon: <IconChartBar/>,
       label: 'Week rank',
     },
   ];
@@ -129,29 +135,52 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     <section className="mt-20 pb-10">
       <div className="container-custom-screen" id="about">
         <div className="flex items-center justify-between">
-          <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
-          <WinnerBadge weekRank={(weekAward[0] as any)?.rank} isLaunchEnd={isLaunchEnd} />
+          <ProductLogo src={product?.logo_url} alt={product?.slogan as string}/>
+          <WinnerBadge weekRank={(weekAward[0] as any)?.rank} isLaunchEnd={isLaunchEnd}/>
         </div>
         <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
         <Title className="mt-1">{product?.slogan}</Title>
-        <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny
-            href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
-            target="_blank"
-            className="flex items-center gap-x-2"
-          >
-            Live preview
-            <IconArrowTopRight />
-          </LinkShiny>
-          <ButtonUpvote
-            productId={product?.id}
-            count={product?.votes_count}
-            launchDate={product.launch_date}
-            launchEnd={product.launch_end as string}
-          />
-        </div>
+        {!product.isPaid && data?.user?.id == product.owner_id ? (
+          <div
+            className="mt-4 bg-slate-800/50 backdrop-blur-sm rounded-lg shadow-lg p-6 w-full border border-slate-700">
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="font-semibold text-slate-100">Tool Status</h2>
+              <div
+                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-yellow-400 border-yellow-400">
+                Draft
+              </div>
+            </div>
+            <p className="text-slate-300 mb-6 text-sm">
+              Your tool is currently in draft mode. Pay now to launch it and receive a dofollow backlink.
+            </p>
+            <a
+              href={`/account/tools/activate-launch/${product.slug}`}
+              className="w-full bg-orange-500 hover:bg-orange-600 px-3 py-2 text-sm rounded-lg text-white"
+            >
+              Pay Now to Launch
+            </a>
+          </div>
+        ) : (
+          <div className="text-sm mt-3 flex items-center gap-x-3">
+            <LinkShiny
+              href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
+              target="_blank"
+              className="flex items-center gap-x-2"
+              rel={!product.isPaid ? 'nofollow' : ''}
+            >
+              Live preview
+              <IconArrowTopRight/>
+            </LinkShiny>
+            <ButtonUpvote
+              productId={product?.id}
+              count={product?.votes_count}
+              launchDate={product.launch_date}
+              launchEnd={product.launch_end as string}
+            />
+          </div>
+        )}
         <div className="mt-10">
-          <VoterAvatarsList productId={product.id} owner={owned as Profile} />
+          <VoterAvatarsList productId={product.id} owner={owned as Profile}/>
         </div>
       </div>
       <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
@@ -164,7 +193,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       <div className="space-y-20">
         <div>
           <div className="relative overflow-hidden pb-12">
-            <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
+            <div
+              className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
             <div className="relative container-custom-screen mt-12">
               <div
                 className="prose text-slate-100 whitespace-pre-wrap"
@@ -191,14 +221,14 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 <Gallery assets={product?.asset_urls} alt={product.name} src={product.demo_video_url as string}>
                   {product?.asset_urls &&
                     product?.asset_urls.map((item: string, idx: number) => (
-                      <GalleryImage key={idx} src={item.replaceAll('&fit=max&w=750', '')} alt={product.name} />
+                      <GalleryImage key={idx} src={item.replaceAll('&fit=max&w=750', '')} alt={product.name}/>
                     ))}
                 </Gallery>
               </div>
             )}
           </div>
         </div>
-        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
+        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug}/>
         {/* Keep doing based on Product interface */}
         <div className="container-custom-screen" id="details">
           <h3 className="text-slate-50 font-medium">About this launch</h3>
@@ -227,8 +257,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           ) : null}
         </div>
         <div className="container-custom-screen" id="launches">
+          <MonitizorAdCards/>
+        </div>
+        <div className="container-custom-screen" id="launches">
           <h3 className="text-slate-50 font-medium">Trending launches</h3>
-          <TrendingToolsList />
+          <TrendingToolsList/>
         </div>
       </div>
     </section>

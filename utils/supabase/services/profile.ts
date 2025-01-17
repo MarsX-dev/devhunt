@@ -2,6 +2,8 @@ import type { Profile, UpdateProfile } from '@/utils/supabase/types';
 import BaseDbService from './BaseDbService';
 import { type ProductComment } from './comments';
 import { cache } from '@/utils/supabase/services/CacheService';
+import ProductsService from './products';
+import { createBrowserClient } from '../browser';
 
 type FileBody =
   | ArrayBuffer
@@ -43,16 +45,8 @@ export default class ProfileService extends BaseDbService {
   }
 
   async getByUsername(username: string): Promise<Profile | null> {
-    const key = `users-username-${username}`;
-
-    return cache.get(
-      key,
-      async () => {
-        const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
-        return data;
-      },
-      180,
-    );
+    const { data, error } = await this.supabase.from('profiles').select().eq('username', username).single();
+    return data;
   }
 
   async getProfiles(): Promise<Profile[] | null> {
@@ -63,7 +57,7 @@ export default class ProfileService extends BaseDbService {
   async getUserActivityById(userId: string): Promise<ProductComment[] | null> {
     const { data, error } = await this.supabase
       .from('comment')
-      .select('*, profiles(full_name, avatar_url), products(name, slug, slogan, logo_url, votes_count, deleted, demo_url)')
+      .select('*, profiles(full_name, avatar_url), products(name, slug, slogan, logo_url, votes_count, deleted, demo_url, isPaid)')
       .eq('user_id', userId);
 
     if (error !== null) throw new Error(error.message);
@@ -88,7 +82,16 @@ export default class ProfileService extends BaseDbService {
       .eq('user_id', userId);
 
     if (error !== null) throw new Error(error.message);
-    return data;
+    const supabaseBrowserClient = createBrowserClient();
+
+    const productsService = new ProductsService(supabaseBrowserClient);
+
+    return await Promise.all(
+      data.map(async item => ({
+        ...item,
+        isPaid: (await productsService.getBySlug(item.slug as string, true))?.isPaid,
+      })),
+    );
   }
 
   async update(id: string, updates: UpdateProfile): Promise<UpdateProfile> {

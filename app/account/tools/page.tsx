@@ -75,6 +75,11 @@ export default () => {
                   <div>
                     <Link href={`/tool/${tool.slug}`}>
                       <Name>{tool.name}</Name>
+                      {!tool.isPaid && (
+                        <p className="text-slate-300 text-sm">
+                          Status: <span className="text-orange-400">draft</span>
+                        </p>
+                      )}
                       <Title className="line-clamp-2">{tool.slogan}</Title>
                       <Tags
                         items={[
@@ -84,6 +89,14 @@ export default () => {
                       />
                     </Link>
                     <div className="mt-2.5 flex items-center gap-x-4">
+                      {!tool.isPaid && (
+                        <Link
+                          href={`/account/tools/activate-launch/${tool.slug}`}
+                          className="text-sm inline-block bg-orange-500 px-2 py-1 rounded-md text-white font-medium hover:bg-orange-600 duration-150"
+                        >
+                          Pay to launch
+                        </Link>
+                      )}
                       <Link
                         href={`/account/tools/edit/${tool.id}`}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
@@ -147,7 +160,7 @@ export default () => {
         </a>{' '}
         to get even more traffic to your tool.
       </p>
-    
+
       <ModalBannerCode
         isModalOpen={isModalOpen}
         toolSlug={toolSlug}

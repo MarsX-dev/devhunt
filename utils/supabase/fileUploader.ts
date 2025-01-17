@@ -8,7 +8,7 @@ export default async ({ files, options }: { files: File | Blob; options?: string
   formdata.append('image', files as any, fileName);
 
   try {
-    const { data } = await axios.post('https://www.marsx.dev/api/UploadFile', formdata);
+    const { data } = await axios.post('https://d1gl9g4ciwvjfq.cloudfront.net/api/UploadFile', formdata);
     return { file: getCdnImageUrl(data.file.url, options) };
   } catch (err) {
     console.log(err);
@@ -18,8 +18,7 @@ export default async ({ files, options }: { files: File | Blob; options?: string
 // Converts asset url into a imgix url to have better pages loading speed
 function getCdnImageUrl(url: string, options?: string) {
   return (
-    url.replace(/'/g, "\\'")
-      .replace('https://marscode.s3.eu-north-1.amazonaws.com/assets/img', 'https://mars-images.imgix.net') +
+    url.replace(/'/g, "\\'").replace('https://marscode.s3.eu-north-1.amazonaws.com/assets/img', 'https://mars-images.imgix.net') +
     '?auto=compress&fit=max' +
     (options ? `&${options}` : '')
   );
