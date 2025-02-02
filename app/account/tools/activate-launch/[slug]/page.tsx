@@ -40,12 +40,18 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
   }, []);
 
   useEffect(() => {
+    const launchData = localStorage.getItem('paid-launch-date');
+
     if (isDone) {
       const supabaseBrowserClient = createBrowserClient();
       const productsService = new ProductsService(supabaseBrowserClient);
       productsService
         .update(id as number, {
           isPaid: true,
+          launch_start: JSON.parse(launchData as string).startDate,
+          launch_date: JSON.parse(launchData as string).startDate,
+          launch_end: JSON.parse(launchData as string).endDate,
+          week: JSON.parse(launchData as string).week,
         })
         .then(() => {
           setPaid(true);
