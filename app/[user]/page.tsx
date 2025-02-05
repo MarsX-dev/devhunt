@@ -19,7 +19,7 @@ import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
 import ToolCardLink from '@/components/ui/ToolCard/ToolCardLink';
 import dynamic from 'next/dynamic';
-import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
+import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 
@@ -77,7 +77,9 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
           <div>
             <h3 className="font-medium text-slate-50">Launches</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
-              {tools.map((tool, idx) => tool.isPaid && <ToolCardList key={idx} tool={tool as ITool} />)}
+              {tools.map((tool, idx) => (
+                <ToolCardList key={idx} tool={tool as ITool} />
+              ))}
             </ul>
           </div>
         ) : (
@@ -87,35 +89,32 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
           <div>
             <h3 className="font-medium text-slate-50">{votedTools?.length} Upvotes</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
-              {votedTools.map(
-                (tool: any, idx: number) =>
-                  tool.isPaid && (
-                    <li key={idx} className="py-3">
-                      <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
-                        <Logo src={tool.logo_url || ''} alt={tool.name} />
-                        <div className="space-y-1">
-                          <Name href={tool.demo_url as string}>{tool.name}</Name>
-                          <Title className="line-clamp-2">{tool.slogan}</Title>
-                          <Tags
-                            items={[
-                              (tool.product_pricing_types as { title: string }).title || 'Free',
-                              ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
-                            ]}
-                          />
-                        </div>
-                        <div className="flex-1 self-center flex justify-end">
-                          <Votes
-                            className="text-orange-500"
-                            count={tool.votes_count}
-                            productId={tool?.id}
-                            launchDate={tool.launch_date}
-                            launchEnd={tool.launch_end}
-                          />
-                        </div>
-                      </ToolCard>
-                    </li>
-                  ),
-              )}
+              {votedTools.map((tool: any, idx: number) => (
+                <li key={idx} className="py-3">
+                  <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
+                    <Logo src={tool.logo_url || ''} alt={tool.name} />
+                    <div className="space-y-1">
+                      <Name href={tool.demo_url as string}>{tool.name}</Name>
+                      <Title className="line-clamp-2">{tool.slogan}</Title>
+                      <Tags
+                        items={[
+                          (tool.product_pricing_types as { title: string }).title || 'Free',
+                          ...(tool.product_category_product as { name: string }[]).map((c: { name: string }) => c.name),
+                        ]}
+                      />
+                    </div>
+                    <div className="flex-1 self-center flex justify-end">
+                      <Votes
+                        className="text-orange-500"
+                        count={tool.votes_count}
+                        productId={tool?.id}
+                        launchDate={tool.launch_date}
+                        launchEnd={tool.launch_end}
+                      />
+                    </div>
+                  </ToolCard>
+                </li>
+              ))}
             </ul>
           </div>
         ) : (
@@ -125,46 +124,39 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
           <div>
             <h3 className="font-medium text-slate-50">Activity</h3>
             <Comments className="mt-8">
-              {(activity as IComment[]).map(
-                (item: IComment, idx) =>
-                  item.products.isPaid && (
-                    <Comment key={idx} className="gap-4 sm:gap-6">
-                      <CommentUserAvatar src={item.profiles.avatar_url as string} />
-                      <div className="flex-1">
-                        <Link
-                          rel={!item.products.isPaid ? 'nofollow' : ''}
-                          href={`/tool/${item.products.slug}/#${item.id}`}
-                          className="flex-1"
-                        >
-                          <CommentUserName>{item.profiles.full_name}</CommentUserName>
-                          <CommentDate className="mt-1">Commented {moment(item.created_at).format('LL')}</CommentDate>
-                          <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
+              {(activity as IComment[]).map((item: IComment, idx) => (
+                <Comment key={idx} className="gap-4 sm:gap-6">
+                  <CommentUserAvatar src={item.profiles.avatar_url as string} />
+                  <div className="flex-1">
+                    <Link href={`/tool/${item.products.slug}/#${item.id}`} className="flex-1">
+                      <CommentUserName>{item.profiles.full_name}</CommentUserName>
+                      <CommentDate className="mt-1">Commented {moment(item.created_at).format('LL')}</CommentDate>
+                      <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
+                    </Link>
+                    <ToolCardLink className="mt-3 border border-slate-800 px-2 sm:px-4" href={'/tool/' + item.products.slug}>
+                      <Link href={'/tool/' + item.products.slug}>
+                        <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
+                      </Link>
+                      <div className="space-y-1">
+                        <Name toolHref={'/tool/' + item.products.slug} href={item.products.demo_url as string}>
+                          {item.products.name}
+                        </Name>
+                        <Link href={'/tool/' + item.products.slug}>
+                          <Title className="line-clamp-2">{item.products.slogan}</Title>
                         </Link>
-                        <ToolCardLink className="mt-3 border border-slate-800 px-2 sm:px-4" href={'/tool/' + item.products.slug}>
-                          <Link href={'/tool/' + item.products.slug}>
-                            <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12" />
-                          </Link>
-                          <div className="space-y-1">
-                            <Name toolHref={'/tool/' + item.products.slug} href={item.products.demo_url as string}>
-                              {item.products.name}
-                            </Name>
-                            <Link href={'/tool/' + item.products.slug}>
-                              <Title className="line-clamp-2">{item.products.slogan}</Title>
-                            </Link>
-                          </div>
-                          <div className="flex-1 self-center flex justify-end">
-                            <Votes
-                              count={item.products.votes_count}
-                              productId={item?.id}
-                              launchDate={item.products.launch_date}
-                              launchEnd={item.products.launch_end as string}
-                            />
-                          </div>
-                        </ToolCardLink>
                       </div>
-                    </Comment>
-                  ),
-              )}
+                      <div className="flex-1 self-center flex justify-end">
+                        <Votes
+                          count={item.products.votes_count}
+                          productId={item?.id}
+                          launchDate={item.products.launch_date}
+                          launchEnd={item.products.launch_end as string}
+                        />
+                      </div>
+                    </ToolCardLink>
+                  </div>
+                </Comment>
+              ))}
             </Comments>
           </div>
         ) : (
