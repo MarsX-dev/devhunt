@@ -216,7 +216,7 @@ export default () => {
               <Input
                 placeholder="Supercharge Your Development Workflow"
                 className="w-full mt-2"
-                validate={{ ...register('slogan', { required: true, minLength: 20 }) }}
+                validate={{ ...register('slogan', { required: true, minLength: 10 }) }}
               />
               <LabelError className="mt-2">{errors.solgan && 'Please enter your tool slogan'}</LabelError>
             </div>

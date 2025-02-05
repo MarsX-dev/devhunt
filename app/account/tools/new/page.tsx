@@ -26,6 +26,7 @@ import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
 import { usermaven } from '@/utils/usermaven';
 import Alert from '@/components/ui/Alert';
+import moment from 'moment';
 
 interface Inputs {
   tool_name: string;
@@ -39,6 +40,14 @@ interface Inputs {
   launch_date: Date;
   launch_start: Date;
   launch_end: Date;
+  submitType: string;
+}
+
+interface Weeks {
+  count: number;
+  startDate: string;
+  endDate: string;
+  week: number;
 }
 
 export default () => {
@@ -167,29 +176,76 @@ export default () => {
     }
   }, [imagesError, logoError, errors.pricing_type]);
 
+  function findNearestAvailableDate(dates: Weeks[], currentDate = new Date()) {
+    // Convert current date to timestamp for comparison
+    const currentTimestamp = currentDate.getTime();
+
+    // Filter dates with count < 20 and convert to array of objects with timestamp
+    const availableDates = dates
+      .filter(date => date.count < 15)
+      .map(date => ({
+        ...date,
+        timestamp: new Date(date.startDate).getTime(),
+      }));
+
+    // Sort by absolute difference from current date
+    availableDates.sort((a, b) => {
+      const diffA = Math.abs(a.timestamp - currentTimestamp);
+      const diffB = Math.abs(b.timestamp - currentTimestamp);
+      return diffA - diffB;
+    });
+
+    // Return the nearest date, or null if no dates are available
+    return availableDates.length > 0 ? availableDates[0] : null;
+  }
+
+  async function getWeekDate(launchWeek: number) {
+    const currentWeek = await productService.getWeekNumber(new Date(), 2);
+    const currentYear = new Date().getFullYear();
+
+    const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
+    const weekData = weeks.find(i => i.week === launchWeek);
+    return weekData;
+  }
+
+  function formatDate(dateString: string) {
+    const date = new Date(dateString);
+    return date.toISOString().replace('.000Z', '+00:00');
+  }
+
   const onSubmit: SubmitHandler<Inputs> = async data => {
     scrollToErroView();
     if (validateImages() && (await validateToolName())) {
-      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
+      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week, submitType } = data;
       const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
 
       const categoryIds = categories.map(item => item.id);
 
       const launchWeek = typeof week === 'string' ? parseInt(week) : week;
 
-      const getCurrentWeekOfdate = allWeeks.filter(item => item.week == week);
-      // if (getCurrentWeekOfdate[0].count >= 15) {
-      //   setError('week', {
-      //     type: 'manual',
-      //     message: 'Invalid date, please choose a correct date',
-      //   });
-      // } else {
       setLaunching(true);
-      const currentWeek = await productService.getWeekNumber(new Date(), 2);
-      const currentYear = new Date().getFullYear();
+      const weekData = await getWeekDate(launchWeek);
 
-      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-      const weekData = weeks.find(i => i.week === launchWeek);
+      const launchData: any = {};
+
+      const availableDate = findNearestAvailableDate(allWeeks as []);
+      if (submitType == 'free') {
+        launchData.launch_date = formatDate(availableDate?.startDate as string);
+        launchData.launch_start = formatDate(availableDate?.startDate as string);
+        launchData.launch_end = formatDate(availableDate?.endDate as string);
+        launchData.week = availableDate?.week as number;
+      } else if (submitType == 'paid') {
+        launchData.launch_date = formatDate(availableDate?.startDate as string);
+        launchData.launch_start = formatDate(availableDate?.startDate as string);
+        launchData.launch_end = formatDate(availableDate?.endDate as string);
+        launchData.week = availableDate?.week as number;
+      } else if (submitType == 'normal') {
+        launchData.launch_date = weekData?.startDate as string;
+        launchData.launch_start = weekData?.startDate as string;
+        launchData.launch_end = weekData?.endDate;
+        launchData.week = weekData?.week;
+      }
+
       await productService
         .insert(
           {
@@ -207,10 +263,7 @@ export default () => {
             comments_count: 0,
             votes_count: 0,
             demo_video_url: demo_video || generatedVideoUrl,
-            launch_date: weekData?.startDate as string,
-            launch_start: weekData?.startDate,
-            launch_end: weekData?.endDate,
-            week: launchWeek,
+            ...launchData,
             isPaid: false,
           },
           categoryIds,
@@ -220,7 +273,6 @@ export default () => {
           const toolURL = `https://devhunt.org/tool/${res?.slug}`;
           const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
           DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
-          setLaunching(false);
           localStorage.setItem(
             'last-tool',
             JSON.stringify({
@@ -230,11 +282,15 @@ export default () => {
             }),
           );
           router.push(`/tool/${res?.slug}?banner=true`);
-          window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
+          if (submitType == 'paid') {
+            localStorage.setItem('paid-launch-date', JSON.stringify(weekData));
+            window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
+          }
         });
-      // }
     }
   };
+
+  const [launchDateStart, setLaunchDateStart] = useState<{ startDate: string; count: number }>({ startDate: '', count: 0 });
 
   return (
     <section className="container-custom-screen">
@@ -392,7 +448,21 @@ export default () => {
                   label="Launch week"
                   className="w-full"
                   validate={{
-                    ...register('week', { required: true }),
+                    ...register('week', {
+                      required: true,
+                      async onChange(value) {
+                        if (value) {
+                          const currentStartDate = (await getWeekDate(Number(value.target.value)))?.startDate as any;
+                          const startDate = allWeeks.filter(
+                            item => new Date(item.startDate).getTime() == new Date(currentStartDate).getTime(),
+                          );
+                          setValue('week', value.target.value, { shouldValidate: true });
+                          // console.log(startDate);
+                          // console.log(new Date(currentStartDate));
+                          setLaunchDateStart(startDate[0] as any);
+                        }
+                      },
+                    }),
                   }}
                   setAllWeeks={setAllWeeks}
                 />
@@ -406,14 +476,31 @@ export default () => {
               </div> */}
             </div>
             <div className="pt-7">
-              <Button
-                id="submit-btn"
-                type="submit"
-                isLoad={isLaunching}
-                className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
-              >
-                Submit & Pay $49
-              </Button>
+              {getValues('week') && (
+                <>
+                  <Button
+                    id="submit-btn"
+                    type="submit"
+                    isLoad={isLaunching}
+                    className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
+                    onClick={() => setValue('submitType', launchDateStart.count > 14 ? 'paid' : 'normal')}
+                  >
+                    {launchDateStart.count > 14 ? <>Launch on {moment(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
+                  </Button>
+                  {launchDateStart.count > 14 && (
+                    <Button
+                      onClick={() => setValue('submitType', 'free')}
+                      id="submit-btn"
+                      type="submit"
+                      isLoad={isLaunching}
+                      className="w-full text-sm mt-2 text-slate-400"
+                      variant="shiny"
+                    >
+                      Queue to launch on {moment(findNearestAvailableDate(allWeeks as [])?.startDate).format('LL')} for free
+                    </Button>
+                  )}
+                </>
+              )}
               <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info or reschedule the launch later</p>
             </div>
           </FormLaunchSection>

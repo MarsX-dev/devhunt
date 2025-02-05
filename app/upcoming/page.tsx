@@ -66,7 +66,9 @@ export default async function Home() {
               {/* {shuffleToolsBasedOnDate(group.products).map((product, idx) => (
                 <ToolCardEffect key={idx} tool={product as ProductType} />
               ))} */}
-              {group.products.map((product, idx) => product.isPaid && <ToolCardEffect key={idx} tool={product as ProductType} />)}
+              {group.products.map((product, idx) => (
+                <ToolCardEffect key={idx} tool={product as ProductType} />
+              ))}
             </ul>
           </>
         ))}
