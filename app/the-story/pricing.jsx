@@ -1,14 +1,14 @@
 'use client';
 
-import Script from "next/script";
+import Script from 'next/script';
 
 export default () => {
   const plans = [
     {
       name: 'Skip the queue',
       desc: 'The average wait time for a free launch is 6 months',
-      price: 46,
-      link: 'https://buy.stripe.com/8wM6qfeEWdde1So3cr',
+      price: 49,
+      link: '/account/tools',
       isMostPop: true,
       features: ['Pick any launch week you want', 'Be on top of the launch tread on X', 'Get hand crafted launch video from us'],
     },
@@ -41,9 +41,14 @@ export default () => {
       link: 'https://buy.stripe.com/14k8yn54m3CE7cIbJ1',
       widgetId: '67694f18ba7de28681af6e17',
       isMostPop: false,
-      features: ['Your logo, brand name, and website link', 'Visible to all users',
-        'Runs for 7 days', 'Avg 10,000 impressions', 'Over 10,000 recipients']
-    }
+      features: [
+        'Your logo, brand name, and website link',
+        'Visible to all users',
+        'Runs for 7 days',
+        'Avg 10,000 impressions',
+        'Over 10,000 recipients',
+      ],
+    },
   ];
 
   const onItemClick = (e, item) => {
@@ -64,9 +69,7 @@ export default () => {
       <Script
         src="https://selldigitals.com/libs/manager.js?widgetId=67694f18ba7de28681af6e17"
         strategy="lazyOnload"
-        onLoad={() =>
-          console.log(`Sell Digitals Manager has been loaded`)
-        }
+        onLoad={() => console.log(`Sell Digitals Manager has been loaded`)}
       />
       <div
         className="absolute inset-0 blur-[118px] max-w-lg h-[800px] mx-auto sm:max-w-3xl sm:h-[400px]"
@@ -77,7 +80,6 @@ export default () => {
       ></div>
       <div className="relative max-w-screen-xl mx-auto text-gray-300 sm:px-4 md:px-8">
         <div className="max-w-xl mx-auto space-y-3 px-4 sm:text-center sm:px-0">
-
           <p className="text-white text-3xl font-semibold sm:text-4xl">Paid and Sponsor options</p>
           <div className="max-w-xl">
             <p>
@@ -95,13 +97,11 @@ export default () => {
             >
               <div className="p-4 py-8 space-y-4 border-b border-gray-700 md:p-8">
                 <span className="text-gray-200 font-medium">{item.name}</span>
-                <div className="text-cyan-400 text-3xl font-semibold">
-                  ${item.price}
-                </div>
+                <div className="text-cyan-400 text-3xl font-semibold">${item.price}</div>
                 <p className="text-gray-400">{item.desc}</p>
                 <a
                   href={item.link}
-                  onClick={(e) => onItemClick(e, item)}
+                  onClick={e => onItemClick(e, item)}
                   className="px-3 inline-block text-center py-3 rounded-lg w-full font-semibold text-sm duration-150 text-white bg-cyan-500 hover:bg-cyan-600 active:bg-cyan-700"
                 >
                   Buy now
