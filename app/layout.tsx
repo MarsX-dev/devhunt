@@ -72,6 +72,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {process.env.USER_MAVEN_KEY && (
           <>
             <Script
+              src="https://app.tinyadz.com/scripts/ads.js?siteId=67d9308722e24b2f06e9986b"
+              strategy="afterInteractive"
+              type="module"
+              async
+            />
+            <Script
               src="https://analytic-api.marsx.dev/script.js"
               strategy="afterInteractive"
               data-website-id="505062d1-c921-4a96-ad67-63bcb082bdb2"
