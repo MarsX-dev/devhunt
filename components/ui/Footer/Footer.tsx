@@ -59,8 +59,8 @@ export default () => {
         </div>
         <ul className="text-sm font-medium items-center justify-center mt-8 space-y-5 sm:flex sm:space-x-4 sm:space-y-0">
           {footerNavs.map((item, idx) => (
-            <li>
-              <a key={idx} href={item.href} className="block hover:text-slate-200">
+            <li key={idx}>
+              <a href={item.href} className="block hover:text-slate-200">
                 {item.name}
               </a>
             </li>
@@ -68,7 +68,7 @@ export default () => {
         </ul>
         <div className="mt-8 items-center justify-between sm:flex">
           <div className="mt-4 sm:mt-0">
-            &copy; 2023 Dev Hunt. Member of{' '}
+            &copy; {new Date().getFullYear()} Dev Hunt. Member of{' '}
             <a className=" text-slate-100 hover:text-slate-50" href="https://www.marsx.dev/">
               MarsX.Dev
             </a>{' '}
@@ -76,7 +76,7 @@ export default () => {
             <div className="text-xs pt-2">
               Uses & Sponsored by{' '}
               {usedTools.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
+                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="nofollow noopener noreferrer" target="_blank">
                   {t.title}
                   {usedTools.length - 1 === i ? '' : ', '}
                 </a>
@@ -86,7 +86,7 @@ export default () => {
             <div className="text-xs pt-2">
               Built by{' '}
               {builtBy.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" href={t.url} rel="nofollow noopener noreferrer" target="_blank">
+                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="nofollow noopener noreferrer" target="_blank">
                   {t.title}
                   {builtBy.length - 1 === i ? '' : ', '}
                 </a>
