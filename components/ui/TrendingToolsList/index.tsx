@@ -37,7 +37,7 @@ export default () => {
         <div>
           {(group as { products: ProductType[] }).products.map((tool: ProductType, idx: number) => (
             <>
-              {idx === 5 && <div id="TA_AD_CONTAINER"></div>}
+              {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
               <li key={idx} className="py-3">
                 <ToolCard tool={tool} href={'/tool/' + tool.slug}>
                   <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">

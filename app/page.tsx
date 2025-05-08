@@ -60,7 +60,7 @@ export default function Home() {
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product, idx) => (
             <>
-              {idx === 5 && <div id="TA_AD_CONTAINER">
+              {idx === 3 && <div id="TA_AD_CONTAINER">
               </div>}
               {
                 // <ToolCardEffect key={idx} tool={product as ProductType}/>
