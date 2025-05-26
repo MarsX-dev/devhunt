@@ -60,17 +60,11 @@ export default function Home() {
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product: ProductType, idx: number) => (
             <>
-              {idx === 3 && <div id="TA_AD_CONTAINER">
-              </div>}
+              {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
               {
                 // <ToolCardEffect key={idx} tool={product as ProductType}/>
-<<<<<<< HEAD
-                product.week == currentWeek && product.launch_start.includes(new Date().getFullYear()) && (
-                  <ToolCardEffect key={idx} tool={product as ProductType}/>
-=======
                 product.week == currentWeek && product.launch_start && product.launch_start.includes(String(new Date().getFullYear())) && (
                   <ToolCardEffect key={idx} tool={product as ProductType} />
->>>>>>> eec74fd (feat: add TypeScript type annotations to tool listing functions)
                 )
               }
             </>
