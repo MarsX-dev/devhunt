@@ -26,7 +26,7 @@ export default ({ productId, owner }: { productId: number; owner: Profile }) => 
   return (
     <ul className="max-w-4xl mx-auto gap-3 flex flex-wrap items-center">
       {[owner, ...votersList].slice(0, limit).map((item: Profile, idx) => (
-        <li className="flex-none w-8 h-8 hover:scale-105 duration-200 sm:w-10 sm:h-10">
+        <li className="flex-none w-8 h-8 hover:scale-105 duration-200 sm:w-10 sm:h-10" key={idx}>
           <Tooltip.Provider delayDuration={200}>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>

@@ -69,14 +69,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className="bg-slate-900">
       <head>
+        <Script
+          src="https://app.tinyadz.com/scripts/ads.js?siteId=67d9308722e24b2f06e9986b"
+          strategy="afterInteractive"
+          type="module"
+          async
+        />
         {process.env.USER_MAVEN_KEY && (
           <>
-            <Script
-              src="https://app.tinyadz.com/scripts/ads.js?siteId=67d9308722e24b2f06e9986b"
-              strategy="afterInteractive"
-              type="module"
-              async
-            />
             <Script
               src="https://analytic-api.marsx.dev/script.js"
               strategy="afterInteractive"
@@ -122,15 +122,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={inter.className} id="root">
         <main>
-          <ChatWindow />
+          <ChatWindow/>
           <SupabaseProvider user={profile as Profile} session={session}>
-            <SupabaseListener serverAccessToken={session?.access_token} />
-            <ProfileFormModal isModalOpen={user ? (profileNoCache?.social_url == null ? true : false) : false} />
-            <Banner />
-            <Navbar />
-            <ModalBannerCodeClient />
+            <SupabaseListener serverAccessToken={session?.access_token}/>
+            <ProfileFormModal isModalOpen={user ? (profileNoCache?.social_url == null ? true : false) : false}/>
+            <Banner/>
+            <Navbar/>
+            <ModalBannerCodeClient/>
             {children}
-            <Footer />
+            <Footer/>
           </SupabaseProvider>
         </main>
       </body>

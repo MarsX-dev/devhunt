@@ -36,22 +36,25 @@ export default () => {
       {trendingTools?.map(group => (
         <div>
           {(group as { products: ProductType[] }).products.map((tool: ProductType, idx: number) => (
-            <li key={idx} className="py-3">
-              <ToolCard tool={tool} href={'/tool/' + tool.slug}>
-                <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
-                  <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
-                  <div className="w-full space-y-1">
-                    <ToolName href={tool.demo_url as string}>{tool.name}</ToolName>
-                    <Title className="line-clamp-2">{tool.slogan}</Title>
-                    <ToolFooter>
-                      <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
-                      <ToolViews count={tool.views_count} />
-                    </ToolFooter>
-                  </div>
-                </Link>
-                <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
-              </ToolCard>
-            </li>
+            <>
+              {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
+              <li key={idx} className="py-3">
+                <ToolCard tool={tool} href={'/tool/' + tool.slug}>
+                  <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
+                    <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
+                    <div className="w-full space-y-1">
+                      <ToolName href={tool.demo_url as string}>{tool.name}</ToolName>
+                      <Title className="line-clamp-2">{tool.slogan}</Title>
+                      <ToolFooter>
+                        <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
+                        <ToolViews count={tool.views_count} />
+                      </ToolFooter>
+                    </div>
+                  </Link>
+                  <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
+                </ToolCard>
+              </li>
+            </>
           ))}
         </div>
       ))}
