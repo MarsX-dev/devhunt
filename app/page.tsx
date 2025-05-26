@@ -51,21 +51,26 @@ export default function Home() {
     fetchData();
   }, []);
 
-  function weekTools(group) {
+  function weekTools(group: { products: ProductType[] }) {
     return (
       <>
         <div className="mt-3 text-slate-400 text-sm">
           Vote for your favorite dev tool this week<b className="text-orange-400">👇</b>
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
-          {group.products.map((product, idx) => (
+          {group.products.map((product: ProductType, idx: number) => (
             <>
               {idx === 3 && <div id="TA_AD_CONTAINER">
               </div>}
               {
                 // <ToolCardEffect key={idx} tool={product as ProductType}/>
+<<<<<<< HEAD
                 product.week == currentWeek && product.launch_start.includes(new Date().getFullYear()) && (
                   <ToolCardEffect key={idx} tool={product as ProductType}/>
+=======
+                product.week == currentWeek && product.launch_start && product.launch_start.includes(String(new Date().getFullYear())) && (
+                  <ToolCardEffect key={idx} tool={product as ProductType} />
+>>>>>>> eec74fd (feat: add TypeScript type annotations to tool listing functions)
                 )
               }
             </>
@@ -75,14 +80,14 @@ export default function Home() {
     );
   }
 
-  function prevWeekTools(group) {
+  function prevWeekTools(group: { products: ProductType[] }) {
     return (
       <>
         <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
           <p className="mt-8">Past winners 👑</p>
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
-          {group.products.slice(0, 3).map((product, idx) => (
+          {group.products.slice(0, 3).map((product: ProductType, idx: number) => (
             <ToolCardEffect key={idx} tool={product as ProductType} />
           ))}
         </ul>
@@ -90,7 +95,7 @@ export default function Home() {
     );
   }
 
-  function weekWinnerTools(products) {
+  function weekWinnerTools(products: ProductType[]) {
     return (
       <>
         {/* Active */}
@@ -99,8 +104,8 @@ export default function Home() {
         </div>
         <ul className="relative mt-3 divide-y divide-slate-800/60">
           {products
-            .sort((a, b) => b.votes_count - a.votes_count)
-            .map((product, idx) => (
+            .sort((a: ProductType, b: ProductType) => b.votes_count - a.votes_count)
+            .map((product: ProductType, idx: number) => (
               <ToolCardEffect key={idx} tool={product as ProductType} />
             ))}
           <div className="absolute -inset-x-2 -inset-y-0 -z-20 bg-slate-800/40 rounded-xl sm:-inset-x-3"></div>
