@@ -12,16 +12,16 @@ export default ({ isActive, toolName, email }: { isActive: boolean; toolName: st
         height="550px"
         frameBorder="0"
       ></iframe>
+      <div className="py-2 text-center">
+        <a
+          target="_blank"
+          href="https://rapidforms.co"
+          className="p-2 rounded-full text-sm font-medium catchy-border text-zinc-600 hover:text-indigo-600 duration-150"
+        >
+          Build your form with RapidForms
+        </a>
+      </div>
     </Modal>
-    <div className="py-2 text-center">
-      <a
-        target="_blank"
-        href="https://rapidforms.co"
-        className="p-2 rounded-full text-sm font-medium catchy-border text-zinc-600 hover:text-indigo-600 duration-150"
-      >
-        Build your form with RapidForms
-      </a>
-    </div>
     <Script strategy="beforeInteractive" src="https://app.rapidforms.co/embed/index.js" />
   </>
 );
