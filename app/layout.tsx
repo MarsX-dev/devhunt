@@ -16,6 +16,7 @@ import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCo
 
 import dynamic from 'next/dynamic';
 import ProfileFormModal from '@/components/ui/ProfileFormModal';
+import PaymentFormScript from '@/components/PaymentFormScript';
 
 const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
@@ -114,6 +115,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
+        <PaymentFormScript />
         <meta httpEquiv="Content-Language" content="en" />
         <meta property="og:locale" content="en_US" />
         <meta name="language" content="English" />
@@ -122,15 +124,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className={inter.className} id="root">
         <main>
-          <ChatWindow/>
+          <ChatWindow />
           <SupabaseProvider user={profile as Profile} session={session}>
-            <SupabaseListener serverAccessToken={session?.access_token}/>
-            <ProfileFormModal isModalOpen={user ? (profileNoCache?.social_url == null ? true : false) : false}/>
-            <Banner/>
-            <Navbar/>
-            <ModalBannerCodeClient/>
+            <SupabaseListener serverAccessToken={session?.access_token} />
+            <ProfileFormModal isModalOpen={user ? (profileNoCache?.social_url == null ? true : false) : false} />
+            <Banner />
+            <Navbar />
+            <ModalBannerCodeClient />
             {children}
-            <Footer/>
+            <Footer />
           </SupabaseProvider>
         </main>
       </body>

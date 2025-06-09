@@ -1,4 +1,3 @@
-import Script from 'next/script';
 import Modal from './Modal';
 
 export default ({ isActive, toolName, email }: { isActive: boolean; toolName: string; email?: string }) => (
@@ -22,6 +21,5 @@ export default ({ isActive, toolName, email }: { isActive: boolean; toolName: st
         </a>
       </div>
     </Modal>
-    <Script strategy="beforeInteractive" src="https://app.rapidforms.co/embed/index.js" />
   </>
 );
