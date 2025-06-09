@@ -427,6 +427,11 @@ export type Database = {
           votes_count: number;
           week: number | null;
           isPaid: boolean;
+          paid_launch_date?: {
+            week: number;
+            startDate: string;
+            endDate: string;
+          } | null;
         };
         Insert: {
           asset_urls?: string[] | null;
@@ -455,6 +460,11 @@ export type Database = {
           votes_count?: number;
           week?: number | null;
           isPaid?: boolean;
+          paid_launch_date?: {
+            week: number;
+            startDate: string;
+            endDate: string;
+          } | null;
         };
         Update: {
           asset_urls?: string[] | null;
@@ -483,6 +493,11 @@ export type Database = {
           votes_count?: number;
           week?: number | null;
           isPaid?: boolean;
+          paid_launch_date?: {
+            week: number;
+            startDate: string;
+            endDate: string;
+          } | null;
         };
         Relationships: [
           {

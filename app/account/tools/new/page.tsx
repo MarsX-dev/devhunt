@@ -265,6 +265,7 @@ export default () => {
             demo_video_url: demo_video || generatedVideoUrl,
             ...launchData,
             isPaid: false,
+            paid_launch_date: submitType == 'paid' ? weekData : null,
           },
           categoryIds,
         )
@@ -283,7 +284,6 @@ export default () => {
           );
           router.push(`/tool/${res?.slug}?banner=true`);
           if (submitType == 'paid') {
-            localStorage.setItem('paid-launch-date', JSON.stringify(weekData));
             window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
           }
         });

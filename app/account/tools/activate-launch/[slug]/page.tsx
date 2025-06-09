@@ -74,8 +74,6 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
           week: parsedLaunchData.week,
         });
 
-        // Store payment status in localStorage to persist across page refreshes
-        localStorage.setItem(`product-paid-${slug}`, 'true');
         setPaid(true);
         setPaymentFormActive(false);
       } catch (err) {
@@ -118,19 +116,6 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
         setPaymentFormActive(false);
         router.push('/account/tools');
         return;
-      }
-
-      // Check if we have a local record of payment
-      const localPaymentStatus = localStorage.getItem(`product-paid-${slug}`);
-      if (localPaymentStatus === 'true') {
-        // Double-check with the database since local storage could be manipulated
-        const refreshedProduct = await productsService.getBySlug(slug, false);
-        if (refreshedProduct?.isPaid) {
-          setPaid(true);
-          setPaymentFormActive(false);
-          router.push('/account/tools');
-          return;
-        }
       }
 
       // If we reach here, payment is needed
