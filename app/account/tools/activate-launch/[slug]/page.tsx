@@ -17,6 +17,7 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
   const [isPaymentFormActive, setPaymentFormActive] = useState<boolean>(false);
   const [isPaid, setPaid] = useState<boolean>(false);
   const [isDone, setDone] = useState<boolean>(false);
+  const [paidLaunchDate, setPaidLaunchDate] = useState<{ startDate: string; endDate: string; week: number } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -31,19 +32,12 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
           e.data.data.url.includes('https://app.rapidforms.co/embed/9365a8')
         ) {
           // Set a session storage flag to indicate payment was completed
-          sessionStorage.setItem(`payment-completed-${slug}`, 'true');
           setDone(true);
         }
       }
     };
 
     window.addEventListener('message', handleMessage, false);
-
-    // Check if payment was already completed in this session
-    const paymentCompleted = sessionStorage.getItem(`payment-completed-${slug}`);
-    if (paymentCompleted === 'true') {
-      setDone(true);
-    }
 
     return () => {
       window.removeEventListener('message', handleMessage, false);
@@ -56,22 +50,20 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
       if (!isDone || !id) return;
 
       try {
-        const launchData = localStorage.getItem('paid-launch-date');
-        if (!launchData) {
-          setError('Launch date information is missing. Please try again.');
+        if (isPaid) {
           return;
         }
 
-        const parsedLaunchData = JSON.parse(launchData);
+        const parsedLaunchData = paidLaunchDate;
         const supabaseBrowserClient = createBrowserClient();
         const productsService = new ProductsService(supabaseBrowserClient);
 
         await productsService.update(id, {
           isPaid: true,
-          launch_start: parsedLaunchData.startDate,
-          launch_date: parsedLaunchData.startDate,
-          launch_end: parsedLaunchData.endDate,
-          week: parsedLaunchData.week,
+          launch_start: parsedLaunchData?.startDate,
+          launch_date: parsedLaunchData?.startDate,
+          launch_end: parsedLaunchData?.endDate,
+          week: parsedLaunchData?.week,
         });
 
         setPaid(true);
@@ -83,7 +75,7 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
     };
 
     updateProductPaymentStatus();
-  }, [isDone, id, slug]);
+  }, [isDone, id, slug, paidLaunchDate]);
 
   // Fetch tool information and check payment status
   const getTool = useCallback(async () => {
@@ -103,6 +95,7 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
 
       setId(product.id);
       setToolName(product.name as string);
+      setPaidLaunchDate(product?.paid_launch_date as { startDate: string; endDate: string; week: number } | null);
 
       const supabase = createClientComponentClient();
       const {
@@ -137,7 +130,7 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
       {error && (
         <div className="py-12 mt-8 text-center">
           <div className="mb-4 inline-block rounded-full p-3 bg-gradient-to-br from-red-400 to-red-600">
-            <span className="h-12 w-12 text-white text-xl">!</span>
+            <span className="h-12 w-12 inline-flex items-center justify-center text-white text-xl">!</span>
           </div>
           <h2 className="mb-3 text-xl font-bold text-white">Error</h2>
           <p className="mb-8 text-slate-300">{error}</p>
