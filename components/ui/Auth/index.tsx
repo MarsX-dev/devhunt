@@ -47,34 +47,63 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
   };
 
   const HandleSignInNotification = useCallback(() => {
+    // Track if we've already processed this user to prevent duplicates
+    let processedUsers = new Set<string>();
+
     const eventListener = supabase.auth.onAuthStateChange((event, session) => {
-      if (event == 'SIGNED_IN' && session?.user) {
-        profile.getById(session?.user.id as string).then(async user => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const userId = session.user.id;
+
+        // Prevent duplicate processing for the same user
+        if (processedUsers.has(userId)) {
+          return;
+        }
+
+        processedUsers.add(userId);
+
+        profile.getById(userId).then(async user => {
           if (!user?.updated_at) {
-            const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
-            const content = `**${user?.full_name}** [open the profile](https://devhunt.org/@${user?.username})`;
-            if (DISCORD_USER_WEBHOOK) await axios.post(DISCORD_USER_WEBHOOK, { content });
-            
-            await axios.post('/api/login', { firstName: user?.full_name as string, personalEMail: session.user.email as string });
-            await usermaven.id({
-              id: user?.id,
-              email: session?.user?.email,
-              created_at: Date.now().toLocaleString(),
-              first_name: user?.full_name,
-            });
-            await profile.update(user?.id as string, {
-              updated_at: new Date().toISOString(),
-            });
+            try {
+              console.log('event', event, 'Welcome Email sent');
+              const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
+              const content = `**${user?.full_name}** [open the profile](https://devhunt.org/@${user?.username})`;
+              if (DISCORD_USER_WEBHOOK) await axios.post(DISCORD_USER_WEBHOOK, { content });
+
+              await axios.post('/api/login', { firstName: user?.full_name as string, personalEMail: session.user.email as string });
+              await usermaven.id({
+                id: user?.id,
+                email: session?.user?.email,
+                created_at: Date.now().toLocaleString(),
+                first_name: user?.full_name,
+              });
+              await profile.update(userId, {
+                updated_at: new Date().toISOString(),
+              });
+            } catch (error) {
+              console.error('Error processing welcome flow:', error);
+              // Remove from processed set if there was an error, so it can retry
+              processedUsers.delete(userId);
+            }
           }
         });
-        eventListener.data.subscription.unsubscribe();
       }
     });
-  }, []);
+
+    // Return the subscription for cleanup
+    return eventListener.data.subscription;
+  }, [supabase, profile]);
 
   useEffect(() => {
-    HandleSignInNotification();
-  }, []);
+    // Set up the auth listener
+    const subscription = HandleSignInNotification();
+
+    // Cleanup function to unsubscribe when component unmounts
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
+  }, [HandleSignInNotification]);
 
   // console.log(session && session.user)
 
