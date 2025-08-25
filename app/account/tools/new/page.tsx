@@ -24,9 +24,12 @@ import { useRouter } from 'next/navigation';
 import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
-import { usermaven } from '@/utils/usermaven';
+import usermaven from '@/utils/usermaven';
 import Alert from '@/components/ui/Alert';
 import moment from 'moment';
+import Modal from '@/components/ui/Modal';
+import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
+import { IconXmark } from '@/components/Icons';
 
 interface Inputs {
   tool_name: string;
@@ -70,7 +73,7 @@ export default () => {
     setError,
     getValues,
     setValue,
-  } = useForm();
+  } = useForm<Inputs>();
 
   const [profile, setProfile] = useState<Profile>();
 
@@ -90,6 +93,13 @@ export default () => {
   const [isLaunching, setLaunching] = useState<boolean>(false);
 
   const [allWeeks, setAllWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
+
+  // ProductHunt import state
+  const [isPhModalOpen, setIsPhModalOpen] = useState(false);
+  const [phSlug, setPhSlug] = useState('');
+  const [isPhLoading, setIsPhLoading] = useState(false);
+  const [phError, setPhError] = useState('');
+  const [phProductAlert, setPhProductAlert] = useState<boolean>(true);
 
   useEffect(() => {
     pricingTypesList.then(types => {
@@ -292,221 +302,341 @@ export default () => {
 
   const [launchDateStart, setLaunchDateStart] = useState<{ startDate: string; count: number }>({ startDate: '', count: 0 });
 
+  // Function to fetch ProductHunt data and auto-fill form
+  const handlePhImport = async () => {
+    if (!phSlug.trim()) {
+      setPhError('Please enter a ProductHunt slug');
+      return;
+    }
+
+    setIsPhLoading(true);
+    setPhError('');
+
+    try {
+      const response = await axios.get(`/api/ph-dev-tools/${phSlug.trim()}`);
+      console.log('ProductHunt API response:', response.data);
+      const { product } = response.data;
+
+      if (product) {
+        const realWebsite = await axios.get(`/api/ph-dev-tools/get-website-url/${encodeURIComponent(product.website)}`);
+
+        setValue('tool_name', product.name);
+        setValue('slogan', product.tagline);
+        setValue('tool_website', realWebsite.data);
+        setValue('tool_description', product.description);
+        setLogoPreview(product.thumbnail.url);
+        setImagePreview(product.media.map((item: { url: string }) => item.url));
+        // Close modal and show success message
+        setIsPhModalOpen(false);
+        setPhSlug('');
+      }
+    } catch (error: any) {
+      console.error('ProductHunt import error:', error);
+      if (error.response?.status === 404) {
+        setPhError('Product not found. Please check the slug and try again.');
+      } else {
+        setPhError('Failed to fetch product. Please try again.');
+      }
+    } finally {
+      setIsPhLoading(false);
+    }
+  };
+
   return (
-    <section className="container-custom-screen">
-      <Alert context="Any non-dev tools will be subject to removal. Please ensure that your submission is relevant to the developer community." />
-      <h1 className="text-xl text-slate-50 font-semibold mt-6">Launch a tool</h1>
-      <div id="form-container" className="mt-12">
-        <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
-          <FormLaunchSection
-            number={1}
-            title="Tell us about your tool"
-            description="Share basic info to help fellow devs get the gist of your awesome creation."
-          >
-            <div>
-              <LogoUploader isLoad={isLogoLoad} required src={logoPreview} onChange={handleUploadLogo} />
-              <LabelError className="mt-2">{logoError}</LabelError>
-            </div>
-            <div>
-              <Label>Tool name</Label>
-              <Input
-                placeholder="My Awesome Dev Tool"
-                className="w-full mt-2"
-                validate={{ ...register('tool_name', { required: true, minLength: 3 }) }}
-              />
-              <LabelError className="mt-2">{errors.tool_name && 'Please enter your tool name'}</LabelError>
-            </div>
-            <div>
-              <Label>Catchy slogan 😎</Label>
-              <Input
-                placeholder="Supercharge Your Development Workflow!"
-                className="w-full mt-2"
-                validate={{ ...register('slogan', { required: true, minLength: 10 }) }}
-              />
-              <LabelError className="mt-2">{errors.slogan && 'Please enter your tool slogan'}</LabelError>
-            </div>
-            <div>
-              <Label>Tool website URL</Label>
-              <Input
-                placeholder="https://myawesomedevtool.com/"
-                className="w-full mt-2"
-                validate={{
-                  ...register('tool_website', { required: true, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
-                }}
-              />
-              <LabelError className="mt-2">{errors.tool_website && 'Please enter your tool website URL'}</LabelError>
-            </div>
-            <div>
-              <Label>GitHub repo URL (optional)</Label>
-              <Input
-                placeholder="https://github.com/username/myawesomedevtool"
-                className="w-full mt-2"
-                validate={{
-                  ...register('github_repo', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
-                }}
-              />
-              <LabelError className="mt-2">{errors.github_repo && 'Please enter a valid github repo url'}</LabelError>
-            </div>
-            <div>
-              <Label>Quick Description</Label>
-              <Textarea
-                placeholder="Briefly explain what your tool does. HTML is supported"
-                className="w-full h-36 mt-2"
-                validate={{
-                  ...register('tool_description', { required: true }),
-                }}
-              />
-              <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
-            </div>
-          </FormLaunchSection>
-          <FormLaunchSection
-            number={2}
-            title="Extra Stuff"
-            description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!"
-          >
-            <div id="pricing-container">
-              <Label>Tool pricing type</Label>
-              {pricingType.map((item, idx) => (
-                <Controller
-                  key={idx}
-                  name="pricing_type"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <div className="mt-2 flex items-center gap-x-2">
-                      <Radio value="free" onChange={e => field.onChange(item.id)} id={item.title as string} name="pricing-type" />
-                      <Label htmlFor={item.title as string} className="font-normal">
-                        {item.title}
-                      </Label>
+    <>
+      <section className="container-custom-screen">
+        <Alert context="Any non-dev tools will be subject to removal. Please ensure that your submission is relevant to the developer community." />
+        <h1 className="text-xl text-slate-50 font-semibold mt-6">Launch a tool</h1>
+        <div id="form-container" className="mt-12">
+          <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
+            <FormLaunchSection
+              number={1}
+              title="Tell us about your tool"
+              description="Share basic info to help fellow devs get the gist of your awesome creation."
+            >
+              {phProductAlert && (
+                <div className="relative mb-6 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <IconGlobeAlt className="w-5 h-5 text-orange-400" />
+                      <span className="text-sm font-medium text-slate-200">Import from ProductHunt</span>
                     </div>
-                  )}
+                    <Button type="button" onClick={() => setIsPhModalOpen(true)} variant="shiny" className="text-xs px-3 py-1.5">
+                      Import
+                    </Button>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Already have your tool on ProductHunt? Import the details to auto-fill this form and save time!
+                  </p>
+                  <button
+                    onClick={() => setPhProductAlert(false)}
+                    className="absolute -left-2 -top-2 p-1 text-slate-50 bg-slate-700 border border-slate-600 rounded-full"
+                  >
+                    <IconXmark className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              <div>
+                <LogoUploader isLoad={isLogoLoad} required src={logoPreview} onChange={handleUploadLogo} />
+                <LabelError className="mt-2">{logoError}</LabelError>
+              </div>
+              <div>
+                <Label>Tool name</Label>
+                <Input
+                  placeholder="My Awesome Dev Tool"
+                  className="w-full mt-2"
+                  validate={{ ...register('tool_name', { required: true, minLength: 3 }) }}
                 />
-              ))}
-              <LabelError className="mt-2">{errors.pricing_type && 'Please select your tool pricing type'}</LabelError>
-            </div>
-            <div>
-              <Label>Tool categories (optional)</Label>
-              <CategoryInput className="mt-2" categories={categories} setCategory={setCategory} />
-            </div>
-          </FormLaunchSection>
-          <FormLaunchSection number={3} title="Media" description="Show off how awesome your dev tool is with cool images.">
-            <div>
-              <Label>Demo video (optional)</Label>
-              <Input
-                placeholder="Demo video (optional). YouTube or mp4 link"
-                className="w-full mt-2"
-                validate={{
-                  ...register('demo_video', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
-                }}
-              />
-              <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
-            </div>
-            <div id="tool-screenshots-container">
-              <Label>Tool screenshots</Label>
-              <p className="text-sm text-slate-400">
-                Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
-                social preview, so choose wisely!
-              </p>
-              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
-                {imagePreviews.map((src, idx) => (
-                  <ImageUploaderItem
-                    src={src}
+                <LabelError className="mt-2">{errors.tool_name && 'Please enter your tool name'}</LabelError>
+              </div>
+              <div>
+                <Label>Catchy slogan 😎</Label>
+                <Input
+                  placeholder="Supercharge Your Development Workflow!"
+                  className="w-full mt-2"
+                  validate={{ ...register('slogan', { required: true, minLength: 10 }) }}
+                />
+                <LabelError className="mt-2">{errors.slogan && 'Please enter your tool slogan'}</LabelError>
+              </div>
+              <div>
+                <Label>Tool website URL</Label>
+                <Input
+                  placeholder="https://myawesomedevtool.com/"
+                  className="w-full mt-2"
+                  validate={{
+                    ...register('tool_website', { required: true, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
+                  }}
+                />
+                <LabelError className="mt-2">{errors.tool_website && 'Please enter your tool website URL'}</LabelError>
+              </div>
+              <div>
+                <Label>GitHub repo URL (optional)</Label>
+                <Input
+                  placeholder="https://github.com/username/myawesomedevtool"
+                  className="w-full mt-2"
+                  validate={{
+                    ...register('github_repo', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
+                  }}
+                />
+                <LabelError className="mt-2">{errors.github_repo && 'Please enter a valid github repo url'}</LabelError>
+              </div>
+              <div>
+                <Label>Quick Description</Label>
+                <Textarea
+                  placeholder="Briefly explain what your tool does. HTML is supported"
+                  className="w-full h-36 mt-2"
+                  validate={{
+                    ...register('tool_description', { required: true }),
+                  }}
+                />
+                <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
+              </div>
+            </FormLaunchSection>
+            <FormLaunchSection
+              number={2}
+              title="Extra Stuff"
+              description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!"
+            >
+              <div id="pricing-container">
+                <Label>Tool pricing type</Label>
+                {pricingType.map((item, idx) => (
+                  <Controller
                     key={idx}
-                    onRemove={() => {
-                      handleRemoveImage(idx);
-                    }}
+                    name="pricing_type"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <div className="mt-2 flex items-center gap-x-2">
+                        <Radio value="free" onChange={e => field.onChange(item.id)} id={item.title as string} name="pricing-type" />
+                        <Label htmlFor={item.title as string} className="font-normal">
+                          {item.title}
+                        </Label>
+                      </div>
+                    )}
                   />
                 ))}
-              </ImagesUploader>
-              <LabelError className="mt-2">{imagesError}</LabelError>
-            </div>
-          </FormLaunchSection>
-
-          <FormLaunchSection
-            number={4}
-            title="Launch Week for Your Dev Tool"
-            description="Setting the perfect launch week is essential to make a splash in the dev world."
-          >
-            <div>
-              <ul className="text-sm text-slate-400">
-                <li className="text-slate-300 mb-1">By choosing your tool's big day, you're guaranteeing:</li>
-                <li>
-                  <b>1. Home Page Spotlight:</b> Your tool will steal the show on our home page for a full 24 hours!
-                </li>
-                <li>
-                  <b>2. Morning Buzz:</b> We'll shoot out an email featuring your tool to our subscribers that very morning.
-                </li>
-                <li>
-                  <b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.
-                </li>
-                <li>
-                  <b>4. DoFollow backlink(DR 57):</b> Boost your own domain rating by getting high quality dofollow link.
-                </li>
-              </ul>
-              <div className="relative mt-4 mb-3">
-                <SelectLaunchDate
-                  label="Launch week"
-                  className="w-full"
-                  validate={{
-                    ...register('week', {
-                      required: true,
-                      async onChange(value) {
-                        if (value) {
-                          const currentStartDate = (await getWeekDate(Number(value.target.value)))?.startDate as any;
-                          const startDate = allWeeks.filter(
-                            item => new Date(item.startDate).getTime() == new Date(currentStartDate).getTime(),
-                          );
-                          setValue('week', value.target.value, { shouldValidate: true });
-                          // console.log(startDate);
-                          // console.log(new Date(currentStartDate));
-                          setLaunchDateStart(startDate[0] as any);
-                        }
-                      },
-                    }),
-                  }}
-                  setAllWeeks={setAllWeeks}
-                />
-                <LabelError className="mt-2">{errors.week && 'Please pick a launch week'}</LabelError>
+                <LabelError className="mt-2">{errors.pricing_type && 'Please select your tool pricing type'}</LabelError>
               </div>
-              {/* <div className="text-lg text-slate-100 font-medium">
+              <div>
+                <Label>Tool categories (optional)</Label>
+                <CategoryInput className="mt-2" categories={categories} setCategory={setCategory} />
+              </div>
+            </FormLaunchSection>
+            <FormLaunchSection number={3} title="Media" description="Show off how awesome your dev tool is with cool images.">
+              <div>
+                <Label>Demo video (optional)</Label>
+                <Input
+                  placeholder="Demo video (optional). YouTube or mp4 link"
+                  className="w-full mt-2"
+                  validate={{
+                    ...register('demo_video', { required: false, pattern: /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/.*)*$/i }),
+                  }}
+                />
+                <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
+              </div>
+              <div id="tool-screenshots-container">
+                <Label>Tool screenshots</Label>
+                <p className="text-sm text-slate-400">
+                  Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
+                  social preview, so choose wisely!
+                </p>
+                <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
+                  {imagePreviews.map((src, idx) => (
+                    <ImageUploaderItem
+                      src={src}
+                      key={idx}
+                      onRemove={() => {
+                        handleRemoveImage(idx);
+                      }}
+                    />
+                  ))}
+                </ImagesUploader>
+                <LabelError className="mt-2">{imagesError}</LabelError>
+              </div>
+            </FormLaunchSection>
+
+            <FormLaunchSection
+              number={4}
+              title="Launch Week for Your Dev Tool"
+              description="Setting the perfect launch week is essential to make a splash in the dev world."
+            >
+              <div>
+                <ul className="text-sm text-slate-400">
+                  <li className="text-slate-300 mb-1">By choosing your tool's big day, you're guaranteeing:</li>
+                  <li>
+                    <b>1. Home Page Spotlight:</b> Your tool will steal the show on our home page for a full 24 hours!
+                  </li>
+                  <li>
+                    <b>2. Morning Buzz:</b> We'll shoot out an email featuring your tool to our subscribers that very morning.
+                  </li>
+                  <li>
+                    <b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.
+                  </li>
+                  <li>
+                    <b>4. DoFollow backlink(DR 57):</b> Boost your own domain rating by getting high quality dofollow link.
+                  </li>
+                </ul>
+                <div className="relative mt-4 mb-3">
+                  <SelectLaunchDate
+                    label="Launch week"
+                    className="w-full"
+                    validate={{
+                      ...register('week', {
+                        required: true,
+                        async onChange(value) {
+                          if (value) {
+                            const currentStartDate = (await getWeekDate(Number(value.target.value)))?.startDate as any;
+                            const startDate = allWeeks.filter(
+                              item => new Date(item.startDate).getTime() == new Date(currentStartDate).getTime(),
+                            );
+                            setValue('week', value.target.value, { shouldValidate: true });
+                            // console.log(startDate);
+                            // console.log(new Date(currentStartDate));
+                            setLaunchDateStart(startDate[0] as any);
+                          }
+                        },
+                      }),
+                    }}
+                    setAllWeeks={setAllWeeks}
+                  />
+                  <LabelError className="mt-2">{errors.week && 'Please pick a launch week'}</LabelError>
+                </div>
+                {/* <div className="text-lg text-slate-100 font-medium">
                 Wanna skip this line?{' '}
                 <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
                   See details
                 </a>
               </div> */}
-            </div>
-            <div className="pt-7">
-              {getValues('week') && (
-                <>
-                  <Button
-                    id="submit-btn"
-                    type="submit"
-                    isLoad={isLaunching}
-                    className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
-                    onClick={() => setValue('submitType', launchDateStart.count > 14 ? 'paid' : 'normal')}
-                  >
-                    {launchDateStart.count > 14 ? <>Launch on {moment(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
-                  </Button>
-                  {launchDateStart.count > 14 && (
+              </div>
+              <div className="pt-7">
+                {getValues('week') && (
+                  <>
                     <Button
-                      onClick={() => setValue('submitType', 'free')}
                       id="submit-btn"
                       type="submit"
                       isLoad={isLaunching}
-                      className="w-full text-sm mt-2 text-slate-400"
-                      variant="shiny"
+                      className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
+                      onClick={() => setValue('submitType', launchDateStart.count > 14 ? 'paid' : 'normal')}
                     >
-                      Queue to launch on {moment(findNearestAvailableDate(allWeeks as [])?.startDate).format('LL')} for free
+                      {launchDateStart.count > 14 ? <>Launch on {moment(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
                     </Button>
-                  )}
-                </>
-              )}
-              <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info or reschedule the launch later</p>
+                    {launchDateStart.count > 14 && (
+                      <Button
+                        onClick={() => setValue('submitType', 'free')}
+                        id="submit-btn"
+                        type="submit"
+                        isLoad={isLaunching}
+                        className="w-full text-sm mt-2 text-slate-400"
+                        variant="shiny"
+                      >
+                        Queue to launch on {moment(findNearestAvailableDate(allWeeks as [])?.startDate).format('LL')} for free
+                      </Button>
+                    )}
+                  </>
+                )}
+                <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info or reschedule the launch later</p>
+              </div>
+            </FormLaunchSection>
+          </FormLaunchWrapper>
+        </div>
+
+        {/* isPaymentFormActive */}
+      </section>
+      {/* ProductHunt Import Modal */}
+      <Modal
+        isActive={isPhModalOpen}
+        onCancel={() => {
+          setIsPhModalOpen(false);
+          setPhSlug('');
+          setPhError('');
+        }}
+        variant="custom"
+        className="max-w-md"
+      >
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <IconGlobeAlt className="w-6 h-6 text-orange-400" />
+            <h3 className="text-lg font-semibold text-slate-50">Import from ProductHunt</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm">ProductHunt Slug</Label>
+              <Input
+                placeholder="e.g., my-awesome-dev-tool"
+                value={phSlug}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPhSlug(e.target.value)}
+                className="w-full mt-2 border border-slate-700"
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    handlePhImport();
+                  }
+                }}
+              />
+              {phError && <LabelError className="mt-2 text-sm">{phError}</LabelError>}
             </div>
-          </FormLaunchSection>
-        </FormLaunchWrapper>
-      </div>
-      {/* isPaymentFormActive */}
-    </section>
+
+            <div className="flex gap-3 pt-2">
+              <Button type="button" onClick={handlePhImport} isLoad={isPhLoading} className="flex-1">
+                {isPhLoading ? 'Importing...' : 'Import Product'}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  setIsPhModalOpen(false);
+                  setPhSlug('');
+                  setPhError('');
+                }}
+                variant="shiny"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 };
