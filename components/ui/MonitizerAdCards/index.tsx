@@ -19,6 +19,8 @@ const SponsorSkeleton = () => (
 );
 
 function MonitizorAdCards() {
+  return <></>;
+
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
