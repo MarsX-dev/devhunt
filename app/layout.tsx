@@ -71,7 +71,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className="bg-slate-900">
       <head>
         <Script
-          src="https://app.tinyadz.com/scripts/ads.js?siteId=67d9308722e24b2f06e9986b"
+          src="https://app.tinyadz.com/scripts/v1.0/ads.js"
+          data-site-id="67d9308722e24b2f06e9986b"
           strategy="afterInteractive"
           type="module"
           async
