@@ -70,13 +70,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className="bg-slate-900">
       <head>
-        <Script
-          src="https://app.tinyadz.com/scripts/v1.0/ads.js"
-          data-site-id="67d9308722e24b2f06e9986b"
-          strategy="afterInteractive"
-          type="module"
-          async
-        />
         {process.env.USER_MAVEN_KEY && (
           <>
             <Script
@@ -136,6 +129,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Footer />
           </SupabaseProvider>
         </main>
+
+        <Script
+          src="https://app.tinyadz.com/scripts/v1.0/ads.js"
+          data-site-id="67d9308722e24b2f06e9986b"
+          strategy="afterInteractive"
+          async
+        />
       </body>
     </html>
   );
