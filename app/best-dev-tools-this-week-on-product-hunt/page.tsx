@@ -63,7 +63,7 @@ export const metadata = {
 };
 
 export default async () => {
-  const origin = process.env.NODE_ENV == 'development' ? 'http://localhost:3001' : 'https://devhunt.org';
+  const origin = process.env.NODE_ENV == 'development' ? 'http://localhost:3000' : 'https://devhunt.org';
   const {
     data: { posts },
   } = await axios.get(`${origin}/api/ph-dev-tools`);
@@ -84,7 +84,7 @@ export default async () => {
   });
 
   // Wait for all promises to resolve
-  const websites = (await Promise.all(requests)) || [];
+  // const websites = (await Promise.all(requests)) || [];
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
@@ -94,7 +94,7 @@ export default async () => {
       <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
         {posts?.map((tool: Product, idx: number) => (
           <li key={idx} className="py-3">
-            <ProductHuntCard href={websites[idx] ? `${websites[idx]}/?ref=devhunt` : tool.node.website}>
+            <ProductHuntCard href={tool.node.website}>
               <div className="w-full flex items-center gap-x-4">
                 <Image
                   src={tool.node.thumbnail.url}
@@ -104,7 +104,7 @@ export default async () => {
                   className="rounded-full object-cover flex-none"
                 />
                 <div className="w-full space-y-1">
-                  <ToolName href={websites[idx] ? websites[idx] : tool.node.website}>{tool.node.name}</ToolName>
+                  <ToolName href={tool.node.website}>{tool.node.name}</ToolName>
                   <Title className="line-clamp-2">{tool.node.tagline}</Title>
                   <ToolFooter>
                     {/* <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} /> */}
