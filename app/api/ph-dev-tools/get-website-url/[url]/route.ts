@@ -40,16 +40,18 @@ function extractHostAndPath(url: string): { host: string; path: string } {
 export async function GET(req: NextRequest, { params }: RouteParams) {
   const { url } = params;
 
-  console.log('Website URL', url);
+  console.log('Website URL', url.replace(/\?.*$/, ''));
 
   const requests = (website: string) => {
     // Return a promise for each request
     return new Promise((resolve, reject) => {
       // Perform the request asynchronously
-      request({ url: website, followRedirect: false }, function (err, res, body) {
+      request({ url: website.replace(/\?.*$/, ''), followRedirect: false }, function (err, res, body) {
         if (err) {
           reject(err);
         } else {
+          console.log('res.headers', res.headers);
+
           resolve(extractLink(extractHostAndPath(res.headers.location as string).host));
         }
       });
