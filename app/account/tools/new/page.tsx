@@ -325,7 +325,9 @@ export default () => {
         setValue('tool_website', '');
         setValue('tool_description', product.description);
         setLogoPreview(product.thumbnail.url);
+        setLogoFile(product.thumbnail.url);
         setImagePreview(product.media.map((item: { url: string }) => item.url));
+        setImageFile(product.media.map((item: { url: string }) => item.url));
         // Close modal and show success message
         setIsPhModalOpen(false);
         setPhSlug('');
