@@ -68,6 +68,8 @@ export default async () => {
     data: { posts },
   } = await axios.get(`${origin}/api/ph-dev-tools`);
 
+  // Doesn't work after new PH update, they block requests from other domains when try to get the real website url:
+
   // Create an array to store all the promises for the requests
   const requests = posts.map((item: Product) => {
     // Return a promise for each request
