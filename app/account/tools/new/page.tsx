@@ -318,14 +318,16 @@ export default () => {
       const { product } = response.data;
 
       if (product) {
-        const realWebsite = await axios.get(`/api/ph-dev-tools/get-website-url/${encodeURIComponent(product.website)}`);
+        // const realWebsite = await axios.get(`/api/ph-dev-tools/get-website-url/${encodeURIComponent(product.website)}`);
 
         setValue('tool_name', product.name);
         setValue('slogan', product.tagline);
-        setValue('tool_website', realWebsite.data);
+        setValue('tool_website', '');
         setValue('tool_description', product.description);
         setLogoPreview(product.thumbnail.url);
+        setLogoFile(product.thumbnail.url);
         setImagePreview(product.media.map((item: { url: string }) => item.url));
+        setImageFile(product.media.map((item: { url: string }) => item.url));
         // Close modal and show success message
         setIsPhModalOpen(false);
         setPhSlug('');

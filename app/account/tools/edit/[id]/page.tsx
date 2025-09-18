@@ -76,6 +76,7 @@ export default () => {
   const [weekValue, setWeekValue] = useState<string | number>('');
 
   const [launchEnd, setLaunchDate] = useState<string>();
+  const [launchStart, setLaunchStart] = useState<string>();
 
   useEffect(() => {
     pricingTypesList.then(types => {
@@ -98,6 +99,7 @@ export default () => {
       setImagePreview(data?.asset_urls as string[]);
       setPaid(data?.isPaid as boolean);
       setLaunchDate(data?.launch_end as string);
+      setLaunchStart(data?.launch_start as string);
     });
   }, []);
 
@@ -341,7 +343,7 @@ export default () => {
             {new Date(launchEnd as string) > new Date() && (
               <div>
                 <div className="relative mt-4 mb-3">
-                  {isPaid ? (
+                  {isPaid && new Date(launchStart as string) > new Date() ? (
                     <SelectLaunchDate
                       validate={{
                         ...register('week', { required: true, onChange: e => setWeekValue(e.target.value) }),
