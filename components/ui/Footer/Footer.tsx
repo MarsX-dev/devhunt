@@ -57,15 +57,20 @@ export default () => {
             A launchpad for dev tools, built by developers. Open-source and fair.
           </p>
         </div>
-        <ul className="text-sm font-medium items-center justify-center mt-8 space-y-5 sm:flex sm:space-x-4 sm:space-y-0">
-          {footerNavs.map((item, idx) => (
-            <li key={idx}>
-              <a href={item.href} className="block hover:text-slate-200">
-                {item.name}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="mt-10">
+          <ul className="flex flex-col sm:flex-wrap sm:flex-row sm:gap-x-10 gap-y-2 text-sm text-slate-400 leading-relaxed">
+            {footerNavs.map((item, idx) => (
+              <li key={idx} className="sm:w-[45%] md:w-[30%] lg:w-[22%]">
+                <a
+                  href={item.href}
+                  className="block hover:text-slate-100 transition-colors duration-200"
+                >
+                  {item.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="mt-8 items-center justify-between sm:flex">
           <div className="mt-4 sm:mt-0">
             &copy; {new Date().getFullYear()} Dev Hunt. Member of{' '}
