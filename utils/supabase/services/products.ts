@@ -163,15 +163,34 @@ export default class ProductsService extends BaseDbService {
       }));
     };
 
-    let results = [];
+    // Determine how many weeks actually exist in the current year for start_day = 2
+    const currentYearWeeks = await this.getWeeks(year, 2);
+    const weeksInCurrentYear = currentYearWeeks.length;
 
-    // If endWeek is in the current year
-    if (endWeek <= 53) {
+    let results: {
+      week: number;
+      startDate: Date;
+      endDate: Date;
+      count: number;
+    }[] = [];
+
+    if (endWeek <= weeksInCurrentYear) {
+      // Everything fits into the current year
       results = await queryProductsCount(startWeek, endWeek, year);
     } else {
-      // Split the query into current year and next year
-      const resultsCurrentYear = await queryProductsCount(startWeek, 53, year);
-      const resultsNextYear = await queryProductsCount(1, endWeek - 53, year + 1);
+      // Split the query into current year and next year based on real week counts
+      const resultsCurrentYear = await queryProductsCount(startWeek, weeksInCurrentYear, year);
+
+      const overflowWeeks = endWeek - weeksInCurrentYear;
+
+      // Clamp overflow to the actual number of weeks in the next year as well
+      const nextYearWeeks = await this.getWeeks(year + 1, 2);
+      const weeksInNextYear = nextYearWeeks.length;
+      const overflowInNextYear = Math.min(overflowWeeks, weeksInNextYear);
+
+      const resultsNextYear =
+        overflowInNextYear > 0 ? await queryProductsCount(1, overflowInNextYear, year + 1) : [];
+
       results = [...resultsCurrentYear, ...resultsNextYear];
     }
 
