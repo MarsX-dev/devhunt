@@ -5,7 +5,7 @@ import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   let { week, limit = 3, year = new Date().getFullYear(), key } = req.query;
   if (key !== process.env.API_KEY) {
-    throw new Error('Forbidden');
+    return res.status(403).json({ message: 'Forbidden' });
   }
 
   let weekNumber = +week;
@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const weeks = await apiService.getPrevLaunchWeeks(year, 2, weekNumber, 1);
   if (!weeks || weeks.length === 0) {
-    return [];
+    return res.json([]);
   }
 
   const { products } = weeks[0];
