@@ -318,6 +318,7 @@ export default () => {
       const { product } = response.data;
 
       if (product) {
+        // Doesn't work after new PH update, they block requests from other domains when try to get the real website url
         // const realWebsite = await axios.get(`/api/ph-dev-tools/get-website-url/${encodeURIComponent(product.website)}`);
 
         setValue('tool_name', product.name);
