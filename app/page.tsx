@@ -63,7 +63,7 @@ export default function Home() {
               {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
               {
                 // <ToolCardEffect key={idx} tool={product as ProductType}/>
-                product.week == currentWeek && product.launch_start && product.launch_start.includes(String(new Date().getFullYear())) && (
+                product.week == currentWeek && product.launch_start && (
                   <ToolCardEffect key={idx} tool={product as ProductType} />
                 )
               }
