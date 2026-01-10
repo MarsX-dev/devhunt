@@ -224,79 +224,93 @@ export default () => {
   }
 
   const onSubmit: SubmitHandler<Inputs> = async data => {
-    scrollToErroView();
-    if (validateImages() && (await validateToolName())) {
-      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week, submitType } = data;
-      const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
+    try {
+      scrollToErroView();
+      if (validateImages() && (await validateToolName())) {
+        const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week, submitType } = data;
+        const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
 
-      const categoryIds = categories.map(item => item.id);
+        const categoryIds = categories.map(item => item.id);
 
-      const launchWeek = typeof week === 'string' ? parseInt(week) : week;
+        const launchWeek = typeof week === 'string' ? parseInt(week) : week;
 
-      setLaunching(true);
-      const weekData = await getWeekDate(launchWeek);
+        setLaunching(true);
+        const weekData = await getWeekDate(launchWeek);
 
-      const launchData: any = {};
+        const launchData: any = {};
 
-      const availableDate = findNearestAvailableDate(allWeeks as []);
-      if (submitType == 'free') {
-        launchData.launch_date = formatDate(availableDate?.startDate as string);
-        launchData.launch_start = formatDate(availableDate?.startDate as string);
-        launchData.launch_end = formatDate(availableDate?.endDate as string);
-        launchData.week = availableDate?.week as number;
-      } else if (submitType == 'paid') {
-        launchData.launch_date = formatDate(availableDate?.startDate as string);
-        launchData.launch_start = formatDate(availableDate?.startDate as string);
-        launchData.launch_end = formatDate(availableDate?.endDate as string);
-        launchData.week = availableDate?.week as number;
-      } else if (submitType == 'normal') {
-        launchData.launch_date = weekData?.startDate as string;
-        launchData.launch_start = weekData?.startDate as string;
-        launchData.launch_end = weekData?.endDate;
-        launchData.week = weekData?.week;
-      }
-
-      await productService
-        .insert(
-          {
-            asset_urls: imagePreviews,
-            name: tool_name,
-            demo_url: tool_website,
-            github_url: github_repo,
-            pricing_type,
-            slogan,
-            description: tool_description,
-            logo_url: logoPreview,
-            owner_id: user?.id,
-            slug: createSlug(tool_name),
-            is_draft: false,
-            comments_count: 0,
-            votes_count: 0,
-            demo_video_url: demo_video || generatedVideoUrl,
-            ...launchData,
-            isPaid: false,
-            paid_launch_date: submitType == 'paid' ? weekData : null,
-          },
-          categoryIds,
-        )
-        .then(async res => {
-          const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-          const toolURL = `https://devhunt.org/tool/${res?.slug}`;
-          const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
-          DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
-          localStorage.setItem(
-            'last-tool',
-            JSON.stringify({
-              toolSlug: res?.slug,
-              launchDate: res?.launch_date,
-              launchEnd: res?.launch_end,
-            }),
-          );
-          router.push(`/tool/${res?.slug}?banner=true`);
-          if (submitType == 'paid') {
-            window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
+        const availableDate = findNearestAvailableDate(allWeeks as []);
+        if (submitType == 'free' && !availableDate) {
+          setLaunching(false);
+          if (allWeeks.length === 0) {
+            alert('Launch dates are still loading. Please wait a moment and try again.');
+          } else {
+            alert('No free launch dates found (all weeks are full). Please choose a paid week instead.');
           }
-        });
+          return;
+        }
+        if (submitType == 'free') {
+          launchData.launch_date = formatDate(availableDate!.startDate as string);
+          launchData.launch_start = formatDate(availableDate!.startDate as string);
+          launchData.launch_end = formatDate(availableDate!.endDate as string);
+          launchData.week = availableDate!.week as number;
+        } else if (submitType == 'paid') {
+          launchData.launch_date = weekData?.startDate as string;
+          launchData.launch_start = weekData?.startDate as string;
+          launchData.launch_end = weekData?.endDate;
+          launchData.week = weekData?.week;
+        } else if (submitType == 'normal') {
+          launchData.launch_date = weekData?.startDate as string;
+          launchData.launch_start = weekData?.startDate as string;
+          launchData.launch_end = weekData?.endDate;
+          launchData.week = weekData?.week;
+        }
+
+        await productService
+          .insert(
+            {
+              asset_urls: imagePreviews,
+              name: tool_name,
+              demo_url: tool_website,
+              github_url: github_repo,
+              pricing_type,
+              slogan,
+              description: tool_description,
+              logo_url: logoPreview,
+              owner_id: user?.id,
+              slug: createSlug(tool_name),
+              is_draft: false,
+              comments_count: 0,
+              votes_count: 0,
+              demo_video_url: demo_video || generatedVideoUrl,
+              ...launchData,
+              isPaid: false,
+              paid_launch_date: submitType == 'paid' ? weekData : null,
+            },
+            categoryIds,
+          )
+          .then(async res => {
+            const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
+            const toolURL = `https://devhunt.org/tool/${res?.slug}`;
+            const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
+            DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+            localStorage.setItem(
+              'last-tool',
+              JSON.stringify({
+                toolSlug: res?.slug,
+                launchDate: res?.launch_date,
+                launchEnd: res?.launch_end,
+              }),
+            );
+            router.push(`/tool/${res?.slug}?banner=true`);
+            if (submitType == 'paid') {
+              window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
+            }
+          });
+      }
+    } catch (err) {
+      console.log('error on submit', err);
+      setLaunching(false);
     }
   };
 
@@ -564,7 +578,7 @@ export default () => {
                     >
                       {launchDateStart.count > 14 ? <>Launch on {moment(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
                     </Button>
-                    {launchDateStart.count > 14 && (
+                    {launchDateStart.count > 14 && findNearestAvailableDate(allWeeks as []) && (
                       <Button
                         onClick={() => setValue('submitType', 'free')}
                         id="submit-btn"
