@@ -131,7 +131,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </main>
 
         <Script
-          src="https://cdn.apitiny.net/scripts/v2.0/main.js"
+          src="https://tiny.devhunt.org/scripts/v2.0/main.js"
           data-site-id="67d9308722e24b2f06e9986b"
           strategy="afterInteractive"
           async
