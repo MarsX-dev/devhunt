@@ -1,0 +1,10 @@
+{
+  "name": "Agent Gateway",
+  "slug": "agent-gateway",
+  "slogan": "One API key for 34+ AI agent infrastructure services",
+  "demo_url": "https://agent-gateway-kappa.vercel.app",
+  "github_url": "",
+  "description": "One API key for 34+ AI agent infrastructure services — memory, wallets, code execution, scheduling, DeFi, and more. Zero-friction onboarding with 200 free credits. Agent Gateway provides a unified REST API that gives AI agents instant access to infrastructure they need: persistent memory, crypto wallets, task scheduling, code sandboxing, webhooks, DeFi trading, on-chain analytics, and more. Each service is battle-tested and production-ready.",
+  "pricing_type": "freemium",
+  "categories": ["Developer Tools", "API", "AI", "Infrastructure"]
+}
