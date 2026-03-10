@@ -239,7 +239,13 @@ export default () => {
 
         const launchData: any = {};
 
-        const availableDate = findNearestAvailableDate(allWeeks as []);
+        // Re-fetch fresh week counts to avoid stale-data race condition where the
+        // queue fills up between page load and submission time.
+        const freshFetchDate = new Date();
+        const freshStartWeek = await productService.getWeekNumber(freshFetchDate, 2);
+        const freshWeeks = await productService.getProductsCountByWeek(freshStartWeek + 1, freshStartWeek + 104, freshFetchDate.getFullYear());
+
+        const availableDate = findNearestAvailableDate(freshWeeks as []);
         if (submitType == 'free' && !availableDate) {
           setLaunching(false);
           if (allWeeks.length === 0) {
