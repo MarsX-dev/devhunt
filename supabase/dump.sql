@@ -931,22 +931,24 @@ CREATE FUNCTION public.get_products_count_by_week(start_week integer, end_week i
     AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     weeks.week_number,
     weeks.start_date,
     weeks.end_date,
-    COALESCE(COUNT(products.week), 0)::integer AS product_count
-  FROM 
+    COALESCE(COUNT(products.id), 0)::integer AS product_count
+  FROM
     generate_series(start_week, end_week) AS week_series(series)
-  JOIN get_weeks(year_in, start_day) as weeks ON weeks.week_number = week_series.series
-  LEFT JOIN public.products 
-  ON 
-    weeks.week_number = products.week AND products.deleted = false
-  GROUP BY 
+  JOIN get_weeks(year_in, start_day) AS weeks
+    ON weeks.week_number = week_series.series
+  LEFT JOIN public.products
+    ON  products.launch_start >= weeks.start_date
+    AND products.launch_start <= weeks.end_date
+    AND products.deleted = false
+  GROUP BY
     weeks.week_number,
     weeks.start_date,
     weeks.end_date
-  ORDER BY 
+  ORDER BY
     weeks.week_number;
 END;
 $$;

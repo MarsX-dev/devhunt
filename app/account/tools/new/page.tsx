@@ -261,10 +261,20 @@ export default () => {
           launchData.launch_end = formatDate(availableDate!.endDate as string);
           launchData.week = availableDate!.week as number;
         } else if (submitType == 'paid') {
-          launchData.launch_date = weekData?.startDate as string;
-          launchData.launch_start = weekData?.startDate as string;
-          launchData.launch_end = weekData?.endDate;
-          launchData.week = weekData?.week;
+          // Hold the product in the nearest free slot until payment is confirmed.
+          // activate-launch will move it to the chosen paid week (stored in paid_launch_date).
+          if (availableDate) {
+            launchData.launch_date = formatDate(availableDate.startDate as string);
+            launchData.launch_start = formatDate(availableDate.startDate as string);
+            launchData.launch_end = formatDate(availableDate.endDate as string);
+            launchData.week = availableDate.week as number;
+          } else {
+            // No free slot found anywhere – fall back to the paid week itself.
+            launchData.launch_date = weekData?.startDate as string;
+            launchData.launch_start = weekData?.startDate as string;
+            launchData.launch_end = weekData?.endDate;
+            launchData.week = weekData?.week;
+          }
         } else if (submitType == 'normal') {
           launchData.launch_date = weekData?.startDate as string;
           launchData.launch_start = weekData?.startDate as string;
