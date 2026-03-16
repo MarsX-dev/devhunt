@@ -163,35 +163,25 @@ export default class ProductsService extends BaseDbService {
       }));
     };
 
-    // Determine how many weeks actually exist in the current year for start_day = 2
-    const currentYearWeeks = await this.getWeeks(year, 2);
-    const weeksInCurrentYear = currentYearWeeks.length;
+    // Walk year-by-year so the full requested range is always covered,
+    // regardless of how many calendar-year boundaries it crosses.
+    const results: { week: number; startDate: Date; endDate: Date; count: number }[] = [];
+    let currentYear = year;
+    let currentStartWeek = startWeek;
+    let weeksLeft = endWeek - startWeek + 1;
 
-    let results: {
-      week: number;
-      startDate: Date;
-      endDate: Date;
-      count: number;
-    }[] = [];
+    while (weeksLeft > 0 && currentYear <= year + 5) {
+      const weeksInYear = (await this.getWeeks(currentYear, 2)).length;
+      const currentEndWeek = Math.min(currentStartWeek + weeksLeft - 1, weeksInYear);
 
-    if (endWeek <= weeksInCurrentYear) {
-      // Everything fits into the current year
-      results = await queryProductsCount(startWeek, endWeek, year);
-    } else {
-      // Split the query into current year and next year based on real week counts
-      const resultsCurrentYear = await queryProductsCount(startWeek, weeksInCurrentYear, year);
+      if (currentStartWeek <= weeksInYear) {
+        const batch = await queryProductsCount(currentStartWeek, currentEndWeek, currentYear);
+        results.push(...batch);
+        weeksLeft -= currentEndWeek - currentStartWeek + 1;
+      }
 
-      const overflowWeeks = endWeek - weeksInCurrentYear;
-
-      // Clamp overflow to the actual number of weeks in the next year as well
-      const nextYearWeeks = await this.getWeeks(year + 1, 2);
-      const weeksInNextYear = nextYearWeeks.length;
-      const overflowInNextYear = Math.min(overflowWeeks, weeksInNextYear);
-
-      const resultsNextYear =
-        overflowInNextYear > 0 ? await queryProductsCount(1, overflowInNextYear, year + 1) : [];
-
-      results = [...resultsCurrentYear, ...resultsNextYear];
+      currentStartWeek = 1;
+      currentYear++;
     }
 
     return results;
