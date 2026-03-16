@@ -241,41 +241,47 @@ export default () => {
 
         // Re-fetch fresh week counts to avoid stale-data race condition where the
         // queue fills up between page load and submission time.
+        // Search 260 weeks (~5 years) so a free slot is always found even if the
+        // near-term queue fills up. getProductsCountByWeek handles multi-year traversal.
         const freshFetchDate = new Date();
         const freshStartWeek = await productService.getWeekNumber(freshFetchDate, 2);
-        const freshWeeks = await productService.getProductsCountByWeek(freshStartWeek + 1, freshStartWeek + 104, freshFetchDate.getFullYear());
+        const freshWeeks = await productService.getProductsCountByWeek(freshStartWeek + 1, freshStartWeek + 260, freshFetchDate.getFullYear());
 
         const availableDate = findNearestAvailableDate(freshWeeks as []);
-        if (submitType == 'free' && !availableDate) {
+
+        // Re-check the selected week's count from fresh data.
+        // If the user picked a free week (normal) but it filled up since page load,
+        // downgrade them to the nearest free slot automatically.
+        const freshSelectedWeek = freshWeeks.find(w => w.week === launchWeek);
+        const selectedWeekIsFull = !freshSelectedWeek || freshSelectedWeek.count >= 15;
+        const effectiveSubmitType = submitType === 'normal' && selectedWeekIsFull ? 'free' : submitType;
+
+        if (effectiveSubmitType === 'free' && !availableDate) {
           setLaunching(false);
-          if (allWeeks.length === 0) {
-            alert('Launch dates are still loading. Please wait a moment and try again.');
-          } else {
-            alert('No free launch dates found (all weeks are full). Please choose a paid week instead.');
-          }
+          alert('No free launch dates available right now. Please choose a paid week instead.');
           return;
         }
-        if (submitType == 'free') {
+
+        if (effectiveSubmitType === 'free') {
           launchData.launch_date = formatDate(availableDate!.startDate as string);
           launchData.launch_start = formatDate(availableDate!.startDate as string);
           launchData.launch_end = formatDate(availableDate!.endDate as string);
           launchData.week = availableDate!.week as number;
-        } else if (submitType == 'paid') {
-          // Hold the product in the nearest free slot until payment is confirmed.
-          // activate-launch will move it to the chosen paid week (stored in paid_launch_date).
+        } else if (effectiveSubmitType === 'paid') {
+          // Park in the nearest free slot; activate-launch moves it to the paid
+          // week (stored in paid_launch_date) once payment is confirmed.
           if (availableDate) {
             launchData.launch_date = formatDate(availableDate.startDate as string);
             launchData.launch_start = formatDate(availableDate.startDate as string);
             launchData.launch_end = formatDate(availableDate.endDate as string);
             launchData.week = availableDate.week as number;
           } else {
-            // No free slot found anywhere – fall back to the paid week itself.
             launchData.launch_date = weekData?.startDate as string;
             launchData.launch_start = weekData?.startDate as string;
             launchData.launch_end = weekData?.endDate;
             launchData.week = weekData?.week;
           }
-        } else if (submitType == 'normal') {
+        } else if (effectiveSubmitType === 'normal') {
           launchData.launch_date = weekData?.startDate as string;
           launchData.launch_start = weekData?.startDate as string;
           launchData.launch_end = weekData?.endDate;
