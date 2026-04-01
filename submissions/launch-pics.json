@@ -1,0 +1,14 @@
+{
+  "name": "launch.pics",
+  "slug": "launch-pics",
+  "slogan": "Free browser-based image processing toolkit with 30+ tools",
+  "demo_url": "https://launch.pics",
+  "github_url": "https://github.com/keptlive",
+  "description": "Free browser-based image processing toolkit with 30+ tools. Resize, crop, filter, watermark, annotate, compare, create collages, generate PDFs \u2014 all in the browser. No signup, no uploads, 100% private. Includes visual n8n-style workflow builder and REST API.",
+  "pricing_type": "free",
+  "categories": [
+    "Image Tools",
+    "Developer Tools",
+    "Design Tools"
+  ]
+}
