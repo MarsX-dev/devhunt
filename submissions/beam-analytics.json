@@ -1,0 +1,13 @@
+{
+  "name": "Beam",
+  "slug": "beam-analytics",
+  "slogan": "Privacy-first web analytics. No cookies, no consent banners.",
+  "demo_url": "https://beam.keylightdigital.dev",
+  "github_url": "https://github.com/scobb",
+  "description": "Beam is a lightweight, cookie-free, GDPR-compliant web analytics service built on Cloudflare Workers. Add a single 2KB script tag and get a clean dashboard with pageviews, referrers, countries, browsers, and devices \u2014 without cookies, consent banners, or sending data to Google. Free tier: 1 site, 5K pageviews/month. Pro: $5/month for unlimited sites and 100K pageviews.",
+  "pricing_type": "freemium",
+  "categories": [
+    "Analytics",
+    "Monitoring"
+  ]
+}
