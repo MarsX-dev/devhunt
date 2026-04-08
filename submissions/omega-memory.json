@@ -1,0 +1,13 @@
+{
+  "name": "OMEGA (omega-memory)",
+  "slug": "omega-memory",
+  "slogan": "Persistent memory for AI coding agents. Cross-session learning via MCP.",
+  "demo_url": "https://omegamax.co",
+  "github_url": "https://github.com/omega-memory/omega-memory",
+  "description": "Persistent memory for AI coding agents. Semantic search, auto-capture, intelligent forgetting, and cross-session learning via MCP. #1 on LongMemEval benchmark (95.4%). Local-first, zero cloud dependency. Python package on PyPI with 15k+ downloads and 81 GitHub stars.",
+  "pricing_type": "free",
+  "categories": [
+    "Developer Tools",
+    "AI"
+  ]
+}
