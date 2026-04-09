@@ -1,0 +1,12 @@
+{
+  "id": "meridian-mcp-deploy",
+  "name": "meridian-mcp-deploy",
+  "tagline": "Instantly deploy any MCP server as a production-ready API",
+  "description": "A streamlined utility for deploying Model Context Protocol (MCP) servers with automated configuration and environment management. Reduces setup time from 45 minutes to under 2 minutes with zero manual config editing. Generates Docker, serverless, and local run configurations automatically. Works with CrewAI, LangGraph, and raw Python agents.",
+  "url": "https://github.com/meridianmindx/meridian-mcp-deploy",
+  "imageUrl": "https://raw.githubusercontent.com/meridianmindx/meridian-mcp-deploy/main/docs/images/logo-512.png",
+  "pricing": "Open Source",
+  "categories": ["MCP Tools", "Developer Productivity", "DevOps"],
+  "tags": ["mcp", "deployment", "docker", "serverless", "cli"],
+  "createdAt": "2026-04-09T01:20:00.000Z"
+}
