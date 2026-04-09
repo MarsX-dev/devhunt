@@ -1,0 +1,12 @@
+{
+  "id": "meridian-crewai-deploy-orchestrator",
+  "name": "meridian-crewai-deploy-orchestrator",
+  "tagline": "Production orchestration for CrewAI agents with a single command",
+  "description": "Professional orchestration layer for CrewAI agents. Handles complex deployment sequencing, state persistence, and multi-agent coordination for production environments. Turns your CrewAI crew into Docker/K8s deployments in minutes. Includes health checks, monitoring, and rollback capabilities.",
+  "url": "https://github.com/meridianmindx/crewai-deploy-orchestrator",
+  "imageUrl": "https://raw.githubusercontent.com/meridianmindx/crewai-deploy-orchestrator/main/docs/images/crewai-orchestrator-logo.png",
+  "pricing": "Open Source",
+  "categories": ["AI Agents", "CrewAI", "DevOps"],
+  "tags": ["crewai", "orchestration", "deployment", "agents", "docker"],
+  "createdAt": "2026-04-09T03:20:00.000Z"
+}
