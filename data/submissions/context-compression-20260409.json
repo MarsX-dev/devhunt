@@ -1,0 +1,23 @@
+{
+  "id": "meridian-context-compression",
+  "name": "@meridian/context-compression",
+  "tagline": "Trim LLM context length without losing signal",
+  "description": "Token-efficient context compression for multi-agent workflows. Filters messages by relevance entropy using heuristics-driven selection, reducing token usage by up to 60% while preserving key context for robust agent chains. Supports LM Studio workspace import and MCP import mode for any client. Configurable recycling threshold and windowing to trade CPU for fidelity.\n\nBuilt for CrewAI and MCP workflows where context bloat breaks agent chains \u2014 solves it with deterministic signal-first compression.",
+  "url": "https://github.com/meridian-ai/context-compression",
+  "imageUrl": "https://raw.githubusercontent.com/meridian-ai/context-compression/main/docs/images/token-stats.png",
+  "pricing": "Open Source",
+  "categories": [
+    "LLM Tools",
+    "Token Optimization",
+    "Developer Productivity"
+  ],
+  "tags": [
+    "mcp",
+    "context-compression",
+    "llm",
+    "npm",
+    "tools",
+    "token-savings"
+  ],
+  "createdAt": "2026-04-09T05:15:00.000Z"
+}
