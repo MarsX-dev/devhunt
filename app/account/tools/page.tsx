@@ -99,9 +99,9 @@ export default () => {
                       )}
                       <Link
                         href={`/account/tools/edit/${tool.id}`}
-                        className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                        className="inline-flex items-center gap-x-2 text-orange-500 hover:text-orange-600 duration-150 font-medium"
                       >
-                        <IconPencilSquare />
+                        <IconPencilSquare /> Edit your tool
                       </Link>
                       <button
                         onClick={() => {
