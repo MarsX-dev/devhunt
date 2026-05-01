@@ -1,28 +1,10 @@
 import ApiService from '@/utils/supabase/services/api';
 import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
-import { renderNewToolsLaunchReminderEmail } from '@/utils/email-templates/render-new-tools-launch-reminder-email';
+import { renderTop3WinnersEmail } from '@/utils/email-templates/render-top-3-winners-email';
 import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-
-export function isAuthorizedCron(req: Request): boolean {
-  const secret = process.env.MARSX_MAILER_AUTH;
-
-  if (process.env.NODE_ENV === 'development') return true;
-
-  if (!secret) return false;
-
-  const auth = req.headers.get('authorization');
-  const expected = `Bearer ${secret}`;
-  if (!auth || auth.length !== expected.length) return false;
-
-  try {
-    const enc = new TextEncoder();
-    return timingSafeEqual(enc.encode(auth), enc.encode(expected));
-  } catch {
-    return false;
-  }
-}
+import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
 
 export async function GET(req: Request) {
   try {
@@ -37,7 +19,7 @@ export async function GET(req: Request) {
 
     const weeks = await apiService.getPrevLaunchWeeks(year, 2, currentWeek, 1);
     if (!weeks?.length) {
-      const html = renderNewToolsLaunchReminderEmail([]);
+      const html = renderTop3WinnersEmail([]);
       return NextResponse.json({
         week: currentWeek,
         year,
@@ -48,8 +30,8 @@ export async function GET(req: Request) {
 
     const { products, week } = weeks[0];
     const tools = products.map(simpleToolApiDtoFormatter);
-    const html = renderNewToolsLaunchReminderEmail(
-      products.map(p => ({
+    const html = renderTop3WinnersEmail(
+      products.slice(0, 3).map(p => ({
         slug: p.slug,
         name: p.name,
         description: p.description,
@@ -60,8 +42,8 @@ export async function GET(req: Request) {
     const { data } = await axios.post(
       'https://xuqkmyeuqfvucdo6gupjh7x6df8ohj6b.saasemailer.com/api/v1/devhunt.org/campaigns',
       {
-        name: '🏆 Who Will Be Tool of The Week?',
-        subject: '🏆 Who Will Be Tool of The Week?',
+        name: "🏆 Meet This Week's Top 3 Tools on DevHunt!",
+        subject: "🏆 Meet This Week's Top 3 Tools on DevHunt!",
         audienceId: process.env.MARSX_MAILER_AUDIENCE_ID || '69f455ab8aee3505f37b2c29',
         content: html,
         topicName: 'DevHunt',
@@ -88,7 +70,9 @@ export async function GET(req: Request) {
       },
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+    });
     // return new NextResponse(html, {
     //   status: 200,
     //   headers: {

@@ -1,4 +1,5 @@
-import baseTemplate from '@/utils/email-templates/new-tools-launch-reminder-email-template';
+import baseTemplate from '@/utils/email-templates/top-3-winners-email-template';
+import type { LaunchReminderToolInput } from '@/utils/email-templates/render-new-tools-launch-reminder-email';
 import { minifyEmailHtml } from '@/utils/email-templates/minify-email-html';
 
 const START_MARKER = '<!-- START OF CONTENT -->';
@@ -17,13 +18,6 @@ function plainDescription(htmlOrText: string | null | undefined, maxLen: number)
   return `${raw.slice(0, maxLen - 1)}…`;
 }
 
-export type LaunchReminderToolInput = {
-  slug: string;
-  name: string;
-  description: string | null | undefined;
-  logo_url: string | null | undefined;
-};
-
 function fillOneToolBlock(block: string, tool: LaunchReminderToolInput): string {
   const slug = escapeHtml(tool.slug) + '?utm_source=newsletter';
   const name = escapeHtml(tool.name);
@@ -38,11 +32,11 @@ function fillOneToolBlock(block: string, tool: LaunchReminderToolInput): string 
     .replaceAll('{Description here}', desc);
 }
 
-export function renderNewToolsLaunchReminderEmail(tools: LaunchReminderToolInput[]): string {
+export function renderTop3WinnersEmail(tools: LaunchReminderToolInput[]): string {
   const start = baseTemplate.indexOf(START_MARKER);
   const end = baseTemplate.indexOf(END_MARKER);
   if (start === -1 || end === -1 || end <= start) {
-    throw new Error('Launch reminder template missing content markers');
+    throw new Error('Top 3 winners email template missing content markers');
   }
 
   const before = baseTemplate.slice(0, start + START_MARKER.length);
@@ -52,7 +46,7 @@ export function renderNewToolsLaunchReminderEmail(tools: LaunchReminderToolInput
 
   const toolsHtml =
     tools.length === 0
-      ? '<p style="color:#94a3b8;font-family:Helvetica,Arial,sans-serif;font-size:16px;padding:12px 15px">No tools scheduled for this launch week yet.</p>'
+      ? '<p style="color:#94a3b8;font-family:Helvetica,Arial,sans-serif;font-size:16px;padding:12px 15px">No top winners to show this week.</p>'
       : tools.map(t => fillOneToolBlock(toolBlock, t)).join('');
 
   return minifyEmailHtml(`${before}${toolsHtml}${after}`);
