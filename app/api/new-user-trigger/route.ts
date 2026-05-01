@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     const { email, full_name } = user_metadata;
 
-    const response = await fetch('https://xuqkmyeuqfvucdo6gupjh7x6df8ohj6b.saasemailer.com/api/v1/devhunt.org/contacts/create', {
+    await fetch('https://xuqkmyeuqfvucdo6gupjh7x6df8ohj6b.saasemailer.com/api/v1/devhunt.org/contacts/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,7 +38,20 @@ export async function POST(req: Request) {
       }),
     });
 
-    console.log(response);
+    await fetch('https://xuqkmyeuqfvucdo6gupjh7x6df8ohj6b.saasemailer.com/api/v1/devhunt.org/contacts/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'mars-authorization': process.env.MARSX_MAILER_AUTH!,
+      },
+      body: JSON.stringify({
+        email,
+        customData: {
+          full_name,
+        },
+        audienceId: process.env.MARSX_MAILER_AUDIENCE_ID || '69f0c65c4cd9d4f3345d4485',
+      }),
+    });
 
     return NextResponse.json({ data: 'success' });
   } catch (error) {
