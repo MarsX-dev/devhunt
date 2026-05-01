@@ -50,6 +50,7 @@ export async function GET(req: Request) {
         sender: {
           name: 'DevHunt',
           emailFrom: 'hey@devhunt.org',
+          from: 'hey@devhunt.org',
           replyTo: 'hey@devhunt.org',
         },
       },
