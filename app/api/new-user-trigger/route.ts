@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         customData: {
           full_name,
         },
-        audienceId: '672a28332d4edcca059c5ace',
+        audienceId: process.env.MARSX_MAILER_AUDIENCE_ID || '69f455ab8aee3505f37b2c29',
       }),
     });
 

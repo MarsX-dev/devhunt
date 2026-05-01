@@ -1,5 +1,4 @@
 export default `
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!doctype html>
 <html>
   <head>
@@ -105,6 +104,77 @@ export default `
       }
       .rounded {
         border-radius: 9999px;
+      }
+
+      /* Compact tool rows (launch reminder): cuts repeated inline markup */
+      table#Layout48.lr-tool {
+        border-collapse: collapse;
+        background-color: #11172c;
+        width: 100% !important;
+        table-layout: fixed;
+      }
+      .lr-tool-wrap {
+        padding: 0;
+      }
+      .lr-tool-inner {
+        width: 600px;
+        background-color: #11172c;
+      }
+      .lr-tool-grid {
+        width: 600px;
+        background-color: #11172c;
+        border-collapse: collapse;
+      }
+      .lr-tool-logo {
+        color: #ffffff;
+        width: 80px;
+        vertical-align: top;
+      }
+      .lr-tool-logo-inner {
+        padding-top: 5px;
+        text-align: center;
+      }
+      .lr-tool-logo-img {
+        display: inline;
+        margin-left: auto;
+        margin-right: auto;
+        max-height: 64px;
+        max-width: 64px;
+      }
+      .lr-tool-main {
+        color: #ffffff;
+        vertical-align: top;
+      }
+      .lr-tool-stack {
+        margin-bottom: 5px;
+        width: 100%;
+      }
+      .lr-tool-title-cell {
+        padding: 3px 15px;
+        font-size: 14px;
+        line-height: 1.4;
+        font-family: Helvetica, Arial, sans-serif;
+        vertical-align: top;
+      }
+      .lr-tool-title-link {
+        color: #f1f5f9;
+        text-decoration: none;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .lr-tool-desc-cell {
+        padding: 3px 15px 0;
+        font-size: 14px;
+        font-family: Helvetica, Arial, sans-serif;
+        line-height: 1.4 !important;
+        vertical-align: top;
+      }
+      .lr-tool-desc-link {
+        color: #94a3b8;
+        text-decoration: none;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 16px;
       }
 
       /* iOS BLUE LINKS */
@@ -262,8 +332,8 @@ export default `
       table-layout: fixed;
     "
   >
-    <div style="display: none">
-      &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all">
+      &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
     </div>
 
     <table
@@ -1236,187 +1306,7 @@ export default `
                         color: white;
                       "
                       ><!-- START OF CONTENT -->
-                      <table
-                        id="Layout48"
-                        class="ReadMsgBody tgOuter"
-                        style="
-                          table-layout: fixed;
-                          border-collapse: collapse;
-                          background-color: #11172c;
-                          width: 100% !important;
-                        "
-                        border="0"
-                        cellspacing="0"
-                        cellpadding="0"
-                      >
-                        <tbody>
-                          <tr>
-                            <td style="padding: 0 0 0 0" align="center">
-                              <table
-                                class="responsive-table tgInner"
-                                style="background-color: #11172c; width: 600px"
-                                border="0"
-                                cellspacing="0"
-                                cellpadding="0"
-                              >
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      <table
-                                        class="responsive-table tgInner"
-                                        style="
-                                          background-color: #11172c;
-                                          width: 600px;
-                                          border-collapse: collapse;
-                                        "
-                                        border="0"
-                                        cellspacing="0"
-                                        cellpadding="0"
-                                        align="left"
-                                      >
-                                        <tbody>
-                                          <tr>
-                                            <td
-                                              style="
-                                                color: #ffffff;
-                                                width: 80px;
-                                              "
-                                              align="center"
-                                              valign="top"
-                                              width="80"
-                                            >
-                                              <table
-                                                style="margin-bottom: 5px"
-                                                width="100%"
-                                              >
-                                                <tbody>
-                                                  <tr>
-                                                    <td
-                                                      class="tgContainer"
-                                                      style="
-                                                        padding-top: 5px;
-                                                        text-align: center;
-                                                      "
-                                                      valign="top"
-                                                    >
-                                                      <span
-                                                        class="mcEditImg"
-                                                        style="
-                                                          position: relative;
-                                                        "
-                                                        ><a
-                                                          href="https://devhunt.org/tool/{linkhere}"
-                                                          ><img
-                                                            src="{imageurlhere}"
-                                                            alt="{alttexthere}"
-                                                            class="rounded"
-                                                            align="absMiddle"
-                                                            border="0"
-                                                            style="
-                                                              display: inline;
-                                                              margin-left: auto;
-                                                              margin-right: auto;
-                                                              max-height: 64px;
-                                                              max-width: 64px;
-                                                            " /></a
-                                                      ></span>
-                                                    </td>
-                                                  </tr>
-                                                </tbody>
-                                              </table>
-                                            </td>
-                                            <td
-                                              style="color: #ffffff"
-                                              align="center"
-                                            >
-                                              <table
-                                                style="margin-bottom: 5px"
-                                                width="100%"
-                                              >
-                                                <tbody>
-                                                  <tr>
-                                                    <td
-                                                      class="tgContainer"
-                                                      style="
-                                                        padding: 3px 15px 3px
-                                                          15px;
-                                                        font-size: 14px;
-                                                        line-height: 1.4;
-                                                        font-family:
-                                                          Helvetica, Arial,
-                                                          sans-serif;
-                                                        color: #333333;
-                                                      "
-                                                      valign="top"
-                                                    >
-                                                      <span
-                                                        class="mcEdit tgHeading2"
-                                                        style="
-                                                          position: relative;
-                                                          color: #ffffff;
-                                                          font-family: Helvetica;
-                                                          font-size: 16px;
-                                                          font-weight: bold;
-                                                        "
-                                                        ><a
-                                                          style="
-                                                            color: #f1f5f9;
-                                                            text-decoration: none;
-                                                          "
-                                                          href="https://e.sensorpro.net/run/Url.aspx?m1=-hcZr4wIk7iYX.89ZesAkSoaMRyd8StUPz.1Xm24SRQTRBLUVaqAts9MtOlZP..wUFmkofF-2vg_hdtd_ethw7kz|CjfKiQr3IiFVHIyO-ckQX9..79LMMnnDpOmJ2x1wyeNmiP-t516OELLPrORZ61TF_hdtd_zd&d2=&l1=1086947"
-                                                          >{Company Name}</a
-                                                        ></span
-                                                      >
-                                                    </td>
-                                                  </tr>
-                                                  <tr>
-                                                    <td
-                                                      class="tgContainer"
-                                                      style="
-                                                        padding: 3px 15px 0 15px;
-                                                        font-size: 14px;
-                                                        font-family:
-                                                          Helvetica, Arial,
-                                                          sans-serif;
-                                                        color: #333333;
-                                                        line-height: 1.4 !important;
-                                                      "
-                                                      valign="top"
-                                                    >
-                                                      <span
-                                                        class="mcEdit tgBody"
-                                                        style="
-                                                          position: relative;
-                                                          color: #ffffff;
-                                                          font-family: Helvetica;
-                                                          font-size: 16px;
-                                                        "
-                                                        ><a
-                                                          style="
-                                                            color: #94a3b8;
-                                                            text-decoration: none;
-                                                          "
-                                                          href="https://devhunt.org/tool/{linkhere}"
-                                                          >{Description here}</a
-                                                        ></span
-                                                      >
-                                                    </td>
-                                                  </tr>
-                                                </tbody>
-                                              </table>
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                              <br />
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      <table id="Layout48" class="ReadMsgBody tgOuter lr-tool" bgcolor="#11172c" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody><tr><td class="lr-tool-wrap" align="center"><table class="responsive-table tgInner lr-tool-inner" bgcolor="#11172c" border="0" cellspacing="0" cellpadding="0" width="600"><tbody><tr><td><table class="responsive-table tgInner lr-tool-grid" bgcolor="#11172c" border="0" cellspacing="0" cellpadding="0" width="600" align="left"><tbody><tr><td class="lr-tool-logo" align="center" valign="top" width="80"><table class="lr-tool-stack" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody><tr><td class="tgContainer lr-tool-logo-inner" valign="top"><span class="mcEditImg"><a href="https://devhunt.org/tool/{linkhere}"><img src="{imageurlhere}" alt="{alttexthere}" class="rounded lr-tool-logo-img" align="absMiddle" border="0" style="display:inline;max-height:64px;max-width:64px"/></a></span></td></tr></tbody></table></td><td class="lr-tool-main" valign="top"><table class="lr-tool-stack" border="0" cellspacing="0" cellpadding="0" width="100%"><tbody><tr><td class="tgContainer lr-tool-title-cell"><span class="mcEdit tgHeading2"><a class="lr-tool-title-link" style="color:#f1f5f9;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:bold" href="https://devhunt.org/tool/{linkhere}">{Company Name}</a></span></td></tr><tr><td class="tgContainer lr-tool-desc-cell"><span class="mcEdit tgBody"><a class="lr-tool-desc-link" style="color:#94a3b8;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:16px" href="https://devhunt.org/tool/{linkhere}">{Description here}</a></span></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table><br/>
                       <!-- END OF CONTENT -->
                     </span>
                   </td>
@@ -1653,6 +1543,15 @@ export default `
                                                             rel="noopener noreferrer"
                                                             >devhunt.org</a
                                                           ></span
+                                                        ><br /><br /><a
+                                                          style="
+                                                            color: #94a3b8;
+                                                            font-size: 13px;
+                                                            font-weight: normal;
+                                                            text-decoration: underline;
+                                                          "
+                                                          href="$[LI:UNSUBSCRIBE]$"
+                                                          >Unsubscribe</a
                                                         >
                                                       </p></span
                                                     >

@@ -19,10 +19,11 @@ const nextConfig = {
     NEWSLETTER_FORM_ID: process.env.NEWSLETTER_FORM_ID,
     AUTH_TOKEN_PASSWORD: process.env.AUTH_TOKEN_PASSWORD,
     AUTH_TOKEN_API_KEY: process.env.AUTH_TOKEN_API_KEY,
-    CRON_SECRET: process.env.CRON_SECRET,
     PH_ACCESS_TOKEN: process.env.PH_ACCESS_TOKEN,
     WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
     MARSX_MAILER_AUTH: process.env.MARSX_MAILER_AUTH,
+    MARSX_MAILER_AUDIENCE_ID: process.env.MARSX_MAILER_AUDIENCE_ID,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
   },
   images: {
     remotePatterns: [
