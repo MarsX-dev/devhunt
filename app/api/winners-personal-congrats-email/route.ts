@@ -4,9 +4,8 @@ import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/rout
 import winnersPersonalCongratsEmailTemplate from '@/utils/email-templates/winners-personal-congrats-email-template';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function GET(req: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     if (!isAuthorizedCron(req)) {
       return new NextResponse('Unauthorized', { status: 401 });
