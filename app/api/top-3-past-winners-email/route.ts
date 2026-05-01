@@ -1,30 +1,15 @@
 import ApiService from '@/utils/supabase/services/api';
 import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
-import { renderNewToolsLaunchReminderEmail } from '@/utils/email-templates/render-new-tools-launch-reminder-email';
-import { timingSafeEqual } from 'node:crypto';
+import { renderTop3WinnersEmail } from '@/utils/email-templates/render-top-3-winners-email';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-
-export function isAuthorizedCron(req: Request): boolean {
-  const secret = process.env.MARSX_MAILER_AUTH;
-
-  if (process.env.NODE_ENV === 'development') return true;
-
-  if (!secret) return false;
-
-  const auth = req.headers.get('authorization');
-  const expected = `Bearer ${secret}`;
-  if (!auth || auth.length !== expected.length) return false;
-
-  try {
-    const enc = new TextEncoder();
-    return timingSafeEqual(enc.encode(auth), enc.encode(expected));
-  } catch {
-    return false;
-  }
-}
+import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
 
 export async function GET(req: Request) {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ message: 'Not allowed in production' });
+  }
+
   try {
     if (!isAuthorizedCron(req)) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -32,15 +17,20 @@ export async function GET(req: Request) {
 
     const apiService = new ApiService();
     const today = new Date();
+    const calendarYear = today.getFullYear();
     const currentWeek = await apiService.getWeekNumber(today, 2);
-    const year = today.getFullYear();
+    const weekStartDay = 2;
+    // get_prev_launch_weeks uses week <= _launch_week, so passing currentWeek often
+    // returns this week's tools. Past-week email must cap at the previous launch week.
+    const pastWinnersYear = currentWeek > 1 ? calendarYear : calendarYear - 1;
+    const maxPastWeek = currentWeek > 1 ? currentWeek - 1 : 53;
 
-    const weeks = await apiService.getPrevLaunchWeeks(year, 2, currentWeek, 1);
+    const weeks = await apiService.getPrevLaunchWeeks(pastWinnersYear, weekStartDay, maxPastWeek, 1);
     if (!weeks?.length) {
-      const html = renderNewToolsLaunchReminderEmail([]);
+      const html = renderTop3WinnersEmail([]);
       return NextResponse.json({
-        week: currentWeek,
-        year,
+        week: maxPastWeek,
+        year: pastWinnersYear,
         tools: [],
         html,
       });
@@ -48,8 +38,8 @@ export async function GET(req: Request) {
 
     const { products, week } = weeks[0];
     const tools = products.map(simpleToolApiDtoFormatter);
-    const html = renderNewToolsLaunchReminderEmail(
-      products.map(p => ({
+    const html = renderTop3WinnersEmail(
+      products.slice(0, 3).map(p => ({
         slug: p.slug,
         name: p.name,
         description: p.description,
@@ -60,15 +50,15 @@ export async function GET(req: Request) {
     const { data } = await axios.post(
       'https://xuqkmyeuqfvucdo6gupjh7x6df8ohj6b.saasemailer.com/api/v1/devhunt.org/campaigns',
       {
-        name: '🏆 Who Will Be Tool of The Week?',
-        subject: '🏆 Who Will Be Tool of The Week?',
+        name: "🏆 Meet This Week's Top 3 Tools on DevHunt!",
+        subject: "🏆 Meet This Week's Top 3 Tools on DevHunt!",
         audienceId: process.env.MARSX_MAILER_AUDIENCE_ID || '69f455ab8aee3505f37b2c29',
         content: html,
         topicName: 'DevHunt',
         sender: {
           name: 'DevHunt',
-          from: 'hey@devhunt.org',
           emailFrom: 'hey@devhunt.org',
+          from: 'hey@devhunt.org',
           replyTo: 'hey@devhunt.org',
         },
       },
@@ -89,7 +79,9 @@ export async function GET(req: Request) {
       },
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+    });
     // return new NextResponse(html, {
     //   status: 200,
     //   headers: {
