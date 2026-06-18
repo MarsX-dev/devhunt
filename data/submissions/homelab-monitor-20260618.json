@@ -1,0 +1,12 @@
+{
+  "id": "homelab-monitor",
+  "name": "HomeLab Monitor",
+  "tagline": "Homelab dashboard with per-container GPU/VRAM attribution and a built-in MCP server",
+  "description": "Self-hosted dashboard in a single Docker container. Shows which container is holding the GPU (per-container VRAM, not just total), plus Docker health and logs, systemd status, host vitals, and multiple machines over SSH. Since v0.14.0 it ships a read-only MCP server, so Claude can query your homelab directly.",
+  "url": "https://github.com/SikamikanikoBG/homelab-monitor",
+  "imageUrl": "https://raw.githubusercontent.com/SikamikanikoBG/homelab-monitor/main/docs/logo-400.png",
+  "pricing": "Open Source",
+  "categories": ["Monitoring", "DevOps", "Self-Hosted"],
+  "tags": ["monitoring", "homelab", "self-hosted", "docker", "gpu", "mcp", "open-source"],
+  "createdAt": "2026-06-18T00:00:00.000000+00:00"
+}
