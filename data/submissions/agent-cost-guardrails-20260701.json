@@ -1,0 +1,12 @@
+{
+  "id": "agent-cost-guardrails",
+  "name": "Agent Cost Guardrails",
+  "tagline": "Budget enforcement and circuit breakers for CrewAI, AutoGen, and LangGraph",
+  "description": "Agent Cost Guardrails is an open-source Python library that prevents runaway LLM costs in multi-agent systems. Drop-in integration with CrewAI, AutoGen, and LangGraph — add hard budget caps, per-call token limits, circuit breakers, and cost alerts with zero infrastructure required. No gateway, no proxy, no external service: pure Python middleware that hooks into your framework at the process level. Get a BudgetExceededError before surprise bills arrive.",
+  "url": "https://github.com/sapph1re/agent-cost-guardrails",
+  "imageUrl": "https://raw.githubusercontent.com/sapph1re/agent-cost-guardrails/main/images/icon.png",
+  "pricing": "Open Source",
+  "categories": ["AI Tools", "Developer Tools", "DevOps"],
+  "tags": ["ai-agents", "cost-control", "crewai", "autogen", "langgraph", "llm", "budget", "python", "open-source", "circuit-breaker"],
+  "createdAt": "2026-07-01T00:00:00.000000+00:00"
+}
