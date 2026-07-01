@@ -1,0 +1,12 @@
+{
+  "id": "api-workbench",
+  "name": "API Workbench",
+  "tagline": "Agent-readable API testing for VS Code, Cursor, and Windsurf",
+  "description": "API Workbench is a local-first REST and HTTP API testing extension for VS Code, Cursor, and Windsurf. Write requests in plain .http files, run one request or an entire collection, and get structured agent-readable output (REQUEST/STATUS/DURATION/BODY_JSON labels) that AI coding assistants can parse and act on without scraping a webview. Collections are Git-native .http files — no cloud account, no browser UI, no vendor lock-in. Works natively in Cursor and Windsurf via Open VSX.",
+  "url": "https://github.com/sapph1re/api-workbench",
+  "imageUrl": "https://raw.githubusercontent.com/sapph1re/api-workbench/master/images/icon.png",
+  "pricing": "Free",
+  "categories": ["Developer Tools", "Testing", "AI Tools"],
+  "tags": ["api-testing", "vscode", "cursor", "windsurf", "rest-client", "http-client", "ai-coding", "open-source", "open-vsx"],
+  "createdAt": "2026-07-01T00:00:00.000000+00:00"
+}
