@@ -10,6 +10,49 @@ import { Check } from 'lucide-react';
 import Link from 'next/link';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
+type LaunchWeek = { startDate: string; endDate: string; week: number };
+
+// Resolves the week a paid tool should actually launch in at payment time.
+//
+// The paid week is frozen into `paid_launch_date` at submission time. By the time
+// payment completes it may already have started (or fully passed) — e.g. the user
+// pays on the evening of launch day. Blindly applying the stored week would drop the
+// tool into an already-formed / live launch queue.
+//
+// We therefore honor the stored paid week only while its launch is still upcoming.
+// Otherwise we roll the paid tool forward to the nearest upcoming launch week. Paid
+// tools "skip the queue", so we intentionally ignore per-week capacity here — the goal
+// is simply to land them in the soonest launch that hasn't started yet.
+async function resolveTargetLaunchWeek(
+  productsService: ProductsService,
+  storedPaidDate: LaunchWeek | null,
+): Promise<LaunchWeek | null> {
+  const now = new Date();
+  const storedStart = storedPaidDate?.startDate ? new Date(storedPaidDate.startDate) : null;
+
+  // Honor the originally selected paid week only if its launch is still in the future.
+  if (storedStart && storedStart.getTime() > now.getTime()) {
+    return storedPaidDate;
+  }
+
+  // Stale or missing: pick the nearest upcoming launch week. getProductsCountByWeek
+  // walks across calendar-year boundaries, so a future week is always found.
+  const currentWeek = await productsService.getWeekNumber(now, 2);
+  const weeks = await productsService.getProductsCountByWeek(currentWeek + 1, currentWeek + 60, now.getFullYear());
+  const nextWeek = weeks
+    .map(w => ({ week: w.week, startDate: w.startDate, endDate: w.endDate, ts: new Date(w.startDate).getTime() }))
+    .filter(w => w.ts > now.getTime())
+    .sort((a, b) => a.ts - b.ts)[0];
+
+  if (!nextWeek) return storedPaidDate ?? null;
+
+  return {
+    startDate: new Date(nextWeek.startDate).toISOString(),
+    endDate: new Date(nextWeek.endDate).toISOString(),
+    week: nextWeek.week,
+  };
+}
+
 export default ({ params: { slug } }: { params: { slug: string } }) => {
   const [toolName, setToolName] = useState<string>('');
   const [id, setId] = useState<number>();
@@ -54,16 +97,24 @@ export default ({ params: { slug } }: { params: { slug: string } }) => {
           return;
         }
 
-        const parsedLaunchData = paidLaunchDate;
         const supabaseBrowserClient = createBrowserClient();
         const productsService = new ProductsService(supabaseBrowserClient);
 
+        // Re-validate the frozen paid week so a late payment can never inject the tool
+        // into an already-formed / live launch queue.
+        const targetLaunchData = await resolveTargetLaunchWeek(productsService, paidLaunchDate);
+
+        if (!targetLaunchData) {
+          setError('Could not determine a valid launch week. Please contact support.');
+          return;
+        }
+
         await productsService.update(id, {
           isPaid: true,
-          launch_start: parsedLaunchData?.startDate,
-          launch_date: parsedLaunchData?.startDate,
-          launch_end: parsedLaunchData?.endDate,
-          week: parsedLaunchData?.week,
+          launch_start: targetLaunchData.startDate,
+          launch_date: targetLaunchData.startDate,
+          launch_end: targetLaunchData.endDate,
+          week: targetLaunchData.week,
         });
 
         setPaid(true);
