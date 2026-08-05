@@ -17,7 +17,7 @@ export default () => {
       name: 'Blog',
     },
     {
-      href: 'https://twitter.com/johnrushx',
+      href: 'https://x.com/johnrush',
       name: 'Contact',
     },
     { name: 'OSS Friends', href: '/oss-friends' },
@@ -40,7 +40,7 @@ export default () => {
   ];
 
   const builtBy = [
-    { title: '@johnrushx', url: 'https://twitter.com/johnrushx' },
+    { title: '@johnrushx', url: 'https://x.com/johnrush' },
     { title: '@sidi_jeddou_dev', url: 'https://twitter.com/sidi_jeddou_dev' },
     { title: '@vitalik_may', url: 'https://twitter.com/vitalik_may' },
     { title: '@BotanMan', url: 'https://twitter.com/BotanMan' },
@@ -61,10 +61,7 @@ export default () => {
           <ul className="flex flex-col sm:flex-wrap sm:flex-row sm:gap-x-10 gap-y-2 text-sm text-slate-400 leading-relaxed">
             {footerNavs.map((item, idx) => (
               <li key={idx} className="sm:w-[45%] md:w-[30%] lg:w-[22%]">
-                <a
-                  href={item.href}
-                  className="block hover:text-slate-100 transition-colors duration-200"
-                >
+                <a href={item.href} className="block hover:text-slate-100 transition-colors duration-200">
                   {item.name}
                 </a>
               </li>

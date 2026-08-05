@@ -21,7 +21,7 @@ export default () => {
         <p>We're lucky to have some amazing contributors on board:</p>
         <ul>
           <li>
-            <a href="https://twitter.com/johnrushx">John Rush</a>
+            <a href="https://x.com/johnrush">John Rush</a>
           </li>
           <li>
             <a href="https://twitter.com/sidi_jeddou_dev">Sidi Jeddou</a>

@@ -133,7 +133,7 @@ export default () => {
 
       <p className="text-slate-300 mt-8 text-center">
         Reach out to{' '}
-        <a className="text-orange-500 underline" href="https://twitter.com/johnrushx">
+        <a className="text-orange-500 underline" href="https://x.com/johnrush">
           John Rush
         </a>{' '}
         for details and prices.
