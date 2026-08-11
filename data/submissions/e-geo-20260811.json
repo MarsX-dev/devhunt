@@ -4,9 +4,24 @@
   "tagline": "Open-source GEO/AEO toolkit to analyze, rewrite, and evaluate content for AI answer engines",
   "description": "E-GEO is an open-source Generative Engine Optimization (GEO) and Answer Engine Optimization (AEO) toolkit. It provides a Python CLI and Claude Code skills to analyze, rewrite, and evaluate content so it is easier for AI answer engines to understand and cite. It ships a reproducible offline evaluation harness, JSON-LD schema generation, and a continuous geo-loop mode over a persistent workspace. Evaluation scores are documented as a proxy, not a guarantee of rankings. MIT licensed, with docs and dated, honest tool comparisons at egeoagents.com.",
   "url": "https://github.com/mverab/eGEOagents",
-  "imageUrl": "https://raw.githubusercontent.com/mverab/eGEOagents/main/assets/hero-banner.png",
+  "imageUrl": "https://raw.githubusercontent.com/mverab/eGEOagents/main/assets/egeo-logo.png",
   "pricing": "Open Source",
-  "categories": ["Open Source", "AI", "Marketing"],
-  "tags": ["geo", "aeo", "generative-engine-optimization", "answer-engine-optimization", "ai-search", "seo", "llm", "python", "cli", "open-source"],
+  "categories": [
+    "Open Source",
+    "AI",
+    "Marketing"
+  ],
+  "tags": [
+    "geo",
+    "aeo",
+    "generative-engine-optimization",
+    "answer-engine-optimization",
+    "ai-search",
+    "seo",
+    "llm",
+    "python",
+    "cli",
+    "open-source"
+  ],
   "createdAt": "2026-08-11T00:00:00.000000+00:00"
 }
