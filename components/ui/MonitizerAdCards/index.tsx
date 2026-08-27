@@ -19,6 +19,10 @@ const SponsorSkeleton = () => (
 );
 
 function MonitizorAdCards() {
+  // Temporarily hide while selldigitals is down (403 Forbidden).
+  // Re-enable by removing this early return.
+  return null;
+
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
