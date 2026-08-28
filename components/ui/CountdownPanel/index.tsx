@@ -39,7 +39,7 @@ const SponsorCard = ({ sponsor }) => {
 
 const People = () => {
   const people = [
-    { href: '/@JohnRush_bc21', name: 'John Rush', image: 'https://pbs.twimg.com/profile_images/1466385933612240901/qNMrMDlG_200x200.jpg' },
+    { href: '/@johnrush', name: 'John Rush', image: 'https://pbs.twimg.com/profile_images/1466385933612240901/qNMrMDlG_200x200.jpg' },
     {
       href: '/@sididev',
       name: 'Sidi',

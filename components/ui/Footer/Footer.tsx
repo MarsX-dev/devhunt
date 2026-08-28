@@ -40,7 +40,7 @@ export default () => {
   ];
 
   const builtBy = [
-    { title: '@johnrushx', url: 'https://x.com/johnrush' },
+    { title: '@johnrush', url: 'https://x.com/johnrush' },
     { title: '@sidi_jeddou_dev', url: 'https://twitter.com/sidi_jeddou_dev' },
     { title: '@vitalik_may', url: 'https://twitter.com/vitalik_may' },
     { title: '@BotanMan', url: 'https://twitter.com/BotanMan' },
