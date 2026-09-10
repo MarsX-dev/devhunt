@@ -105,3 +105,4 @@ Are you interested in contributing to DEVHUNT, please read our [contributing gui
 You are free to fork and clone it as long as you clearly refer to the original project. 
 If it's a github, then refer to https://github.com/MarsX-dev/devhunt 
 If it's a website, then refer to devhunt.org with a prominent logo and a link.
+* [WebExtract](https://scrapersaas.surge.sh) — AI-powered web scraping API. Turn any URL into structured JSON. Free tier: 500 pages/month.
