@@ -1,0 +1,12 @@
+{
+  "id": "buywhere-mcp",
+  "name": "BuyWhere",
+  "tagline": "Product search & price comparison MCP server for AI shopping agents",
+  "description": "AI agents use BuyWhere to search, compare prices, and discover deals across 11M+ products in Singapore, Southeast Asia, and US markets — in real time. Supports product search, price comparison, deal discovery, and affiliate-ready outbound links. Works with Claude Desktop, Cursor, VS Code Copilot, Cline, Windsurf, Codex, and any MCP-compatible client.",
+  "url": "https://github.com/BuyWhere/buywhere-mcp",
+  "imageUrl": "https://raw.githubusercontent.com/BuyWhere/buywhere-mcp/main/public/assets/demo/buywhere-mcp-claude-desktop.gif",
+  "pricing": "Free tier available",
+  "categories": ["AI Agents", "E-Commerce", "Developer Tools"],
+  "tags": ["mcp", "ai-agent", "product-search", "price-comparison", "ecommerce", "shopping", "model-context-protocol", "sea", "singapore"],
+  "createdAt": "2026-06-20T00:00:00.000000+00:00"
+}
