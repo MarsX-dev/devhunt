@@ -315,10 +315,8 @@ export default () => {
             categoryIds,
           )
           .then(async res => {
-            const DISCORD_TOOL_WEBHOOK = process.env.DISCOR_TOOL_WEBHOOK as string;
-            const toolURL = `https://devhunt.org/tool/${res?.slug}`;
-            const content = `**${res?.name}** by ${profile?.full_name} [open the tool](${toolURL})`;
-            DISCORD_TOOL_WEBHOOK ? await axios.post(DISCORD_TOOL_WEBHOOK, { content }) : '';
+            // Discord new-tool message is sent server-side (webhook URLs aren't available in the browser).
+            await axios.post('/api/tool-submitted', { productId: res?.id }).catch(() => {});
             localStorage.setItem(
               'last-tool',
               JSON.stringify({

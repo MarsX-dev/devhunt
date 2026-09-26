@@ -55,11 +55,8 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
               updated_at: new Date().toISOString(),
             });
             setNotificationSent(true);
-            const DISCORD_USER_WEBHOOK = process.env.DISCORD_USER_WEBHOOK as string;
-            const content = `**${user?.full_name}** [open the profile](https://devhunt.org/@${user?.username})`;
-            if (DISCORD_USER_WEBHOOK) await axios.post(DISCORD_USER_WEBHOOK, { content });
-
-            await axios.post('/api/login', { firstName: user?.full_name as string, personalEMail: session.user.email as string });
+            // Welcome email + Discord new-user message are sent server-side from the session.
+            await axios.post('/api/login');
           }
         });
         eventListener.data.subscription.unsubscribe();
