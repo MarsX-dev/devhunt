@@ -2,6 +2,7 @@ import type Stripe from 'stripe';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import { isCheckoutPaid, resolvePaidWeek, type PlannedWeek } from '@/utils/launchPlanning';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
+import { logPaymentEvent, notifyPaymentDiscord } from '@/utils/server/paymentLog';
 
 export type ActivationResult =
   | { status: 'activated' | 'already-activated'; productId: number; launchStart: string }
@@ -10,7 +11,42 @@ export type ActivationResult =
 // Marks the product in a completed Checkout Session as paid and moves it to its paid week.
 // Idempotent: the payments row (unique session id) is inserted first; a duplicate means it was
 // already handled by the webhook or the success page.
-export async function activateFromCheckoutSession(session: Stripe.Checkout.Session): Promise<ActivationResult> {
+export async function activateFromCheckoutSession(session: Stripe.Checkout.Session, source: 'webhook' | 'confirm', stripeEventId?: string): Promise<ActivationResult> {
+  const base = {
+    stripeSessionId: session.id,
+    stripeEventId,
+    productId: Number(session.metadata?.product_id) || null,
+    userId: session.metadata?.user_id ?? null,
+    amountTotal: session.amount_total,
+    currency: session.currency,
+  };
+  try {
+    const result = await activate(session);
+    await logPaymentEvent({
+      ...base,
+      event: `activation_${result.status}`,
+      level: result.status === 'invalid' ? 'warn' : 'info',
+      details: { source, status: session.status, payment_status: session.payment_status, week_start: session.metadata?.week_start, ...(result.status === 'activated' || result.status === 'already-activated' ? { launchStart: result.launchStart } : {}) },
+    });
+    if (result.status === 'activated') {
+      const { data: tool } = await serviceClient.from('products').select('name, slug').eq('id', result.productId).single();
+      await notifyPaymentDiscord('paid', {
+        toolName: tool?.name,
+        toolSlug: tool?.slug,
+        email: session.customer_details?.email ?? session.customer_email,
+        amount: session.amount_total,
+        currency: session.currency,
+        launchStart: result.launchStart,
+      });
+    }
+    return result;
+  } catch (err) {
+    await logPaymentEvent({ ...base, event: 'activation_error', level: 'error', details: { source, message: (err as Error).message } });
+    throw err;
+  }
+}
+
+async function activate(session: Stripe.Checkout.Session): Promise<ActivationResult> {
   if (!isCheckoutPaid(session)) return { status: 'not-paid' };
 
   const productId = Number(session.metadata?.product_id);

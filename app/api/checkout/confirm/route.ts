@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { activateFromCheckoutSession } from '@/utils/server/activateLaunch';
+import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { stripe } from '@/utils/server/stripe';
 
 export const dynamic = 'force-dynamic';
@@ -15,8 +16,11 @@ export async function GET(req: Request) {
   if (!/^cs_(live|test)_[A-Za-z0-9]+$/.test(sessionId)) return NextResponse.json({ error: 'Invalid session' }, { status: 400 });
 
   const session = await stripe().checkout.sessions.retrieve(sessionId).catch(() => null);
-  if (!session || session.metadata?.user_id !== user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (!session || session.metadata?.user_id !== user.id) {
+    await logPaymentEvent({ event: 'confirm_rejected', level: 'warn', stripeSessionId: sessionId, userId: user.id, details: { reason: session ? 'session belongs to another user' : 'session not found' } });
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
-  const result = await activateFromCheckoutSession(session);
+  const result = await activateFromCheckoutSession(session, 'confirm');
   return NextResponse.json(result, { status: result.status === 'invalid' ? 400 : 200 });
 }
