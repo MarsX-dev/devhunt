@@ -38,7 +38,7 @@
     "lucide-react": "^0.454.0",
     "mergent": "^1.6.0",
     "moment": "^2.29.4",
-    "next": "13.5.2",
+    "next": "13.5.11",
     "next-nprogress-bar": "^2.0.3",
     "node-cache": "^5.1.2",
     "prismjs": "^1.29.0",
