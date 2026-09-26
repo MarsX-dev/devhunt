@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
 import Name from '@/components/ui/ToolCard/Tool.Name';
 import Tags from '@/components/ui/ToolCard/Tool.Tags';
@@ -9,7 +10,6 @@ import ProfileService from '@/utils/supabase/services/profile';
 import ProductsService from '@/utils/supabase/services/products';
 import UserProfileInfo from '@/components/ui/UserProfileInfo/UserProfileInfo';
 import { type Comment as CommentType, type Product, type Profile } from '@/utils/supabase/types';
-import Page404 from '@/components/ui/Page404/Page404';
 import ToolCardList, { type ITool } from '@/components/ui/ToolCardList/ToolCardList';
 import {
   Comment,
@@ -24,6 +24,7 @@ import moment from 'moment';
 import Link from 'next/link';
 import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import ToolCardLink from '@/components/ui/ToolCard/ToolCardLink';
 import dynamic from 'next/dynamic';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
@@ -37,10 +38,13 @@ interface IComment extends CommentType {
 
 // set dynamic metadata
 export async function generateMetadata({ params: { user } }: { params: { user: string } }): Promise<Metadata> {
-  const username = decodeURIComponent(user).slice(1);
+  const decoded = decodeURIComponent(user);
+  if (!decoded.startsWith('@')) return { title: 'Page not found - Dev Hunt' };
+  const username = decoded.slice(1);
   const supabaseClient = createServerClient();
   const profileService = new ProfileService(supabaseClient);
   const profile = await profileService.getByUsername(username);
+  if (!profile) return { title: 'Page not found - Dev Hunt' };
 
   return {
     title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
@@ -66,7 +70,10 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
 }
 
 export default async ({ params: { user } }: { params: { user: string } }) => {
-  const username = decodeURIComponent(user).slice(1);
+  // Profiles live at /@username; anything else under this catch-all route is a real 404.
+  const decoded = decodeURIComponent(user);
+  if (!decoded.startsWith('@')) notFound();
+  const username = decoded.slice(1);
   const browserService = createBrowserClient();
   const profileService = new ProfileService(browserService);
   const profile = await profileService.getByUsername(username);
@@ -97,9 +104,9 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
             <h3 className="font-medium text-slate-50">{votedTools?.length} Upvotes</h3>
             <ul className="mt-3 divide-y divide-slate-800/60">
               {votedTools.map((tool: any, idx: number) => (
-                <>
+                <Fragment key={tool.id ?? idx}>
                   {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-                  <li key={idx} className="py-3">
+                  <li className="py-3">
                     <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
                       <Logo src={tool.logo_url || ''} alt={tool.name}/>
                       <div className="space-y-1">
@@ -125,7 +132,7 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
                       </div>
                     </ToolCard>
                   </li>
-                </>
+                </Fragment>
               ))}
             </ul>
           </div>
@@ -182,5 +189,5 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
         </div>
       </div>
     );
-  } else return <Page404/>;
+  } else notFound();
 };

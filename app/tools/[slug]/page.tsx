@@ -3,7 +3,7 @@ import categories from '@/utils/categories';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import CategoryService from '@/utils/supabase/services/categories';
-import Page404 from '@/components/ui/Page404/Page404';
+import { notFound } from 'next/navigation';
 import { Product } from '@/utils/supabase/types';
 import dynamic from 'next/dynamic';
 import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
@@ -12,7 +12,7 @@ const ToolCardEffect = dynamic(() => import('@/components/ui/ToolCardEffect/Tool
 
 const getOriginalSlug = (slug: string) => {
   const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.name.toLowerCase());
-  return getValidSlug[0].name;
+  return getValidSlug[0]?.name;
 };
 
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
@@ -42,11 +42,12 @@ export default async ({ params: { slug } }: { params: { slug: string } }) => {
   const categoryService = new CategoryService(createBrowserClient());
 
   const categoryName = getOriginalSlug(slug);
+  if (!categoryName) notFound();
 
   // Fetch the category
   const categories: any = await categoryService.search(categoryName);
-  if (categories.length == 0) return <Page404 />;
   const category = categories.find((c: { name: string }) => c.name.toLowerCase() === categoryName.toLowerCase());
+  if (!category) notFound();
 
   // Fetch the products
   const { data: products } = await productService.getProducts(

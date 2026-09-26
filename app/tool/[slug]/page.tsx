@@ -22,7 +22,7 @@ import { JSDOM } from 'jsdom';
 import Link from 'next/link';
 import ProfileService from '@/utils/supabase/services/profile';
 import customDateFromNow from '@/utils/customDateFromNow';
-import Page404 from '@/components/ui/Page404/Page404';
+import { notFound } from 'next/navigation';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
@@ -42,6 +42,7 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
   const supabaseClient = createServerClient();
   const productsService = new ProductsService(supabaseClient);
   const tool = await productsService.getBySlug(slug);
+  if (!tool || tool.deleted) return { title: 'Page not found - Dev Hunt' };
 
   return {
     title: `${tool?.name} - ${tool?.slogan}`,
@@ -75,7 +76,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const productsService = new ProductsService(supabaseBrowserClient);
   const product = await productsService.getBySlug(slug, true);
-  if (!product || product.deleted) return <Page404 />;
+  if (!product || product.deleted) notFound();
 
   const awardService = new AwardsService(supabaseBrowserClient);
   const commentService = new CommentService(supabaseBrowserClient);

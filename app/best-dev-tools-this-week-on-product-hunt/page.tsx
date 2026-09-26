@@ -66,7 +66,7 @@ export default async () => {
   const origin = process.env.NODE_ENV == 'development' ? 'http://localhost:3000' : 'https://devhunt.org';
   const {
     data: { posts },
-  } = await axios.get(`${origin}/api/ph-dev-tools`);
+  } = await axios.get(`${origin}/api/ph-dev-tools`).catch(() => ({ data: { posts: [] } }));
 
   // Doesn't work after new PH update, they block requests from other domains when try to get the real website url:
 
