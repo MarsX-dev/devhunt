@@ -11,6 +11,8 @@ test('home page lists this week\'s tools without errors', async ({ page }) => {
 });
 
 test('external-link icon opens the tool website, not the card', async ({ page, context }) => {
+  // The newsletter banner slides in over the cards for new visitors; start as one who closed it.
+  await page.addInitScript(() => localStorage.setItem('isNewsletterActive', 'true'));
   await page.goto('/');
   const card = page.locator('li', { has: page.locator('[aria-label="Open website in a new tab"]') }).first();
   await card.hover();
@@ -98,4 +100,36 @@ test('/upcoming shows 4 weeks and loads 4 more with "Show more"', async ({ page 
   // Weeks must be consecutive Tuesdays, also across a year boundary.
   const dates = await weekHeadings.evaluateAll(els => els.map(el => new Date(`${el.getAttribute('data-week')}T00:00:00Z`).getTime()));
   dates.slice(1).forEach((d, i) => expect(d - dates[i]).toBe(7 * 24 * 3600 * 1000));
+});
+
+test('home page shows the all-time stats bar and the latest 30 winners as compact rows', async ({ page }) => {
+  await page.goto('/');
+  const stats = page.locator('#site-stats');
+  await expect(stats.locator('dd')).toHaveCount(4);
+  for (const label of ['Tool impressions', 'Domain rating (Ahrefs)', 'Tools launched', 'Developers joined']) {
+    await expect(stats.getByText(label)).toBeVisible();
+  }
+  // Recent growth badges fade in after load.
+  await expect(stats.getByText(/^\+[\d,.KM]+ (today|this week)$/).first()).toBeVisible();
+  const winners = page.locator('#past-winners li');
+  await expect(winners.first()).toBeVisible();
+  expect(await winners.count()).toBeLessThanOrEqual(30);
+  expect(await winners.count()).toBeGreaterThanOrEqual(20);
+  // One line each.
+  const heights = await winners.evaluateAll(rows => rows.map(r => r.getBoundingClientRect().height));
+  expect(Math.max(...heights)).toBeLessThan(64);
+});
+
+test('auto-generated paracast demo videos are not shown', async ({ page, request }) => {
+  const { testEnv } = await import('../env');
+  const base = testEnv('NEXT_PUBLIC_SUPABASE_URL');
+  const key = testEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')!;
+  const res = await request.get(`${base}/rest/v1/products?select=slug&deleted=eq.false&demo_video_url=like.*paracast*&limit=1`, {
+    headers: { apikey: key, Authorization: `Bearer ${key}` },
+  });
+  const [tool] = await res.json();
+  await page.goto(`/tool/${tool.slug}`);
+  await expect(page.locator('main img, img').first()).toBeVisible();
+  await settle(page);
+  expect(await page.locator('video, source[src*="paracast"]').count()).toBe(0);
 });

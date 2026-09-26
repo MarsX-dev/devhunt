@@ -69,11 +69,18 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
-  async getWeeklyWinners(excludeWeek: number = 0): Promise<ExtendedProduct[]> {
-    const { data, error } = await this.supabase.from('weekly_winners').select();
+  // Latest weekly winners, newest first, leaving out the week that is still running.
+  async getWeeklyWinners(excludeWeek: number = 0, excludeYear: number = 0, limit = 30): Promise<ExtendedProduct[]> {
+    const { data, error } = await this.supabase
+      .from('weekly_winners')
+      .select()
+      .order('year', { ascending: false })
+      .order('week', { ascending: false })
+      .limit(limit + 1);
     if (error !== null) throw new Error(error.message);
     return data
-      .filter(i => i.week !== excludeWeek)
+      .filter(i => !(i.week === excludeWeek && Number(i.year) === excludeYear))
+      .slice(0, limit)
       .map(i => ({
         ...i.product_data.product,
         product_pricing_types: i.product_data.product_pricing_types,

@@ -43,6 +43,18 @@ describe('database security (anonymous API key)', () => {
     expect(rejected(res.status)).toBe(true);
   });
 
+  it('cannot call the server-only site stats function', async () => {
+    const res = await supabase('rpc/get_site_stats', { method: 'POST', body: '{}' });
+    expect(res.ok).toBe(false);
+  });
+
+  it.each(['site_daily_views', 'payments', 'payment_events'])('cannot read or write server-only table %s', async table => {
+    const read = await supabase(`${table}?select=*&limit=1`);
+    expect(read.ok ? (await read.json()).length : 0).toBe(0);
+    const write = await supabase(table, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: '{}' });
+    expect(write.ok).toBe(false);
+  });
+
   it('cannot update or delete products', async () => {
     const upd = await supabase(`products?id=eq.${SOME_PRODUCT_ID}`, {
       method: 'PATCH',

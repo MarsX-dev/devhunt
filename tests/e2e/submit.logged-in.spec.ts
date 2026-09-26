@@ -21,7 +21,7 @@ test.afterAll(async () => {
 test('submit a tool, then keep the free launch date on the next step', async ({ page }, testInfo) => {
   test.setTimeout(120_000);
   const errors = trackErrors(page);
-  const name = `QA Form Tool ${Date.now()}`;
+  const name = `QA Form Tool ${Date.now()}${Math.floor(Math.random() * 1000)}`;
   await page.goto('/account/tools/new');
   await page.locator('input[name=logo-upload]').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png('8/w8AAgMBAb') });
   await page.locator('input[name=file-upload]').setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: png('8/w8AAgMBAb') });

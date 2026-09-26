@@ -167,7 +167,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
             )}
             <h1 className="mt-2 text-2xl font-semibold text-slate-50">Pick your launch date</h1>
             <p className="mt-2 text-slate-400">
-              Every launch gets a home page spotlight, a spot in our morning newsletter and a dofollow backlink (DR 57).
+              Every launch gets a home page spotlight, a spot in our morning newsletter and a dofollow backlink (DR 65).
             </p>
           </div>
           {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you're ready.</p>}

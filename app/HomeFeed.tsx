@@ -7,9 +7,12 @@ import { ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import CountdownPanel from '@/components/ui/CountdownPanel';
 
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, type ReactNode, useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
+import WinnerRow from '@/components/ui/WinnerRow';
+
+const PAST_WINNERS = 30;
 
 function getDate(weekStartDay: number): Date {
   let today = new Date();
@@ -26,7 +29,8 @@ function getDate(weekStartDay: number): Date {
   return today;
 }
 
-export default function Home() {
+// Client part of the home page: this week's contestants as full cards, past winners as rows.
+export default function HomeFeed({ children }: { children?: ReactNode }) {
   const weekStartDay = 2;
   const today = getDate(weekStartDay);
   const productService = new ProductsService(createBrowserClient());
@@ -42,7 +46,7 @@ export default function Home() {
       setCurrentWeek(week);
       const [launchWeeks, weeklyWinners] = await Promise.all([
         productService.getPrevLaunchWeeks(today.getFullYear(), weekStartDay, week, 1),
-        productService.getWeeklyWinners(week),
+        productService.getWeeklyWinners(week, today.getFullYear(), PAST_WINNERS),
       ]);
       setLaunchWeeks(launchWeeks as any);
       setWeeklyWinners(weeklyWinners as any);
@@ -86,25 +90,21 @@ export default function Home() {
 
   function weekWinnerTools(products: ProductType[]) {
     return (
-      <>
-        {/* Active */}
-        <div className="border-t border-slate-800 pt-8 mt-8 text-sm text-orange-500">
-          <p className="mt-8">Past winners 👑</p>
-        </div>
-        <ul className="relative mt-3 divide-y divide-slate-800/60">
-          {products
-            .sort((a: ProductType, b: ProductType) => b.votes_count - a.votes_count)
-            .map((product: ProductType, idx: number) => (
-              <ToolCardEffect key={idx} tool={product as ProductType} />
-            ))}
-          <div className="absolute -inset-x-2 -inset-y-0 -z-20 bg-slate-800/40 rounded-xl sm:-inset-x-3"></div>
+      <div id="past-winners" className="border-t border-slate-800 pt-8 mt-8">
+        <p className="text-sm text-orange-500">Past winners 👑</p>
+        <p className="mt-1 text-xs text-slate-500">The top tool of each of the last {products.length} weeks</p>
+        <ul className="mt-3">
+          {products.map(product => (
+            <WinnerRow key={product.id} tool={product} />
+          ))}
         </ul>
-      </>
+      </div>
     );
   }
 
   return (
     <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
+      {children}
       <CountdownPanel />
       <MonitizorAdCards />
       {isLoading ? (
