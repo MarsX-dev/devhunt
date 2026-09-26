@@ -6,6 +6,10 @@ import { type HTMLAttributes } from 'react';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 
+// Week numbers repeat every year and the list spans two years, so options are keyed by the
+// week's start date (UTC) instead of the bare week number.
+export const weekKey = (date: Date | string) => moment.utc(date).format('YYYY-MM-DD');
+
 interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;
   value?: string | number;
@@ -47,8 +51,11 @@ export default ({ label, value, className = '', validate, setAllWeeks = () => {}
         <option value="" disabled selected>
           {label}
         </option>
+        {value && weeks.length > 0 && !weeks.some(i => weekKey(i.startDate) === value) && (
+          <option value={value}>{moment.utc(value).format('LL')}</option>
+        )}
         {weeks.map(i => (
-          <option value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count} tools) ${
+          <option key={weekKey(i.startDate)} value={weekKey(i.startDate)}>{`${moment.utc(i.startDate).format('LL')} - ${moment.utc(i.endDate).format('LL')} (${i.count} tools) ${
             i.count < 15 ? '- Free' : '- $49'
           }`}</option>
         ))}

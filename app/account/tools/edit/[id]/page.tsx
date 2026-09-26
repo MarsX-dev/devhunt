@@ -22,7 +22,7 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
 import moment from 'moment';
-import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import SelectLaunchDate, { weekKey } from '@/components/ui/SelectLaunchDate';
 
 interface Inputs {
   tool_name: string;
@@ -74,6 +74,7 @@ export default () => {
   const [slug, setSlug] = useState<string>('');
 
   const [weekValue, setWeekValue] = useState<string | number>('');
+  const [allWeeks, setAllWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   const [launchEnd, setLaunchDate] = useState<string>();
   const [launchStart, setLaunchStart] = useState<string>();
@@ -92,9 +93,10 @@ export default () => {
       setValue('pricing_type', data?.pricing_type);
       setValue('github_repo', data?.github_url);
       setValue('demo_video', data?.demo_video_url);
-      setValue('week', data?.week);
+      const currentWeekKey = data?.launch_start ? weekKey(data.launch_start) : '';
+      setValue('week', currentWeekKey);
       setSlug(data?.slug as string);
-      setWeekValue(data?.week as number);
+      setWeekValue(currentWeekKey);
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
       setPaid(data?.isPaid as boolean);
@@ -149,17 +151,18 @@ export default () => {
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
       const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
       const categoryIds: number[] = categories.map(category => category.id);
-      const launchWeek = typeof week === 'string' ? parseInt(week) : week;
-      const currentWeek = await productService.getWeekNumber(new Date(), 2);
-      const currentYear = new Date().getFullYear();
+      // Only touch the launch week when the user may change it (paid, not started yet)
+      // and actually picked a different week. Otherwise keep the stored dates as they are.
+      const canChangeWeek = isPaid && new Date(launchStart as string) > new Date();
+      const originalWeekKey = launchStart ? weekKey(launchStart) : '';
+      const selectedWeek = canChangeWeek && week && week !== originalWeekKey ? allWeeks.find(i => weekKey(i.startDate) === week) : undefined;
 
-      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-      const weekData = weeks.find(i => i.week === launchWeek);
-
-      let launchDateData: { launch_start?: string; launch_end?: string } = {};
-      if (new Date(launchEnd as string) > new Date()) {
-        launchDateData.launch_start = weekData?.startDate;
-        launchDateData.launch_end = weekData?.endDate;
+      const launchDateData: { launch_date?: string; launch_start?: string; launch_end?: string; week?: number } = {};
+      if (selectedWeek) {
+        launchDateData.launch_date = new Date(selectedWeek.startDate).toISOString();
+        launchDateData.launch_start = new Date(selectedWeek.startDate).toISOString();
+        launchDateData.launch_end = new Date(selectedWeek.endDate).toISOString();
+        launchDateData.week = selectedWeek.week;
       }
 
       await productService
@@ -175,9 +178,7 @@ export default () => {
             description: tool_description,
             logo_url: logoPreview,
             demo_video_url: demo_video || generatedVideoUrl,
-            launch_date: weekData?.startDate as string,
             ...launchDateData,
-            week: launchWeek,
           },
           categoryIds,
         )
@@ -351,6 +352,7 @@ export default () => {
                       value={weekValue}
                       label="Launch week"
                       className="w-full"
+                      setAllWeeks={setAllWeeks}
                     />
                   ) : (
                     <SelectLaunchDate value={getValues('week')} label="Launch week" className="w-full" disabled={true} />

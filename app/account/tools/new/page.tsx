@@ -21,10 +21,9 @@ import { type File } from 'buffer';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import SelectLaunchDate, { weekKey } from '@/components/ui/SelectLaunchDate';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
-import usermaven from '@/utils/usermaven';
 import Alert from '@/components/ui/Alert';
 import moment from 'moment';
 import Modal from '@/components/ui/Modal';
@@ -39,7 +38,7 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
-  week: number;
+  week: string; // weekKey (YYYY-MM-DD start date)
   launch_date: Date;
   launch_start: Date;
   launch_end: Date;
@@ -209,13 +208,14 @@ export default () => {
     return availableDates.length > 0 ? availableDates[0] : null;
   }
 
-  async function getWeekDate(launchWeek: number) {
-    const currentWeek = await productService.getWeekNumber(new Date(), 2);
-    const currentYear = new Date().getFullYear();
-
-    const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-    const weekData = weeks.find(i => i.week === launchWeek);
-    return weekData;
+  function getWeekDate(key: string) {
+    const weekData = allWeeks.find(i => weekKey(i.startDate) === key);
+    if (!weekData) return undefined;
+    return {
+      week: weekData.week,
+      startDate: new Date(weekData.startDate).toISOString(),
+      endDate: new Date(weekData.endDate).toISOString(),
+    };
   }
 
   function formatDate(dateString: string) {
@@ -232,10 +232,13 @@ export default () => {
 
         const categoryIds = categories.map(item => item.id);
 
-        const launchWeek = typeof week === 'string' ? parseInt(week) : week;
+        const weekData = getWeekDate(week);
+        if (!weekData) {
+          alert('Please pick a launch week again.');
+          return;
+        }
 
         setLaunching(true);
-        const weekData = await getWeekDate(launchWeek);
 
         const launchData: any = {};
 
@@ -252,7 +255,7 @@ export default () => {
         // Re-check the selected week's count from fresh data.
         // If the user picked a free week (normal) but it filled up since page load,
         // downgrade them to the nearest free slot automatically.
-        const freshSelectedWeek = freshWeeks.find(w => w.week === launchWeek);
+        const freshSelectedWeek = freshWeeks.find(w => weekKey(w.startDate) === week);
         const selectedWeekIsFull = !freshSelectedWeek || freshSelectedWeek.count >= 15;
         const effectiveSubmitType = submitType === 'normal' && selectedWeekIsFull ? 'free' : submitType;
 
@@ -263,29 +266,29 @@ export default () => {
         }
 
         if (effectiveSubmitType === 'free') {
-          launchData.launch_date = formatDate(availableDate!.startDate as string);
-          launchData.launch_start = formatDate(availableDate!.startDate as string);
-          launchData.launch_end = formatDate(availableDate!.endDate as string);
-          launchData.week = availableDate!.week as number;
+          launchData.launch_date = formatDate(availableDate!.startDate);
+          launchData.launch_start = formatDate(availableDate!.startDate);
+          launchData.launch_end = formatDate(availableDate!.endDate);
+          launchData.week = availableDate!.week;
         } else if (effectiveSubmitType === 'paid') {
           // Park in the nearest free slot; activate-launch moves it to the paid
           // week (stored in paid_launch_date) once payment is confirmed.
           if (availableDate) {
-            launchData.launch_date = formatDate(availableDate.startDate as string);
-            launchData.launch_start = formatDate(availableDate.startDate as string);
-            launchData.launch_end = formatDate(availableDate.endDate as string);
-            launchData.week = availableDate.week as number;
+            launchData.launch_date = formatDate(availableDate.startDate);
+            launchData.launch_start = formatDate(availableDate.startDate);
+            launchData.launch_end = formatDate(availableDate.endDate);
+            launchData.week = availableDate.week;
           } else {
-            launchData.launch_date = weekData?.startDate as string;
-            launchData.launch_start = weekData?.startDate as string;
-            launchData.launch_end = weekData?.endDate;
-            launchData.week = weekData?.week;
+            launchData.launch_date = weekData.startDate;
+            launchData.launch_start = weekData.startDate;
+            launchData.launch_end = weekData.endDate;
+            launchData.week = weekData.week;
           }
         } else if (effectiveSubmitType === 'normal') {
-          launchData.launch_date = weekData?.startDate as string;
-          launchData.launch_start = weekData?.startDate as string;
-          launchData.launch_end = weekData?.endDate;
-          launchData.week = weekData?.week;
+          launchData.launch_date = weekData.startDate;
+          launchData.launch_start = weekData.startDate;
+          launchData.launch_end = weekData.endDate;
+          launchData.week = weekData.week;
         }
 
         await productService
@@ -563,16 +566,11 @@ export default () => {
                     validate={{
                       ...register('week', {
                         required: true,
-                        async onChange(value) {
+                        onChange(value) {
                           if (value) {
-                            const currentStartDate = (await getWeekDate(Number(value.target.value)))?.startDate as any;
-                            const startDate = allWeeks.filter(
-                              item => new Date(item.startDate).getTime() == new Date(currentStartDate).getTime(),
-                            );
+                            const selectedWeek = allWeeks.find(item => weekKey(item.startDate) === value.target.value);
                             setValue('week', value.target.value, { shouldValidate: true });
-                            // console.log(startDate);
-                            // console.log(new Date(currentStartDate));
-                            setLaunchDateStart(startDate[0] as any);
+                            if (selectedWeek) setLaunchDateStart(selectedWeek as any);
                           }
                         },
                       }),
@@ -598,7 +596,7 @@ export default () => {
                       className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
                       onClick={() => setValue('submitType', launchDateStart.count > 14 ? 'paid' : 'normal')}
                     >
-                      {launchDateStart.count > 14 ? <>Launch on {moment(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
+                      {launchDateStart.count > 14 ? <>Launch on {moment.utc(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
                     </Button>
                     {launchDateStart.count > 14 && findNearestAvailableDate(allWeeks as []) && (
                       <Button
@@ -609,7 +607,7 @@ export default () => {
                         className="w-full text-sm mt-2 text-slate-400"
                         variant="shiny"
                       >
-                        Queue to launch on {moment(findNearestAvailableDate(allWeeks as [])?.startDate).format('LL')} for free
+                        Queue to launch on {moment.utc(findNearestAvailableDate(allWeeks as [])?.startDate).format('LL')} for free
                       </Button>
                     )}
                   </>
