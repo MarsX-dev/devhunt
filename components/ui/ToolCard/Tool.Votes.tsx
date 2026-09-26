@@ -12,6 +12,7 @@ import customDateFromNow from '@/utils/customDateFromNow';
 import LinkItem from '../Link/LinkItem';
 import Button from '../Button/Button';
 import ProfileService from '@/utils/supabase/services/profile';
+import { hasUserVoted } from '@/utils/userVotes';
 
 export default ({
   count,
@@ -57,12 +58,7 @@ export default ({
   };
 
   useEffect(() => {
-    session && session.user
-      ? productsService.getUserVoteById(session.user.id, productId as number).then(data => {
-          if ((data as { user_id: string })?.user_id) setUpvoted(true);
-          else setUpvoted(false);
-        })
-      : null;
+    if (session?.user && productId) void hasUserVoted(session.user.id, productId).then(setUpvoted);
   }, []);
 
   return (

@@ -11,6 +11,7 @@ import customDateFromNow from '@/utils/customDateFromNow';
 import { IconInformationCircle } from '@/components/Icons';
 import LinkItem from '../Link/LinkItem';
 import ProfileService from '@/utils/supabase/services/profile';
+import { hasUserVoted } from '@/utils/userVotes';
 
 interface Props extends React.HTMLAttributes<HTMLButtonElement> {
   count: number;
@@ -57,12 +58,7 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   };
 
   useEffect(() => {
-    session && session.user
-      ? productsService.getUserVoteById(session.user.id, productId as number).then(data => {
-          if ((data as { user_id: string })?.user_id) setUpvoted(true);
-          else setUpvoted(false);
-        })
-      : null;
+    if (session?.user && productId) void hasUserVoted(session.user.id, productId).then(setUpvoted);
   }, []);
 
   const handleHoverEffect: MouseEventHandler<HTMLButtonElement> = e => {
