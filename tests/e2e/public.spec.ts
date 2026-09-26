@@ -80,3 +80,22 @@ test('clicking a card on /upcoming opens the preview with description and screen
   expect(await page.locator(`img[alt="${toolName}"]`).count()).toBeGreaterThan(1); // logo + gallery screenshots
   expect(errors).toEqual([]);
 });
+
+test('/upcoming shows 4 weeks and loads 4 more with "Show more"', async ({ page }) => {
+  const weekHeadings = page.locator('[data-week]');
+  await page.goto('/upcoming');
+  await expect(weekHeadings).toHaveCount(4);
+  const more = page.getByRole('link', { name: /Show more \([\d,]+ tools scheduled\)/ });
+  await expect(more).toBeVisible();
+  const before = Number((await more.innerText()).match(/\(([\d,]+)/)![1].replace(/,/g, ''));
+  expect(before).toBeGreaterThan(0);
+  await more.click();
+  await expect(page).toHaveURL(/weeks=8/);
+  await expect(weekHeadings).toHaveCount(8);
+  // Lands on the first newly added week.
+  await expect(page).toHaveURL(/#week-5$/);
+  await expect(page.locator('#week-5')).toBeInViewport();
+  // Weeks must be consecutive Tuesdays, also across a year boundary.
+  const dates = await weekHeadings.evaluateAll(els => els.map(el => new Date(`${el.getAttribute('data-week')}T00:00:00Z`).getTime()));
+  dates.slice(1).forEach((d, i) => expect(d - dates[i]).toBe(7 * 24 * 3600 * 1000));
+});
