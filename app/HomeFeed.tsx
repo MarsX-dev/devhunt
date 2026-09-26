@@ -39,7 +39,7 @@ function getDate(weekStartDay: number): Date {
 }
 
 // Client part of the home page: this week's contestants as full cards, past winners as rows.
-export default function HomeFeed({ children }: { children?: ReactNode }) {
+export default function HomeFeed({ children, votesToday = {} }: { children?: ReactNode; votesToday?: Record<string, number> }) {
   const weekStartDay = 2;
   const today = getDate(weekStartDay);
   const productService = new ProductsService(createBrowserClient());
@@ -73,7 +73,7 @@ export default function HomeFeed({ children }: { children?: ReactNode }) {
           {contestants.map((product: ProductType, idx: number) => (
             <Fragment key={product.id ?? idx}>
               {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              <ToolCardEffect tool={product as ProductType} rank={idx + 1} />
+              <ToolCardEffect tool={product as ProductType} rank={idx + 1} compact={idx >= 3} votesToday={votesToday[product.id]} />
             </Fragment>
           ))}
         </ul>

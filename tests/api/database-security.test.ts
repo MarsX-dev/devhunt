@@ -43,8 +43,8 @@ describe('database security (anonymous API key)', () => {
     expect(rejected(res.status)).toBe(true);
   });
 
-  it('cannot call the server-only site stats function', async () => {
-    const res = await supabase('rpc/get_site_stats', { method: 'POST', body: '{}' });
+  it.each(['get_site_stats', 'get_recent_activity'])('cannot call the server-only function %s', async fn => {
+    const res = await supabase(`rpc/${fn}`, { method: 'POST', body: '{}' });
     expect(res.ok).toBe(false);
   });
 

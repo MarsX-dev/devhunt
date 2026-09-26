@@ -133,3 +133,21 @@ test('auto-generated paracast demo videos are not shown', async ({ page, request
   await settle(page);
   expect(await page.locator('video, source[src*="paracast"]').count()).toBe(0);
 });
+
+test('home page feels live: activity strip, top 3 as full cards, the rest compact', async ({ page }) => {
+  const errors = trackErrors(page);
+  await page.addInitScript(() => localStorage.setItem('isNewsletterActive', 'true'));
+  await page.goto('/');
+  const live = page.locator('#live-activity');
+  await expect(live.getByText('Live')).toBeVisible();
+  await expect(live.getByText(/joined DevHunt|upvoted|commented on/)).toBeVisible();
+  const first = await live.innerText();
+  await expect.poll(async () => live.innerText(), { timeout: 12_000 }).not.toBe(first); // cycles to the next event
+
+  const cards = page.locator('ul.divide-y > li');
+  await expect(cards.first()).toBeVisible();
+  const heights = await cards.evaluateAll(items => items.map(li => li.getBoundingClientRect().height));
+  if (heights.length > 3) expect(Math.max(...heights.slice(3))).toBeLessThan(Math.min(...heights.slice(0, 3)));
+  await settle(page);
+  expect(errors).toEqual([]);
+});

@@ -1,10 +1,17 @@
 import SiteStats from '@/components/ui/SiteStats';
+import LiveActivity from '@/components/ui/LiveActivity';
+import { getRecentActivity } from '@/utils/recentActivity';
 import HomeFeed from './HomeFeed';
 
-export default function Home() {
+// Placeholder display names ("User", "test") look fake in the live strip.
+const PLACEHOLDER_NAME = /^(user|test|admin|null|undefined|anonymous|guest)\d*$/i;
+
+export default async function Home() {
+  const activity = await getRecentActivity();
   return (
-    <HomeFeed>
+    <HomeFeed votesToday={activity?.votes_today ?? {}}>
       <SiteStats />
+      <LiveActivity events={(activity?.events ?? []).filter(e => e.name?.length > 1 && !PLACEHOLDER_NAME.test(e.name))} />
     </HomeFeed>
   );
 }
