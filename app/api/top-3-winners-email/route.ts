@@ -6,6 +6,9 @@ import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
 
+// Cron-triggered: never prerender at build time.
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     if (!isAuthorizedCron(req)) {

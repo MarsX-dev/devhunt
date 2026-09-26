@@ -1,18 +1,14 @@
+import { notFound } from 'next/navigation';
 import { type Metadata } from 'next';
-import Page404 from '@/components/ui/Page404';
 import Link from 'next/link';
 import Image from 'next/image';
 
 import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { BlogClient } from 'seobot';
+import { getArticle } from '@/utils/blog';
 
 async function getPost(slug: string) {
-  const key = process.env.SEOBOT_API_KEY;
-  if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
-
-  const client = new BlogClient(key);
-  return await client.getArticle(slug);
+  return await getArticle(slug);
 }
 
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
@@ -46,7 +42,7 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 
 export default async function Article({ params: { slug } }: { params: { slug: string } }) {
   const post = await getPost(slug);
-  if (!post) return <Page404 />;
+  if (!post) notFound();
 
   return (
     <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8">

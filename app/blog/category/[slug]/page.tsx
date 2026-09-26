@@ -3,14 +3,10 @@ import Pagination from '@/components/ui/Blog/Pagination';
 import { type Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { BlogClient } from 'seobot';
+import { getCategoryArticles } from '@/utils/blog';
 
 async function getPosts(slug: string, page: number) {
-  const key = process.env.SEOBOT_API_KEY;
-  if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
-
-  const client = new BlogClient(key);
-  return await client.getCategoryArticles(slug, page, 10);
+  return await getCategoryArticles(slug, page, 10);
 }
 
 function deslugify(str: string) {

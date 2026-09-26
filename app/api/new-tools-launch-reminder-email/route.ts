@@ -5,6 +5,9 @@ import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
+// Cron-triggered: never prerender at build time.
+export const dynamic = 'force-dynamic';
+
 export function isAuthorizedCron(req: Request): boolean {
   const secret = process.env.MARSX_MAILER_AUTH;
 
