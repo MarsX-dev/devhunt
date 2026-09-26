@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { trackErrors } from './helpers';
+import { expectNoHorizontalScroll, trackErrors } from './helpers';
 
 // Read-only checks with the saved session (see login.setup.ts). Nothing here creates or changes data.
 
@@ -10,18 +10,14 @@ test('My tools loads quickly', async ({ page }) => {
   expect(Date.now() - started).toBeLessThan(10_000);
 });
 
-test('submit form shows the next free week and the skip-the-line option', async ({ page }) => {
+test('submit form leaves the launch date for the next step', async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto('/account/tools/new');
-  await expect(page.getByText(/Skip the line: launch next week/)).toBeVisible();
-  await expect(page.getByText(/Free launch queue: the next free week is/)).toBeVisible();
-
-  // Every week option is keyed by its start date, and far-future weeks don't crash the form.
-  const select = page.locator('select[name=week]');
-  const values = await select.locator('option').evaluateAll(opts => opts.map(o => (o as HTMLOptionElement).value).filter(Boolean));
-  expect(values.every(v => /^\d{4}-\d{2}-\d{2}$/.test(v))).toBe(true);
-  await select.selectOption(values[values.length - 1]);
-  await expect(page.locator('#submit-btn').first()).toBeVisible();
+  await expect(page.getByText(/pick your launch date on the next step/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Submit and pick a launch date' })).toBeVisible();
+  await expect(page.locator('select[name=week]')).toHaveCount(0);
+  await expect(page.getByText(/\$49/)).toHaveCount(0);
+  await expectNoHorizontalScroll(page);
   expect(errors).toEqual([]);
 });
 

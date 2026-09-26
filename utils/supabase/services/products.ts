@@ -307,7 +307,7 @@ export default class ProductsService extends BaseDbService {
     const key = `product-details-slug-${slug}`;
 
     const product = await cache.get(key, async () => {
-      const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('slug', slug).single();
+      const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('slug', slug).maybeSingle();
 
       return data;
     });

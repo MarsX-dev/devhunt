@@ -21,12 +21,9 @@ import { type File } from 'buffer';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
-import { findNearestAvailableDate, weekKey } from '@/utils/launchWeeks';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
 import Alert from '@/components/ui/Alert';
-import moment from 'moment';
 import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
 import { IconXmark } from '@/components/Icons';
@@ -39,18 +36,6 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
-  week: string; // weekKey (YYYY-MM-DD start date)
-  launch_date: Date;
-  launch_start: Date;
-  launch_end: Date;
-  submitType: string;
-}
-
-interface Weeks {
-  count: number;
-  startDate: string;
-  endDate: string;
-  week: number;
 }
 
 export default () => {
@@ -91,8 +76,6 @@ export default () => {
   const [isLogoLoad, setLogoLoad] = useState<boolean>(false);
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isLaunching, setLaunching] = useState<boolean>(false);
-
-  const [allWeeks, setAllWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   // ProductHunt import state
   const [isPhModalOpen, setIsPhModalOpen] = useState(false);
@@ -186,23 +169,14 @@ export default () => {
     }
   }, [imagesError, logoError, errors.pricing_type]);
 
-  function selectWeek(key: string) {
-    const selectedWeek = allWeeks.find(item => weekKey(item.startDate) === key);
-    setValue('week', key, { shouldValidate: true });
-    if (selectedWeek) setLaunchDateStart(selectedWeek as any);
-  }
-
-  const nextWeek = allWeeks[0];
-  const nextFreeWeek = findNearestAvailableDate(allWeeks);
-
   const onSubmit: SubmitHandler<Inputs> = async data => {
     try {
       scrollToErroView();
       if (validateImages() && (await validateToolName())) {
-        const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week, submitType } = data;
+        const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
 
         setLaunching(true);
-        // The server picks the launch week (free queue, chosen week, or parked until payment).
+        // The tool joins the free launch queue; the owner picks free vs. a paid week on the next step.
         const { data: res } = await axios.post('/api/tools', {
           name: tool_name,
           slogan,
@@ -214,15 +188,13 @@ export default () => {
           assetUrls: imagePreviews,
           demoVideoUrl: demo_video,
           categoryIds: categories.map(item => item.id),
-          week,
-          submitType,
         });
         const product = res.product;
         localStorage.setItem(
           'last-tool',
           JSON.stringify({ toolSlug: product.slug, launchDate: product.launch_date, launchEnd: product.launch_end }),
         );
-        router.push(res.paid ? `/account/tools/activate-launch/${product.slug}?week=${week}` : `/tool/${product.slug}?banner=true`);
+        router.push(`/account/tools/activate-launch/${product.slug}?new=1`);
       }
     } catch (err: any) {
       console.log('error on submit', err);
@@ -230,8 +202,6 @@ export default () => {
       setLaunching(false);
     }
   };
-
-  const [launchDateStart, setLaunchDateStart] = useState<{ startDate: string; count: number }>({ startDate: '', count: 0 });
 
   // Function to fetch ProductHunt data and auto-fill form
   const handlePhImport = async () => {
@@ -432,100 +402,19 @@ export default () => {
 
             <FormLaunchSection
               number={4}
-              title="Launch Week for Your Dev Tool"
-              description="Setting the perfect launch week is essential to make a splash in the dev world."
+              title="Launch date"
+              description="You'll pick your launch date on the next step: a free spot in the launch queue, or a week of your choice within the next 4 weeks."
             >
               <div>
-                <ul className="text-sm text-slate-400">
-                  <li className="text-slate-300 mb-1">By choosing your tool's big day, you're guaranteeing:</li>
-                  <li>
-                    <b>1. Home Page Spotlight:</b> Your tool will steal the show on our home page for a full 24 hours!
-                  </li>
-                  <li>
-                    <b>2. Morning Buzz:</b> We'll shoot out an email featuring your tool to our subscribers that very morning.
-                  </li>
-                  <li>
-                    <b>3. Daily Voting Frenzy:</b> Users will be eager to check out and vote for all of the day's featured tools.
-                  </li>
-                  <li>
-                    <b>4. DoFollow backlink(DR 57):</b> Boost your own domain rating by getting high quality dofollow link.
-                  </li>
-                </ul>
-                {nextWeek && (
-                  <div className="mt-4 rounded-lg border border-slate-700 bg-slate-800/60 p-4 text-sm space-y-3">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-slate-100 font-medium">🚀 Skip the line: launch next week for $49</p>
-                        <p className="text-slate-400">Your tool goes live on {moment.utc(nextWeek.startDate).format('LL')}.</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => selectWeek(weekKey(nextWeek.startDate))}
-                        className="flex-none rounded-lg bg-orange-500 px-3 py-2 font-medium text-white hover:bg-orange-400 duration-150"
-                      >
-                        Launch next week
-                      </button>
-                    </div>
-                    {nextFreeWeek && (
-                      <p className="text-slate-400 border-t border-slate-700 pt-3">
-                        Free launch queue: the next free week is{' '}
-                        <b className="text-slate-200">{moment.utc(nextFreeWeek.startDate).format('LL')}</b> ({moment.utc(nextFreeWeek.startDate).fromNow()}
-                        ). Free launches are limited to 15 tools per week.
-                      </p>
-                    )}
-                  </div>
-                )}
-                <div className="relative mt-4 mb-3">
-                  <SelectLaunchDate
-                    label="Launch week"
-                    weeksAhead={260}
-                    className="w-full"
-                    validate={{
-                      ...register('week', {
-                        required: true,
-                        onChange(value) {
-                          if (value) selectWeek(value.target.value);
-                        },
-                      }),
-                    }}
-                    setAllWeeks={setAllWeeks}
-                  />
-                  <LabelError className="mt-2">{errors.week && 'Please pick a launch week'}</LabelError>
-                </div>
-                {/* <div className="text-lg text-slate-100 font-medium">
-                Wanna skip this line?{' '}
-                <a target="_blank" href="https://buy.stripe.com/8wM6qfeEWdde1So3cr" className="underline text-orange-500">
-                  See details
-                </a>
-              </div> */}
-              </div>
-              <div className="pt-7">
-                {getValues('week') && (
-                  <>
-                    <Button
-                      id="submit-btn"
-                      type="submit"
-                      isLoad={isLaunching}
-                      className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
-                      onClick={() => setValue('submitType', launchDateStart.count > 14 ? 'paid' : 'normal')}
-                    >
-                      {launchDateStart.count > 14 ? <>Launch on {moment.utc(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
-                    </Button>
-                    {launchDateStart.count > 14 && nextFreeWeek && (
-                      <Button
-                        onClick={() => setValue('submitType', 'free')}
-                        id="submit-btn"
-                        type="submit"
-                        isLoad={isLaunching}
-                        className="w-full text-sm mt-2 text-slate-400"
-                        variant="shiny"
-                      >
-                        Or wait for the free queue: launch on {moment.utc(nextFreeWeek.startDate).format('LL')} for free
-                      </Button>
-                    )}
-                  </>
-                )}
-                <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info or reschedule the launch later</p>
+                <Button
+                  id="submit-btn"
+                  type="submit"
+                  isLoad={isLaunching}
+                  className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
+                >
+                  Submit and pick a launch date
+                </Button>
+                <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info later</p>
               </div>
             </FormLaunchSection>
           </FormLaunchWrapper>

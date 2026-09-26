@@ -23,5 +23,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL, storageState: AUTH_STATE },
       testMatch: /logged-in\.spec/, // includes checkout.logged-in.spec.ts (opt-in)
     },
+    // The logged-in flows on a phone (the Stripe checkout test runs on desktop only).
+    {
+      name: 'logged-in-mobile',
+      dependencies: ['auth-setup'],
+      use: { ...devices['Pixel 7'], channel: process.env.PW_CHANNEL, storageState: AUTH_STATE },
+      testMatch: /logged-in\.spec/,
+      testIgnore: /checkout/,
+    },
   ],
 });
