@@ -6,6 +6,8 @@ import { testEnv } from '../env';
 // Opt-in: runs only with QA_PROMO_CODE set, because it creates (and then soft-deletes) a real tool.
 // QA_PROMO_CODE is the promotion code *id* (promo_...) of a single-use 100%-off code.
 const PROMO = process.env.QA_PROMO_CODE;
+// QA_WEBHOOK_ONLY=1: activation must come from the Stripe webhook alone (deployed site only).
+const WEBHOOK_ONLY = !!process.env.QA_WEBHOOK_ONLY;
 test.skip(!PROMO, 'Set QA_PROMO_CODE to run the payment flow');
 
 const serviceDb = () => createClient(testEnv('NEXT_PUBLIC_SUPABASE_URL')!, testEnv('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
@@ -78,7 +80,8 @@ test('pay for a launch with Stripe Checkout and see it activated', async ({ page
     'discounts[0][promotion_code]': PROMO!,
     'adaptive_pricing[enabled]': 'false',
     customer_email: appSession.customer_email,
-    success_url: appSession.success_url,
+    // Webhook-only mode: land on the home page so the confirm route never runs.
+    success_url: WEBHOOK_ONLY ? new URL('/?qa=webhook', appSession.success_url).toString() : appSession.success_url,
     cancel_url: appSession.cancel_url,
     ...Object.fromEntries(Object.entries(appSession.metadata).map(([k, v]) => [`metadata[${k}]`, String(v)])),
   });
@@ -90,8 +93,15 @@ test('pay for a launch with Stripe Checkout and see it activated', async ({ page
   await page.getByRole('button', { name: /^Complete order/ }).click();
 
   // 3) Stripe sends the buyer back; our confirm route verifies with Stripe and activates.
-  await page.waitForURL(/activate-launch\/.*session_id=cs_live_/, { timeout: 90_000 });
-  await expect(page.getByText('Launch activated!')).toBeVisible({ timeout: 30_000 });
+  if (WEBHOOK_ONLY) {
+    await page.waitForURL(/\?qa=webhook/, { timeout: 90_000 });
+    await expect
+      .poll(async () => (await serviceDb().from('products').select('isPaid').eq('id', product.id).single()).data?.isPaid, { timeout: 60_000 })
+      .toBe(true);
+  } else {
+    await page.waitForURL(/activate-launch\/.*session_id=cs_live_/, { timeout: 90_000 });
+    await expect(page.getByText('Launch activated!')).toBeVisible({ timeout: 30_000 });
+  }
 
   const after = (await serviceDb().from('products').select('isPaid, launch_start, week').eq('id', product.id).single()).data!;
   expect(after.isPaid).toBe(true);
@@ -101,8 +111,10 @@ test('pay for a launch with Stripe Checkout and see it activated', async ({ page
   expect(payments![0].amount_total).toBe(0);
   expect(['paid', 'no_payment_required']).toContain(payments![0].payment_status);
 
-  // Visiting the success URL again must not create a second payment row.
-  await page.reload();
-  await expect(page.getByText('Launch activated!')).toBeVisible({ timeout: 30_000 });
+  // Visiting the success URL again (or a webhook retry) must not create a second payment row.
+  if (!WEBHOOK_ONLY) {
+    await page.reload();
+    await expect(page.getByText('Launch activated!')).toBeVisible({ timeout: 30_000 });
+  }
   expect((await serviceDb().from('payments').select('id').eq('product_id', product.id)).data).toHaveLength(1);
 });
