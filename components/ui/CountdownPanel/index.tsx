@@ -2,6 +2,8 @@
 
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { Heart } from 'lucide-react';
+import { isFinalHours, votingDeadline } from '@/utils/votingDeadline';
 
 const SponsorSkeleton = () => (
   <div className="mt-3 w-80 text-left sm:block border border-slate-700 bg-slate-900 rounded-md p-4 animate-pulse">
@@ -89,29 +91,66 @@ const People = () => {
   );
 };
 
-// Voting for the week closes at the end of Monday (UTC); the next launch week starts Tuesday.
-function votingDeadline(now: moment.Moment) {
-  if (now.day() === 0 || now.day() === 1) return now.clone().day(1).endOf('day');
-  return now.clone().startOf('isoWeek').add(1, 'week').endOf('day');
-}
-
-function Countdown() {
+function useNow() {
   const [now, setNow] = useState<moment.Moment | null>(null);
-
   useEffect(() => {
     setNow(moment().utc());
     const timer = setInterval(() => setNow(moment().utc()), 1000);
     return () => clearInterval(timer);
   }, []);
+  return now;
+}
 
-  if (!now) return <span className="font-mono text-slate-100">--</span>;
-  const diff = moment.duration(votingDeadline(now).diff(now));
-  const days = Math.floor(diff.asHours() / 24);
-  const pad = (n: number) => String(n).padStart(2, '0');
+function TimePart({ value, unit, tick = false }: { value: string; unit: string; tick?: boolean }) {
   return (
-    <span className="font-mono text-slate-100 tabular-nums">
-      {days > 0 && `${days}d `}
-      {pad(diff.hours())}h {pad(diff.minutes())}m {pad(diff.seconds())}s
+    <span className="inline-flex items-baseline rounded-md border border-slate-700/80 bg-slate-950/60 px-1.5 py-0.5">
+      <span key={tick ? value : undefined} className={`text-slate-50 ${tick ? 'inline-block motion-safe:animate-tick' : ''}`}>
+        {value}
+      </span>
+      <span className="text-slate-500">{unit}</span>
+    </span>
+  );
+}
+
+// Live "voting closes in" pill: the heart and the ring beat every second, faster and red in the
+// final 24 hours.
+function VotingCountdown() {
+  const now = useNow();
+  const diff = now ? moment.duration(votingDeadline(now).diff(now)) : null;
+  const final = !!now && isFinalHours(now);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const color = final ? 'text-rose-400' : 'text-orange-400';
+
+  return (
+    <span
+      style={{ ['--beat-color' as string]: final ? 'rgb(244 63 94 / 0.45)' : 'rgb(249 115 22 / 0.4)' }}
+      className={`inline-flex items-center gap-x-2.5 rounded-full border py-1.5 pl-3 pr-1.5 text-sm backdrop-blur ${
+        final ? 'border-rose-500/50 bg-rose-500/[0.08]' : 'border-orange-500/40 bg-orange-500/[0.06]'
+      } ${now ? (final ? 'motion-safe:animate-heartbeat-ring-fast' : 'motion-safe:animate-heartbeat-ring') : ''}`}
+    >
+      <Heart
+        aria-hidden
+        className={`h-4 w-4 flex-none fill-current ${color} ${final ? 'motion-safe:animate-heartbeat-fast' : 'motion-safe:animate-heartbeat'}`}
+      />
+      {final ? (
+        <span className="font-medium text-rose-200">
+          Final hours!<span className="hidden sm:inline"> Voting closes in</span>
+        </span>
+      ) : (
+        <span className="text-slate-300">Voting closes in</span>
+      )}
+      <span className="flex items-center gap-x-1 font-mono text-[13px] tabular-nums">
+        {diff ? (
+          <>
+            {Math.floor(diff.asHours() / 24) > 0 && <TimePart value={String(Math.floor(diff.asHours() / 24))} unit="d" />}
+            <TimePart value={pad(diff.hours())} unit="h" />
+            <TimePart value={pad(diff.minutes())} unit="m" />
+            <TimePart value={pad(diff.seconds())} unit="s" tick />
+          </>
+        ) : (
+          <TimePart value="--" unit="" />
+        )}
+      </span>
     </span>
   );
 }
@@ -163,13 +202,7 @@ export default () => (
       aria-hidden
       className="pointer-events-none absolute -inset-x-40 -top-24 -z-10 h-[420px] bg-[radial-gradient(ellipse_40%_50%_at_50%_0%,rgb(249_115_22/0.07),transparent)]"
     />
-    <span className="inline-flex items-center gap-x-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-xs text-slate-400 backdrop-blur">
-      <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-60 motion-safe:animate-ping" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500" />
-      </span>
-      This week&apos;s voting closes in <Countdown />
-    </span>
+    <VotingCountdown />
     <h1 className="mt-6 text-[2rem] font-semibold tracking-tight text-slate-50 leading-[1.1] [text-wrap:balance] sm:text-6xl sm:leading-[1.05]">
       The best new dev tools, <br className="hidden sm:block" />
       <span className="text-slate-500">voted by developers.</span>

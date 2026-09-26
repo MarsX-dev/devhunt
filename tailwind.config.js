@@ -30,6 +30,21 @@ module.exports = {
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       keyframes: {
+        // One "lub-dub" per second for the voting countdown.
+        heartbeat: {
+          '0%, 40%, 100%': { transform: 'scale(1)' },
+          '10%': { transform: 'scale(1.25)' },
+          '20%': { transform: 'scale(1.05)' },
+          '30%': { transform: 'scale(1.2)' },
+        },
+        heartbeatRing: {
+          '0%': { boxShadow: '0 0 0 0 var(--beat-color)' },
+          '70%, 100%': { boxShadow: '0 0 0 10px transparent' },
+        },
+        tick: {
+          from: { opacity: 0, transform: 'translateY(-40%)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
         slideUp: {
           from: { opacity: 0, transform: 'translateY(12px)' },
           to: { opacity: 1, transform: 'translateY(0)' },
@@ -45,6 +60,11 @@ module.exports = {
       },
       animation: {
         'slide-up': 'slideUp 500ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        heartbeat: 'heartbeat 1s ease-in-out infinite',
+        'heartbeat-fast': 'heartbeat 0.7s ease-in-out infinite',
+        'heartbeat-ring': 'heartbeatRing 1s ease-out infinite',
+        'heartbeat-ring-fast': 'heartbeatRing 0.7s ease-out infinite',
+        tick: 'tick 300ms cubic-bezier(0.16, 1, 0.3, 1) both',
         overlayShow: 'overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
         contentShow: 'contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
       },

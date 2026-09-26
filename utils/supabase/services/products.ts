@@ -69,23 +69,31 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
-  // Latest weekly winners, newest first, leaving out the week that is still running.
-  async getWeeklyWinners(excludeWeek: number = 0, excludeYear: number = 0, limit = 30): Promise<ExtendedProduct[]> {
-    const { data, error } = await this.supabase
+  // Weekly winners, newest first, one page of raw rows plus the total (the caller leaves out the
+  // week that is still running).
+  async getWeeklyWinnersPage(
+    offset: number,
+    limit: number,
+  ): Promise<{ total: number; rows: { week: number; year: number; product: ExtendedProduct }[] }> {
+    const { data, count, error } = await this.supabase
       .from('weekly_winners')
-      .select()
+      .select('*', { count: 'exact' })
       .order('year', { ascending: false })
       .order('week', { ascending: false })
-      .limit(limit + 1);
+      .range(offset, offset + limit - 1);
     if (error !== null) throw new Error(error.message);
-    return data
-      .filter(i => !(i.week === excludeWeek && Number(i.year) === excludeYear))
-      .slice(0, limit)
-      .map(i => ({
-        ...i.product_data.product,
-        product_pricing_types: i.product_data.product_pricing_types,
-        product_categories: i.product_data.product_categories,
-      })) as ExtendedProduct[];
+    return {
+      total: count ?? 0,
+      rows: data.map(i => ({
+        week: i.week as number,
+        year: Number(i.year),
+        product: {
+          ...i.product_data.product,
+          product_pricing_types: i.product_data.product_pricing_types,
+          product_categories: i.product_data.product_categories,
+        } as ExtendedProduct,
+      })),
+    };
   }
 
   async getPrevLaunchWeeks(

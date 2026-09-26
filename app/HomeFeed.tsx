@@ -11,17 +11,9 @@ import React, { Fragment, type ReactNode, useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import WinnerRow from '@/components/ui/WinnerRow';
+import SectionLabel from '@/components/ui/SectionLabel';
 
-const PAST_WINNERS = 30;
-
-function SectionLabel({ title, hint }: { title: string; hint?: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-x-4 border-b border-slate-800 pb-3">
-      <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">{title}</h2>
-      {hint && <p className="text-xs text-slate-500">{hint}</p>}
-    </div>
-  );
-}
+const PAST_WINNERS = 30; // shown at first, and loaded per "Show more"
 
 function getDate(weekStartDay: number): Date {
   let today = new Date();
@@ -38,13 +30,23 @@ function getDate(weekStartDay: number): Date {
   return today;
 }
 
-// Client part of the home page: this week's contestants as full cards, past winners as rows.
-export default function HomeFeed({ children, votesToday = {} }: { children?: ReactNode; votesToday?: Record<string, number> }) {
+// Client part of the home page: this week's contestants (top 3 as full cards), past winners as rows.
+// `children` render under the hero, `bottom` after the lists.
+export default function HomeFeed({
+  children,
+  bottom,
+  votesToday = {},
+}: {
+  children?: ReactNode;
+  bottom?: ReactNode;
+  votesToday?: Record<string, number>;
+}) {
   const weekStartDay = 2;
   const today = getDate(weekStartDay);
   const productService = new ProductsService(createBrowserClient());
   const [launchWeeks, setLaunchWeeks] = useState([]);
-  const [weeklyWinners, setWeeklyWinners] = useState([]);
+  const [weeklyWinners, setWeeklyWinners] = useState<ProductType[]>([]);
+  const [winners, setWinners] = useState({ offset: 0, total: 0, loadingMore: false });
   const [isLoading, setLoading] = useState(true);
 
   const [currentWeek, setCurrentWeek] = useState<number>();
@@ -53,12 +55,16 @@ export default function HomeFeed({ children, votesToday = {} }: { children?: Rea
     const fetchData = async () => {
       const week = await productService.getWeekNumber(today, weekStartDay);
       setCurrentWeek(week);
-      const [launchWeeks, weeklyWinners] = await Promise.all([
+      const [launchWeeks, firstWinners] = await Promise.all([
         productService.getPrevLaunchWeeks(today.getFullYear(), weekStartDay, week, 1),
-        productService.getWeeklyWinners(week, today.getFullYear(), PAST_WINNERS),
+        productService.getWeeklyWinnersPage(0, PAST_WINNERS + 1), // +1: the running week is left out
       ]);
+      const isRunningWeek = (row: { week: number; year: number }) => row.week === week && row.year === today.getFullYear();
+      const shown = firstWinners.rows.filter(row => !isRunningWeek(row)).slice(0, PAST_WINNERS);
+      const skipped = firstWinners.rows.some(isRunningWeek) ? 1 : 0;
       setLaunchWeeks(launchWeeks as any);
-      setWeeklyWinners(weeklyWinners as any);
+      setWeeklyWinners(shown.map(row => row.product as ProductType));
+      setWinners({ offset: shown.length + skipped, total: firstWinners.total, loadingMore: false });
       setLoading(false);
     };
     fetchData();
@@ -96,7 +102,15 @@ export default function HomeFeed({ children, votesToday = {} }: { children?: Rea
     );
   }
 
+  async function showMoreWinners() {
+    setWinners(state => ({ ...state, loadingMore: true }));
+    const next = await productService.getWeeklyWinnersPage(winners.offset, PAST_WINNERS);
+    setWeeklyWinners(current => [...current, ...next.rows.map(row => row.product as ProductType)]);
+    setWinners(state => ({ offset: state.offset + next.rows.length, total: next.total, loadingMore: false }));
+  }
+
   function weekWinnerTools(products: ProductType[]) {
+    const remaining = Math.max(0, winners.total - winners.offset);
     return (
       <div id="past-winners" className="mt-14">
         <SectionLabel title="Past winners" hint={`Top tool of each of the last ${products.length} weeks`} />
@@ -105,6 +119,15 @@ export default function HomeFeed({ children, votesToday = {} }: { children?: Rea
             <WinnerRow key={product.id} tool={product} />
           ))}
         </ul>
+        {remaining > 0 && (
+          <button
+            onClick={() => void showMoreWinners()}
+            disabled={winners.loadingMore}
+            className="mt-3 w-full rounded-xl border border-slate-800 py-2.5 text-sm text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50 disabled:opacity-60"
+          >
+            {winners.loadingMore ? 'Loading...' : `Show more (${remaining} more winners)`}
+          </button>
+        )}
       </div>
     );
   }
@@ -134,6 +157,7 @@ export default function HomeFeed({ children, votesToday = {} }: { children?: Rea
           {weekWinnerTools(weeklyWinners)}
         </div>
       )}
+      {bottom}
     </section>
   );
 }

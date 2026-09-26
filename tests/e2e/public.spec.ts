@@ -151,3 +151,25 @@ test('home page feels live: activity strip, top 3 as full cards, the rest compac
   await settle(page);
   expect(errors).toEqual([]);
 });
+
+test('past winners load more, categories link to their pages, countdown is running', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('isNewsletterActive', 'true'));
+  await page.goto('/');
+  await expect(page.getByText(/^(Voting closes in|Final hours!)/)).toBeVisible();
+
+  const winners = page.locator('#past-winners li');
+  await expect(winners.first()).toBeVisible();
+  const before = await winners.count();
+  const more = page.getByRole('button', { name: /^Show more \(\d+ more winners\)$/ });
+  const remaining = Number((await more.innerText()).match(/\d+/)![0]);
+  await more.click();
+  await expect(winners).toHaveCount(before + Math.min(30, remaining));
+
+  const category = page.locator('#categories a').first();
+  await expect(category).toBeVisible();
+  expect(await page.locator('#categories a').count()).toBeGreaterThan(10);
+  const href = await category.getAttribute('href');
+  await category.click();
+  await expect(page).toHaveURL(new RegExp(`${href}$`));
+  await expect(page.getByRole('heading').first()).toBeVisible();
+});
