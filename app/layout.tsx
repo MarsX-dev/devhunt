@@ -59,7 +59,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const user = session?.user;
   const profileService = new ProfileService(createServerClient());
   const profile = user ? await profileService.getById(user?.id) : null;
-  const profileNoCache = user ? await profileService.getByIdWithNoCache(user?.id) : null;
 
   return (
     <html lang="en" className="bg-slate-900">
@@ -97,7 +96,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ChatWindow />
           <SupabaseProvider user={profile as Profile} session={session}>
             <SupabaseListener serverAccessToken={session?.access_token} />
-            <ProfileFormModal isModalOpen={user ? (profileNoCache?.social_url == null ? true : false) : false} />
+            <ProfileFormModal isModalOpen={user ? (profile?.social_url == null ? true : false) : false} />
             <Banner />
             <Navbar />
             <ModalBannerCodeClient />

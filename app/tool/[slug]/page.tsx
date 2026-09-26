@@ -71,9 +71,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   // const supabaseBrowserClient = createServerClient();
   const supabaseBrowserClient = createBrowserClient();
 
-  const supabase = await createServerClient();
-  const { data, error } = await supabase.auth.getUser();
-
   const productsService = new ProductsService(supabaseBrowserClient);
   const product = await productsService.getBySlug(slug, true);
   if (!product || product.deleted) notFound();
