@@ -52,11 +52,11 @@ export default () => {
   };
 
   const navigation = [
-    { title: 'Advertise', path: '/the-story#ads', className:'text-orange-500' },
+    { title: 'Advertise', path: '/the-story#ads', className: 'text-orange-400 hover:text-orange-300' },
     {
       title: 'Submit your Dev Tool',
       path: isLoggedin ? '/account/tools' : '/login',
-      className: 'bg-orange-500 hover:bg-orange-600 text-white text-center rounded-lg px-3 p-2 duration-150 btnshake',
+      className: 'bg-slate-50 hover:bg-white text-slate-900 font-medium text-center rounded-full px-4 py-1.5 duration-150',
     },
   ];
   const submenu = [
@@ -82,7 +82,7 @@ export default () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-30 bg-slate-900 border-b border-slate-800 w-full">
+      <nav className="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800/70 w-full">
         <div className="custom-screen items-center py-3 lg:flex">
           <div className="flex items-center justify-between lg:block">
             <Link href="/">
@@ -178,10 +178,10 @@ export default () => {
         </div>
       </nav>
       {isBannerActive && !isLoggedin ? (
-        <div className="animate-bottom-bannner fixed bottom-10 inset-x-0 z-30 max-w-xl mx-auto px-4">
-          <div className=" flex items-center gap-x-3 bg-slate-800 p-3 rounded-lg">
-            <div className="flex items-center justify-center rounded-full w-12 h-12 border-slate-700 bg-slate-900/70 text-slate-300">
-              <BellAlertIcon className="w-6 h-6" />
+        <div className="animate-bottom-bannner fixed bottom-6 inset-x-0 z-30 max-w-xl mx-auto px-4">
+          <div className="flex items-center gap-x-3 rounded-2xl border border-slate-700/80 bg-slate-900/90 p-3 shadow-2xl shadow-black/40 backdrop-blur-md">
+            <div className="flex flex-none items-center justify-center rounded-xl w-10 h-10 bg-slate-800 text-orange-400">
+              <BellAlertIcon className="w-5 h-5" />
             </div>
             <p className="flex-1 text-sm text-slate-300">
               <button

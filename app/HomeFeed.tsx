@@ -14,6 +14,15 @@ import WinnerRow from '@/components/ui/WinnerRow';
 
 const PAST_WINNERS = 30;
 
+function SectionLabel({ title, hint }: { title: string; hint?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-x-4 border-b border-slate-800 pb-3">
+      <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">{title}</h2>
+      {hint && <p className="text-xs text-slate-500">{hint}</p>}
+    </div>
+  );
+}
+
 function getDate(weekStartDay: number): Date {
   let today = new Date();
   const year = today.getFullYear();
@@ -56,16 +65,15 @@ export default function HomeFeed({ children }: { children?: ReactNode }) {
   }, []);
 
   function weekTools(group: { products: ProductType[] }) {
+    const contestants = group.products.filter(product => product.week == currentWeek && product.launch_start);
     return (
       <>
-        <div className="mt-3 text-slate-400 text-sm">
-          Vote for your favorite dev tool this week<b className="text-orange-400">👇</b>
-        </div>
-        <ul className="mt-3 divide-y divide-slate-800/60">
-          {group.products.map((product: ProductType, idx: number) => (
+        <SectionLabel title="This week's launches" hint="Vote for your favorite 👇" />
+        <ul className="mt-2 divide-y divide-slate-800/70">
+          {contestants.map((product: ProductType, idx: number) => (
             <Fragment key={product.id ?? idx}>
               {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              {product.week == currentWeek && product.launch_start && <ToolCardEffect tool={product as ProductType} />}
+              <ToolCardEffect tool={product as ProductType} rank={idx + 1} />
             </Fragment>
           ))}
         </ul>
@@ -90,10 +98,9 @@ export default function HomeFeed({ children }: { children?: ReactNode }) {
 
   function weekWinnerTools(products: ProductType[]) {
     return (
-      <div id="past-winners" className="border-t border-slate-800 pt-8 mt-8">
-        <p className="text-sm text-orange-500">Past winners 👑</p>
-        <p className="mt-1 text-xs text-slate-500">The top tool of each of the last {products.length} weeks</p>
-        <ul className="mt-3">
+      <div id="past-winners" className="mt-14">
+        <SectionLabel title="Past winners" hint={`Top tool of each of the last ${products.length} weeks`} />
+        <ul className="mt-2">
           {products.map(product => (
             <WinnerRow key={product.id} tool={product} />
           ))}
@@ -104,8 +111,8 @@ export default function HomeFeed({ children }: { children?: ReactNode }) {
 
   return (
     <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
-      {children}
       <CountdownPanel />
+      {children}
       <MonitizorAdCards />
       {isLoading ? (
         <div className="mt-14">
@@ -122,7 +129,7 @@ export default function HomeFeed({ children }: { children?: ReactNode }) {
           </ul>
         </div>
       ) : (
-        <div className="mt-10 mb-12">
+        <div className="mt-12 mb-12">
           {launchWeeks.map((group, index) => (index > 0 ? prevWeekTools(group) : weekTools(group)))}
           {weekWinnerTools(weeklyWinners)}
         </div>

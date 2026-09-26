@@ -1,7 +1,7 @@
 import Navbar from '@/components/ui/Navbar';
 import './globals.css';
 import './prismjs-theme.css';
-import { Inter } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 
 import SupabaseListener from '@/components/supabase/listener';
@@ -46,6 +46,7 @@ export const metadata = {
 };
 
 const inter = Inter({ subsets: ['latin'] });
+const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 // do not cache this layout
 export const revalidate = 0;
@@ -89,8 +90,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
       </head>
-      <body className={inter.className} id="root">
-        <main>
+      <body className={`${inter.className} ${mono.variable} antialiased`} id="root">
+        <main className="overflow-x-clip">
           <ChatWindow />
           <SupabaseProvider user={profile as Profile} session={session}>
             <SupabaseListener serverAccessToken={session?.access_token} />

@@ -14,15 +14,15 @@ export default function WinnerRow({ tool }: { tool: ProductType }) {
         <img
           src={(tool.logo_url || '').replace(/w=\d+/g, 'w=64')}
           alt={tool.name}
-          className="w-8 h-8 flex-none rounded-md object-cover"
+          className="w-8 h-8 flex-none rounded-lg object-cover bg-slate-800 ring-1 ring-slate-800"
           loading="lazy"
         />
         <span className="min-w-0 flex-1 truncate text-sm">
           <span className="font-medium text-slate-100">{tool.name}</span>
-          <span className="text-slate-400"> · {tool.slogan}</span>
+          <span className="text-slate-500"> · {tool.slogan}</span>
         </span>
-        <span className="hidden sm:block flex-none text-xs text-slate-500">{moment.utc(tool.launch_start).format('MMM D, YYYY')}</span>
-        <span className="flex flex-none items-center gap-x-1 text-sm text-slate-300 tabular-nums">
+        <span className="hidden sm:block flex-none font-mono text-xs text-slate-600">{moment.utc(tool.launch_start).format('MMM D, YY')}</span>
+        <span className="flex w-14 flex-none items-center justify-end gap-x-1 font-mono text-sm text-slate-400 tabular-nums">
           <IconVote className="w-4 h-4" />
           {tool.votes_count}
         </span>

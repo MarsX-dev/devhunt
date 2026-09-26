@@ -90,7 +90,7 @@ const BlurBg = () => (
           <feGaussianBlur stdDeviation="31" result="effect1_foregroundBlur_247_126" />
         </filter>
         <linearGradient id="paint0_linear_247_126" x1="235.5" y1="26.9787" x2="234.581" y2="134.098" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#334155" />
+          <stop stop-color="#393633" />
           <stop offset="0.0596354" stop-color="#D1D5DB" />
           <stop offset="0.693271" stop-color="#F97316" />
         </linearGradient>

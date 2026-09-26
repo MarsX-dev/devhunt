@@ -8,7 +8,7 @@ export default ({ src, className, imgClassName, alt }: { src: string; className?
     <img
       src={src.replace(regexPattern, replacement)}
       alt={alt as string}
-      className={mergeTW(`rounded-full w-16 h-16 object-cover  ${imgClassName}`)}
+      className={mergeTW(`rounded-xl w-14 h-14 object-cover bg-slate-800 ring-1 ring-slate-800  ${imgClassName}`)}
       loading="lazy"
     />
   </div>

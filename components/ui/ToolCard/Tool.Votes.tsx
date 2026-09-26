@@ -67,13 +67,13 @@ export default ({
         onClick={toggleVote}
         id="vote-item"
         className={mergeTW(
-          `px-4 py-1 text-center text-slate-400 active:scale-[1.5] duration-200 rounded-md border bg-[linear-gradient(180deg,_#1E293B_0%,_rgba(30,_41,_59,_0.00)_100%)] ${
-            isUpvoted ? 'text-orange-600 border-orange-600' : 'border-slate-700 hover:text-orange-300'
+          `w-14 py-1.5 text-center text-slate-300 active:scale-110 duration-200 rounded-xl border bg-slate-900 ${
+            isUpvoted ? 'text-orange-500 border-orange-500/70 bg-orange-500/10' : 'border-slate-800 hover:border-slate-600 hover:text-slate-50'
           } ${className} ${isLaunchEnd ? ' opacity-60' : ''}`,
         )}
       >
         <IconVote className="mt-1 w-4 h-4 mx-auto pointer-events-none" />
-        <span className="text-sm pointer-events-none">{votesCount}</span>
+        <span className="block font-mono text-sm tabular-nums pointer-events-none">{votesCount}</span>
       </button>
       <Modal
         isActive={isModalActive}

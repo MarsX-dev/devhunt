@@ -28,25 +28,25 @@ export default function SiteStatsBar({ items }: { items: StatItem[] }) {
   }, []);
 
   return (
-    <dl id="site-stats" className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800">
+    <dl id="site-stats" className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800">
       {items.map(item => {
         const counts = typeof item.value === 'number';
         const delta = item.delta ?? 0;
         const shown = counts ? formatStat(Math.round((item.value as number) - delta * (1 - progress))) : item.value;
         return (
-          <div key={item.label} className="bg-slate-900 px-4 py-3">
-            <dd className="flex items-baseline gap-x-2">
-              <span className="text-lg font-semibold text-slate-50 tabular-nums">{shown}</span>
+          <div key={item.label} className="bg-slate-900 px-4 py-3.5 sm:px-5">
+            <dd className="flex flex-wrap items-baseline gap-x-2">
+              <span className="text-xl font-semibold tracking-tight text-slate-50 tabular-nums">{shown}</span>
               {delta > 0 && (
                 <span
-                  className="text-xs font-medium text-green-400 tabular-nums transition-all duration-500 ease-out"
+                  className="whitespace-nowrap font-mono text-[11px] text-green-400 tabular-nums transition-all duration-500 ease-out"
                   style={{ opacity: progress > 0 ? 1 : 0, transform: `translateY(${progress > 0 ? 0 : 6}px)` }}
                 >
                   +{formatStat(delta)} {item.deltaLabel}
                 </span>
               )}
             </dd>
-            <dt className="text-xs text-slate-400">{item.label}</dt>
+            <dt className="mt-0.5 text-xs text-slate-500">{item.label}</dt>
           </div>
         );
       })}

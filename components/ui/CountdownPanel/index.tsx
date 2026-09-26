@@ -74,109 +74,45 @@ const People = () => {
   ];
 
   return (
-    <div className="mt-3">
-      <ul className="max-w-4xl mx-auto gap-3 flex flex-wrap items-center">
-        {people.map(person => (
-          <li key={person.href} className="flex-none w-8 h-8 hover:scale-105 duration-200 sm:w-10 sm:h-10">
-            <a data-state="closed" href={person.href}>
-              <span>
-                {person.image ? (
-                  <img
-                    className={`w-full h-full object-cover rounded-xl ${person.hasBorder ? 'border-2 border-orange-500' : ''}`}
-                    alt={person.name}
-                    src={person.image}
-                  />
-                ) : (
-                  <span className="flex border border-2 border-slate-600 items-center justify-center text-slate-400 h-full w-full bg-slate-800 text-[10px] font-medium rounded-xl">
-                    {person.initials}
-                  </span>
-                )}
-              </span>
+    <ul className="flex -space-x-2">
+      {people
+        .filter(person => person.image)
+        .slice(0, 8)
+        .map(person => (
+          <li key={person.href} className="flex-none hover:z-10 hover:-translate-y-0.5 duration-150">
+            <a href={person.href} title={person.name}>
+              <img className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-900" alt={person.name} src={person.image} />
             </a>
           </li>
         ))}
-      </ul>
-    </div>
+    </ul>
   );
 };
 
-function RenderDatePart({ number, letter }: { number: number; letter: string }) {
-  return (
-    <div className="rounded-md p-[1px] overflow-hidden bg-gradient-to-b from-[#514b6130] to-[#514b6100]">
-      <div className="py-2 px-3 rounded-md w-11 leading-4 flex items-center justify-center bg-gradient-to-b from-[#51269c40] to-[#DBB8BF10] backdrop-blur-md">
-        <span className="m-0">{number}</span>
-        <span>{letter}</span>
-      </div>
-    </div>
-  );
+// Voting for the week closes at the end of Monday (UTC); the next launch week starts Tuesday.
+function votingDeadline(now: moment.Moment) {
+  if (now.day() === 0 || now.day() === 1) return now.clone().day(1).endOf('day');
+  return now.clone().startOf('isoWeek').add(1, 'week').endOf('day');
 }
 
-function DatePartSkeleton() {
-  return (
-    <div className="rounded-md p-[1px] bg-slate-700 animate-pulse">
-      <div className="w-9 h-7"></div>
-    </div>
-  );
-}
-
-function RenderCountdown() {
-  const [isLoading, setLoading] = useState(true);
-  let [now, setNow] = useState(moment().utc());
-  let nextMondayNight;
-
-  if (now.day() === 0 || (now.day() === 1 && now.hour() < 24)) {
-    nextMondayNight = now.clone().endOf('d');
-
-    if (now.day() === 0) {
-      nextMondayNight = nextMondayNight.add(1, 'd');
-    }
-  } else {
-    nextMondayNight = now.clone().startOf('isoWeek').add(1, 'week').day('Monday').endOf('d');
-  }
-  const diff = moment.duration(nextMondayNight.diff(now));
-
-  const [days, setdays] = useState(Math.floor(diff.asHours() / 24));
-  const [hours, setHours] = useState(diff.hours());
-  const [minutes, setMinutes] = useState(diff.minutes());
-  const [seconds, setSeconds] = useState(diff.seconds());
+function Countdown() {
+  const [now, setNow] = useState<moment.Moment | null>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setNow(moment().utc());
-      setSeconds(diff.seconds());
-      setMinutes(diff.minutes());
-      setHours(diff.hours());
-      setdays(Math.floor(diff.asHours() / 24));
-    }, 1000);
-  }, [now]);
-
-  useEffect(() => {
-    setLoading(false);
+    setNow(moment().utc());
+    const timer = setInterval(() => setNow(moment().utc()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  return isLoading ? (
-    <>
-      <DatePartSkeleton />
-      :
-      <DatePartSkeleton />
-      :
-      <DatePartSkeleton />
-      :
-      <DatePartSkeleton />
-    </>
-  ) : (
-    <>
-      {days > 0 ? (
-        <>
-          <RenderDatePart number={days} letter="d" /> :{' '}
-        </>
-      ) : (
-        <></>
-      )}
-      <RenderDatePart number={hours} letter="h" /> :
-      <RenderDatePart number={minutes} letter="m" /> :
-      <RenderDatePart number={seconds} letter="s" />
-    </>
+  if (!now) return <span className="font-mono text-slate-100">--</span>;
+  const diff = moment.duration(votingDeadline(now).diff(now));
+  const days = Math.floor(diff.asHours() / 24);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    <span className="font-mono text-slate-100 tabular-nums">
+      {days > 0 && `${days}d `}
+      {pad(diff.hours())}h {pad(diff.minutes())}m {pad(diff.seconds())}s
+    </span>
   );
 }
 
@@ -220,31 +156,35 @@ const SponsorsSection = () => {
   );
 };
 
-export default () => {
-  return (
-    <div className="flex rounded-xl  flex-col gap-1 md:gap-2">
-      <div className="flex flex-col  gap-3">
-        <h1 className="text-slate-200 text-xl font-bold">Find Best Dev Tools Voted by Developers!</h1>
-        <p>
-          <span className="text-2xl font-bold mb-4 text-orange-500">Vote Closing In: </span>
-        </p>
-        <div className="text-slate-100 flex gap-1 items-center">
-          <RenderCountdown />
-        </div>
-        <div className="max-w-lg mt-2 text-slate-400">
-          100k+ developers found Dev Tools here.
-          <People />
-          <div className="mt-3 block">
-            See how{' '}
-            <a className="underline transition-opacity hover:text-scale-1200" href="https://x.com/johnrush/status/1661534492949872641">
-              it started
-            </a>
-            .
-          </div>
-          <div className="block p-2"></div>
-          {/*<SponsorsSection />*/}
-        </div>
-      </div>
+export default () => (
+  <div className="relative isolate pt-6 pb-10 sm:pt-12 text-center">
+    <div aria-hidden className="bg-dot-grid pointer-events-none absolute -inset-x-40 -top-24 h-[460px] -z-10" />
+    <div
+      aria-hidden
+      className="pointer-events-none absolute -inset-x-40 -top-24 -z-10 h-[420px] bg-[radial-gradient(ellipse_40%_50%_at_50%_0%,rgb(249_115_22/0.07),transparent)]"
+    />
+    <span className="inline-flex items-center gap-x-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-xs text-slate-400 backdrop-blur">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-60 motion-safe:animate-ping" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-500" />
+      </span>
+      This week&apos;s voting closes in <Countdown />
+    </span>
+    <h1 className="mt-6 text-[2rem] font-semibold tracking-tight text-slate-50 leading-[1.1] [text-wrap:balance] sm:text-6xl sm:leading-[1.05]">
+      The best new dev tools, <br className="hidden sm:block" />
+      <span className="text-slate-500">voted by developers.</span>
+    </h1>
+    <p className="mt-5 mx-auto max-w-lg text-slate-400">
+      New launches every Tuesday. The community votes all week, and the top tool is crowned the winner.
+    </p>
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-400">
+      <People />
+      <span>
+        100k+ developers found tools here ·{' '}
+        <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641">
+          how it started
+        </a>
+      </span>
     </div>
-  );
-};
+  </div>
+);

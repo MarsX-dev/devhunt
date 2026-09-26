@@ -60,7 +60,33 @@ ul > li:last-child:last-of-type .comment-divided-bar {
 }
 
 .animate-bottom-bannner {
-  animation: bounce 1s infinite;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 1.5s both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Faint dot grid that fades out towards the edges (home hero). */
+.bg-dot-grid {
+  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bottom-bannner,
+  .btnshake {
+    animation: none;
+  }
 }
 
 @keyframes bounce {

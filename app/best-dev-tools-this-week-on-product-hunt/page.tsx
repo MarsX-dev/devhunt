@@ -62,7 +62,7 @@ export default async () => {
                   </ToolFooter>
                 </div>
               </div>
-              <div className="px-4 py-1 text-center active:scale-[1.5] duration-200 rounded-md border bg-[linear-gradient(180deg,_#1E293B_0%,_rgba(30,_41,_59,_0.00)_100%)] border-slate-700 text-orange-300">
+              <div className="px-4 py-1 text-center active:scale-[1.5] duration-200 rounded-md border bg-[linear-gradient(180deg,_#252321_0%,_rgba(37,_35,_33,_0.00)_100%)] border-slate-700 text-orange-300">
                 <span className="text-sm pointer-events-none">#{idx + 1}</span>
               </div>
             </ProductHuntCard>

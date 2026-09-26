@@ -15,7 +15,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
 
-export default ({ tool }: { tool: ProductType }) => {
+export default ({ tool, rank }: { tool: ProductType; rank?: number }) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true });
 
@@ -30,6 +30,13 @@ export default ({ tool }: { tool: ProductType }) => {
     <li ref={cardRef} className="py-3">
       <ToolCard tool={tool} href={'/tool/' + tool.slug}>
         <div className="w-full flex items-center gap-x-4">
+          {rank && (
+            <span
+              className={`hidden sm:block w-6 flex-none text-right font-mono text-sm tabular-nums ${rank <= 3 ? 'text-orange-500' : 'text-slate-600'}`}
+            >
+              {rank}
+            </span>
+          )}
           <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="flex-none">
             <Logo src={tool.logo_url || ''} alt={tool.name} />
           </Link>

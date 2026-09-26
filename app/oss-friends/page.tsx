@@ -36,7 +36,7 @@ export default async () => {
             href={item.href}
             key={key}
             target="_blank"
-            className="flex flex-col no-underline group relative space-y-3 w-full border border-slate-800 rounded-lg p-5 bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-800 duration-200"
+            className="flex flex-col no-underline group relative space-y-3 w-full border border-slate-800 rounded-lg p-5 bg-[linear-gradient(179.23deg,_#252321_0.66%,_rgba(37,_35,_33,_0)_255.99%)] hover:bg-slate-800 duration-200"
           >
             <h2 className="text-base text-slate-100 font-semibold">{item.name}</h2>
             <p className="text-sm text-slate-300">{item.description}</p>
