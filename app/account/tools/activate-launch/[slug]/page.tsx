@@ -1,223 +1,163 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import PaymentForm from '@/components/ui/PaymentForm';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import ProductsService from '@/utils/supabase/services/products';
-import { useRouter } from 'next/navigation';
-import { IconLoading } from '@/components/Icons';
-import { Check } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import axios from 'axios';
+import moment from 'moment';
 import Link from 'next/link';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Check } from 'lucide-react';
+import { IconLoading } from '@/components/Icons';
+import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@/utils/supabase/browser';
+import { weekKey } from '@/utils/launchWeeks';
 
-type LaunchWeek = { startDate: string; endDate: string; week: number };
+type Tool = { id: number; name: string; owner_id: string; isPaid: boolean; launch_start: string; paid_launch_date: { startDate: string } | null };
 
-// Resolves the week a paid tool should actually launch in at payment time.
-//
-// The paid week is frozen into `paid_launch_date` at submission time. By the time
-// payment completes it may already have started (or fully passed) — e.g. the user
-// pays on the evening of launch day. Blindly applying the stored week would drop the
-// tool into an already-formed / live launch queue.
-//
-// We therefore honor the stored paid week only while its launch is still upcoming.
-// Otherwise we roll the paid tool forward to the nearest upcoming launch week. Paid
-// tools "skip the queue", so we intentionally ignore per-week capacity here — the goal
-// is simply to land them in the soonest launch that hasn't started yet.
-async function resolveTargetLaunchWeek(
-  productsService: ProductsService,
-  storedPaidDate: LaunchWeek | null,
-): Promise<LaunchWeek | null> {
-  const now = new Date();
-  const storedStart = storedPaidDate?.startDate ? new Date(storedPaidDate.startDate) : null;
+// Paid launch checkout: pick a week, pay with Stripe, and come back here to see the launch confirmed.
+// The launch is only marked as paid by the server after Stripe confirms the payment.
+export default function ActivateLaunch({ params: { slug } }: { params: { slug: string } }) {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams?.get('session_id') ?? null;
+  const canceled = searchParams?.get('canceled') ?? null;
+  const { session } = useSupabase();
 
-  // Honor the originally selected paid week only if its launch is still in the future.
-  if (storedStart && storedStart.getTime() > now.getTime()) {
-    return storedPaidDate;
-  }
+  const [tool, setTool] = useState<Tool | null>(null);
+  const [week, setWeek] = useState<string>(searchParams?.get('week') ?? '');
+  const [status, setStatus] = useState<'loading' | 'ready' | 'redirecting' | 'confirming' | 'activated' | 'error'>('loading');
+  const [error, setError] = useState('');
 
-  // Stale or missing: pick the nearest upcoming launch week. getProductsCountByWeek
-  // walks across calendar-year boundaries, so a future week is always found.
-  const currentWeek = await productsService.getWeekNumber(now, 2);
-  const weeks = await productsService.getProductsCountByWeek(currentWeek + 1, currentWeek + 60, now.getFullYear());
-  const nextWeek = weeks
-    .map(w => ({ week: w.week, startDate: w.startDate, endDate: w.endDate, ts: new Date(w.startDate).getTime() }))
-    .filter(w => w.ts > now.getTime())
-    .sort((a, b) => a.ts - b.ts)[0];
-
-  if (!nextWeek) return storedPaidDate ?? null;
-
-  return {
-    startDate: new Date(nextWeek.startDate).toISOString(),
-    endDate: new Date(nextWeek.endDate).toISOString(),
-    week: nextWeek.week,
-  };
-}
-
-export default ({ params: { slug } }: { params: { slug: string } }) => {
-  const [toolName, setToolName] = useState<string>('');
-  const [id, setId] = useState<number>();
-  const [userEmail, setEmail] = useState<string>('');
-  const [isPaymentFormActive, setPaymentFormActive] = useState<boolean>(false);
-  const [isPaid, setPaid] = useState<boolean>(false);
-  const [isDone, setDone] = useState<boolean>(false);
-  const [paidLaunchDate, setPaidLaunchDate] = useState<{ startDate: string; endDate: string; week: number } | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  // Handle payment form submission message
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data.type === 'submission') {
-        if (
-          e.origin === 'https://app.rapidforms.co' &&
-          e.data.data.completed &&
-          e.data.data.url.includes('https://app.rapidforms.co/embed/9365a8')
-        ) {
-          // Set a session storage flag to indicate payment was completed
-          setDone(true);
-        }
-      }
-    };
-
-    window.addEventListener('message', handleMessage, false);
-
-    return () => {
-      window.removeEventListener('message', handleMessage, false);
-    };
-  }, [slug]);
-
-  // Update product payment status when payment is completed
-  useEffect(() => {
-    const updateProductPaymentStatus = async () => {
-      if (!isDone || !id) return;
-
-      try {
-        if (isPaid) {
-          return;
-        }
-
-        const supabaseBrowserClient = createBrowserClient();
-        const productsService = new ProductsService(supabaseBrowserClient);
-
-        // Re-validate the frozen paid week so a late payment can never inject the tool
-        // into an already-formed / live launch queue.
-        const targetLaunchData = await resolveTargetLaunchWeek(productsService, paidLaunchDate);
-
-        if (!targetLaunchData) {
-          setError('Could not determine a valid launch week. Please contact support.');
-          return;
-        }
-
-        await productsService.update(id, {
-          isPaid: true,
-          launch_start: targetLaunchData.startDate,
-          launch_date: targetLaunchData.startDate,
-          launch_end: targetLaunchData.endDate,
-          week: targetLaunchData.week,
-        });
-
-        setPaid(true);
-        setPaymentFormActive(false);
-      } catch (err) {
-        console.error('Error updating product payment status:', err);
-        setError('Failed to update payment status. Please contact support.');
-      }
-    };
-
-    updateProductPaymentStatus();
-  }, [isDone, id, slug, paidLaunchDate]);
-
-  // Fetch tool information and check payment status
-  const getTool = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const supabaseBrowserClient = createBrowserClient();
-      const productsService = new ProductsService(supabaseBrowserClient);
-      const product = await productsService.getBySlug(slug, true);
-
-      if (!product) {
-        setError('Product not found');
-        setIsLoading(false);
-        return;
-      }
-
-      setId(product.id);
-      setToolName(product.name as string);
-      setPaidLaunchDate(product?.paid_launch_date as { startDate: string; endDate: string; week: number } | null);
-
-      const supabase = createClientComponentClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setEmail(user?.email as string);
-
-      // Check if product is already paid in database
-      if (product.isPaid) {
-        setPaid(true);
-        setPaymentFormActive(false);
-        router.push('/account/tools');
-        return;
-      }
-
-      // If we reach here, payment is needed
-      setPaymentFormActive(true);
-    } catch (err) {
-      console.error('Error fetching tool:', err);
-      setError('Failed to load tool information. Please try again.');
-    } finally {
-      setIsLoading(false);
+  const load = useCallback(async () => {
+    setStatus('loading');
+    setError('');
+    const { data } = await createBrowserClient()
+      .from('products')
+      .select('id, name, owner_id, isPaid, launch_start, paid_launch_date')
+      .eq('slug', slug)
+      .eq('deleted', false)
+      .single();
+    const product = data as Tool | null;
+    if (!product || (session && product.owner_id !== session.user.id)) {
+      setError('Tool not found.');
+      setStatus('error');
+      return;
     }
-  }, [slug, router]);
+    setTool(product);
+
+    if (sessionId) {
+      setStatus('confirming');
+      try {
+        const { data: result } = await axios.get(`/api/checkout/confirm?session_id=${encodeURIComponent(sessionId)}`);
+        if (result.status === 'activated' || result.status === 'already-activated') {
+          setTool({ ...product, isPaid: true, launch_start: result.launchStart });
+          setStatus('activated');
+          return;
+        }
+        setError('We could not confirm the payment yet. If you completed it, refresh this page in a minute.');
+      } catch {
+        setError('We could not confirm the payment. If you were charged, contact us and we will sort it out.');
+      }
+      setStatus('error');
+      return;
+    }
+
+    if (product.isPaid) {
+      setStatus('activated');
+      return;
+    }
+    if (!week && product.paid_launch_date) setWeek(weekKey(product.paid_launch_date.startDate));
+    setStatus('ready');
+  }, [slug, session, sessionId]);
 
   useEffect(() => {
-    getTool();
-  }, [getTool]);
+    if (session) void load();
+    else {
+      setError('Please sign in to continue.');
+      setStatus('error');
+    }
+  }, [session, load]);
+
+  const pay = async () => {
+    if (!tool) return;
+    setStatus('redirecting');
+    try {
+      const { data } = await axios.post('/api/checkout', { productId: tool.id, week: week || undefined });
+      window.location.href = data.url;
+    } catch (err: any) {
+      setError(err?.response?.data?.error ?? 'Could not start the payment, please try again.');
+      setStatus('ready');
+    }
+  };
+
+  const launchDate = week ? moment.utc(week).format('LL') : null;
 
   return (
     <section className="px-4">
-      {error && (
+      {status === 'error' && (
         <div className="py-12 mt-8 text-center">
           <div className="mb-4 inline-block rounded-full p-3 bg-gradient-to-br from-red-400 to-red-600">
             <span className="h-12 w-12 inline-flex items-center justify-center text-white text-xl">!</span>
           </div>
-          <h2 className="mb-3 text-xl font-bold text-white">Error</h2>
+          <h2 className="mb-3 text-xl font-bold text-white">Something went wrong</h2>
           <p className="mb-8 text-slate-300">{error}</p>
           <button
-            onClick={() => getTool()}
+            onClick={() => void load()}
             className="rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white hover:bg-blue-600 transition-colors"
           >
-            Try Again
+            Try again
           </button>
         </div>
       )}
 
-      {!error && isLoading && (
+      {(status === 'loading' || status === 'confirming') && (
         <div className="py-24 mt-8 text-center">
           <IconLoading className="mx-auto text-orange-500 w-8 h-8" />
-          <h1 className="text-xl text-white mt-6">Checking Your Tool...</h1>
+          <h1 className="text-xl text-white mt-6">{status === 'confirming' ? 'Confirming your payment...' : 'Checking your tool...'}</h1>
         </div>
       )}
 
-      {!error && !isLoading && isPaid && (
+      {status === 'activated' && tool && (
         <div className="text-center max-w-sm mx-auto py-24 mt-8">
           <div className="mb-4 inline-block rounded-full p-3 bg-gradient-to-br from-green-400 to-green-600">
             <Check className="h-12 w-12 text-white" strokeWidth={3} />
           </div>
-          <h2 className="mb-3 text-2xl font-bold text-white">Launch Activated Successfully!</h2>
-          <p className="mb-8 text-slate-300">Your tool launch on DevHunt has been activated successfully.</p>
+          <h2 className="mb-3 text-2xl font-bold text-white">Launch activated!</h2>
+          <p className="mb-8 text-slate-300">
+            {tool.name} launches on <b className="text-slate-100">{moment.utc(tool.launch_start).format('LL')}</b>.
+          </p>
           <Link
             href="/account/tools"
             className="w-full rounded-lg bg-green-500 px-6 py-3 font-semibold text-white hover:bg-green-600 transition-colors"
           >
-            Go to Dashboard
+            Go to dashboard
           </Link>
         </div>
       )}
 
-      <PaymentForm isActive={isPaymentFormActive} toolName={toolName} email={userEmail} />
+      {(status === 'ready' || status === 'redirecting') && tool && (
+        <div className="max-w-lg mx-auto py-16 mt-8 space-y-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-50">Launch {tool.name} for $49</h1>
+            <p className="mt-2 text-slate-400">Skip the free queue and launch in the week you choose.</p>
+          </div>
+          {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you're ready.</p>}
+          {error && <p className="text-sm text-red-400">{error}</p>}
+          <SelectLaunchDate
+            label="Launch week"
+            className="w-full"
+            value={week}
+            onChange={e => setWeek((e.target as HTMLSelectElement).value)}
+          />
+          <button
+            onClick={() => void pay()}
+            disabled={!week || status === 'redirecting'}
+            className="w-full rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white hover:bg-orange-400 disabled:opacity-50 transition-colors"
+          >
+            {status === 'redirecting' ? 'Opening secure checkout...' : `Pay $49${launchDate ? ` and launch on ${launchDate}` : ''}`}
+          </button>
+          <p className="text-xs text-slate-500">Payments are processed securely by Stripe.</p>
+        </div>
+      )}
     </section>
   );
-};
+}

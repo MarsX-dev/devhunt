@@ -186,16 +186,6 @@ export default () => {
     }
   }, [imagesError, logoError, errors.pricing_type]);
 
-  function getWeekDate(key: string) {
-    const weekData = allWeeks.find(i => weekKey(i.startDate) === key);
-    if (!weekData) return undefined;
-    return {
-      week: weekData.week,
-      startDate: new Date(weekData.startDate).toISOString(),
-      endDate: new Date(weekData.endDate).toISOString(),
-    };
-  }
-
   function selectWeek(key: string) {
     const selectedWeek = allWeeks.find(item => weekKey(item.startDate) === key);
     setValue('week', key, { shouldValidate: true });
@@ -205,121 +195,38 @@ export default () => {
   const nextWeek = allWeeks[0];
   const nextFreeWeek = findNearestAvailableDate(allWeeks);
 
-  function formatDate(dateString: string | Date) {
-    const date = new Date(dateString);
-    return date.toISOString().replace('.000Z', '+00:00');
-  }
-
   const onSubmit: SubmitHandler<Inputs> = async data => {
     try {
       scrollToErroView();
       if (validateImages() && (await validateToolName())) {
         const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week, submitType } = data;
-        const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
-
-        const categoryIds = categories.map(item => item.id);
-
-        const weekData = getWeekDate(week);
-        if (!weekData) {
-          alert('Please pick a launch week again.');
-          return;
-        }
 
         setLaunching(true);
-
-        const launchData: any = {};
-
-        // Re-fetch fresh week counts to avoid stale-data race condition where the
-        // queue fills up between page load and submission time.
-        // Search 260 weeks (~5 years) so a free slot is always found even if the
-        // near-term queue fills up. getProductsCountByWeek handles multi-year traversal.
-        const freshFetchDate = new Date();
-        const freshStartWeek = await productService.getWeekNumber(freshFetchDate, 2);
-        const freshWeeks = await productService.getProductsCountByWeek(freshStartWeek + 1, freshStartWeek + 260, freshFetchDate.getFullYear());
-
-        const availableDate = findNearestAvailableDate(freshWeeks);
-
-        // Re-check the selected week's count from fresh data.
-        // If the user picked a free week (normal) but it filled up since page load,
-        // downgrade them to the nearest free slot automatically.
-        const freshSelectedWeek = freshWeeks.find(w => weekKey(w.startDate) === week);
-        const selectedWeekIsFull = !freshSelectedWeek || freshSelectedWeek.count >= 15;
-        const effectiveSubmitType = submitType === 'normal' && selectedWeekIsFull ? 'free' : submitType;
-
-        if (effectiveSubmitType === 'free' && !availableDate) {
-          setLaunching(false);
-          alert('No free launch dates available right now. Please choose a paid week instead.');
-          return;
-        }
-
-        if (effectiveSubmitType === 'free') {
-          launchData.launch_date = formatDate(availableDate!.startDate);
-          launchData.launch_start = formatDate(availableDate!.startDate);
-          launchData.launch_end = formatDate(availableDate!.endDate);
-          launchData.week = availableDate!.week;
-        } else if (effectiveSubmitType === 'paid') {
-          // Park in the nearest free slot; activate-launch moves it to the paid
-          // week (stored in paid_launch_date) once payment is confirmed.
-          if (availableDate) {
-            launchData.launch_date = formatDate(availableDate.startDate);
-            launchData.launch_start = formatDate(availableDate.startDate);
-            launchData.launch_end = formatDate(availableDate.endDate);
-            launchData.week = availableDate.week;
-          } else {
-            launchData.launch_date = weekData.startDate;
-            launchData.launch_start = weekData.startDate;
-            launchData.launch_end = weekData.endDate;
-            launchData.week = weekData.week;
-          }
-        } else if (effectiveSubmitType === 'normal') {
-          launchData.launch_date = weekData.startDate;
-          launchData.launch_start = weekData.startDate;
-          launchData.launch_end = weekData.endDate;
-          launchData.week = weekData.week;
-        }
-
-        await productService
-          .insert(
-            {
-              asset_urls: imagePreviews,
-              name: tool_name,
-              demo_url: tool_website,
-              github_url: github_repo,
-              pricing_type,
-              slogan,
-              description: tool_description,
-              logo_url: logoPreview,
-              owner_id: user?.id,
-              slug: createSlug(tool_name),
-              is_draft: false,
-              comments_count: 0,
-              votes_count: 0,
-              demo_video_url: demo_video || generatedVideoUrl,
-              ...launchData,
-              isPaid: false,
-              paid_launch_date: submitType == 'paid' ? weekData : null,
-            },
-            categoryIds,
-          )
-          .then(async res => {
-            // Discord new-tool message is sent server-side (webhook URLs aren't available in the browser).
-            await axios.post('/api/tool-submitted', { productId: res?.id }).catch(() => {});
-            localStorage.setItem(
-              'last-tool',
-              JSON.stringify({
-                toolSlug: res?.slug,
-                launchDate: res?.launch_date,
-                launchEnd: res?.launch_end,
-              }),
-            );
-            router.push(`/tool/${res?.slug}?banner=true`);
-            if (submitType == 'paid') {
-              window.open(`/account/tools/activate-launch/${createSlug(tool_name)}`);
-            }
-          });
+        // The server picks the launch week (free queue, chosen week, or parked until payment).
+        const { data: res } = await axios.post('/api/tools', {
+          name: tool_name,
+          slogan,
+          website: tool_website,
+          githubUrl: github_repo,
+          description: tool_description,
+          pricingType: pricing_type,
+          logoUrl: logoPreview,
+          assetUrls: imagePreviews,
+          demoVideoUrl: demo_video,
+          categoryIds: categories.map(item => item.id),
+          week,
+          submitType,
+        });
+        const product = res.product;
+        localStorage.setItem(
+          'last-tool',
+          JSON.stringify({ toolSlug: product.slug, launchDate: product.launch_date, launchEnd: product.launch_end }),
+        );
+        router.push(res.paid ? `/account/tools/activate-launch/${product.slug}?week=${week}` : `/tool/${product.slug}?banner=true`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log('error on submit', err);
+      if (err?.response?.data?.error) alert(err.response.data.error);
       setLaunching(false);
     }
   };

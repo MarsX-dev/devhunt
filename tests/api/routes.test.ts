@@ -57,7 +57,7 @@ describe('public pages', () => {
 });
 
 describe('protected endpoints reject anonymous callers', () => {
-  it.each(['/api/upvote-notification', '/api/comment-notification', '/api/login', '/api/tool-submitted'])('POST %s -> 401', async path => {
+  it.each(['/api/upvote-notification', '/api/comment-notification', '/api/login', '/api/tools', '/api/tools/1/reschedule', '/api/checkout'])('POST %s -> 401', async path => {
     const res = await get(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     expect(res.status).toBe(401);
   });
@@ -73,6 +73,22 @@ describe('protected endpoints reject anonymous callers', () => {
     const res = await get('/api/top-3-past-winners-email');
     const body = await res.text();
     expect(res.status === 401 || body.includes('Not allowed in production')).toBe(true);
+  });
+
+  it('GET /api/checkout/confirm -> 401 without a session', async () => {
+    expect((await get('/api/checkout/confirm?session_id=cs_live_abc')).status).toBe(401);
+  });
+
+  it('Stripe webhook rejects missing and forged signatures', async () => {
+    const payload = JSON.stringify({ id: 'evt_x', type: 'checkout.session.completed', data: { object: { id: 'cs_live_x' } } });
+    const noSig = await get('/api/stripe/webhook', { method: 'POST', body: payload });
+    expect(noSig.status).toBe(400);
+    const forged = await get('/api/stripe/webhook', {
+      method: 'POST',
+      headers: { 'stripe-signature': `t=${Math.floor(Date.now() / 1000)},v1=${'0'.repeat(64)}` },
+      body: payload,
+    });
+    expect(forged.status).toBe(400);
   });
 
   it('/api/login ignores a forged name/email in the body', async () => {

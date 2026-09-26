@@ -16,7 +16,6 @@ import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCo
 
 import dynamic from 'next/dynamic';
 import ProfileFormModal from '@/components/ui/ProfileFormModal';
-import PaymentFormScript from '@/components/PaymentFormScript';
 
 const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
@@ -84,7 +83,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             />
           </>
         )}
-        <PaymentFormScript />
         <meta httpEquiv="Content-Language" content="en" />
         <meta property="og:locale" content="en_US" />
         <meta name="language" content="English" />

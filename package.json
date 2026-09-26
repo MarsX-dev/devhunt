@@ -48,6 +48,7 @@
     "resend": "^6.12.2",
     "seobot": "^1.0.8",
     "standardwebhooks": "^1.0.0",
+    "stripe": "^22.6.2",
     "tailwind-merge": "^1.12.0",
     "waypoints": "^4.0.1"
   },

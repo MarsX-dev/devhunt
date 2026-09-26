@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
 import CategoryInput from '@/components/ui/CategoryInput';
@@ -75,7 +76,6 @@ export default () => {
   const [slug, setSlug] = useState<string>('');
 
   const [weekValue, setWeekValue] = useState<string | number>('');
-  const [allWeeks, setAllWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   const [launchEnd, setLaunchDate] = useState<string>();
   const [launchStart, setLaunchStart] = useState<string>();
@@ -156,18 +156,10 @@ export default () => {
       // and actually picked a different week. Otherwise keep the stored dates as they are.
       const canChangeWeek = isPaid && new Date(launchStart as string) > new Date();
       const originalWeekKey = launchStart ? weekKey(launchStart) : '';
-      const selectedWeek = canChangeWeek && week && week !== originalWeekKey ? allWeeks.find(i => weekKey(i.startDate) === week) : undefined;
+      const weekChanged = canChangeWeek && week && week !== originalWeekKey;
 
-      const launchDateData: { launch_date?: string; launch_start?: string; launch_end?: string; week?: number } = {};
-      if (selectedWeek) {
-        launchDateData.launch_date = new Date(selectedWeek.startDate).toISOString();
-        launchDateData.launch_start = new Date(selectedWeek.startDate).toISOString();
-        launchDateData.launch_end = new Date(selectedWeek.endDate).toISOString();
-        launchDateData.week = selectedWeek.week;
-      }
-
-      await productService
-        .update(
+      try {
+        await productService.update(
           +id,
           {
             asset_urls: imagePreviews,
@@ -179,16 +171,20 @@ export default () => {
             description: tool_description,
             logo_url: logoPreview,
             demo_video_url: demo_video || generatedVideoUrl,
-            ...launchDateData,
           },
           categoryIds,
-        )
-        .then(res => {
-          window.alert('Your launch has been updated successfully');
-        })
-        .finally(() => {
-          setUpdate(false);
-        });
+        );
+        // Launch dates can only be changed server-side (paid launches that haven't started).
+        if (weekChanged) {
+          const { data: res } = await axios.post(`/api/tools/${id}/reschedule`, { week });
+          setLaunchStart(res.launchStart);
+        }
+        window.alert('Your launch has been updated successfully');
+      } catch (err: any) {
+        window.alert(err?.response?.data?.error ?? 'Could not update your launch, please try again.');
+      } finally {
+        setUpdate(false);
+      }
     }
   };
 
@@ -353,7 +349,6 @@ export default () => {
                       value={weekValue}
                       label="Launch week"
                       className="w-full"
-                      setAllWeeks={setAllWeeks}
                     />
                   ) : (
                     <SelectLaunchDate value={getValues('week')} label="Launch week" className="w-full" disabled={true} />

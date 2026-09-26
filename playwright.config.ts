@@ -21,7 +21,7 @@ export default defineConfig({
       name: 'logged-in',
       dependencies: ['auth-setup'],
       use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL, storageState: AUTH_STATE },
-      testMatch: /logged-in\.spec/,
+      testMatch: /logged-in\.spec/, // includes checkout.logged-in.spec.ts (opt-in)
     },
   ],
 });

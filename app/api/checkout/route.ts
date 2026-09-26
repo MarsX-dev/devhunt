@@ -1,0 +1,51 @@
+import { NextResponse } from 'next/server';
+import { weekKey } from '@/utils/launchWeeks';
+import { resolvePaidWeek, type PlannedWeek } from '@/utils/launchPlanning';
+import { getRouteUser } from '@/utils/server/auth';
+import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
+import { LAUNCH_PRICE_ID, stripe } from '@/utils/server/stripe';
+import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
+
+export const dynamic = 'force-dynamic';
+
+// Starts a Stripe Checkout for a paid launch of the caller's own tool in the chosen week.
+export async function POST(req: Request) {
+  const user = await getRouteUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { productId, week } = (await req.json().catch(() => ({}))) as { productId?: number; week?: string };
+  const { data: product } = await serviceClient
+    .from('products')
+    .select('id, slug, name, owner_id, isPaid, paid_launch_date, deleted')
+    .eq('id', Number(productId))
+    .single();
+  if (!product || product.deleted || product.owner_id !== user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (product.isPaid) return NextResponse.json({ error: 'This launch is already paid.' }, { status: 409 });
+
+  const weeks = await getUpcomingWeeks(104);
+  const chosen = week ? weeks.find(w => weekKey(w.startDate) === week) : undefined;
+  if (week && (!chosen || new Date(chosen.startDate) <= new Date())) {
+    return NextResponse.json({ error: 'Please pick an upcoming launch week.' }, { status: 400 });
+  }
+  const target = chosen
+    ? { week: chosen.week, startDate: new Date(chosen.startDate).toISOString(), endDate: new Date(chosen.endDate).toISOString() }
+    : resolvePaidWeek(product.paid_launch_date as PlannedWeek | null, weeks);
+  if (!target) return NextResponse.json({ error: 'No upcoming launch weeks available.' }, { status: 400 });
+
+  const origin = new URL(req.url).origin;
+  const session = await stripe().checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{ price: LAUNCH_PRICE_ID, quantity: 1 }],
+    allow_promotion_codes: true,
+    // Local-currency pricing (Adaptive Pricing) makes Checkout reject promotion codes, so charge in USD.
+    adaptive_pricing: { enabled: false },
+    customer_email: user.email ?? undefined,
+    client_reference_id: String(product.id),
+    metadata: { product_id: String(product.id), user_id: user.id, week: String(target.week), week_start: target.startDate, week_end: target.endDate },
+    // No payment_intent_data: it makes Checkout require a card, so 100%-off codes are rejected.
+    success_url: `${origin}/account/tools/activate-launch/${product.slug}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/account/tools/activate-launch/${product.slug}?canceled=1`,
+  });
+
+  return NextResponse.json({ url: session.url });
+}
