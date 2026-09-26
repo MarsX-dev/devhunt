@@ -3,7 +3,7 @@ import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
 import { commentLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
-import { createBrowserClient } from '@/utils/supabase/browser';
+import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import commentNotificationEmailTemplate from '@/utils/email-templates/comment-notification-email-template';
 import { Resend } from 'resend';
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
   console.log('Comments notification Works');
 
-  const commentService = new CommentService(createBrowserClient());
+  const commentService = new CommentService(serviceClient as any);
   const initCommentLogsService = await commentLogsService();
 
   const dayAgo = moment().add(-2, 'day').toDate();

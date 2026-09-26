@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
 import ProductsService from '@/utils/supabase/services/products';
 import { upvoteLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
-import { createBrowserClient } from '@/utils/supabase/browser';
+import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import upvoteNotificationEmailTemplate from '@/utils/email-templates/upvote-notification-email-template';
 import { Resend } from 'resend';
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
   console.log('Upvote notification Works');
 
-  const productsService = new ProductsService(createBrowserClient());
+  const productsService = new ProductsService(serviceClient as any);
   const initUpvoteLogsService = await upvoteLogsService();
 
   const dayAgo = moment().add(-2, 'day').toDate();
