@@ -21,18 +21,18 @@ export default () => {
   const user = session?.user;
   const browserService = createBrowserClient();
   const toolsService = new ProductsService(browserService);
-  const toolsList = new ProductsService(browserService).getUserProductsById(user?.id as string);
   const [isLoad, setLoad] = useState(true);
   const [tools, setTools] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [toolSlug, setToolSlug] = useState('');
 
   useEffect(() => {
-    toolsList.then(data => {
-      setTools([...(data as [])]);
+    if (!user?.id) return;
+    toolsService.getUserProductsById(user.id).then(data => {
+      setTools([...((data ?? []) as [])]);
       setLoad(false);
     });
-  }, []);
+  }, [user?.id]);
 
   const handleDeleteConfirm = (id: number, idx: number) => {
     const confirm = window.confirm('Are you sure you want to delete this?');
