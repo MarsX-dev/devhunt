@@ -4,6 +4,7 @@ import { ProductType } from '@/type';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import Pagination from '@/components/ui/Blog/Pagination';
+import { toToolCardProps } from '@/utils/toolCard';
 
 const { title, description, ogImage } = {
   title: 'Explore the best Dev Tools on Dev Hunt',
@@ -46,7 +47,7 @@ export default async function Page({ searchParams }: { searchParams: { page: num
       <div className="mt-10 mb-12">
         <ul className="mt-3 divide-y divide-slate-800/60">
           {products.data.map((product: ProductType, idx: number) => (
-            <ToolCardEffect key={idx} tool={product as ProductType} />
+            <ToolCardEffect key={idx} tool={toToolCardProps(product)} />
           ))}
         </ul>
       </div>

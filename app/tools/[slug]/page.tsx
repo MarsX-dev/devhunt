@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { Product } from '@/utils/supabase/types';
 import dynamic from 'next/dynamic';
 import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
+import { toToolCardProps } from '@/utils/toolCard';
 const ToolCardEffect = dynamic(() => import('@/components/ui/ToolCardEffect/ToolCardEffect'), { ssr: true });
 // import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 
@@ -67,7 +68,7 @@ export default async ({ params: { slug } }: { params: { slug: string } }) => {
           <MonitizorAdCards />
           <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
             {products.map((product: Product, idx: number) => (
-              <ToolCardEffect key={idx} tool={product as any} />
+              <ToolCardEffect key={idx} tool={toToolCardProps(product)} />
             ))}
           </ul>
         </>

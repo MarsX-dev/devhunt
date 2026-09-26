@@ -3,6 +3,7 @@ import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
 import { ProductType } from '@/type';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import { toToolCardProps } from '@/utils/toolCard';
 
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
@@ -64,10 +65,10 @@ export default async function Home() {
             </div>
             <ul className="mt-3 divide-y divide-slate-800/60">
               {/* {shuffleToolsBasedOnDate(group.products).map((product, idx) => (
-                <ToolCardEffect key={idx} tool={product as ProductType} />
+                <ToolCardEffect key={idx} tool={toToolCardProps(product)} />
               ))} */}
               {group.products.map((product, idx) => (
-                <ToolCardEffect key={idx} tool={product as ProductType} />
+                <ToolCardEffect key={idx} tool={toToolCardProps(product)} />
               ))}
             </ul>
           </>
