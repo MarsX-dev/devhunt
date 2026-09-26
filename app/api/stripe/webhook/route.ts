@@ -70,8 +70,13 @@ export async function POST(req: Request) {
         break;
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session;
-        // Sessions we expire ourselves (tests, replaced checkouts) have no DevHunt tool attached.
-        if (session.metadata?.product_id) await reportFailure(event, session, 'checkout abandoned (expired unpaid)');
+        // Only a real abandonment if the tool still exists and wasn't paid through another checkout.
+        const productId = Number(session.metadata?.product_id);
+        if (productId) {
+          const { data: tool } = await serviceClient.from('products').select('isPaid, deleted').eq('id', productId).single();
+          if (tool && !tool.isPaid && !tool.deleted) await reportFailure(event, session, 'checkout abandoned (expired unpaid)');
+          else await logPaymentEvent({ event: 'checkout_expired_ignored', stripeEventId: event.id, stripeSessionId: session.id, productId, details: { isPaid: tool?.isPaid, deleted: tool?.deleted } });
+        }
         break;
       }
       case 'payment_intent.payment_failed': {
