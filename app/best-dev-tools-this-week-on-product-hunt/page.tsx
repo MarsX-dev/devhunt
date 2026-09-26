@@ -4,37 +4,6 @@ import Title from '@/components/ui/ToolCard/Tool.Title';
 import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
 import Image from 'next/image';
 import ProductHuntCard from '@/components/ui/ProductHuntCard';
-import request from 'request';
-
-function extractHostAndPath(url: string): { host: string; path: string } {
-  const regex = /^(?:https?:\/\/)?([^\/?#]+)(\/[^?#]*)?/;
-  const matches = url.match(regex);
-
-  if (matches && matches.length >= 2) {
-    const host = matches[1];
-    const path = matches[2] || '/'; // Default to '/' if path is not provided
-    return { host, path };
-  } else {
-    throw new Error('Invalid URL format');
-  }
-}
-
-function extractLink(url: string) {
-  // Regular expression to match URLs with "www." or without any protocol
-  const regex = /^(?:https?:\/\/)?(?:www\.)?(.*)/;
-
-  // Extract the domain from the URL using regex
-  const matches = url.match(regex);
-
-  // If matches found, construct the link with "https://" prefix
-  if (matches && matches.length > 1) {
-    const domain = matches[1];
-    return `https://${domain}`;
-  }
-
-  // If no matches found, return the original URL
-  return url;
-}
 
 type Product = {
   node: {
@@ -67,26 +36,6 @@ export default async () => {
   const {
     data: { posts },
   } = await axios.get(`${origin}/api/ph-dev-tools`).catch(() => ({ data: { posts: [] } }));
-
-  // Doesn't work after new PH update, they block requests from other domains when try to get the real website url:
-
-  // Create an array to store all the promises for the requests
-  const requests = posts.map((item: Product) => {
-    // Return a promise for each request
-    return new Promise((resolve, reject) => {
-      // Perform the request asynchronously
-      request({ url: item.node.website, followRedirect: false }, function (err, res, body) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(extractLink(extractHostAndPath(res.headers.location as string).host));
-        }
-      });
-    });
-  });
-
-  // Wait for all promises to resolve
-  // const websites = (await Promise.all(requests)) || [];
 
   return (
     <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">

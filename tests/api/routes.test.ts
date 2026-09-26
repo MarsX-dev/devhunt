@@ -27,6 +27,7 @@ const NOT_FOUND = [
   '/email-sponsor-ad',
   '/api/test',
   '/api/add-contact-quick',
+  '/api/ph-dev-tools/get-website-url/https%3A%2F%2Fexample.com', // removed: fetched arbitrary URLs
   '/zentao/user-login.html',
 ];
 
