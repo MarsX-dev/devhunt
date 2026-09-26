@@ -19,7 +19,7 @@ async function collectClientScripts(): Promise<string> {
   const chunkPaths = new Set<string>();
   for (const page of PAGES) {
     const html = await (await get(page)).text();
-    for (const m of html.matchAll(/static\/chunks\/[\w./[\]%-]+\.js/g)) chunkPaths.add(m[0]);
+    Array.from(html.matchAll(/static\/chunks\/[\w./[\]%-]+\.js/g), m => chunkPaths.add(m[0]));
   }
   const bodies = await Promise.all(Array.from(chunkPaths, async path => (await get(`/_next/${path}`)).text()));
   return bodies.join('\n');

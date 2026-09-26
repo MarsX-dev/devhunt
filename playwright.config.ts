@@ -1,10 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
-import fs from 'node:fs';
 
 const baseURL = process.env.TEST_BASE_URL ?? 'http://localhost:3124';
-// Created by `pnpm test:login` (you sign in once by hand); logged-in tests are skipped without it.
+// Written by the auth-setup project (login.setup.ts) before the logged-in tests run.
 export const AUTH_STATE = 'tests/e2e/.auth/user.json';
-const hasAuth = fs.existsSync(AUTH_STATE);
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -17,11 +15,13 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL }, testIgnore: /logged-in|login\.setup|mobile\.spec/ },
     { name: 'mobile', use: { ...devices['Pixel 7'], channel: process.env.PW_CHANNEL }, testMatch: /mobile\.spec/ },
+    // Signs in as the test account automatically (see login.setup.ts); runs before the logged-in tests.
+    { name: 'auth-setup', testMatch: /login\.setup/, use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL } },
     {
       name: 'logged-in',
-      use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL, storageState: hasAuth ? AUTH_STATE : undefined },
+      dependencies: ['auth-setup'],
+      use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL, storageState: AUTH_STATE },
       testMatch: /logged-in\.spec/,
     },
-    { name: 'login-setup', testMatch: /login\.setup/, use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL, headless: false } },
   ],
 });

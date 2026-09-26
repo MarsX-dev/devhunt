@@ -103,7 +103,7 @@ pnpm test:all          # everything
 Point it at any deployment, e.g. `TEST_BASE_URL=https://devhunt.org pnpm test:api`.
 API tests read `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.local`; they only make reads or calls that must be rejected.
 
-Logged-in browser tests are skipped until you save a session once with `pnpm test:login` (a browser opens and you sign in yourself; the session is stored in `tests/e2e/.auth/`, which is git-ignored).
+Logged-in browser tests sign in automatically as the designated test account (`tests/e2e/login.setup.ts`, using `SUPABASE_SERVICE_ROLE_KEY` from `.env.local`); no password or manual step is needed.
 First run: `pnpm exec playwright install chromium`, or set `PW_CHANNEL=chrome` to use your installed Chrome.
 
 ## Deploy on Vercel

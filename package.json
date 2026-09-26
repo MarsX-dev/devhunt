@@ -14,7 +14,6 @@
     "test": "vitest run tests/unit",
     "test:api": "vitest run tests/api",
     "test:e2e": "playwright test --project=desktop --project=mobile --project=logged-in",
-    "test:login": "playwright test --project=login-setup",
     "test:all": "vitest run && playwright test --project=desktop --project=mobile --project=logged-in"
   },
   "dependencies": {

@@ -1,9 +1,5 @@
 import { expect, test } from '@playwright/test';
-import fs from 'node:fs';
-import { AUTH_STATE } from '../../playwright.config';
 import { trackErrors } from './helpers';
-
-test.skip(!fs.existsSync(AUTH_STATE), 'No saved session: run `pnpm test:login` once to enable logged-in tests.');
 
 // Read-only checks with the saved session (see login.setup.ts). Nothing here creates or changes data.
 
