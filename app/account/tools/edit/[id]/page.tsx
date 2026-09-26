@@ -23,6 +23,7 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
 import moment from 'moment';
+import { usableVideoUrl } from '@/utils/demoVideo';
 import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
 import { weekKey } from '@/utils/launchWeeks';
 
@@ -93,7 +94,7 @@ export default () => {
       setValue('slogan', data?.slogan);
       setValue('pricing_type', data?.pricing_type);
       setValue('github_repo', data?.github_url);
-      setValue('demo_video', data?.demo_video_url);
+      setValue('demo_video', usableVideoUrl(data?.demo_video_url) ?? '');
       const currentWeekKey = data?.launch_start ? weekKey(data.launch_start) : '';
       setValue('week', currentWeekKey);
       setSlug(data?.slug as string);
@@ -150,7 +151,6 @@ export default () => {
     if (validateImages()) {
       setUpdate(true);
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
-      const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
       const categoryIds: number[] = categories.map(category => category.id);
       // Only touch the launch week when the user may change it (paid, not started yet)
       // and actually picked a different week. Otherwise keep the stored dates as they are.
@@ -170,7 +170,7 @@ export default () => {
             slogan,
             description: tool_description,
             logo_url: logoPreview,
-            demo_video_url: demo_video || generatedVideoUrl,
+            demo_video_url: demo_video || null,
           },
           categoryIds,
         );

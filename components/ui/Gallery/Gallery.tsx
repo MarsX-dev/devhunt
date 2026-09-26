@@ -9,12 +9,13 @@ import { IconChevronLeft } from '@/components/Icons/IconChevronLeft';
 import { IconChevronRight } from '@/components/Icons/IconChevronRight';
 import { IconXmark } from '@/components/Icons';
 import VideoThumbnail from './VideoThumbnail';
+import { usableVideoUrl } from '@/utils/demoVideo';
 import { IconPlay } from '@/components/Icons';
 
 export const Gallery = ({
   children,
   className,
-  src,
+  src: videoSrc,
   assets,
   alt,
 }: {
@@ -24,6 +25,7 @@ export const Gallery = ({
   alt?: string;
   assets: string[];
 }) => {
+  const src = usableVideoUrl(videoSrc);
   const [media, setMedia] = useState(src ? [src, ...assets] : assets);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [isZoomActive, setZoomActive] = useState(false);
@@ -64,7 +66,7 @@ export const Gallery = ({
             </ButtonHandler>
             <ul className="relative z-40 flex-1 max-w-5xl">
               <li className="h-full">
-                {['youtube', 'youtu.be', 'paracast', '.mp4'].some(substring => media[currentIdx].includes(substring)) ? (
+                {['youtube', 'youtu.be', '.mp4'].some(substring => media[currentIdx].includes(substring)) ? (
                   ['youtube', 'youtu.be'].some(substring => media[currentIdx].includes(substring)) ? (
                     <iframe
                       loading="lazy"
@@ -96,7 +98,7 @@ export const Gallery = ({
                     key={idx}
                     className="flex-none w-14 h-10 hover:scale-110 duration-200"
                   >
-                    {['youtube', 'youtu.be', '.mp4', 'paracast'].some(substring => media[idx].includes(substring)) ? (
+                    {['youtube', 'youtu.be', '.mp4'].some(substring => media[idx].includes(substring)) ? (
                       <div className="w-full h-full bg-orange-600 rounded-lg text-white flex items-center justify-center">
                         <IconPlay />
                       </div>

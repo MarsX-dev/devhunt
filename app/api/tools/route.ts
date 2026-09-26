@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       pricing_type: body.pricingType,
       logo_url: body.logoUrl,
       asset_urls: body.assetUrls,
-      demo_video_url: body.demoVideoUrl || `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${body.website}`,
+      demo_video_url: body.demoVideoUrl?.trim() || null,
       owner_id: user.id,
       is_draft: false,
       isPaid: false,
