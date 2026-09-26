@@ -1,7 +1,7 @@
 import CommentService from '@/utils/supabase/services/comments';
 import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 import { commentLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import commentNotificationEmailTemplate from '@/utils/email-templates/comment-notification-email-template';

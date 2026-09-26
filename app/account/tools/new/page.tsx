@@ -21,7 +21,8 @@ import { type File } from 'buffer';
 import { type ChangeEvent, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import SelectLaunchDate, { weekKey } from '@/components/ui/SelectLaunchDate';
+import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import { findNearestAvailableDate, weekKey } from '@/utils/launchWeeks';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
 import Alert from '@/components/ui/Alert';
@@ -185,29 +186,6 @@ export default () => {
     }
   }, [imagesError, logoError, errors.pricing_type]);
 
-  function findNearestAvailableDate(dates: Weeks[], currentDate = new Date()) {
-    // Convert current date to timestamp for comparison
-    const currentTimestamp = currentDate.getTime();
-
-    // Filter dates with count < 20 and convert to array of objects with timestamp
-    const availableDates = dates
-      .filter(date => date.count < 15)
-      .map(date => ({
-        ...date,
-        timestamp: new Date(date.startDate).getTime(),
-      }));
-
-    // Sort by absolute difference from current date
-    availableDates.sort((a, b) => {
-      const diffA = Math.abs(a.timestamp - currentTimestamp);
-      const diffB = Math.abs(b.timestamp - currentTimestamp);
-      return diffA - diffB;
-    });
-
-    // Return the nearest date, or null if no dates are available
-    return availableDates.length > 0 ? availableDates[0] : null;
-  }
-
   function getWeekDate(key: string) {
     const weekData = allWeeks.find(i => weekKey(i.startDate) === key);
     if (!weekData) return undefined;
@@ -225,9 +203,9 @@ export default () => {
   }
 
   const nextWeek = allWeeks[0];
-  const nextFreeWeek = findNearestAvailableDate(allWeeks as []);
+  const nextFreeWeek = findNearestAvailableDate(allWeeks);
 
-  function formatDate(dateString: string) {
+  function formatDate(dateString: string | Date) {
     const date = new Date(dateString);
     return date.toISOString().replace('.000Z', '+00:00');
   }
@@ -259,7 +237,7 @@ export default () => {
         const freshStartWeek = await productService.getWeekNumber(freshFetchDate, 2);
         const freshWeeks = await productService.getProductsCountByWeek(freshStartWeek + 1, freshStartWeek + 260, freshFetchDate.getFullYear());
 
-        const availableDate = findNearestAvailableDate(freshWeeks as []);
+        const availableDate = findNearestAvailableDate(freshWeeks);
 
         // Re-check the selected week's count from fresh data.
         // If the user picked a free week (normal) but it filled up since page load,

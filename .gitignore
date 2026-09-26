@@ -38,3 +38,8 @@ next-env.d.ts
 # IDE
 \.idea/
 .vscode
+
+# testing
+/tests/e2e/.auth/
+/test-results/
+/playwright-report/

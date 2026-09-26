@@ -1,31 +1,12 @@
 import ApiService from '@/utils/supabase/services/api';
 import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 import { renderNewToolsLaunchReminderEmail } from '@/utils/email-templates/render-new-tools-launch-reminder-email';
-import { timingSafeEqual } from 'node:crypto';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
 // Cron-triggered: never prerender at build time.
 export const dynamic = 'force-dynamic';
-
-export function isAuthorizedCron(req: Request): boolean {
-  const secret = process.env.MARSX_MAILER_AUTH;
-
-  if (process.env.NODE_ENV === 'development') return true;
-
-  if (!secret) return false;
-
-  const auth = req.headers.get('authorization');
-  const expected = `Bearer ${secret}`;
-  if (!auth || auth.length !== expected.length) return false;
-
-  try {
-    const enc = new TextEncoder();
-    return timingSafeEqual(enc.encode(auth), enc.encode(expected));
-  } catch {
-    return false;
-  }
-}
 
 export async function GET(req: Request) {
   try {

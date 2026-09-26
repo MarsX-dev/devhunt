@@ -1,0 +1,30 @@
+import moment from 'moment';
+
+// Free launches per week; a week with this many tools (or more) is paid-only.
+export const FREE_WEEK_CAPACITY = 15;
+
+// Week numbers repeat every year and the list spans years, so weeks are keyed by their start date (UTC).
+export const weekKey = (date: Date | string) => moment.utc(date).format('YYYY-MM-DD');
+
+export interface WeekCount {
+  week: number;
+  startDate: Date | string;
+  endDate: Date | string;
+  count: number;
+}
+
+// The week with a free slot whose start is closest to `currentDate`, or null if every week is full.
+export function findNearestAvailableDate<T extends WeekCount>(dates: T[], currentDate = new Date()): (T & { timestamp: number }) | null {
+  const currentTimestamp = currentDate.getTime();
+
+  const availableDates = dates
+    .filter(date => date.count < FREE_WEEK_CAPACITY)
+    .map(date => ({
+      ...date,
+      timestamp: new Date(date.startDate).getTime(),
+    }));
+
+  availableDates.sort((a, b) => Math.abs(a.timestamp - currentTimestamp) - Math.abs(b.timestamp - currentTimestamp));
+
+  return availableDates.length > 0 ? availableDates[0] : null;
+}

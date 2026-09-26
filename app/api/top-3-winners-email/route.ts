@@ -4,7 +4,7 @@ import { renderTop3WinnersEmail } from '@/utils/email-templates/render-top-3-win
 import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 
 // Cron-triggered: never prerender at build time.
 export const dynamic = 'force-dynamic';

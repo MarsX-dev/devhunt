@@ -22,7 +22,8 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
 import moment from 'moment';
-import SelectLaunchDate, { weekKey } from '@/components/ui/SelectLaunchDate';
+import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import { weekKey } from '@/utils/launchWeeks';
 
 interface Inputs {
   tool_name: string;

@@ -6,9 +6,9 @@ import { type HTMLAttributes } from 'react';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 
-// Week numbers repeat every year and the list spans two years, so options are keyed by the
-// week's start date (UTC) instead of the bare week number.
-export const weekKey = (date: Date | string) => moment.utc(date).format('YYYY-MM-DD');
+import { weekKey } from '@/utils/launchWeeks';
+
+export { weekKey };
 
 interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;

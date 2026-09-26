@@ -90,6 +90,22 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Testing
+
+```bash
+pnpm test              # unit tests (pure logic, no network)
+pnpm test:api          # API + database-security checks against TEST_BASE_URL
+pnpm test:e2e          # browser tests (Playwright) against TEST_BASE_URL
+pnpm test:all          # everything
+```
+
+`TEST_BASE_URL` defaults to `http://localhost:3124` (a production build: `pnpm build && pnpm exec next start -p 3124`).
+Point it at any deployment, e.g. `TEST_BASE_URL=https://devhunt.org pnpm test:api`.
+API tests read `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.local`; they only make reads or calls that must be rejected.
+
+Logged-in browser tests are skipped until you save a session once with `pnpm test:login` (a browser opens and you sign in yourself; the session is stored in `tests/e2e/.auth/`, which is git-ignored).
+First run: `pnpm exec playwright install chromium`, or set `PW_CHANNEL=chrome` to use your installed Chrome.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

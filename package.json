@@ -10,7 +10,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:better-supabase-types": "npx better-supabase-types -i ./utils/supabase/types.ts -f -s",
-    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > utils/supabase/types.ts && npm run format:better-supabase-types"
+    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > utils/supabase/types.ts && npm run format:better-supabase-types",
+    "test": "vitest run tests/unit",
+    "test:api": "vitest run tests/api",
+    "test:e2e": "playwright test --project=desktop --project=mobile --project=logged-in",
+    "test:login": "playwright test --project=login-setup",
+    "test:all": "vitest run && playwright test --project=desktop --project=mobile --project=logged-in"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
@@ -49,6 +54,7 @@
     "waypoints": "^4.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.9",
     "@types/dompurify": "^3.0.2",
@@ -73,6 +79,7 @@
     "prettier": "^2.8.8",
     "supabase": "^1.142.2",
     "tailwindcss": "3.3.2",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vitest": "^2.1.9"
   }
 }

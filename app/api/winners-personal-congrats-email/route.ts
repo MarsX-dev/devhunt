@@ -1,6 +1,6 @@
 import ApiService from '@/utils/supabase/services/api';
 import { NextResponse } from 'next/server';
-import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 import winnersPersonalCongratsEmailTemplate from '@/utils/email-templates/winners-personal-congrats-email-template';
 import { Resend } from 'resend';
 

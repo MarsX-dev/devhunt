@@ -1,7 +1,6 @@
 import { createBrowserClient } from '@/utils/supabase/browser';
 import categories from '@/utils/categories';
-
-const URL = 'https://devhunt.org';
+import { buildSitemapXml } from '@/utils/sitemap';
 
 // Regenerate hourly instead of once per build.
 export const revalidate = 3600;
@@ -28,57 +27,10 @@ async function getLiveTools() {
 
 async function generateSiteMap() {
   const tools = await getLiveTools();
-  // Only makers' profiles: the ~40k empty profiles would just be thin pages.
-  const profiles = Array.from(new Set(tools.map(t => t.username).filter(Boolean))).map(username => ({ username }));
-  return `<?xml version="1.0" encoding="UTF-8"?>
-   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-      <loc>${URL}</loc>
-    </url>
-    <url>
-      <loc>${URL}/the-story</loc>
-    </url>
-    <url>
-      <loc>https://devhunt.org/blog</loc>
-    </url>
-    <url>
-      <loc>https://devhunt.org/best-dev-tools-this-week-on-product-hunt</loc>
-    </url>
-     ${
-       tools &&
-       tools
-         .map(({ slug }) => {
-           return `
-           <url>
-               <loc>${`${URL}/tool/${encodeURIComponent(slug)}`}</loc>
-           </url>
-         `;
-         })
-         .join('')
-     }
-     ${categories
-       .map(slug => {
-         return `
-          <url>
-              <loc>${`${URL}/tools/${slug.name.toLowerCase().replaceAll(' ', '-')}`}</loc>
-          </url>
-        `;
-       })
-       .join('')}
-     ${
-       profiles &&
-       profiles
-         .map(({ username }) => {
-           return `
-          <url>
-              <loc>${`${URL}/@${encodeURIComponent(username as string)}`}</loc>
-          </url>
-        `;
-         })
-         .join('')
-     }
-   </urlset>
- `;
+  return buildSitemapXml(
+    tools,
+    categories.map(c => c.name),
+  );
 }
 
 export async function GET() {

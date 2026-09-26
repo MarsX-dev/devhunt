@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 import ProductsService from '@/utils/supabase/services/products';
 import { upvoteLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';

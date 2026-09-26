@@ -19,7 +19,8 @@ export async function POST() {
     return NextResponse.json({ data: 'skipped' });
   }
 
-  const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', user.id).single();
+  const { data } = await supabase.from('profiles').select('full_name, username').eq('id', user.id).single();
+  const profile = data as { full_name: string | null; username: string | null } | null;
   const fullName = profile?.full_name ?? (user.user_metadata?.full_name as string | undefined) ?? '';
 
   const params = new URLSearchParams({

@@ -17,20 +17,18 @@ export async function POST(req: Request) {
   const { productId } = (await req.json().catch(() => ({}))) as { productId?: number };
   if (!productId) return NextResponse.json({ error: 'productId is required' }, { status: 400 });
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('name, slug, owner_id, created_at')
-    .eq('id', productId)
-    .single();
+  const { data } = await supabase.from('products').select('name, slug, owner_id, created_at').eq('id', productId).single();
+  const product = data as { name: string; slug: string; owner_id: string | null; created_at: string } | null;
   if (!product || product.owner_id !== user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  if (Date.now() - new Date(product.created_at as string).getTime() > FRESH_SUBMISSION_MS) {
+  if (Date.now() - new Date(product.created_at).getTime() > FRESH_SUBMISSION_MS) {
     return NextResponse.json({ data: 'skipped' });
   }
 
   // DISCOR_TOOL_WEBHOOK is the historical (misspelled) name; keep reading it so an existing env var still works.
   const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
   if (webhook) {
-    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+    const { data: profileData } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+    const profile = profileData as { full_name: string | null } | null;
     await fetch(webhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
