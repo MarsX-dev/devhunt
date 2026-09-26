@@ -22,12 +22,6 @@ const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: fa
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 
-declare global {
-  interface Window {
-    usermavenQ: any; // Replace 'any' with the appropriate type of 'usermavenQ'
-  }
-}
-
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
   description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
@@ -70,30 +64,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className="bg-slate-900">
       <head>
-        {process.env.USER_MAVEN_KEY && (
+        {process.env.VERCEL_ENV === 'production' && (
           <>
             <Script
               src="https://analytic-api.marsx.dev/script.js"
               strategy="afterInteractive"
               data-website-id="505062d1-c921-4a96-ad67-63bcb082bdb2"
-            />
-            <Script
-              strategy="afterInteractive"
-              src="https://t.usermaven.com/lib.js"
-              data-key={process.env.USER_MAVEN_KEY}
-              data-tracking-host="https://events.usermaven.com"
-              data-autocapture="true"
-              data-privacy-policy="strict"
-              defer
-            ></Script>
-            <Script
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-            window.usermaven = window.usermaven || (function()
-            {(window.usermavenQ = window.usermavenQ || []).push(arguments)})
-          `,
-              }}
             />
             <Script
               strategy="afterInteractive"

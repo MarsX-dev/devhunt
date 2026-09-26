@@ -4,7 +4,6 @@ import { useSupabase } from '@/components/supabase/provider';
 import { useCallback, useEffect, useState } from 'react';
 import AvatarMenu from '../AvatarMenu';
 import axios from 'axios';
-import { usermaven } from '@/utils/usermaven';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import Brand from '@/components/ui/Brand';
@@ -12,7 +11,6 @@ import { GithubProvider, GoogleProvider } from '../AuthProviderButtons';
 import ProfileService from '@/utils/supabase/services/profile';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { useRouter } from 'next/navigation';
-import sendWelcomeEmail from '@/utils/sendWelcomeEmail';
 // Supabase auth needs to be triggered client-side
 
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
@@ -62,12 +60,6 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
             if (DISCORD_USER_WEBHOOK) await axios.post(DISCORD_USER_WEBHOOK, { content });
 
             await axios.post('/api/login', { firstName: user?.full_name as string, personalEMail: session.user.email as string });
-            await usermaven.id({
-              id: session?.user.id,
-              email: session?.user?.email,
-              created_at: Date.now().toLocaleString(),
-              first_name: user?.full_name,
-            });
           }
         });
         eventListener.data.subscription.unsubscribe();

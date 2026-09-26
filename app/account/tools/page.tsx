@@ -108,6 +108,8 @@ export default () => {
                           handleDeleteConfirm(tool.id, idx);
                         }}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                        aria-label="Delete tool"
+                        title="Delete tool"
                       >
                         <IconTrash />
                       </button>
@@ -117,6 +119,8 @@ export default () => {
                           setModalOpen(true);
                         }}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                        aria-label="Get launch banner code"
+                        title="Get launch banner code"
                       >
                         <IconCodeBracket />
                       </button>

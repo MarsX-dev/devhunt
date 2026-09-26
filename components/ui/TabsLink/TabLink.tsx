@@ -91,7 +91,7 @@ export default ({ children, hash, href, sectionId, className = '', linkClassName
             {children}
           </Link>
         ) : (
-          <a {...props} href={`${window && window.location.pathname}${hash}`} className={customClassName}>
+          <a {...props} href={`${pathname}${hash}`} className={customClassName}>
             {children}
           </a>
         )

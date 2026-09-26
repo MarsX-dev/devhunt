@@ -7,7 +7,7 @@ import { ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import CountdownPanel from '@/components/ui/CountdownPanel';
 
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 
@@ -59,13 +59,10 @@ export default function Home() {
         </div>
         <ul className="mt-3 divide-y divide-slate-800/60">
           {group.products.map((product: ProductType, idx: number) => (
-            <>
+            <Fragment key={product.id ?? idx}>
               {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              {
-                // <ToolCardEffect key={idx} tool={product as ProductType}/>
-                product.week == currentWeek && product.launch_start && <ToolCardEffect key={idx} tool={product as ProductType} />
-              }
-            </>
+              {product.week == currentWeek && product.launch_start && <ToolCardEffect tool={product as ProductType} />}
+            </Fragment>
           ))}
         </ul>
       </>

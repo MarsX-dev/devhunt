@@ -18,14 +18,27 @@ export default ({
 }) => (
   <h3 className={mergeTW(`text-slate-100 font-medium flex gap-x-3 items-center ${className}`)}>
     {toolHref ? <Link href={toolHref}>{children}</Link> : children}
-    <a
+    {/* Not an <a>: this sits inside the card's link, and nested anchors are invalid HTML. */}
+    <span
       id="tool-title"
-      href={`${href}?ref=devhunt`}
-      onClick={() => window.open(`${href}?ref=devhunt`)}
-      target="_blank"
-      className="hidden group-hover/card:block"
+      role="link"
+      tabIndex={0}
+      aria-label="Open website in a new tab"
+      onClick={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(`${href}?ref=devhunt`, '_blank');
+      }}
+      onKeyDown={e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(`${href}?ref=devhunt`, '_blank');
+        }
+      }}
+      className="hidden group-hover/card:block cursor-pointer"
     >
       <ArrowTopRightOnSquareIcon className="w-4 h-4 pointer-events-none" />
-    </a>
+    </span>
   </h3>
 );

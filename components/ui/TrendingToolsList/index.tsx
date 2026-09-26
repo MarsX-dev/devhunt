@@ -1,4 +1,5 @@
 'use client';
+import { Fragment } from 'react';
 
 import ToolName from '@/components/ui/ToolCard/Tool.Name';
 import Tags from '@/components/ui/ToolCard/Tool.Tags';
@@ -33,12 +34,12 @@ export default () => {
 
   return (
     <ul className="mt-3 divide-y divide-slate-800/60">
-      {trendingTools?.map(group => (
-        <div>
+      {trendingTools?.map((group, groupIdx) => (
+        <div key={groupIdx}>
           {(group as { products: ProductType[] }).products.map((tool: ProductType, idx: number) => (
-            <>
+            <Fragment key={tool.id ?? idx}>
               {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              <li key={idx} className="py-3">
+              <li className="py-3">
                 <ToolCard tool={tool} href={'/tool/' + tool.slug}>
                   <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
                     <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
@@ -54,7 +55,7 @@ export default () => {
                   <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
                 </ToolCard>
               </li>
-            </>
+            </Fragment>
           ))}
         </div>
       ))}

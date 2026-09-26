@@ -98,13 +98,6 @@ export default () => {
             <div className="text-xs pt-2">
               <a href="https://devhunt.openstatus.dev/">Status page</a>
             </div>
-            <a href="https://usermaven.com/?utm_source=badge" className="mt-5 block" rel="nofollow">
-              <img
-                className="w-32"
-                src="https://usermaven.com/img/badge-dark.png"
-                alt="Usermaven | Website analytics and product insights"
-              />
-            </a>
           </div>
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
