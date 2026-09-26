@@ -218,6 +218,15 @@ export default () => {
     };
   }
 
+  function selectWeek(key: string) {
+    const selectedWeek = allWeeks.find(item => weekKey(item.startDate) === key);
+    setValue('week', key, { shouldValidate: true });
+    if (selectedWeek) setLaunchDateStart(selectedWeek as any);
+  }
+
+  const nextWeek = allWeeks[0];
+  const nextFreeWeek = findNearestAvailableDate(allWeeks as []);
+
   function formatDate(dateString: string) {
     const date = new Date(dateString);
     return date.toISOString().replace('.000Z', '+00:00');
@@ -557,19 +566,40 @@ export default () => {
                     <b>4. DoFollow backlink(DR 57):</b> Boost your own domain rating by getting high quality dofollow link.
                   </li>
                 </ul>
+                {nextWeek && (
+                  <div className="mt-4 rounded-lg border border-slate-700 bg-slate-800/60 p-4 text-sm space-y-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-slate-100 font-medium">🚀 Skip the line: launch next week for $49</p>
+                        <p className="text-slate-400">Your tool goes live on {moment.utc(nextWeek.startDate).format('LL')}.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => selectWeek(weekKey(nextWeek.startDate))}
+                        className="flex-none rounded-lg bg-orange-500 px-3 py-2 font-medium text-white hover:bg-orange-400 duration-150"
+                      >
+                        Launch next week
+                      </button>
+                    </div>
+                    {nextFreeWeek && (
+                      <p className="text-slate-400 border-t border-slate-700 pt-3">
+                        Free launch queue: the next free week is{' '}
+                        <b className="text-slate-200">{moment.utc(nextFreeWeek.startDate).format('LL')}</b> ({moment.utc(nextFreeWeek.startDate).fromNow()}
+                        ). Free launches are limited to 15 tools per week.
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div className="relative mt-4 mb-3">
                   <SelectLaunchDate
                     label="Launch week"
+                    weeksAhead={260}
                     className="w-full"
                     validate={{
                       ...register('week', {
                         required: true,
                         onChange(value) {
-                          if (value) {
-                            const selectedWeek = allWeeks.find(item => weekKey(item.startDate) === value.target.value);
-                            setValue('week', value.target.value, { shouldValidate: true });
-                            if (selectedWeek) setLaunchDateStart(selectedWeek as any);
-                          }
+                          if (value) selectWeek(value.target.value);
                         },
                       }),
                     }}
@@ -596,7 +626,7 @@ export default () => {
                     >
                       {launchDateStart.count > 14 ? <>Launch on {moment.utc(launchDateStart.startDate).format('LL')} for $49</> : 'Submit'}
                     </Button>
-                    {launchDateStart.count > 14 && findNearestAvailableDate(allWeeks as []) && (
+                    {launchDateStart.count > 14 && nextFreeWeek && (
                       <Button
                         onClick={() => setValue('submitType', 'free')}
                         id="submit-btn"
@@ -605,7 +635,7 @@ export default () => {
                         className="w-full text-sm mt-2 text-slate-400"
                         variant="shiny"
                       >
-                        Queue to launch on {moment.utc(findNearestAvailableDate(allWeeks as [])?.startDate).format('LL')} for free
+                        Or wait for the free queue: launch on {moment.utc(nextFreeWeek.startDate).format('LL')} for free
                       </Button>
                     )}
                   </>
