@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AD_SLOTS, LIVE_STATUSES, withRef, type PublicAd } from '@/utils/ads';
+import { AD_SLOTS, LIVE_STATUSES, type PublicAd } from '@/utils/ads';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 // Live sponsor ads for the rails. Served from the CDN (one DB read per minute, not per visitor).
@@ -8,7 +8,7 @@ export const revalidate = 60;
 export async function GET() {
   const { data } = await serviceClient
     .from('ad_slots' as any)
-    .select('kind, slot, name, tagline, url, logo_url, status, current_period_end')
+    .select('id, kind, slot, name, tagline, url, logo_url, status, current_period_end')
     .in('status', LIVE_STATUSES as any)
     .in('kind', ['rail', 'inline'])
     .order('slot');
@@ -17,7 +17,8 @@ export async function GET() {
     slot: r.slot,
     name: r.name,
     tagline: r.tagline,
-    url: withRef(r.url),
+    id: r.id,
+    url: `/api/ads/click/${r.id}`, // counts the click, then redirects to the advertiser (with ?ref=devhunt)
     logo_url: r.logo_url,
     // A canceled ad runs out on this date; the slot shows "free from ..." next to it.
     freeFrom: r.status === 'canceling' ? r.current_period_end : null,

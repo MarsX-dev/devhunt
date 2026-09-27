@@ -5,7 +5,8 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import AdPlacement from '@/components/ui/Sponsors/AdPlacement';
-import { AD_KINDS, AD_PRODUCTS, REFUND_DAYS, isAdKind, spotsLeft, type AdKind } from '@/utils/ads';
+import AdStats from '@/components/ui/Sponsors/AdStats';
+import { AD_KINDS, AD_PRODUCTS, NEWSLETTER_SINGLE_PRICE, REFUND_DAYS, isAdKind, isRecurring, planLabel, planPrice, spotsLeft, type AdKind, type AdPlan } from '@/utils/ads';
 
 const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
 const NAME_MAX = 24;
@@ -14,6 +15,9 @@ const DESCRIPTION_MAX = 220;
 
 type Draft = { id: number; kind: AdKind; url: string; name: string; tagline: string; description: string | null; logo_url: string | null; image_url: string | null };
 type MyAd = Draft & {
+  plan: AdPlan;
+  editions_left: number | null;
+  started_at: string | null;
   group: number | null; // ads bought in one checkout share a subscription
   slot: number | null;
   status: string;
@@ -96,6 +100,8 @@ function AdvertisePage() {
   const [busy, setBusy] = useState<'' | 'draft' | 'pay' | number>('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [justPaid, setJustPaid] = useState(false);
+  const [newsletterPlan, setNewsletterPlan] = useState<AdPlan>('monthly');
   const [mine, setMine] = useState<{ ads: MyAd[]; payments: Payment[]; free?: Record<AdKind, number> } | null>(null);
 
   const load = useCallback(() => {
@@ -111,7 +117,7 @@ function AdvertisePage() {
     if (!sessionId) return load();
     fetch(`/api/ads/confirm?session_id=${encodeURIComponent(sessionId)}`)
       .then(r => r.json())
-      .then(d => setNotice(d.status === 'no-slot' ? 'Paid, but every slot was just taken. We were notified and will sort it out or refund you.' : 'Payment received. Your ad is live!'))
+      .then(d => (d.status === 'no-slot' ? setNotice('Paid, but a slot was just taken by someone else. We were notified and will sort it out or refund you.') : setJustPaid(true)))
       .finally(load);
   }, [params, load]);
 
@@ -134,7 +140,7 @@ function AdvertisePage() {
     setError('');
     setBusy('pay');
     if (!picked.length) return setBusy(''), setError('Switch on at least one ad type.');
-    const d = await post('/api/ads/checkout', { adIds: picked.map(a => a.id), name: draft.name, tagline: draft.tagline, description: draft.description ?? '' });
+    const d = await post('/api/ads/checkout', { adIds: picked.map(a => a.id), name: draft.name, tagline: draft.tagline, description: draft.description ?? '', plans: { newsletter: newsletterPlan } });
     if (d.url) return (window.location.href = d.url);
     setBusy('');
     if (d.blocked) {
@@ -146,8 +152,8 @@ function AdvertisePage() {
 
   async function manage(ad: MyAd, action: 'cancel' | 'resume' | 'refund') {
     const ask = {
-      cancel: `Cancel ${ad.name}? Everything bought in the same checkout stays live until ${fmt(ad.current_period_end)} and won't renew.`,
-      refund: `Cancel ${ad.name} now and refund your last payment? Everything bought in the same checkout comes down right away.`,
+      cancel: `Cancel future months for ${ad.name}?\n\nThis only stops future charges. You've paid for the current month, so your ads (everything bought in the same checkout) stay live until ${fmt(ad.current_period_end)}, then stop. Nothing is refunded; for a refund use "Cancel and refund" within ${REFUND_DAYS} days of a payment.`,
+      refund: `Cancel ${ad.name} now and refund your last payment?\n\nThe ads come down right away and nothing renews.`,
       resume: '',
     }[action];
     if (ask && !confirm(ask)) return;
@@ -163,6 +169,13 @@ function AdvertisePage() {
   const toggle = (k: AdKind) => setKinds(ks => (ks.includes(k) ? ks.filter(x => x !== k) : AD_KINDS.filter(x => x === k || ks.includes(x))));
   // Switching a card off after generating just leaves it out of the checkout.
   const picked = drafts.filter(d => kinds.includes(d.kind));
+  const planOf = (k: AdKind): AdPlan => (k === 'newsletter' ? newsletterPlan : 'monthly');
+  const dueToday = picked.reduce((sum, d) => sum + planPrice(d.kind, planOf(d.kind)), 0);
+  const monthly = picked.filter(d => isRecurring(d.kind, planOf(d.kind))).reduce((sum, d) => sum + planPrice(d.kind), 0);
+  // The purchase that just came back from Stripe: the most recently started ads.
+  const latest = mine?.ads.filter(a => a.started_at && ['active', 'canceling'].includes(a.status)).sort((a, b) => (b.started_at ?? '').localeCompare(a.started_at ?? ''))[0];
+  const latestGroup = latest ? mine!.ads.filter(a => (latest.group ? a.group === latest.group : a.id === latest.id)) : [];
+  const latestMonthly = latestGroup.filter(a => isRecurring(a.kind, a.plan) && a.status !== 'ended');
   const missing = draft ? kinds.filter(k => !drafts.some(d => d.kind === k)) : [];
   const input = 'mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500';
 
@@ -176,6 +189,31 @@ function AdvertisePage() {
       </PageHeader>
 
       {notice && <p className="mt-6 rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-slate-200">{notice}</p>}
+      {justPaid && latest && (
+        <div className="mt-6 rounded-2xl border border-green-500/30 bg-green-500/5 p-5 text-sm text-slate-300">
+          <p className="text-base font-semibold text-slate-50">Payment received. Your ads are live 🎉</p>
+          {latestMonthly.length ? (
+            <>
+              <p className="mt-2">
+                You&apos;re on a <b className="text-slate-100">monthly plan</b>: ${latestMonthly.reduce((sum, a) => sum + planPrice(a.kind), 0)}/month, next charge on{' '}
+                <b className="text-slate-100">{fmt(latestMonthly[0].current_period_end)}</b>.
+              </p>
+              <p className="mt-1 text-slate-400">
+                Only want this month? Cancel future months now: it stops the renewal, and this month (already paid) keeps running until {fmt(latestMonthly[0].current_period_end)}.
+              </p>
+              {latestMonthly[0].status === 'active' ? (
+                <button onClick={() => manage(latestMonthly[0], 'cancel')} disabled={busy === latestMonthly[0].id} className="mt-3 rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-400">
+                  Cancel future months
+                </button>
+              ) : (
+                <p className="mt-3 font-mono text-xs text-amber-300">Future months canceled. Runs until {fmt(latestMonthly[0].current_period_end)}, no more charges.</p>
+              )}
+            </>
+          ) : (
+            <p className="mt-2">One-time payment, nothing renews. Your ad goes out in the next weekly newsletter.</p>
+          )}
+        </div>
+      )}
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {AD_KINDS.map(k => {
@@ -191,7 +229,7 @@ function AdvertisePage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-semibold text-slate-50">{p.title}</h2>
-                  <p className="mt-0.5 font-mono text-xs text-slate-400">{soldOut(k) ? 'sold out' : `$${p.price}/month${p.per ? ` · ${p.per}` : ''}`}</p>
+                  <p className="mt-0.5 font-mono text-xs text-slate-400">{soldOut(k) ? 'sold out' : planLabel(k, planOf(k))}</p>
                   {mine?.free && !soldOut(k) && <p className="mt-0.5 font-mono text-[11px] text-orange-300">{spotsLeft(k, mine.free[k])}</p>}
                 </div>
                 <button
@@ -218,6 +256,29 @@ function AdvertisePage() {
                   </li>
                 ))}
               </ul>
+              {k === 'newsletter' && (
+                <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-slate-800/70 p-1 text-xs" onClick={e => e.stopPropagation()}>
+                  {(
+                    [
+                      ['monthly', '4 editions / month', `$${p.price} monthly`],
+                      ['single', '1 edition', `$${NEWSLETTER_SINGLE_PRICE} once`],
+                    ] as const
+                  ).map(([plan, label, price]) => (
+                    <button
+                      key={plan}
+                      type="button"
+                      onClick={() => {
+                        setNewsletterPlan(plan);
+                        if (!kinds.includes('newsletter')) toggle('newsletter');
+                      }}
+                      className={`rounded-md px-2 py-1.5 text-left duration-150 ${newsletterPlan === plan ? 'bg-slate-950 text-slate-50 ring-1 ring-orange-500/60' : 'text-slate-400 hover:text-slate-200'}`}
+                    >
+                      <span className="block font-medium">{label}</span>
+                      <span className="font-mono text-[10px] text-slate-500">{price}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <AdPlacement kind={k} className="mt-3 self-start" />
               <div className={`mt-auto pt-5 ${on ? '' : 'opacity-40'}`}>
                 {generated ? (
@@ -267,12 +328,22 @@ function AdvertisePage() {
           )}
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <button onClick={pay} disabled={busy === 'pay' || !picked.length} className="rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60">
-              {busy === 'pay' ? 'Opening checkout…' : `Pay $${picked.reduce((sum, d) => sum + AD_PRODUCTS[d.kind].price, 0)}/month and go live`}
+              {busy === 'pay' ? 'Opening checkout…' : monthly ? `Pay $${dueToday} and go live` : `Pay $${dueToday} once and go live`}
             </button>
-            <span className="font-mono text-xs text-slate-500">
-              {picked.length > 1 ? `${picked.length} ads, one subscription · ` : ''}links to {draft.url}
-            </span>
+            <span className="font-mono text-xs text-slate-500">links to {draft.url}</span>
           </div>
+          <p className="text-xs text-slate-400">
+            {monthly ? (
+              <>
+                {dueToday !== monthly ? `$${dueToday} today, then ` : ''}
+                <b className="text-slate-200">${monthly}/month, renews automatically</b>
+                {picked.length > 1 ? ' (one subscription for everything you picked)' : ''}. You can cancel future months anytime, even right after paying: your ads keep
+                running for the month you paid for. Full refund within {REFUND_DAYS} days of a payment.
+              </>
+            ) : (
+              <>One-time payment, no subscription. Your ad goes out in the next weekly newsletter. Refundable until it&apos;s sent (within {REFUND_DAYS} days).</>
+            )}
+          </p>
         </div>
       )}
 
@@ -291,14 +362,15 @@ function AdvertisePage() {
                   </p>
                   <p className="mt-0.5 font-mono text-xs text-slate-500">
                     {AD_PRODUCTS[ad.kind]?.title} · <span className={STATUS[ad.status]?.cls}>{STATUS[ad.status]?.label ?? ad.status}</span>
-                    {ad.status === 'active' && ad.current_period_end ? ` · renews ${fmt(ad.current_period_end)}` : ''}
+                    {ad.plan === 'single' ? (ad.editions_left ? ' · 1 edition, goes out in the next email' : ' · edition sent') : ''}
+                    {ad.plan !== 'single' && ad.status === 'active' && ad.current_period_end ? ` · renews ${fmt(ad.current_period_end)}` : ''}
                     {ad.status === 'canceling' ? ` · ends ${fmt(ad.current_period_end)}` : ''}
                     {ad.refunded_at ? ` · refunded ${fmt(ad.refunded_at)}` : ''}
                   </p>
                 </div>
-                {lead && ad.status === 'active' && (
+                {lead && ad.status === 'active' && ad.plan !== 'single' && (
                   <button onClick={() => manage(ad, 'cancel')} disabled={busy === ad.id} className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:border-slate-500">
-                    Cancel subscription
+                    Cancel future months
                   </button>
                 )}
                 {lead && ad.status === 'canceling' && (
@@ -322,6 +394,8 @@ function AdvertisePage() {
           </ul>
         </div>
       )}
+
+      {!!mine?.ads.some(a => a.started_at) && <AdStats ads={mine.ads.filter(a => a.started_at).map(a => ({ id: a.id, name: a.name, kind: a.kind }))} />}
 
       {!!mine?.payments.length && (
         <div className="mt-12">

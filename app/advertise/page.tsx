@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
-import { AD_KINDS, AD_PRODUCTS, AUDIENCE, HOUSE_AD, REFUND_DAYS, spotsLeft, type AdKind } from '@/utils/ads';
+import { AD_KINDS, AD_PRODUCTS, AUDIENCE, HOUSE_AD, NEWSLETTER_SINGLE_PRICE, REFUND_DAYS, spotsLeft, type AdKind } from '@/utils/ads';
 import { availability } from '@/utils/server/ads';
 import { formatStat, getSiteStats, DOMAIN_RATING } from '@/utils/siteStats';
 import AdPlacement from '@/components/ui/Sponsors/AdPlacement';
@@ -118,6 +118,7 @@ export default async function AdvertisePitch() {
                   ${p.price}
                   <span className="font-mono text-xs font-normal text-slate-500">/month{p.per ? ` · ${p.per}` : ''}</span>
                 </p>
+                {kind === 'newsletter' && <p className="font-mono text-xs text-slate-400">or ${NEWSLETTER_SINGLE_PRICE} for a single edition</p>}
                 <p className={`mt-1 font-mono text-xs ${left === 0 ? 'text-red-400' : 'text-slate-500'}`}>
                   {spotsLeft(kind, left ?? p.slots)}
                 </p>

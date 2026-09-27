@@ -1,5 +1,5 @@
 import type Stripe from 'stripe';
-import { AD_PRODUCTS, LIVE_STATUSES, REFUND_DAYS, withRef, type AdKind } from '@/utils/ads';
+import { AD_PRODUCTS, AUDIENCE, LIVE_STATUSES, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 import { type EmailSponsorAdConfig } from '@/utils/email-templates/email-sponsor-ad';
 import { groqJson } from '@/utils/server/enrich';
 import { jevAsk } from '@/utils/server/jev';
@@ -103,18 +103,24 @@ export async function availability(): Promise<Record<AdKind, number>> {
   return Object.fromEntries(Object.values(AD_PRODUCTS).map(p => [p.kind, Math.max(0, p.slots - (used[p.kind] ?? 0))])) as Record<AdKind, number>;
 }
 
-// One subscription for everything picked: one line item per ad.
-export async function createAdCheckout(ads: { id: number; kind: AdKind; name: string }[], user: { id: string; email?: string | null }, origin: string) {
-  const meta = { kind: 'ad', ad_ids: ads.map(a => a.id).join(','), products: ads.map(a => a.kind).join(','), user_id: user.id };
+// One checkout for everything picked. Monthly ads become one subscription (one item each); a single
+// newsletter edition is a one-time item on the first invoice, or a plain payment when bought alone.
+export async function createAdCheckout(ads: { id: number; kind: AdKind; plan: AdPlan; name: string }[], user: { id: string; email?: string | null }, origin: string) {
+  const meta = { kind: 'ad', ad_ids: ads.map(a => a.id).join(','), products: ads.map(a => `${a.kind}:${a.plan}`).join(','), user_id: user.id };
+  const recurring = ads.some(a => isRecurring(a.kind, a.plan));
   return stripe().checkout.sessions.create({
-    mode: 'subscription',
+    mode: recurring ? 'subscription' : 'payment',
     line_items: ads.map(ad => ({
       quantity: 1,
       price_data: {
         currency: 'usd',
-        unit_amount: AD_PRODUCTS[ad.kind].price * 100,
-        recurring: { interval: 'month' as const },
-        product_data: { name: `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}${AD_PRODUCTS[ad.kind].per ? ` (${AD_PRODUCTS[ad.kind].per} a month)` : ''}: ${ad.name}` },
+        unit_amount: planPrice(ad.kind, ad.plan) * 100,
+        ...(isRecurring(ad.kind, ad.plan) ? { recurring: { interval: 'month' as const } } : {}),
+        product_data: {
+          name: isRecurring(ad.kind, ad.plan)
+            ? `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}${AD_PRODUCTS[ad.kind].per ? ` (${AD_PRODUCTS[ad.kind].per} a month)` : ''}: ${ad.name}`
+            : `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}, 1 edition: ${ad.name}`,
+        },
       },
     })),
     allow_promotion_codes: true,
@@ -122,7 +128,7 @@ export async function createAdCheckout(ads: { id: number; kind: AdKind; name: st
     customer_email: user.email ?? undefined,
     client_reference_id: `ads_${meta.ad_ids}`,
     metadata: meta,
-    subscription_data: { metadata: meta },
+    ...(recurring ? { subscription_data: { metadata: meta } } : { invoice_creation: { enabled: true }, payment_intent_data: { metadata: meta } }),
     success_url: `${origin}/account/advertise?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/account/advertise?canceled=1`,
   });
@@ -168,14 +174,15 @@ export async function activateAd(session: Stripe.Checkout.Session, source: 'webh
           stripe_session_id: session.id,
           stripe_subscription_id: subId ?? null,
           stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null,
-          current_period_end: sub ? periodEnd(sub) : null,
+          current_period_end: sub && row.plan !== 'single' ? periodEnd(sub) : null,
+          editions_left: row.plan === 'single' ? 1 : null,
         })
         .eq('id', row.id);
       if (!error) {
         done = true;
         activated++;
         await logPaymentEvent({ event: 'ad_activated', stripeSessionId: session.id, userId: row.user_id, details: { ad_id: row.id, kind: row.kind, slot, source } });
-        await notifyAdDiscord(`💸 **New sponsor** ${AD_PRODUCTS[row.kind as AdKind].title} $${AD_PRODUCTS[row.kind as AdKind].price}/mo: [${row.name}](${row.url}) in slot ${slot}${email ? ` by ${email}` : ''}`);
+        await notifyAdDiscord(`💸 **New sponsor** ${AD_PRODUCTS[row.kind as AdKind].title} ${row.plan === 'single' ? `$${planPrice(row.kind, 'single')} single edition` : `$${planPrice(row.kind)}/mo`}: [${row.name}](${row.url}) in slot ${slot}${email ? ` by ${email}` : ''}`);
       }
     }
     if (!done) {
@@ -197,6 +204,7 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
     .from('ad_slots' as any)
     .update({ status, current_period_end: periodEnd(sub), ...(status !== 'active' ? { canceled_at: new Date().toISOString() } : { canceled_at: null }) })
     .eq('stripe_subscription_id', sub.id)
+    .eq('plan', 'monthly') // a single edition bought alongside runs until it's sent (see newsletterSent)
     .in('status', ['active', 'canceling'])
     .select('name, slot, kind');
   if (data?.length && status === 'ended') {
@@ -220,10 +228,24 @@ export async function refundSubscription(subscriptionId: string, label: string) 
     refunded = refund.amount;
   }
   const sub = await stripe().subscriptions.cancel(subscriptionId);
+  // The refund covered everything on that invoice, including a single edition not sent yet.
   await serviceClient.from('ad_slots' as any).update({ refunded_at: new Date().toISOString() }).eq('stripe_subscription_id', subscriptionId);
+  await serviceClient.from('ad_slots' as any).update({ status: 'ended', canceled_at: new Date().toISOString() }).eq('stripe_subscription_id', subscriptionId).eq('plan', 'single').in('status', LIVE_STATUSES as any);
   await syncAdSubscription(sub);
   await notifyAdDiscord(`↩️ Sponsor refunded $${(refunded / 100).toFixed(2)} and ended: ${label}`);
   return { refunded };
+}
+
+// A single edition bought on its own: refundable within REFUND_DAYS as long as it hasn't gone out.
+export async function refundSingle(ad: { id: number; name: string; stripe_session_id: string; editions_left: number | null; started_at: string | null }) {
+  if (!ad.editions_left || !ad.started_at || Date.now() - Date.parse(ad.started_at) > REFUND_DAYS * 86400_000) return null;
+  const session = await stripe().checkout.sessions.retrieve(ad.stripe_session_id);
+  const intentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
+  if (!intentId) throw new Error('no payment to refund');
+  const refund = await stripe().refunds.create({ payment_intent: intentId, metadata: { ad_id: String(ad.id) } });
+  await serviceClient.from('ad_slots' as any).update({ status: 'ended', refunded_at: new Date().toISOString(), canceled_at: new Date().toISOString() }).eq('id', ad.id);
+  await notifyAdDiscord(`↩️ Sponsor refunded $${(refund.amount / 100).toFixed(2)} (single newsletter edition, not sent): ${ad.name}`);
+  return { refunded: refund.amount };
 }
 
 // The refund window for an ad's latest charge (for the "Cancel and refund" button).
@@ -234,10 +256,10 @@ export async function refundableUntil(subscriptionId: string): Promise<string | 
 }
 
 // The paid newsletter ad, shaped for the weekly email's sponsor block (null: use the house ad).
-export async function newsletterSponsor(): Promise<EmailSponsorAdConfig | null> {
+export async function newsletterSponsor(): Promise<(EmailSponsorAdConfig & { adId: number }) | null> {
   const { data } = await serviceClient
     .from('ad_slots' as any)
-    .select('name, tagline, description, url, logo_url, image_url')
+    .select('id, name, tagline, description, url, logo_url, image_url')
     .eq('kind', 'newsletter')
     .in('status', LIVE_STATUSES as any)
     .order('slot')
@@ -245,8 +267,10 @@ export async function newsletterSponsor(): Promise<EmailSponsorAdConfig | null> 
     .maybeSingle();
   const ad = data as any;
   if (!ad) return null;
-  const link = withRef(ad.url);
+  // Through the click counter, marked as an email click.
+  const link = `https://devhunt.org/api/ads/click/${ad.id}?src=email`;
   return {
+    adId: ad.id,
     bannerImageUrl: ad.image_url || ad.logo_url || '',
     bannerLinkUrl: link,
     title: `${ad.name}: ${ad.tagline}`,
@@ -254,6 +278,18 @@ export async function newsletterSponsor(): Promise<EmailSponsorAdConfig | null> 
     ctaLinkUrl: link,
     ctaText: 'Learn More ›',
   };
+}
+
+// After the weekly email went out: a single-edition ad has run and ends.
+export async function newsletterSent(adId: number) {
+  // Each edition's recipients count as impressions in the advertiser's stats.
+  await serviceClient.rpc('track_ad_newsletter' as never, { _id: adId, _recipients: AUDIENCE.newsletterSubscribers } as never);
+  const { data } = await serviceClient.from('ad_slots' as any).select('plan, editions_left, name').eq('id', adId).single();
+  const ad = data as any;
+  if (!ad || ad.plan !== 'single') return;
+  const left = Math.max(0, (ad.editions_left ?? 1) - 1);
+  await serviceClient.from('ad_slots' as any).update({ editions_left: left, ...(left === 0 ? { status: 'ended' } : {}) }).eq('id', adId);
+  if (left === 0) await notifyAdDiscord(`📬 Single newsletter edition sent for ${ad.name}; the newsletter slot is free again`);
 }
 
 export async function notifyAdDiscord(content: string) {

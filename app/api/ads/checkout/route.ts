@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, createAdCheckout, freeSlot, moderateAd, notifyAdDiscord } from '@/utils/server/ads';
-import { AD_PRODUCTS, type AdKind } from '@/utils/ads';
+import { AD_PRODUCTS, isAdPlan, type AdKind, type AdPlan } from '@/utils/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = (await req.json().catch(() => ({}))) as { adIds?: number[]; name?: string; tagline?: string; description?: string };
+  const body = (await req.json().catch(() => ({}))) as { adIds?: number[]; name?: string; tagline?: string; description?: string; plans?: Record<string, unknown> };
   const ids = (body.adIds ?? []).map(Number).filter(Boolean);
   if (!ids.length) return NextResponse.json({ error: 'Pick at least one ad type.' }, { status: 400 });
   const { data } = await serviceClient.from('ad_slots' as any).select('*').in('id', ids);
@@ -37,13 +37,20 @@ export async function POST(req: Request) {
     }
   }
 
+  // Only the newsletter has a choice (monthly or one edition); everything else is monthly.
+  const planFor = (kind: AdKind): AdPlan => (kind === 'newsletter' && isAdPlan(body.plans?.[kind]) ? (body.plans![kind] as AdPlan) : 'monthly');
+  for (const a of ads) {
+    a.plan = planFor(a.kind);
+    await serviceClient.from('ad_slots' as any).update({ plan: a.plan }).eq('id', a.id);
+  }
+
   const soldOut = [];
   for (const a of ads) if (!(await freeSlot(a.kind))) soldOut.push(AD_PRODUCTS[a.kind as AdKind].title);
   if (soldOut.length) return NextResponse.json({ error: `Sold out right now: ${soldOut.join(', ')}. Untick it to continue.` }, { status: 409 });
 
   try {
-    const session = await createAdCheckout(ads.map(a => ({ id: a.id, kind: a.kind, name })), user, new URL(req.url).origin);
-    await logPaymentEvent({ event: 'ad_checkout_created', stripeSessionId: session.id, userId: user.id, details: { ad_ids: ids, kinds: ads.map(a => a.kind) } });
+    const session = await createAdCheckout(ads.map(a => ({ id: a.id, kind: a.kind, plan: a.plan, name })), user, new URL(req.url).origin);
+    await logPaymentEvent({ event: 'ad_checkout_created', stripeSessionId: session.id, userId: user.id, details: { ad_ids: ids, kinds: ads.map(a => `${a.kind}:${a.plan}`) } });
     return NextResponse.json({ url: session.url });
   } catch (err) {
     await logPaymentEvent({ event: 'ad_checkout_error', level: 'error', userId: user.id, details: { ad_ids: ids, message: (err as Error).message } });

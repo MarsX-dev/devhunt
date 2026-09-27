@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useImpression } from './track';
 import { HOUSE_AD } from '@/utils/ads';
 import { useLiveAds } from './SponsorRails';
 
@@ -11,9 +12,12 @@ export default function InlineSponsor({ as: Tag = 'li' }: { as?: 'li' | 'div' })
   const pick = useMemo(() => Math.random(), []);
   const pool = [HOUSE_AD, ...inline];
   const ad = pool[Math.floor(pick * pool.length)];
+  const ref = useRef<HTMLAnchorElement>(null);
+  useImpression(ref, ad.id);
   return (
     <Tag className="list-none">
       <a
+        ref={ref}
         href={ad.url}
         target="_blank"
         rel="sponsored noopener"

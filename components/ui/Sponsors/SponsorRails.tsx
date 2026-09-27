@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useImpression } from './track';
 import { AD_PRICE_USD, AD_SLOTS, HOUSE_AD, spotsLeft, type PublicAd } from '@/utils/ads';
 
 type LiveAd = PublicAd & { freeFrom: string | null };
@@ -58,9 +59,16 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
         <span className="mt-2 font-mono text-[11px] text-slate-400 group-hover:text-orange-400">your tool here {side === 'l' ? '←' : '→'}</span>
       </Link>
     );
+  return <PaidCard ad={ad} freeFrom={card.freeFrom} />;
+}
+
+function PaidCard({ ad, freeFrom }: { ad: PublicAd; freeFrom?: string | null }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useImpression(ref, ad.id);
   return (
     <div className="relative">
     <a
+      ref={ref}
       href={ad.url}
       target="_blank"
       rel="sponsored noopener"
@@ -70,9 +78,9 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
       <span className="mt-2 text-sm font-semibold text-slate-100">{ad.name}</span>
       <span className="mt-1 line-clamp-3 font-mono text-[11px] leading-snug text-slate-400">{ad.tagline}</span>
     </a>
-    {card.freeFrom && (
+    {freeFrom && (
       <Link href="/advertise" className="absolute inset-x-0 bottom-1.5 text-center font-mono text-[10px] text-slate-500 hover:text-orange-400">
-        free from {shortDate(card.freeFrom)}
+        free from {shortDate(freeFrom)}
       </Link>
     )}
     </div>
@@ -108,6 +116,17 @@ export default function SponsorRails() {
   );
 }
 
+function Pill({ ad }: { ad: PublicAd }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  useImpression(ref, ad.id);
+  return (
+    <a ref={ref} href={ad.url} target="_blank" rel="sponsored noopener" className="flex flex-none items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-1.5 text-sm font-semibold text-slate-100">
+      <Logo ad={ad} className="h-5 w-5 !rounded-md text-[10px]" />
+      {ad.name}
+    </a>
+  );
+}
+
 export function SponsorStrip() {
   const { cards } = useSponsors();
   if (useHidden()) return null;
@@ -117,10 +136,7 @@ export function SponsorStrip() {
       <div className="flex w-max gap-2 px-2 motion-safe:animate-[sponsorstrip_45s_linear_infinite] hover:[animation-play-state:paused]">
         {pills.map(({ ad }, i) =>
           ad ? (
-            <a key={i} href={ad.url} target="_blank" rel="sponsored noopener" className="flex flex-none items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-1.5 text-sm font-semibold text-slate-100">
-              <Logo ad={ad} className="h-5 w-5 !rounded-md text-[10px]" />
-              {ad.name}
-            </a>
+            <Pill key={i} ad={ad} />
           ) : (
             <Link key={i} href="/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400">
               your tool here · ${AD_PRICE_USD}/mo

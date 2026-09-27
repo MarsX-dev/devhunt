@@ -38,10 +38,19 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     slots: 1,
     house: 0,
     per: '4 editions',
-    pitch: 'The only sponsor in 4 weekly editions of the DevHunt email, each sent to 40,000 developers.',
-    where: ['4 editions a month, one every week', 'Banner, headline and description', 'The only sponsor in each email'],
+    pitch: 'The only sponsor in the weekly DevHunt email, sent to 40,000 developers. Monthly (4 editions) or a single edition to try it.',
+    where: ['4 editions a month, one every week, or a single one', 'Banner, headline and description', 'The only sponsor in each email'],
   },
 };
+
+// How an ad is paid: every product is monthly; the newsletter can also be bought for one edition.
+export type AdPlan = 'monthly' | 'single';
+export const NEWSLETTER_SINGLE_PRICE = 299;
+export const isAdPlan = (p: unknown): p is AdPlan => p === 'monthly' || p === 'single';
+export const planPrice = (kind: AdKind, plan: AdPlan = 'monthly') => (kind === 'newsletter' && plan === 'single' ? NEWSLETTER_SINGLE_PRICE : AD_PRODUCTS[kind].price);
+export const isRecurring = (kind: AdKind, plan: AdPlan = 'monthly') => !(kind === 'newsletter' && plan === 'single');
+export const planLabel = (kind: AdKind, plan: AdPlan = 'monthly') =>
+  isRecurring(kind, plan) ? `$${planPrice(kind, plan)}/month${AD_PRODUCTS[kind].per ? ` · ${AD_PRODUCTS[kind].per}` : ''}` : `$${planPrice(kind, plan)} once · 1 edition`;
 
 export const AD_KINDS = Object.keys(AD_PRODUCTS) as AdKind[];
 
@@ -87,6 +96,7 @@ export const AUDIENCE = {
 };
 
 export interface PublicAd {
+  id?: number; // paid ads only (impressions and clicks are tracked by id)
   kind?: AdKind;
   slot: number;
   name: string;

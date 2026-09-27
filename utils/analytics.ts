@@ -28,3 +28,11 @@ export function countryCode(value: string | null | undefined): string {
 
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|embedly|curl|wget|python|axios|node-fetch/i;
 export const isBot = (userAgent: string | null) => !userAgent || BOT.test(userAgent);
+
+// Coarse device class from the user agent (ad stats: desktop | tablet | mobile).
+export function deviceClass(userAgent: string | null): 'desktop' | 'tablet' | 'mobile' {
+  const ua = userAgent ?? '';
+  if (/iPad|Tablet|PlayBook|Silk|(Android(?!.*Mobile))/i.test(ua)) return 'tablet';
+  if (/Mobi|iPhone|iPod|Android|Opera Mini|IEMobile/i.test(ua)) return 'mobile';
+  return 'desktop';
+}
