@@ -10,7 +10,6 @@ import Modal from '../Modal';
 import customDateFromNow from '@/utils/customDateFromNow';
 import { IconInformationCircle } from '@/components/Icons';
 import LinkItem from '../Link/LinkItem';
-import ProfileService from '@/utils/supabase/services/profile';
 import FloatingUpvotes from '../ToolCardEffect/FloatingUpvotes';
 import { useIsomorphicLayoutEffect } from '@/utils/useIsomorphicLayoutEffect';
 import { hasUserVoted } from '@/utils/userVotes';
@@ -29,7 +28,6 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   // client only -- move to client component for Voting
   const { session } = useSupabase();
   const productsService = new ProductsService(createBrowserClient());
-  const profileService = new ProfileService(createBrowserClient());
   const router = useRouter();
   const [votesCount, setVotesCount] = useState(count);
   const [isUpvoted, setUpvoted] = useState(false);
@@ -47,7 +45,6 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
 
   const toggleVote = async () => {
-    const profile = session && session.user ? await profileService.getByIdWithNoCache(session.user?.id) : null;
     if (session && session.user) {
       setMoadlInfo(
         new Date(launchEnd).getTime() >= Date.now()
@@ -56,13 +53,11 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
       );
       if (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now()) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
-        router.refresh();
         setUpvoted(!isUpvoted);
         setPendingVote(false);
         setTimeout(() => setVotesCount(newVotesCount), 50);
       } else setModalActive(true);
     } else if (!session) router.push('/login');
-    else if (profile && !profile?.social_url == null) window.location.reload();
   };
 
   useEffect(() => {

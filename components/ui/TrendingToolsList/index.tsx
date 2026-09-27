@@ -3,31 +3,40 @@
 import { useEffect, useState } from 'react';
 import ToolRow from '@/components/ui/ToolRow';
 import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
-import { type ProductType } from '@/type';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import ProductsService from '@/utils/supabase/services/products';
+import { type ToolRowData } from '@/utils/toolRow';
 
 const SHOWN = 8;
 
+// Fetched once per page load and shared: the tool modal re-mounts this list on every ←/→ step.
+let trending: Promise<ToolRowData[]> | null = null;
+const loadTrending = (): Promise<ToolRowData[]> =>
+  (trending ??= fetch('/api/trending')
+    .then(res => (res.ok ? res.json() : []))
+    .catch(() => {
+      trending = null;
+      return [];
+    }));
+
 // This week's leaders as compact ranked rows (tool page and preview modal).
 export default function TrendingToolsList({ excludeId }: { excludeId?: number }) {
-  const [tools, setTools] = useState<{ tool: ProductType; rank: number }[] | null>(null); // null while loading
+  const [tools, setTools] = useState<{ tool: ToolRowData; rank: number }[] | null>(null); // null while loading
 
   useEffect(() => {
-    const productService = new ProductsService(createBrowserClient());
-    const today = new Date();
-    void productService.getWeekNumber(today, 2).then(async week => {
-      const [thisWeek] = await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1);
-      const ranked = ((thisWeek?.products ?? []) as ProductType[]).map((tool, idx) => ({ tool, rank: idx + 1 })); // real week ranks
-      setTools(ranked.filter(({ tool }) => tool.id !== excludeId).slice(0, SHOWN));
+    let alive = true;
+    void loadTrending().then(list => {
+      const ranked = list.map((tool, idx) => ({ tool, rank: idx + 1 })); // real week ranks
+      if (alive) setTools(ranked.filter(({ tool }) => tool.id !== excludeId).slice(0, SHOWN));
     });
+    return () => {
+      alive = false;
+    };
   }, [excludeId]);
 
   if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" />;
   return (
     <ol className="mt-2">
       {tools.map(({ tool, rank }, idx) => (
-        <ToolRow key={tool.id} tool={tool as any} rank={rank} revealIndex={idx} />
+        <ToolRow key={tool.id} tool={tool} rank={rank} revealIndex={idx} />
       ))}
     </ol>
   );

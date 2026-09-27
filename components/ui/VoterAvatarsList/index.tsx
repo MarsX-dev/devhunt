@@ -9,6 +9,18 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 
 const STACKED = 12; // fits one line on a phone
 
+// One request per tool per minute however often the list mounts (the tool modal re-mounts it on every
+// open and ←/→ step, and concurrent mounts all missed the service's cache).
+const votersRequests = new Map<number, { at: number; list: Promise<Profile[]> }>();
+function loadVoters(productId: number): Promise<Profile[]> {
+  const hit = votersRequests.get(productId);
+  if (hit && Date.now() - hit.at < 60_000) return hit.list;
+  const list = new ProductsService(createBrowserClient()).getVoters(productId).then(l => (l ?? []) as Profile[]);
+  list.catch(() => votersRequests.delete(productId));
+  votersRequests.set(productId, { at: Date.now(), list });
+  return list;
+}
+
 function Face({ person, isMaker, small }: { person: Profile; isMaker: boolean; small?: boolean }) {
   const size = small ? 'h-6 w-6' : 'h-8 w-8';
   return (
@@ -64,9 +76,11 @@ export default ({ productId, owner, small }: { productId: number; owner: Profile
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    new ProductsService(createBrowserClient()).getVoters(productId).then(list => {
-      setVoters((list as Profile[]).filter(item => item.id != owner.id));
-    });
+    let alive = true;
+    void loadVoters(productId).then(list => alive && setVoters(list.filter(item => item.id != owner.id)));
+    return () => {
+      alive = false;
+    };
   }, [productId, owner.id]);
 
   if (!voters) return <VotersSkeleton small={small} />;

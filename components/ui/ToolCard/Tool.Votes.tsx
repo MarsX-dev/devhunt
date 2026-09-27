@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import customDateFromNow from '@/utils/customDateFromNow';
 import LinkItem from '../Link/LinkItem';
 import Button from '../Button/Button';
-import ProfileService from '@/utils/supabase/services/profile';
 import { hasUserVoted } from '@/utils/userVotes';
 
 export default ({
@@ -33,7 +32,6 @@ export default ({
 }) => {
   const { session } = useSupabase();
   const productsService = new ProductsService(createBrowserClient());
-  const profileService = new ProfileService(createBrowserClient());
   const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
   const isLaunchEnd = new Date(launchEnd).getTime() <= Date.now();
 
@@ -46,7 +44,6 @@ export default ({
   const shownCount = (votesCount ?? 0) - (touched ? 0 : pending);
 
   const toggleVote = async () => {
-    const profile = session && session.user ? await profileService.getByIdWithNoCache(session.user?.id) : null;
     if (session && session.user) {
       setMoadlInfo(
         new Date(launchEnd).getTime() >= Date.now()
@@ -55,13 +52,11 @@ export default ({
       );
       if (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now()) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
-        router.refresh();
         setUpvoted(!isUpvoted);
         setTouched(true);
         setVotesCount(newVotesCount);
       } else setModalActive(true);
     } else if (!session) router.push('/login');
-    else if (profile && !profile?.social_url == null) window.location.reload();
   };
 
   useEffect(() => {

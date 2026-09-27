@@ -10,7 +10,7 @@ import CommentService from '@/utils/supabase/services/comments';
 import CommentSection from '@/components/ui/Client/CommentSection';
 import { createServerClient } from '@/utils/supabase/server';
 import { createBrowserClient } from '@/utils/supabase/browser';
-import AwardsService from '@/utils/supabase/services/awards';
+import { getWeekRank } from '@/utils/weekRank';
 import { type Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
@@ -32,6 +32,7 @@ import { getToolProfile } from '@/utils/toolProfileData';
 import { sectionShown } from '@/utils/toolProfile';
 import { ProfileSource, cleanName, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
+import TrackToolView from '@/components/ui/TrackToolView';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { type ProductType } from '@/type';
 
@@ -88,20 +89,17 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const productsService = new ProductsService(supabaseBrowserClient);
   // Hidden tools (website dead or hijacked) only load for their owner, through the signed-in client.
-  const product = (await productsService.getBySlug(slug, true)) ?? (await new ProductsService(createServerClient()).getBySlug(slug));
+  const product = (await productsService.getBySlug(slug)) ?? (await new ProductsService(createServerClient()).getBySlug(slug));
   if (!product || product.deleted) notFound();
   const hidden = (product as any).site_status && (product as any).site_status !== 'ok';
 
-  const awardService = new AwardsService(supabaseBrowserClient);
   const commentService = new CommentService(supabaseBrowserClient);
 
   const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
-  const toolAward$ = awardService.getProductRanks(product.id);
+  const weekRank$ = getWeekRank(product);
   const comments$ = commentService.getByProductId(product.id);
 
-  const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
-
-  const weekRank = Number((weekAward[0] as any)?.rank) || undefined;
+  const [owned, weekRank, comments] = await Promise.all([owned$, weekRank$, comments$]);
   const [activity, extras, profile] = await Promise.all([getRecentActivity(), getToolExtras(product.id), getToolProfile(product.id)]);
   const pricingTitle: string | null = (product as any).product_pricing_types?.title ?? null;
   const votesToday = activity?.votes_today?.[product.id] ?? 0;
@@ -136,6 +134,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       {faqData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData).replace(/</g, '\\u003c') }} />}
       {!profile && <RequestProfile productId={product.id} />}
+      <TrackToolView productId={product.id} />
       <div className="container-custom-screen">
         {hidden && (
           <div role="alert" className="mb-8 rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-200">
