@@ -18,6 +18,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // Launch status of one of the owner's tools.
 function StatusChip({ tool }: { tool: ProductType }) {
@@ -50,10 +51,14 @@ export default () => {
   const [tools, setTools] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [toolSlug, setToolSlug] = useState('');
+  const router = useRouter();
+  // "Submit your Dev Tool" lands here with ?submit=1: makers without tools go straight to the URL step.
+  const fromSubmit = useSearchParams()?.get('submit') === '1';
 
   useEffect(() => {
     if (!user?.id) return;
     toolsService.getUserProductsById(user.id).then(data => {
+      if (fromSubmit && !data?.length) return router.replace('/account/tools/new');
       setTools([...((data ?? []) as [])]);
       setLoad(false);
     });

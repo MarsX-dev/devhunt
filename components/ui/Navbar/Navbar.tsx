@@ -48,7 +48,7 @@ export default () => {
     { title: 'Advertise', path: '/the-story#ads', className: 'text-orange-400 hover:text-orange-300' },
     {
       title: 'Submit your Dev Tool',
-      path: isLoggedin ? '/account/tools' : '/login',
+      path: isLoggedin ? '/account/tools?submit=1' : '/login',
       className: 'bg-slate-50 hover:bg-white text-slate-900 font-medium text-center rounded-full px-4 py-1.5 duration-150',
     },
   ];
