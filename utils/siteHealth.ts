@@ -126,3 +126,21 @@ export function htmlToSnapshot(html: string, status: number, finalUrl: string): 
   return { status, error: null, finalUrl, title: decodeEntities(title), text };
 }
 const decodeEntities = (s: string) => s.replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+// Other addresses of the same site to try before calling it dead: https bare/www host and the
+// parent domain (a dead "app." subdomain of a live company is a broken link, not a dead tool).
+export function siteVariants(url: string): string[] {
+  let u: URL;
+  try {
+    u = new URL(/^https?:/i.test(url) ? url : `https://${url}`);
+  } catch {
+    return [];
+  }
+  const host = u.hostname.toLowerCase();
+  const bare = host.replace(/^www\./, '');
+  const labels = bare.split('.');
+  const twoLevel = /\.(co|com|org|net|ac|gov|edu)\.[a-z]{2}$/.test(bare);
+  const parent = labels.slice(-(twoLevel ? 3 : 2)).join('.');
+  const hosts = Array.from(new Set([bare, ...(bare === parent ? [`www.${bare}`] : []), parent, `www.${parent}`])).filter(h => h !== host || u.pathname !== '/' || u.protocol !== 'https:');
+  return hosts.map(h => `https://${h}/`);
+}

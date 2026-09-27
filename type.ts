@@ -7,4 +7,6 @@ export interface ProductType extends Product {
   product_categories: {
     name: string;
   }[];
+  site_status?: 'ok' | 'dead' | 'hijacked'; // website health (hidden unless 'ok')
+  site_status_reason?: string | null;
 }

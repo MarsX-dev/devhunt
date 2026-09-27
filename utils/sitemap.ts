@@ -13,7 +13,7 @@ const urlEntry = (loc: string) => `<url><loc>${loc}</loc></url>`;
 export const categoryPath = (name: string) => `/tools/${encodeURIComponent(name.toLowerCase().replaceAll(' ', '-'))}`;
 
 // Path segments are URL-encoded, which also keeps characters like '&' from breaking the XML.
-export function buildSitemapXml(tools: SitemapTool[], categoryNames: string[]): string {
+export function buildSitemapXml(tools: SitemapTool[], categoryNames: string[], extraPaths: string[] = []): string {
   // Only makers' profiles: the ~40k empty profiles would just be thin pages.
   const usernames = Array.from(new Set(tools.map(t => t.username).filter((u): u is string => !!u)));
 
@@ -22,6 +22,7 @@ export function buildSitemapXml(tools: SitemapTool[], categoryNames: string[]): 
     ...tools.map(({ slug }) => urlEntry(`${SITE_URL}/tool/${encodeURIComponent(slug)}`)),
     ...categoryNames.map(name => urlEntry(`${SITE_URL}${categoryPath(name)}`)),
     ...usernames.map(username => urlEntry(`${SITE_URL}/@${encodeURIComponent(username)}`)),
+    ...extraPaths.map(path => urlEntry(`${SITE_URL}${path}`)),
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="${SITEMAP_NAMESPACE}">\n${urls.join('\n')}\n</urlset>\n`;

@@ -24,6 +24,7 @@ import SectionLabel from '@/components/ui/SectionLabel';
 import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '@/components/ui/ToolExtras';
 import { getToolExtras } from '@/utils/toolExtras';
 import { getToolProfile } from '@/utils/toolProfileData';
+import { sectionShown } from '@/utils/toolProfile';
 import { ProfileSource, cleanName, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 import { getRecentActivity } from '@/utils/recentActivity';
@@ -102,8 +103,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
 
   const tabs = [
     { name: 'About', hash: '#' },
-    ...(profile?.data.features.length ? [{ name: 'Features', hash: '#features' }] : []),
-    ...(profile?.compare.length ? [{ name: 'Alternatives', hash: '#compare' }] : []),
+    ...(profile?.data.features.length && sectionShown(profile.data, 'features') ? [{ name: 'Features', hash: '#features' }] : []),
+    ...(profile?.compare.length && sectionShown(profile.data, 'compare') ? [{ name: 'Alternatives', hash: '#compare' }] : []),
     { name: 'Comments', hash: '#comments' },
     { name: 'Maker', hash: '#details' },
     { name: 'Trending', hash: '#launches' },

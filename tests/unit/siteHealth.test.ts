@@ -41,3 +41,12 @@ describe('site health', () => {
     expect(snap.text).toBe('Acme & Co Hi there');
   });
 });
+
+import { siteVariants } from '@/utils/siteHealth';
+describe('siteVariants', () => {
+  it('tries the home page, www/bare hosts and the parent domain', () => {
+    expect(siteVariants('https://www.aimlapi.com/?utm_source=devhunt')).toEqual(['https://aimlapi.com/']);
+    expect(siteVariants('https://app.superagi.com/')).toEqual(['https://app.superagi.com/', 'https://superagi.com/', 'https://www.superagi.com/'].filter(u => u !== 'https://app.superagi.com/'));
+    expect(siteVariants('shop.example.co.uk/x')).toContain('https://example.co.uk/');
+  });
+});

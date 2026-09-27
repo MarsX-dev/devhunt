@@ -1,5 +1,5 @@
 import { jevAsk } from '@/utils/server/jev';
-import { directVerdict, goneReason, hijackQuestions, hijackVerdict, htmlToSnapshot, mentionsTool, type PageSnapshot, type SiteStatus } from '@/utils/siteHealth';
+import { directVerdict, goneReason, hijackQuestions, hijackVerdict, htmlToSnapshot, mentionsTool, siteVariants, type PageSnapshot, type SiteStatus } from '@/utils/siteHealth';
 
 const FIRECRAWL_KEY = () => process.env.FIRECRAWL_KEY || process.env.FIRECRAWL_API_KEY;
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36';
@@ -55,12 +55,17 @@ export async function checkSite(tool: { name: string; slogan: string | null; dem
   let url = addHttps(tool.demo_url.trim());
   let direct = await fetchDirect(url);
   let verdict = directVerdict(direct);
-  // Only the listed page is gone (404 on a deep link) but the site works: check the home page instead.
-  if (verdict && verdict !== 'suspicious' && /HTTP 40[4]|HTTP 410/.test(verdict.dead)) {
-    const origin = new URL(url).origin;
-    if (origin !== url.replace(/\/$/, '')) {
-      const home = await fetchDirect(origin);
-      if (!directVerdict(home)) [url, direct, verdict] = [origin, home, null];
+  // A "404" that still shows the tool (single-page apps do this) is a live site.
+  if (verdict && verdict !== 'suspicious' && direct.text.length > 500 && mentionsTool(direct, tool.name, url)) verdict = null;
+  // Before calling it dead, try the site's other addresses (home page, www/bare host, parent domain):
+  // a broken deep link or a misconfigured redirect isn't a dead tool.
+  if (verdict && verdict !== 'suspicious') {
+    for (const alt of siteVariants(url)) {
+      const page = await fetchDirect(alt);
+      if (!directVerdict(page) && page.status && page.status < 400) {
+        [url, direct, verdict] = [alt, page, null];
+        break;
+      }
     }
   }
 

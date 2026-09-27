@@ -24,6 +24,7 @@ export interface GithubStats {
   license: string | null;
   language: string | null;
   pushed_at: string | null;
+  releases?: { tag: string; name: string | null; published_at: string; url: string }[]; // latest first
 }
 export interface ToolProfileData {
   summary: string;
@@ -36,7 +37,13 @@ export interface ToolProfileData {
   faq: { q: string; a: string }[];
   alternatives: ProfileAlternative[];
   github: GithubStats | null;
+  hidden?: ProfileSection[]; // sections the owner chose not to show
+  owner_edited_at?: string | null; // set when the owner edits; refreshes keep their text
 }
+
+export const PROFILE_SECTIONS = ['glance', 'features', 'use_cases', 'pricing', 'compare', 'faq'] as const;
+export type ProfileSection = (typeof PROFILE_SECTIONS)[number];
+export const sectionShown = (data: ToolProfileData, section: ProfileSection) => !data.hidden?.includes(section);
 
 export interface Candidate {
   id: number;
@@ -83,13 +90,38 @@ export function pickPages(links: string[], siteUrl: string): string[] {
   return [pricing, features].filter((l): l is string => !!l);
 }
 
-// owner/repo from a GitHub URL (the tool's github_url or a link on its site).
+// owner/repo from a GitHub URL.
 export function githubRepo(urls: (string | null | undefined)[]): string | null {
   for (const url of urls) {
     const m = (url ?? '').match(/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?(?:[/?#]|$)/i);
     if (m && !['orgs', 'sponsors', 'features', 'topics', 'marketplace', 'apps', 'about', 'pricing', 'login'].includes(m[1].toLowerCase())) {
       return `${m[1]}/${m[2]}`;
     }
+  }
+  return null;
+}
+
+const brandWords = (name: string, site: string) => {
+  const words = name
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .split(' ')
+    .filter(w => w.length >= 3);
+  try {
+    words.push(new URL(/^https?:/i.test(site) ? site : `https://${site}`).hostname.replace(/^www\./, '').split('.')[0].toLowerCase());
+  } catch {}
+  return Array.from(new Set(words)).filter(w => !['the', 'app', 'dev', 'api', 'tool', 'tools', 'github'].includes(w));
+};
+
+// The tool's own repo: the maker's GitHub field, else a repo linked from its site whose owner or
+// name matches the tool (so links to dependencies or examples aren't picked).
+export function pickGithubRepo(githubUrl: string | null | undefined, links: string[], name: string, site: string): string | null {
+  const own = githubRepo([githubUrl]);
+  if (own) return own;
+  const brand = brandWords(name, site);
+  for (const link of links) {
+    const repo = githubRepo([link]);
+    if (repo && brand.some(w => repo.toLowerCase().replace(/[^a-z0-9/]/g, '').includes(w))) return repo;
   }
   return null;
 }
@@ -212,5 +244,44 @@ export function validateProfile(
     faq,
     alternatives,
     github,
+  };
+}
+
+// Applies an owner's edit to their tool's profile. Owners can reword anything, remove items and
+// hide sections; they can't add alternatives (those are DevHunt tools chosen by us) or change GitHub stats.
+export function applyOwnerEdit(current: ToolProfileData, edit: unknown): ToolProfileData | null {
+  if (!edit || typeof edit !== 'object') return null;
+  const e = edit as Record<string, any>;
+  const summary = str(e.summary, 200);
+  if (!summary) return null;
+  const altIds = new Set(list(e.alternatives).map(a => Number(a?.id ?? a)));
+  const plans = list(e.pricing?.plans)
+    .map(p => ({
+      name: str(p?.name, 40),
+      price: str(p?.price, 30),
+      billing: str(p?.billing, 30),
+      highlights: list(p?.highlights).map(h => str(h, 90)).filter((h): h is string => !!h).slice(0, 4),
+    }))
+    .filter((p): p is ProfilePlan => !!p.name && !!p.price)
+    .slice(0, 5);
+  return {
+    ...current,
+    summary,
+    audience: str(e.audience, 140),
+    best_for: str(e.best_for, 70),
+    features: list(e.features)
+      .map(f => ({ title: str(f?.title, 60), description: str(f?.description, 180) }))
+      .filter((f): f is ProfileFeature => !!f.title && !!f.description)
+      .slice(0, 8),
+    use_cases: list(e.use_cases).map(u => str(u, 130)).filter((u): u is string => !!u).slice(0, 5),
+    integrations: Array.from(new Set(list(e.integrations).map(i => str(i, 40)).filter((i): i is string => !!i))).slice(0, 14),
+    pricing: current.pricing || plans.length ? { model: str(e.pricing?.model, 30) ?? current.pricing?.model ?? null, free_trial: current.pricing?.free_trial ?? null, plans } : null,
+    faq: list(e.faq)
+      .map(f => ({ q: str(f?.q, 140), a: str(f?.a, 420) }))
+      .filter((f): f is { q: string; a: string } => !!f.q && !!f.a)
+      .slice(0, 6),
+    alternatives: current.alternatives.filter(a => altIds.has(a.id)),
+    hidden: list(e.hidden).filter((h): h is ProfileSection => (PROFILE_SECTIONS as readonly string[]).includes(h)),
+    owner_edited_at: new Date().toISOString(),
   };
 }

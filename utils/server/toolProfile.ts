@@ -3,7 +3,7 @@ import { groqJson } from '@/utils/server/enrich';
 import {
   PROFILE_PROMPT,
   cleanMarkdown,
-  githubRepo,
+  pickGithubRepo,
   pickPages,
   profileInput,
   validateProfile,
@@ -32,16 +32,17 @@ async function scrape(url: string, withLinks: boolean) {
   return { markdown: String(body.data?.markdown ?? ''), links: (body.data?.links ?? []) as string[] };
 }
 
-async function githubStats(repo: string | null): Promise<GithubStats | null> {
+export async function githubStats(repo: string | null): Promise<GithubStats | null> {
   if (!repo) return null;
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}`, {
-      headers: { Accept: 'application/vnd.github+json', ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) },
-      signal: AbortSignal.timeout(8000),
-    });
+    const headers = { Accept: 'application/vnd.github+json', ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) };
+    const res = await fetch(`https://api.github.com/repos/${repo}`, { headers, signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const r = await res.json();
     if (r.private || r.archived) return null;
+    const releases = await fetch(`https://api.github.com/repos/${repo}/releases?per_page=3`, { headers, signal: AbortSignal.timeout(8000) })
+      .then(res => (res.ok ? res.json() : []))
+      .catch(() => []);
     return {
       repo: r.full_name,
       stars: r.stargazers_count ?? 0,
@@ -49,6 +50,9 @@ async function githubStats(repo: string | null): Promise<GithubStats | null> {
       license: r.license?.spdx_id && r.license.spdx_id !== 'NOASSERTION' ? r.license.spdx_id : null,
       language: r.language ?? null,
       pushed_at: r.pushed_at ?? null,
+      releases: (Array.isArray(releases) ? releases : [])
+        .filter((rel: any) => !rel.draft && rel.published_at)
+        .map((rel: any) => ({ tag: String(rel.tag_name).slice(0, 40), name: rel.name ? String(rel.name).slice(0, 80) : null, published_at: rel.published_at, url: rel.html_url })),
     };
   } catch {
     return null;
@@ -98,7 +102,7 @@ export async function generateToolProfile(tool: Tool): Promise<{ status: 'ready'
 
     const { data: cats } = await serviceClient.from('product_category_product').select('category_id, product_categories(name)').eq('product_id', tool.id);
     const categoryIds = ((cats ?? []) as any[]).filter(c => c.product_categories?.name !== OTHER_CATEGORY).map(c => c.category_id);
-    const [candidates, github] = await Promise.all([candidatesFor(tool.id, categoryIds), githubStats(githubRepo([tool.github_url, ...home.links]))]);
+    const [candidates, github] = await Promise.all([candidatesFor(tool.id, categoryIds), githubStats(pickGithubRepo(tool.github_url, home.links, tool.name, site))]);
 
     const sourceText = [tool.name, tool.slogan, tool.description, ...pages.map(p => p.text)].join('\n');
     const pricingText = pricingPage && /pric|plan/i.test(pricingPage.url) ? pricingPage.text : '';

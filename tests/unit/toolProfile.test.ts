@@ -72,3 +72,12 @@ describe('tool profiles', () => {
     expect(cleanMarkdown('![logo](a.png) Hi [docs](https://x.dev)\n\n\n\nok')).toBe('Hi docs\n\nok');
   });
 });
+
+import { pickGithubRepo } from '@/utils/toolProfile';
+describe('pickGithubRepo', () => {
+  it("prefers the maker's GitHub field, else a linked repo that matches the tool", () => {
+    expect(pickGithubRepo('https://github.com/acme/acme-cli', [], 'Acme', 'acme.dev')).toBe('acme/acme-cli');
+    expect(pickGithubRepo(null, ['https://github.com/vercel/next.js', 'https://github.com/langfuse/langfuse'], '🪢 Langfuse', 'https://langfuse.com')).toBe('langfuse/langfuse');
+    expect(pickGithubRepo(null, ['https://github.com/vercel/next.js'], 'Acme', 'acme.dev')).toBeNull();
+  });
+});

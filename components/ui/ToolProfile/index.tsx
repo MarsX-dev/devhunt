@@ -3,6 +3,8 @@ import moment from 'moment';
 import { Check, GitFork, Star } from 'lucide-react';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type CompareTool, type ToolProfileView } from '@/utils/toolProfileData';
+import { sectionShown } from '@/utils/toolProfile';
+import { comparePath } from '@/utils/compare';
 
 type Self = { name: string; logo_url: string | null; votes_count: number; launch_start: string | null; pricing: string | null; slug: string };
 
@@ -21,6 +23,7 @@ const logo = (url: string | null) => (url ?? '').replace(/w=\d+/g, 'w=64');
 // "At a glance": who it's for, pricing model, open source stats and integrations.
 export function ToolGlance({ profile }: { profile: ToolProfileView }) {
   const { data } = profile;
+  if (!sectionShown(data, 'glance')) return null;
   const facts = [
     data.audience && { label: 'for', value: data.audience },
     data.pricing?.model && { label: 'pricing', value: `${data.pricing.model}${data.pricing.free_trial ? ' · free trial' : ''}` },
@@ -57,6 +60,19 @@ export function ToolGlance({ profile }: { profile: ToolProfileView }) {
           {data.github.pushed_at && <span className="text-slate-500">updated {moment(data.github.pushed_at).fromNow()}</span>}
         </a>
       )}
+      {!!data.github?.releases?.length && (
+        <ul className="border-t border-slate-800 px-4 py-2.5 font-mono text-xs" aria-label="Latest releases">
+          {data.github.releases.map(rel => (
+            <li key={rel.tag} className="flex items-center gap-x-3 py-0.5">
+              <a href={rel.url} target="_blank" rel="nofollow noopener" className="text-slate-300 hover:text-white">
+                {rel.tag}
+              </a>
+              {rel.name && rel.name !== rel.tag && <span className="truncate text-slate-500">{rel.name}</span>}
+              <span className="ml-auto flex-none text-slate-600">{moment(rel.published_at).fromNow()}</span>
+            </li>
+          ))}
+        </ul>
+      )}
       {!!data.integrations.length && (
         <div className="flex flex-wrap items-center gap-1.5 border-t border-slate-800 px-4 py-3">
           <span className="mr-1 font-mono text-[11px] text-slate-500">works with</span>
@@ -72,7 +88,8 @@ export function ToolGlance({ profile }: { profile: ToolProfileView }) {
 }
 
 export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name: string }) {
-  const { features, use_cases } = profile.data;
+  const features = sectionShown(profile.data, 'features') ? profile.data.features : [];
+  const use_cases = sectionShown(profile.data, 'use_cases') ? profile.data.use_cases : [];
   if (!features.length && !use_cases.length) return null;
   return (
     <div id="features" className="scroll-mt-32 space-y-10">
@@ -108,7 +125,7 @@ export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name
 
 export function ToolPricing({ profile, name }: { profile: ToolProfileView; name: string }) {
   const plans = profile.data.pricing?.plans ?? [];
-  if (plans.length < 2) return null;
+  if (plans.length < 2 || !sectionShown(profile.data, 'pricing')) return null;
   const source = profile.sources.find(s => /pric|plan/i.test(s));
   return (
     <div id="pricing" className="scroll-mt-32">
@@ -150,7 +167,7 @@ export function ToolPricing({ profile, name }: { profile: ToolProfileView; name:
 // Comparison with similar DevHunt tools: a table (best for, pricing, upvotes, launch) and how each differs.
 export function ToolCompare({ profile, self }: { profile: ToolProfileView; self: Self }) {
   const alts = profile.compare;
-  if (!alts.length) return null;
+  if (!alts.length || !sectionShown(profile.data, 'compare')) return null;
   const altInfo = new Map(profile.data.alternatives.map(a => [a.id, a]));
   const columns: (CompareTool & { best_for: string | null; self?: boolean })[] = [
     // The tool's own pricing model from its site is more precise than the maker's pricing label.
@@ -165,7 +182,14 @@ export function ToolCompare({ profile, self }: { profile: ToolProfileView; self:
   ];
   return (
     <div id="compare" className="scroll-mt-32">
-      <SectionLabel title={`${cleanName(self.name)} vs alternatives`} hint="similar tools on DevHunt" />
+      <SectionLabel
+        title={`${cleanName(self.name)} vs alternatives`}
+        hint={
+          <Link href={`/tool/${self.slug}/alternatives`} className="hover:text-slate-300">
+            all alternatives →
+          </Link>
+        }
+      />
       <div className="mt-4 overflow-x-auto rounded-xl border border-slate-800">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
@@ -207,7 +231,7 @@ export function ToolCompare({ profile, self }: { profile: ToolProfileView; self:
       <ul className="mt-4 space-y-2.5">
         {alts.map(a => (
           <li key={a.id} className="text-sm leading-relaxed text-slate-400">
-            <Link href={`/tool/${a.slug}`} className="font-medium text-slate-200 hover:text-white">
+            <Link href={comparePath(self.slug, a.slug)} className="font-medium text-slate-200 hover:text-white">
               {cleanName(self.name)} vs {cleanName(a.name)}:
             </Link>{' '}
             {altInfo.get(a.id)?.difference}
@@ -220,7 +244,7 @@ export function ToolCompare({ profile, self }: { profile: ToolProfileView; self:
 
 export function ToolFaq({ profile, name }: { profile: ToolProfileView; name: string }) {
   const { faq } = profile.data;
-  if (!faq.length) return null;
+  if (!faq.length || !sectionShown(profile.data, 'faq')) return null;
   return (
     <div id="faq" className="scroll-mt-32">
       <SectionLabel title={`${name} FAQ`} />
@@ -242,14 +266,14 @@ export function ToolFaq({ profile, name }: { profile: ToolProfileView; name: str
 export function ProfileSource({ profile }: { profile: ToolProfileView }) {
   return (
     <p className="font-mono text-[11px] text-slate-600">
-      Summarized by DevHunt from {Array.from(new Set(profile.sources.map(hostOf))).join(', ')}
+      {profile.data.owner_edited_at ? 'Edited by the makers, based on ' : 'Summarized by DevHunt from '}{Array.from(new Set(profile.sources.map(hostOf))).join(', ')}
       {profile.generated_at && ` · ${moment(profile.generated_at).format('MMM D, YYYY')}`}. Details may change; check the official site.
     </p>
   );
 }
 
 export const faqJsonLd = (profile: ToolProfileView) =>
-  profile.data.faq.length
+  profile.data.faq.length && sectionShown(profile.data, 'faq')
     ? {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',

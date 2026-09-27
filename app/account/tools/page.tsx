@@ -107,6 +107,11 @@ export default () => {
                       <span className="flex flex-wrap items-center gap-2">
                         <Name>{tool.name}</Name>
                         <StatusChip tool={tool} />
+                        {tool.site_status && tool.site_status !== 'ok' && (
+                          <span className="rounded-full border border-red-500/40 px-2 py-0.5 text-xs text-red-300" title={tool.site_status_reason ?? undefined}>
+                            Hidden: website {tool.site_status === 'hijacked' ? 'hijacked' : 'down'}
+                          </span>
+                        )}
                       </span>
                       {/* {!tool.isPaid && (
                         <p className="text-slate-300 text-sm">
@@ -135,6 +140,12 @@ export default () => {
                         className="inline-flex items-center gap-x-2 text-orange-500 hover:text-orange-600 duration-150 font-medium"
                       >
                         <IconPencilSquare /> Edit your tool
+                      </Link>
+                      <Link
+                        href={`/account/tools/profile/${tool.id}`}
+                        className="inline-flex items-center gap-x-1.5 text-sm text-slate-300 hover:text-slate-50 duration-150"
+                      >
+                        Fact sheet
                       </Link>
                       {tool.isPaid && (
                         <Link
