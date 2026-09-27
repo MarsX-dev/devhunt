@@ -36,7 +36,7 @@ async function firecrawlSearch(query: string, limit: number, withContent: boolea
     .map(r => ({ url: r.url, title: String(r.title ?? ''), description: String(r.description ?? ''), markdown: r.markdown ? String(r.markdown).slice(0, 12000) : undefined }));
 }
 
-async function groqJson(system: string, user: string): Promise<unknown | null> {
+export async function groqJson(system: string, user: string, maxTokens = 3000): Promise<unknown | null> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${GROQ_KEY()}`, 'Content-Type': 'application/json' },
@@ -44,7 +44,7 @@ async function groqJson(system: string, user: string): Promise<unknown | null> {
       model: GROQ_MODEL(),
       temperature: 0.1,
       reasoning_effort: 'low',
-      max_completion_tokens: 3000,
+      max_completion_tokens: maxTokens,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: system },

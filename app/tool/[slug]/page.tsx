@@ -23,6 +23,9 @@ import ToolHero, { ToolMaker } from '@/components/ui/ToolHero';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '@/components/ui/ToolExtras';
 import { getToolExtras } from '@/utils/toolExtras';
+import { getToolProfile } from '@/utils/toolProfileData';
+import { ProfileSource, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
+import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { type ProductType } from '@/type';
 
@@ -91,11 +94,14 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
 
   const weekRank = Number((weekAward[0] as any)?.rank) || undefined;
-  const [activity, extras] = await Promise.all([getRecentActivity(), getToolExtras(product.id)]);
+  const [activity, extras, profile] = await Promise.all([getRecentActivity(), getToolExtras(product.id), getToolProfile(product.id)]);
+  const pricingTitle: string | null = (product as any).product_pricing_types?.title ?? null;
   const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
   const tabs = [
     { name: 'About', hash: '#' },
+    ...(profile?.data.features.length ? [{ name: 'Features', hash: '#features' }] : []),
+    ...(profile?.compare.length ? [{ name: 'Alternatives', hash: '#compare' }] : []),
     { name: 'Comments', hash: '#comments' },
     { name: 'Maker', hash: '#details' },
     { name: 'Trending', hash: '#launches' },
@@ -112,12 +118,16 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     screenshot: product.asset_urls?.[0] ?? undefined,
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Web',
-    ...((product as any).product_pricing_types?.title === 'Free' ? { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
+    ...(pricingTitle === 'Free' ? { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
+    ...(profile?.data.features.length ? { featureList: profile.data.features.map(f => f.title) } : {}),
   };
+  const faqData = profile ? faqJsonLd(profile) : null;
 
   return (
     <section className="mt-10 pb-10 sm:mt-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
+      {faqData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData).replace(/</g, '\\u003c') }} />}
+      {!profile && <RequestProfile productId={product.id} />}
       <div className="container-custom-screen">
         <ToolHero
           tool={product as ProductType}
@@ -159,6 +169,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               ''
             )}
             <ToolHighlights extras={extras} />
+            {profile && <ToolGlance profile={profile} />}
           </div>
           {product?.asset_urls?.length && (
             <div className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
@@ -171,6 +182,18 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             </div>
           )}
         </div>
+        {profile && (
+          <div className="container-custom-screen space-y-14">
+            <ToolFeatures profile={profile} name={product.name.trim()} />
+            <ToolPricing profile={profile} name={product.name.trim()} />
+            <ToolCompare
+              profile={profile}
+              self={{ name: product.name, slug: product.slug, logo_url: product.logo_url, votes_count: product.votes_count, launch_start: product.launch_start, pricing: pricingTitle }}
+            />
+            <ToolFaq profile={profile} name={product.name.trim()} />
+            <ProfileSource profile={profile} />
+          </div>
+        )}
         {extras.some(e => e.kind === 'review' || e.kind === 'mention') && (
           <div className="container-custom-screen space-y-14">
             <ToolReviews extras={extras} />
