@@ -42,7 +42,12 @@ export async function GET(req: Request) {
           visitors: sum('visitors'),
           pageviews: sum('pageviews'),
           newVisitors: sum('new_visitors'),
-          countries: rows.map(r => ({ country: r.country, visitors: Number(r.visitors) })).sort((a, b) => b.visitors - a.visitors),
+          // A country's counts are spread over several rows (track_pageview shards).
+          countries: Object.entries(
+            rows.reduce<Record<string, number>>((acc, r) => ({ ...acc, [r.country]: (acc[r.country] ?? 0) + Number(r.visitors) }), {}),
+          )
+            .map(([country, visitors]) => ({ country, visitors }))
+            .sort((a, b) => b.visitors - a.visitors),
         }
       : null,
     newUsers: (stats.data as any)?.users_today ?? null,
