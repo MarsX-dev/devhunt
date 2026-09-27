@@ -220,7 +220,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
               <span className="rounded-full bg-orange-500 px-2.5 py-0.5 text-sm font-semibold text-white">$49</span>
             </div>
             <ul className="mt-3 space-y-1.5 text-sm text-slate-400">
-              <li>✓ Your own page on DevHunt with a dofollow link to your site</li>
+              <li>✓ A dofollow backlink from DevHunt, domain rating 65 (Ahrefs)</li>
               <li>✓ Listed in the Other category and the all-tools directory</li>
               <li>✓ One-time payment, no subscription</li>
             </ul>
