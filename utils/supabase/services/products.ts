@@ -338,9 +338,19 @@ export default class ProductsService extends BaseDbService {
     const key = `product-id-${id}`;
 
     const votersList = await cache.get(key, async () => {
-      let { data } = await this.supabase.from('product_votes').select('*').eq('product_id', id);
-      const promises = data?.map(async item => this.getUserProfileById(item.user_id));
-      return await Promise.all(promises as []);
+      const { data } = await this.supabase
+        .from('product_votes')
+        .select('user_id')
+        .eq('product_id', id)
+        .order('created_at', { ascending: true });
+      const ids = (data ?? []).map(v => v.user_id);
+      // One request per 100 voters (not one per voter: a popular tool used to fire 300+ requests per view).
+      const chunks = Array.from({ length: Math.ceil(ids.length / 100) }, (_, i) => ids.slice(i * 100, i * 100 + 100));
+      const rows = (
+        await Promise.all(chunks.map(async chunk => (await this.supabase.from('profiles').select().in('id', chunk)).data ?? []))
+      ).flat();
+      const byId = new Map(rows.map(p => [p.id, p]));
+      return ids.map(uid => byId.get(uid)).filter(Boolean) as Profile[];
     });
 
     return votersList;
