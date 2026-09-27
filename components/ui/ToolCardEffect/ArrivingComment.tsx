@@ -26,31 +26,31 @@ export default function ArrivingComment({ comment, active }: { comment: LatestCo
       className={`transition-[opacity,transform] duration-500 ease-out ${stage === 'hidden' ? 'translate-y-1 opacity-0' : 'translate-y-0 opacity-100'}`}
       aria-hidden={stage === 'hidden'}
     >
-      <div>
-        <div className="flex items-center gap-x-2 pt-2.5">
-          <img
-            src={comment.avatar}
-            alt=""
-            referrerPolicy="no-referrer"
-            className="h-5 w-5 flex-none rounded-full bg-slate-800 object-cover"
-            onError={e => ((e.target as HTMLImageElement).style.visibility = 'hidden')}
-          />
-          <div className="flex min-w-0 items-center gap-x-1.5 rounded-2xl rounded-tl-md bg-slate-800/70 px-3 py-1.5 text-[13px] leading-5">
-            {stage === 'shown' ? (
-              <>
-                <span className="flex-none font-medium text-slate-200">{comment.name}</span>
-                <span className="truncate text-slate-400">{comment.content}</span>
-                <span className="flex-none text-slate-600">· {timeAgo(comment.at)}</span>
-              </>
-            ) : (
-              <span className="flex h-5 items-center gap-x-1 px-0.5" aria-label="typing">
-                {[0, 150, 300].map(delay => (
-                  <span key={delay} className="h-1.5 w-1.5 rounded-full bg-slate-400 animate-typing" style={{ animationDelay: `${delay}ms` }} />
-                ))}
-              </span>
-            )}
-          </div>
-        </div>
+      {/* A terminal-style reply line under the tool: "↳ name  comment · 2h ago". */}
+      <div className="flex min-w-0 items-center gap-x-2 text-[13px] leading-5">
+        <span className="flex-none font-mono text-slate-600" aria-hidden>
+          ↳
+        </span>
+        <img
+          src={comment.avatar}
+          alt=""
+          referrerPolicy="no-referrer"
+          className="h-4 w-4 flex-none rounded-full bg-slate-800 object-cover"
+          onError={e => ((e.target as HTMLImageElement).style.visibility = 'hidden')}
+        />
+        {stage === 'shown' ? (
+          <>
+            <span className="flex-none font-medium text-slate-300">{comment.name}</span>
+            <span className="truncate text-slate-400">{comment.content}</span>
+            <span className="flex-none font-mono text-xs text-slate-600">· {timeAgo(comment.at)}</span>
+          </>
+        ) : (
+          <span className="flex h-5 items-center gap-x-1" aria-label="typing">
+            {[0, 150, 300].map(delay => (
+              <span key={delay} className="h-1 w-1 rounded-full bg-slate-500 animate-typing" style={{ animationDelay: `${delay}ms` }} />
+            ))}
+          </span>
+        )}
       </div>
     </div>
   );
