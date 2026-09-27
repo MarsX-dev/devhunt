@@ -1,4 +1,5 @@
 import ArticleCard from '@/components/ui/Blog/ArticleCard';
+import PageHeader from '@/components/ui/PageHeader';
 import Pagination from '@/components/ui/Blog/Pagination';
 import { type Metadata } from 'next';
 import { getArticles } from '@/utils/blog';
@@ -41,8 +42,10 @@ export default async function Blog({ searchParams: { page } }: { searchParams: {
   const lastPage = Math.ceil(total / 10);
 
   return (
-    <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8 tracking-normal">
-      <h1 className="text-white text-4xl my-4 font-black">DevHunt's Blog</h1>
+    <section className="max-w-3xl mt-10 mb-24 mx-auto px-4 md:px-8 tracking-normal">
+      <PageHeader eyebrow="Blog" title="Notes on dev tools">
+        Lists, comparisons and guides for developers and makers.
+      </PageHeader>
       <ul>
         {posts.map((article: any) => (
           <ArticleCard key={article.id} article={article} />

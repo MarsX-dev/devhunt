@@ -1,5 +1,6 @@
 'use client';
 
+import PageHeader from '@/components/ui/PageHeader';
 import axios from 'axios';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
@@ -189,8 +190,8 @@ export default () => {
   };
 
   return (
-    <section className="container-custom-screen">
-      <h1 className="text-xl text-slate-50 font-semibold">Edit Launch</h1>
+    <section className="container-custom-screen mt-10 mb-24">
+      <PageHeader eyebrow="Dashboard" title="Edit your launch" />
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection

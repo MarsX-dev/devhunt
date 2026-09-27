@@ -84,9 +84,12 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
     </div>
   ) : (
     <div className="flex items-center">
-      <Button variant="shiny" onClick={() => setModalActive(true)}>
+      <button
+        onClick={() => setModalActive(true)}
+        className="rounded-full border border-slate-700 px-4 py-1.5 text-sm font-medium text-slate-200 duration-150 hover:border-slate-500 hover:text-slate-50"
+      >
         Sign In
-      </Button>
+      </button>
       <Modal variant="custom" isActive={isModalActive} onCancel={() => setModalActive(false)} className="max-w-md">
         <div className="text-center p-2">
           <div className="">

@@ -1,8 +1,11 @@
 'use client';
 
+import PageHeader from '@/components/ui/PageHeader';
+import SectionLabel from '@/components/ui/SectionLabel';
+import moment from 'moment';
+
 import { IconCodeBracket, IconLoading, IconPencilSquare, IconTrash } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
-import LinkItem from '@/components/ui/Link/LinkItem';
 import ModalBannerCode from '@/components/ui/ModalBannerCode';
 
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
@@ -15,6 +18,28 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+
+// Launch status of one of the owner's tools.
+function StatusChip({ tool }: { tool: ProductType }) {
+  const now = Date.now();
+  const start = tool.launch_start ? Date.parse(tool.launch_start) : NaN;
+  const end = tool.launch_end ? Date.parse(tool.launch_end as string) : NaN;
+  const chip = 'rounded-full border px-2 py-0.5 text-[11px] font-medium';
+  const status =
+    start <= now && end >= now ? (
+      <span className={`${chip} border-green-500/40 bg-green-500/10 text-green-300`}>Live now</span>
+    ) : start > now ? (
+      <span className={`${chip} border-slate-700 text-slate-400`}>Launching {moment.utc(start).format('MMM D, YYYY')}</span>
+    ) : (
+      <span className={`${chip} border-slate-700 text-slate-500`}>Launched {moment.utc(start).format('MMM D, YYYY')}</span>
+    );
+  return (
+    <>
+      {status}
+      {tool.isPaid && <span className={`${chip} border-orange-500/40 bg-orange-500/10 text-orange-300`}>Paid</span>}
+    </>
+  );
+}
 
 export default () => {
   const { session } = useSupabase();
@@ -49,17 +74,17 @@ export default () => {
   };
 
   return (
-    <section className="container-custom-screen min-h-screen mt-14">
-      <div className="items-start justify-between py-4 md:flex">
-        <div className="max-w-lg">
-          <h1 className="text-slate-50 text-2xl font-bold">Tools</h1>
-          <p className="text-slate-300 mt-1">You can launch a new tool, or edit and delete.</p>
-        </div>
-        <div className="mt-4 md:mt-0">
-          <LinkItem href="/account/tools/new" className="text-sm shadow hover:bg-slate-700">
-            New tool
-          </LinkItem>
-        </div>
+    <section className="container-custom-screen min-h-screen mt-10 mb-24">
+      <div className="items-end justify-between gap-6 md:flex">
+        <PageHeader eyebrow="Dashboard" title="Your launches">
+          Edit your tools, pick launch dates and share your launch badge.
+        </PageHeader>
+        <Link
+          href="/account/tools/new"
+          className="mt-6 inline-flex flex-none rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-900 duration-150 hover:bg-white md:mt-0"
+        >
+          + Launch a tool
+        </Link>
       </div>
       <ul className="mt-6 divide-y divide-slate-800/60">
         {isLoad ? (
@@ -74,7 +99,10 @@ export default () => {
                   <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
                   <div>
                     <Link href={`/tool/${tool.slug}`}>
-                      <Name>{tool.name}</Name>
+                      <span className="flex flex-wrap items-center gap-2">
+                        <Name>{tool.name}</Name>
+                        <StatusChip tool={tool} />
+                      </span>
                       {/* {!tool.isPaid && (
                         <p className="text-slate-300 text-sm">
                           Status: <span className="text-orange-400">draft</span>
@@ -147,31 +175,39 @@ export default () => {
             </>
           ))
         ) : (
-          <div className="font-medium text-slate-400">No launches found.</div>
+          <div className="rounded-2xl border border-dashed border-slate-700 p-8 text-center">
+            <p className="font-medium text-slate-200">No launches yet</p>
+            <p className="mt-1 text-sm text-slate-500">Submit your dev tool and pick a launch date in two steps.</p>
+            <Link href="/account/tools/new" className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400">
+              Launch your first tool
+            </Link>
+          </div>
         )}
       </ul>
-      <hr className="border-slate-700 mt-5" />
-      <p className="text-slate-300 mt-5 whitespace-pre-wrap">
-        <a className="text-orange-500 whitespace-pre-wrap" href="/the-story">
-          Read the Rules{' '}
-        </a>
-        for voting and what dev tools you can submit here
-      </p>
-
-      <p className="text-slate-300 mt-2 whitespace-pre-wrap">
-        See{' '}
-        <a className="text-orange-500 whitespace-pre-wrap" href="/the-story#ads">
-          Advertizing
-        </a>{' '}
-        and other premium options to grow your Dev Tool.
-      </p>
-      <p className="text-slate-300 mt-2 whitespace-pre-wrap">
-        Consider launching on{' '}
-        <a className="text-orange-500 whitespace-pre-wrap" href="https://uneed.best/?aff=A6pv1">
-          Uneed.best
-        </a>{' '}
-        to get even more traffic to your tool.
-      </p>
+      <div className="mt-14">
+        <SectionLabel title="Resources" />
+        <ul className="mt-3 space-y-2 text-sm text-slate-400">
+          <li>
+            <a className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story">
+              Read the rules
+            </a>{' '}
+            for voting and which dev tools you can submit.
+          </li>
+          <li>
+            <a className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story#ads">
+              Advertising
+            </a>{' '}
+            and other premium options to grow your dev tool.
+          </li>
+          <li>
+            Consider launching on{' '}
+            <a className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="https://uneed.best/?aff=A6pv1">
+              Uneed.best
+            </a>{' '}
+            for even more traffic.
+          </li>
+        </ul>
+      </div>
 
       <ModalBannerCode
         isModalOpen={isModalOpen}

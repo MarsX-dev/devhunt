@@ -4,7 +4,7 @@ export default () => {
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         <div className="max-w-2xl xl:mx-auto xl:text-center">
           <h3 className="text-white text-3xl font-semibold sm:text-4xl">Best Dev Tool Startups Are on DevHunt</h3>
-          <p className="mt-3 text-gray-300">YCombinator, VC backed, Bootstrapped, Solo founded, all here.</p>
+          <p className="mt-3 text-slate-300">YCombinator, VC backed, Bootstrapped, Solo founded, all here.</p>
         </div>
         <div className="mt-6 stroke-white">
           <ul className="flex gap-y-6 flex-wrap items-center justify-center [&>*]:w-full [&>*]:text-center [&>*]:px-12 sm:[&>*]:w-auto  lg:divide-x">

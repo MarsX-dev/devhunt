@@ -1,5 +1,6 @@
 'use client';
 
+import PageHeader from '@/components/ui/PageHeader';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
 import CategoryInput from '@/components/ui/CategoryInput';
@@ -23,7 +24,6 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
-import Alert from '@/components/ui/Alert';
 import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
 import { IconXmark } from '@/components/Icons';
@@ -287,8 +287,10 @@ export default () => {
   return (
     <>
       <section className="container-custom-screen">
-        <Alert context="Any non-dev tools will be subject to removal. Please ensure that your submission is relevant to the developer community." />
-        <h1 className="text-xl text-slate-50 font-semibold mt-6">Launch a tool</h1>
+        <PageHeader eyebrow="Launch" title="Launch your dev tool">
+          Submit your tool in a few minutes, then choose when it launches. DevHunt is for developer tools only; anything else is
+          removed.
+        </PageHeader>
         <div id="form-container" className="mt-12">
           <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
             <FormLaunchSection

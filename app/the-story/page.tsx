@@ -1,3 +1,4 @@
+import PageHeader from '@/components/ui/PageHeader';
 import Pricing from './pricing';
 import Stats from './stats';
 import Logos from './logos';
@@ -10,8 +11,10 @@ export const metadata = {
 export default () => {
   return (
     <div className="">
-      <article className="container-custom-screen mt-12 prose prose-invert">
-        <h1>About DevHunt</h1>
+      <div className="container-custom-screen mt-10">
+        <PageHeader eyebrow="About" title="About DevHunt" />
+      </div>
+      <article className="container-custom-screen mt-8 prose prose-invert">
         <p>
           Welcome to <strong>DevHunt</strong>! We're a group of cool, young developers who came together with one mission: to create an
           awesome platform specifically for launching developer tools. We believe in collaboration and making the internet better for devs

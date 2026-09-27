@@ -1,5 +1,6 @@
 'use client';
 
+import PageHeader from '@/components/ui/PageHeader';
 import React, { type FormEventHandler, useEffect, useState } from 'react';
 import UploadAvatar from '@/components/ui/UploadAvatar/UploadAvatar';
 import Button from '@/components/ui/Button/Button';
@@ -102,11 +103,10 @@ function Profile() {
   }, [isEmailTyping]);
 
   return (
-    <div className="container-custom-screen h-screen mt-20">
-      <div>
-        <h1 className="text-xl text-slate-50 font-semibold">Profile</h1>
-        <p className="mt-1 text-sm text-slate-400">This information will be displayed publicly so be careful what you share.</p>
-      </div>
+    <div className="container-custom-screen mt-10 mb-24">
+      <PageHeader eyebrow="Account" title="Your profile">
+        This information is shown publicly on your profile, so be careful what you share.
+      </PageHeader>
       <div className="mt-14">
         <UploadAvatar
           avatarUrl={avatar}
