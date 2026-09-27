@@ -7,5 +7,5 @@ import { profileExists } from '@/utils/routeExists';
 export default async function ProfileLayout({ children, params: { user } }: { children: ReactNode; params: { user: string } }) {
   const decoded = decodeURIComponent(user);
   if (!decoded.startsWith('@') || !(await profileExists(decoded.slice(1)))) notFound();
-  return children;
+  return <>{children}</>;
 }

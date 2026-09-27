@@ -1,11 +1,10 @@
-'use client';
-
 import { type ReactNode } from 'react';
-import { useSupabase } from '@/components/supabase/provider';
-import LoginPage from '../../components/ui/LoginPage';
+import { type Metadata } from 'next';
+import AccountGate from '@/components/ui/AccountGate';
 
-export default ({ children }: { children: ReactNode }) => {
-  const { session } = useSupabase();
-  const user = session?.user;
-  return user ? <div className="mt-10 mb-32">{children}</div> : <LoginPage />;
-};
+// Private pages: keep them out of search results.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
+export default function AccountLayout({ children }: { children: ReactNode }) {
+  return <AccountGate>{children}</AccountGate>;
+}

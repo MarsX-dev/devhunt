@@ -27,6 +27,7 @@ const categories: { name: string; description: string }[] = [
   { name: 'Security', description: 'Security tools and practices for protecting applications.' },
   { name: 'Tailwind CSS', description: 'Utility-first CSS framework.' },
   { name: 'Boilerplate', description: 'Starter code templates for new projects.' },
+  { name: 'Other', description: 'Useful products that are not developer tools.' },
 ];
 
 export default categories;

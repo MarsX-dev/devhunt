@@ -88,7 +88,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta property="og:locale" content="en_US" />
         <meta name="language" content="English" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" />
       </head>
       <body className={`${inter.className} ${mono.variable} antialiased`} id="root">
         <main className="overflow-x-clip">

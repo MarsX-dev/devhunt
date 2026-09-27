@@ -4,7 +4,8 @@ import { planLaunch, type SubmitType } from '@/utils/launchPlanning';
 import { getRouteUser } from '@/utils/server/auth';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { announceNewTool } from '@/utils/server/discord';
-import { scoreDevTool } from '@/utils/server/jev';
+import { moderateSubmission } from '@/utils/server/jev';
+import { moderationDecision } from '@/utils/moderation';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
@@ -91,13 +92,30 @@ export async function POST(req: Request) {
     await serviceClient.from('product_category_product').insert(categoryIds.map(category_id => ({ product_id: product.id, category_id })));
   }
 
-  // Moderation signal (also keeps non-dev submissions out of the home page's live strip).
-  const [devToolScore, { data: profile }] = await Promise.all([
-    scoreDevTool({ name, slogan: body.slogan, description: body.description, website: body.website }),
+  // Moderation (JEV): banned topics are blocked and hidden until reviewed; non-dev tools stay out of
+  // the weekly competition (and the free queue) and can pay for a listing in "Other".
+  const [answers, { data: profile }] = await Promise.all([
+    moderateSubmission({ name, slogan: body.slogan, description: body.description, website: body.website }),
     serviceClient.from('profiles').select('full_name').eq('id', user.id).single(),
   ]);
-  if (devToolScore !== null) await serviceClient.from('products').update({ dev_tool_score: devToolScore } as never).eq('id', product.id);
-  await announceNewTool(product, profile?.full_name ?? null, devToolScore);
+  const decision = moderationDecision(answers);
+  await serviceClient
+    .from('products')
+    .update({
+      dev_tool_score: answers.devToolScore,
+      moderation: decision.status,
+      moderation_reason: decision.reason,
+      ...(decision.status === 'blocked' ? { deleted: true, deleted_at: new Date().toISOString() } : {}),
+    } as never)
+    .eq('id', product.id);
+  if (decision.status === 'not_a_fit') {
+    const { data: other } = await serviceClient.from('product_categories').select('id').eq('name', 'Other').maybeSingle();
+    await serviceClient.from('product_category_product').delete().eq('product_id', product.id);
+    if (other) await serviceClient.from('product_category_product').insert({ product_id: product.id, category_id: other.id });
+  }
+  await announceNewTool(product, profile?.full_name ?? null, { ...decision, devToolScore: answers.devToolScore, topicProbability: answers.topicProbability });
+  console.log(JSON.stringify({ event: 'tool_submitted', tool: product.id, moderation: decision.status, reason: decision.reason, score: answers.devToolScore }));
 
-  return NextResponse.json({ product, paid: submitType === 'paid' });
+  return NextResponse.json({ product, paid: submitType === 'paid', moderation: decision.status, moderationReason: decision.reason });
+
 }

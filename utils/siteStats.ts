@@ -31,9 +31,9 @@ export const getSiteStats = unstable_cache(
 
 export function statItems(stats: SiteStats): StatItem[] {
   return [
-    { label: 'Tool impressions', value: stats.total_views, delta: stats.views_today, deltaLabel: 'today' },
-    { label: 'Domain rating (Ahrefs)', value: DOMAIN_RATING },
-    { label: 'Tools launched', value: stats.tools_launched, delta: stats.tools_this_week, deltaLabel: 'this week' },
-    { label: 'Developers joined', value: stats.users, delta: stats.users_today, deltaLabel: 'today' },
+    { label: 'impressions', value: stats.total_views, delta: stats.views_today, deltaLabel: 'today' },
+    { label: 'domain_rating', value: DOMAIN_RATING, note: 'ahrefs' },
+    { label: 'tools_launched', value: stats.tools_launched, delta: stats.tools_this_week, deltaLabel: 'this week' },
+    { label: 'developers', value: stats.users, delta: stats.users_today, deltaLabel: 'today' },
   ];
 }

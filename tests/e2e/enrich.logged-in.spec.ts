@@ -20,9 +20,9 @@ test('owner approves findings; only approved ones show on the tool page', async 
   const res = await page.request.post('/api/tools', {
     data: {
       name: `QA Rich Page ${Date.now()}${testInfo.project.name.length}`,
-      slogan: 'Internal QA test - please ignore',
+      slogan: 'Open-source CLI to test REST and GraphQL APIs',
       website: 'https://example.com/',
-      description: 'Internal QA test tool, please ignore.',
+      description: 'A command-line tool for developers to write, run and share REST and GraphQL API tests in CI. (Internal DevHunt QA test, removed automatically.)',
       pricingType: 1,
       logoUrl: 'https://mars-images.imgix.net/1790424424410-1790424423031qa-logo.png?auto=compress&fit=max&w=128',
       assetUrls: ['https://mars-images.imgix.net/1790424426140-1790424425553qa.png?auto=compress&fit=max&w=750'],

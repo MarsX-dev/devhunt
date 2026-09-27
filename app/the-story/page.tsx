@@ -4,7 +4,9 @@ import Stats from './stats';
 import Logos from './logos';
 
 export const metadata = {
-  title: 'The Story - Dev Hunt',
+  title: 'About DevHunt - the launchpad for dev tools',
+  description: 'Who builds DevHunt, how weekly launches and voting work, and which dev tools can launch here.',
+  alternates: { canonical: '/the-story' },
 };
 
 // this way of writing static pages with content is not professional, we gonna use MDX later.

@@ -10,10 +10,13 @@ test('My tools loads quickly', async ({ page }) => {
   expect(Date.now() - started).toBeLessThan(10_000);
 });
 
-test('submit form leaves the launch date for the next step', async ({ page }) => {
+test('submit starts with just the website, then the form; the launch date comes after', async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto('/account/tools/new');
-  await expect(page.getByText(/pick your launch date on the next step/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What are you launching?' })).toBeVisible();
+  await expect(page.getByLabel("Your tool's website")).toBeVisible();
+  await expect(page.getByPlaceholder('My Awesome Dev Tool')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Fill it in manually' }).click();
   await expect(page.getByRole('button', { name: 'Submit and pick a launch date' })).toBeVisible();
   await expect(page.locator('select[name=week]')).toHaveCount(0);
   await expect(page.getByText(/\$49/)).toHaveCount(0);
@@ -95,9 +98,9 @@ test('"Start with your website" fills in the whole form (Firecrawl/JEV mocked)',
         }),
   );
   await page.goto('/account/tools/new');
-  await page.getByPlaceholder('https://myawesomedevtool.com', { exact: true }).fill('foobar.dev');
-  await page.getByRole('button', { name: 'Fill the form' }).click();
-  await expect(page.getByText(/Done! Check the details/)).toBeVisible();
+  await page.getByLabel("Your tool's website").fill('foobar.dev');
+  await page.getByRole('button', { name: 'Continue →' }).click();
+  await expect(page.getByText(/filled in from foobar\.dev/)).toBeVisible();
   await expect(page.getByPlaceholder('My Awesome Dev Tool')).toHaveValue('FooBar');
   await expect(page.getByPlaceholder('Supercharge Your Development Workflow!')).toHaveValue('Trace and monitor your LLM apps.');
   await expect(page.getByPlaceholder('https://myawesomedevtool.com/')).toHaveValue('https://foobar.dev/');

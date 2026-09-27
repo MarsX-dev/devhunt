@@ -1,7 +1,8 @@
 import LoginPage from '@/components/ui/LoginPage';
 
 export const metadata = {
-  title: 'Login to your account',
+  title: 'Log in to DevHunt',
+  robots: { index: false, follow: true },
 };
 
 export default function Login() {

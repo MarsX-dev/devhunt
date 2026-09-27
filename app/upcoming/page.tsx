@@ -17,18 +17,20 @@ const { title, description, ogImage } = {
 };
 
 export const metadata = {
-  title,
-  description,
+  title: 'Upcoming Dev Tools - Launching Next on DevHunt',
+  description: 'The next developer tools launching on DevHunt, week by week. New launches go live every Tuesday.',
+  metadataBase: new URL('https://devhunt.org'),
+  alternates: { canonical: '/upcoming' },
   openGraph: {
-    title,
-    description,
+    title: 'Upcoming Dev Tools - Launching Next on DevHunt',
+    description: 'The next developer tools launching on DevHunt, week by week.',
     images: [ogImage],
-    url: 'https://devhunt.org',
+    url: 'https://devhunt.org/upcoming',
   },
   twitter: {
     card: 'summary_large_image',
-    title,
-    description,
+    title: 'Upcoming Dev Tools - Launching Next on DevHunt',
+    description: 'The next developer tools launching on DevHunt, week by week.',
     images: [ogImage],
   },
 };

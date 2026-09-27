@@ -1,7 +1,7 @@
 export const SITE_URL = 'https://devhunt.org';
 export const SITEMAP_NAMESPACE = 'http://www.sitemaps.org/schemas/sitemap/0.9';
 
-const STATIC_PATHS = ['', '/the-story', '/blog', '/best-dev-tools-this-week-on-product-hunt'];
+const STATIC_PATHS = ['', '/upcoming', '/all-dev-tools', '/the-story', '/blog', '/oss-friends', '/best-dev-tools-this-week-on-product-hunt'];
 
 export interface SitemapTool {
   slug: string;

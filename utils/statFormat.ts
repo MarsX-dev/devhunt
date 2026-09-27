@@ -3,6 +3,7 @@ export interface StatItem {
   value: number | string; // a string is shown as is (no count-up)
   delta?: number;
   deltaLabel?: string;
+  note?: string; // shown instead of a delta
 }
 
 // 7,036 stays exact; 24,127,478 becomes 24.1M.

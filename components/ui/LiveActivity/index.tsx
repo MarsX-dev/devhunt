@@ -24,20 +24,16 @@ export default function LiveActivity({ events }: { events: ActivityEvent[] }) {
   const event = events[idx];
 
   return (
-    <div id="live-activity" className="-mt-2 mb-6 flex h-8 items-center justify-center gap-x-2.5 overflow-hidden text-sm text-slate-400">
-      <span className="flex flex-none items-center gap-x-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-green-400">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-70 motion-safe:animate-ping" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-400" />
-        </span>
-        Live
+    <div id="live-activity" className="flex h-9 items-center gap-x-2 overflow-hidden px-4 font-mono text-xs text-slate-500">
+      <span className="flex-none text-green-400" aria-label="Live">
+        &gt;
       </span>
       <div key={idx} className="flex min-w-0 items-center gap-x-2 motion-safe:animate-slide-up">
         <img
           src={event.avatar}
           alt=""
           referrerPolicy="no-referrer"
-          className="h-5 w-5 flex-none rounded-full object-cover bg-slate-800"
+          className="h-4 w-4 flex-none rounded-full bg-slate-800 object-cover"
           onError={e => ((e.target as HTMLImageElement).style.visibility = 'hidden')}
         />
         <span className="truncate">
@@ -52,7 +48,7 @@ export default function LiveActivity({ events }: { events: ActivityEvent[] }) {
           {event.tool && event.slug && (
             <>
               {' '}
-              <Link href={`/tool/${event.slug}`} className="text-slate-200 hover:text-slate-50">
+              <Link href={`/tool/${event.slug}`} className="text-orange-300 hover:text-orange-200">
                 {event.tool}
               </Link>
             </>
@@ -60,6 +56,7 @@ export default function LiveActivity({ events }: { events: ActivityEvent[] }) {
           {now && <span className="text-slate-600"> · {timeAgo(event.at, now)}</span>}
         </span>
       </div>
+      <span className="inline-block h-3.5 w-1.5 flex-none bg-slate-500 motion-safe:animate-pulse" aria-hidden />
     </div>
   );
 }

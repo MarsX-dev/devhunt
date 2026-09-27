@@ -31,6 +31,17 @@ const DOMPurify = createDOMPurify(window);
 
 export const revalidate = 60;
 
+const addHttps = (url: string) => (/^https?:\/\//i.test(url) ? url : `https://${url}`);
+
+// Slogan plus the start of the description, as plain text up to ~160 characters.
+function metaDescription(slogan?: string | null, description?: string | null) {
+  const text = (description ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const full = [slogan?.trim(), text].filter(Boolean).join(' - ');
+  if (full.length <= 160) return full;
+  const cut = full.slice(0, 157);
+  return `${cut.slice(0, cut.lastIndexOf(' '))}...`;
+}
+
 // set dynamic metadata
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
   const supabaseClient = createServerClient();
@@ -38,9 +49,10 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
   const tool = await productsService.getBySlug(slug);
   if (!tool || tool.deleted) return { title: 'Page not found - Dev Hunt' };
 
+  const description = metaDescription(tool.slogan, tool.description);
   return {
     title: `${tool?.name} - ${tool?.slogan}`,
-    description: tool?.slogan,
+    description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
       canonical: `/tool/${slug}`,
@@ -48,13 +60,13 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
     openGraph: {
       type: 'article',
       title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan ?? '',
+      description,
       images: tool?.asset_urls ?? [],
       url: `https://devhunt.org/tool/${slug}`,
     },
     twitter: {
       title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan ?? '',
+      description,
       card: 'summary_large_image',
       images: tool?.asset_urls ?? [],
     },
@@ -89,8 +101,23 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
     { name: 'Trending', hash: '#launches' },
   ];
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: product.name,
+    description: metaDescription(product.slogan, product.description),
+    url: `https://devhunt.org/tool/${product.slug}`,
+    sameAs: product.demo_url ? [addHttps(product.demo_url)] : undefined,
+    image: product.logo_url ?? undefined,
+    screenshot: product.asset_urls?.[0] ?? undefined,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web',
+    ...((product as any).product_pricing_types?.title === 'Free' ? { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
+  };
+
   return (
     <section className="mt-10 pb-10 sm:mt-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       <div className="container-custom-screen">
         <ToolHero
           tool={product as ProductType}

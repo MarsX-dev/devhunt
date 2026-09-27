@@ -23,12 +23,16 @@ test('submit a tool, then keep the free launch date on the next step', async ({ 
   const errors = trackErrors(page);
   const name = `QA Form Tool ${Date.now()}${Math.floor(Math.random() * 1000)}`;
   await page.goto('/account/tools/new');
+  await expect(page.getByRole('heading', { name: 'What are you launching?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Fill it in manually' }).click();
   await page.locator('input[name=logo-upload]').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png('8/w8AAgMBAb') });
   await page.locator('input[name=file-upload]').setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: png('8/w8AAgMBAb') });
   await page.getByPlaceholder('My Awesome Dev Tool').fill(name);
-  await page.getByPlaceholder('Supercharge Your Development Workflow!').fill('Internal QA test - please ignore');
+  await page.getByPlaceholder('Supercharge Your Development Workflow!').fill('Open-source CLI to test REST and GraphQL APIs');
   await page.getByPlaceholder('https://myawesomedevtool.com/').fill('https://example.com/');
-  await page.getByPlaceholder(/Briefly explain what your tool does/).fill('Internal QA test tool, please ignore.');
+  await page.getByPlaceholder(/Briefly explain what your tool does/).fill(
+    'A command-line tool for developers to write, run and share REST and GraphQL API tests in CI. (Internal DevHunt QA test, removed automatically.)',
+  );
   await page.getByRole('radio', { name: 'Free' }).check();
   await expect(page.locator('form img').nth(1)).toBeVisible({ timeout: 30_000 }); // uploads finished
   await page.getByRole('button', { name: 'Submit and pick a launch date' }).click();

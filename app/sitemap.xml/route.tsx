@@ -16,6 +16,8 @@ async function getLiveTools() {
       .from('products')
       .select('slug, profiles (username)')
       .eq('deleted', false)
+      // Launched tools and paid listings; the free queue years ahead would be thin, unlaunched pages.
+      .or(`launch_start.lte.${new Date().toISOString()},isPaid.eq.true`)
       .order('id')
       .range(from, from + PAGE_SIZE - 1);
     if (error) throw new Error(error.message);

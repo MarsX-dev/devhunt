@@ -1,4 +1,6 @@
 User-Agent: *
 Allow: /
 Disallow: /private/
+Disallow: /account/
+Disallow: /api/
 Sitemap: https://devhunt.org/sitemap.xml

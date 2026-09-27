@@ -53,23 +53,28 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
   const profile = await profileService.getByUsername(username);
   if (!profile) return { title: 'Page not found - Dev Hunt' };
 
+  const name = profile?.full_name || `@${username}`;
+  const title = `${name} on DevHunt`;
+  const description = profile?.headline
+    ? `${name} - ${profile.headline}. Dev tools they launched and upvoted on DevHunt.`
+    : `Dev tools ${name} launched and upvoted on DevHunt.`;
   return {
-    title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
-    description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
+    title,
+    description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
       canonical: `${decodeURIComponent(user)}`,
     },
     openGraph: {
       type: 'article',
-      title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
-      description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
+      title,
+      description,
       images: [(profile?.avatar_url as string) || ''],
       url: `https://devhunt.org/${decodeURIComponent(user)}`,
     },
     twitter: {
-      title: `${profile?.full_name}'s profile on Dev Hunt - Dev Hunt`,
-      description: `Discover the tools that ${profile?.full_name}, is passionate about on Dev Hunt`,
+      title,
+      description,
       card: 'summary_large_image',
       images: [profile?.avatar_url ?? ''],
     },

@@ -1,10 +1,9 @@
 'use client';
 
-import PageHeader from '@/components/ui/PageHeader';
+import ImportTerminal from './ImportTerminal';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
 import CategoryInput from '@/components/ui/CategoryInput';
-import { FormLaunchSection, FormLaunchWrapper } from '@/components/ui/FormLaunch';
 import { ImageUploaderItem, ImagesUploader } from '@/components/ui/ImagesUploader';
 import Input from '@/components/ui/Input';
 import Label from '@/components/ui/Label';
@@ -19,14 +18,13 @@ import ProductPricingTypesService from '@/utils/supabase/services/pricing-types'
 import ProductsService from '@/utils/supabase/services/products';
 import { Profile, type ProductCategory, type ProductPricingType } from '@/utils/supabase/types';
 import { type File } from 'buffer';
-import { type ChangeEvent, useEffect, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import ProfileService from '@/utils/supabase/services/profile';
 import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
-import { IconXmark } from '@/components/Icons';
 
 interface Inputs {
   tool_name: string;
@@ -36,6 +34,19 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
+}
+
+// One section of the submit form: "01  The basics".
+function FormStep({ n, title, children }: { n: string; title: string; children: ReactNode }) {
+  return (
+    <fieldset className="space-y-5">
+      <legend className="flex w-full items-baseline gap-x-3 border-b border-slate-800 pb-3">
+        <span className="font-mono text-xs text-orange-400">{n}</span>
+        <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">{title}</span>
+      </legend>
+      {children}
+    </fieldset>
+  );
 }
 
 export default () => {
@@ -81,6 +92,7 @@ export default () => {
   const [importEnabled, setImportEnabled] = useState(false);
   const [importUrl, setImportUrl] = useState('');
   const [importState, setImportState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [stage, setStage] = useState<'url' | 'loading' | 'form'>('url'); // URL first, then the (pre-filled) form
   const [importError, setImportError] = useState('');
 
   // ProductHunt import state
@@ -88,7 +100,6 @@ export default () => {
   const [phSlug, setPhSlug] = useState('');
   const [isPhLoading, setIsPhLoading] = useState(false);
   const [phError, setPhError] = useState('');
-  const [phProductAlert, setPhProductAlert] = useState<boolean>(true);
 
   useEffect(() => {
     axios
@@ -204,7 +215,11 @@ export default () => {
           'last-tool',
           JSON.stringify({ toolSlug: product.slug, launchDate: product.launch_date, launchEnd: product.launch_end }),
         );
-        router.push(`/account/tools/activate-launch/${product.slug}?new=1`);
+        router.push(
+          res.moderation === 'blocked'
+            ? `/account/tools/activate-launch/${product.slug}?held=${encodeURIComponent(res.moderationReason ?? 'a restricted topic')}`
+            : `/account/tools/activate-launch/${product.slug}?new=1`,
+        );
       }
     } catch (err: any) {
       console.log('error on submit', err);
@@ -215,7 +230,14 @@ export default () => {
 
   // Function to fetch ProductHunt data and auto-fill form
   const handleWebsiteImport = async () => {
-    if (!importUrl.trim()) return;
+    const url = importUrl.trim();
+    if (!url) return;
+    setValue('tool_website', /^https?:\/\//i.test(url) ? url : `https://${url}`);
+    if (!importEnabled) {
+      setStage('form');
+      return;
+    }
+    setStage('loading');
     setImportState('loading');
     setImportError('');
     try {
@@ -240,6 +262,7 @@ export default () => {
       setImportError(err?.response?.data?.error ?? "We couldn't read that website. Please fill in the form yourself.");
       setImportState('error');
     }
+    setStage('form');
   };
 
   const handlePhImport = async () => {
@@ -286,75 +309,67 @@ export default () => {
 
   return (
     <>
-      <section className="container-custom-screen">
-        <PageHeader eyebrow="Launch" title="Launch your dev tool">
-          Submit your tool in a few minutes, then choose when it launches. DevHunt is for developer tools only; anything else is
-          removed.
-        </PageHeader>
-        <div id="form-container" className="mt-12">
-          <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
-            <FormLaunchSection
-              number={1}
-              title="Tell us about your tool"
-              description="Share basic info to help fellow devs get the gist of your awesome creation."
+      <section className="mx-auto mt-10 mb-24 max-w-xl px-4">
+        {stage === 'url' && (
+          <div className="pt-6 sm:pt-14">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Launch</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">What are you launching?</h1>
+            <p className="mt-3 text-slate-400">Paste your website. We&apos;ll fill in the rest, you just review it.</p>
+            <form
+              className="mt-8 flex flex-col gap-3 sm:flex-row"
+              onSubmit={e => {
+                e.preventDefault();
+                void handleWebsiteImport();
+              }}
             >
-              {importEnabled && (
-                <div id="website-import" className="rounded-2xl border border-orange-500/30 bg-orange-500/[0.04] p-4">
-                  <p className="text-sm font-medium text-slate-100">Start with your website</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Paste your URL and we&apos;ll fill in the form for you: name, tagline, description, pricing, categories, logo and a
-                    screenshot. You can edit everything before submitting.
-                  </p>
-                  <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                    <Input
-                      placeholder="https://myawesomedevtool.com"
-                      value={importUrl}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setImportUrl(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          void handleWebsiteImport();
-                        }
-                      }}
-                      className="w-full"
-                    />
-                    <Button
-                      type="button"
-                      isLoad={importState === 'loading'}
-                      onClick={() => void handleWebsiteImport()}
-                      className="flex-none whitespace-nowrap hover:bg-orange-400"
-                    >
-                      {importState === 'loading' ? 'Reading your site...' : 'Fill the form'}
-                    </Button>
-                  </div>
-                  {importState === 'done' && <p className="mt-2 text-xs text-green-400">Done! Check the details below and edit anything you like.</p>}
-                  {importState === 'error' && <LabelError className="mt-2">{importError}</LabelError>}
-                </div>
-              )}
+              <label className="flex flex-1 items-center rounded-2xl border border-slate-700 bg-slate-900 px-4 focus-within:border-slate-400">
+                <span className="font-mono text-sm text-slate-500">https://</span>
+                <input
+                  autoFocus
+                  aria-label="Your tool's website"
+                  placeholder="yourtool.dev"
+                  value={importUrl.replace(/^https?:\/\//i, '')}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setImportUrl(e.target.value)}
+                  className="w-full bg-transparent py-3.5 pl-1 text-slate-100 outline-none placeholder:text-slate-600"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={!importUrl.trim()}
+                className="rounded-2xl bg-slate-50 px-5 py-3.5 font-medium text-slate-900 duration-150 hover:bg-white disabled:opacity-40"
+              >
+                Continue →
+              </button>
+            </form>
+            <p className="mt-4 font-mono text-xs text-slate-600">free · about a minute · dev tools only</p>
+            <div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+              <button type="button" onClick={() => setStage('form')} className="text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">
+                Fill it in manually
+              </button>
+              <button type="button" onClick={() => setIsPhModalOpen(true)} className="text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">
+                Import from Product Hunt
+              </button>
+            </div>
+          </div>
+        )}
 
-              {!importEnabled && phProductAlert && (
-                <div className="relative mb-6 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <IconGlobeAlt className="w-5 h-5 text-orange-400" />
-                      <span className="text-sm font-medium text-slate-200">Import from ProductHunt</span>
-                    </div>
-                    <Button type="button" onClick={() => setIsPhModalOpen(true)} variant="shiny" className="text-xs px-3 py-1.5">
-                      Import
-                    </Button>
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Already have your tool on ProductHunt? Import the details to auto-fill this form and save time!
-                  </p>
-                  <button
-                    onClick={() => setPhProductAlert(false)}
-                    className="absolute -left-2 -top-2 p-1 text-slate-50 bg-slate-700 border border-slate-600 rounded-full"
-                  >
-                    <IconXmark className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+        {stage === 'loading' && <ImportTerminal url={importUrl} />}
 
+        {stage === 'form' && (
+          <div id="form-container">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Launch</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-50">Review your launch</h1>
+            {importState === 'done' ? (
+              <p className="mt-3 rounded-xl border border-green-500/30 bg-green-500/[0.06] px-3.5 py-2.5 font-mono text-xs text-green-300">
+                ✓ filled in from {importUrl.replace(/^https?:\/\//i, '')} - check everything, then submit
+              </p>
+            ) : importState === 'error' ? (
+              <p className="mt-3 rounded-xl border border-slate-700 px-3.5 py-2.5 text-sm text-slate-400">{importError}</p>
+            ) : (
+              <p className="mt-3 text-slate-400">Tell developers what you built. You&apos;ll pick the launch date next.</p>
+            )}
+            <form onSubmit={handleSubmit(onSubmit as () => void)} className="mt-10 space-y-12">
+              <FormStep n="01" title="The basics">
               <div>
                 <LogoUploader isLoad={isLogoLoad} required src={logoPreview} onChange={handleUploadLogo} />
                 <LabelError className="mt-2">{logoError}</LabelError>
@@ -410,12 +425,8 @@ export default () => {
                 />
                 <LabelError className="mt-2">{errors.tool_description && 'Please enter your tool description'}</LabelError>
               </div>
-            </FormLaunchSection>
-            <FormLaunchSection
-              number={2}
-              title="Extra Stuff"
-              description="We'll use this to group your tool with others and share it in newsletters. Plus, users can filter by price and categories!"
-            >
+              </FormStep>
+              <FormStep n="02" title="Pricing & categories">
               <div id="pricing-container">
                 <Label>Tool pricing type</Label>
                 {pricingType.map((item, idx) => (
@@ -446,8 +457,8 @@ export default () => {
                 <Label>Tool categories (optional)</Label>
                 <CategoryInput className="mt-2" categories={categories} setCategory={setCategory} />
               </div>
-            </FormLaunchSection>
-            <FormLaunchSection number={3} title="Media" description="Show off how awesome your dev tool is with cool images.">
+              </FormStep>
+              <FormStep n="03" title="Media">
               <div>
                 <Label>Demo video (optional)</Label>
                 <Input
@@ -478,29 +489,21 @@ export default () => {
                 </ImagesUploader>
                 <LabelError className="mt-2">{imagesError}</LabelError>
               </div>
-            </FormLaunchSection>
-
-            <FormLaunchSection
-              number={4}
-              title="Launch date"
-              description="You'll pick your launch date on the next step: a free spot in the launch queue, or a week of your choice within the next 4 weeks."
-            >
+              </FormStep>
               <div>
                 <Button
                   id="submit-btn"
                   type="submit"
                   isLoad={isLaunching}
-                  className="w-full hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
+                  className="w-full rounded-2xl py-3.5 hover:bg-orange-400 ring-offset-2 ring-orange-500 focus:ring"
                 >
                   Submit and pick a launch date
                 </Button>
-                <p className="text-sm text-slate-500 mt-2">* no worries, you can change tool info later</p>
+                <p className="mt-2 text-center font-mono text-xs text-slate-600">you can edit everything later</p>
               </div>
-            </FormLaunchSection>
-          </FormLaunchWrapper>
-        </div>
-
-        {/* isPaymentFormActive */}
+            </form>
+          </div>
+        )}
       </section>
       {/* ProductHunt Import Modal */}
       <Modal

@@ -13,7 +13,15 @@ import ProductsService from '@/utils/supabase/services/products';
 import { weekKey } from '@/utils/launchWeeks';
 import mergeTW from '@/utils/mergeTW';
 
-type Tool = { id: number; name: string; owner_id: string; isPaid: boolean; launch_start: string; paid_launch_date: { startDate: string } | null };
+type Tool = {
+  id: number;
+  name: string;
+  owner_id: string;
+  isPaid: boolean;
+  launch_start: string;
+  paid_launch_date: { startDate: string } | null;
+  moderation: 'ok' | 'not_a_fit' | 'blocked';
+};
 type Week = { startDate: Date; endDate: Date };
 
 const PAID_WEEKS = 4;
@@ -27,6 +35,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
   const sessionId = searchParams?.get('session_id') ?? null;
   const canceled = searchParams?.get('canceled') ?? null;
   const isNew = !!searchParams?.get('new');
+  const heldReason = searchParams?.get('held') ?? null; // set when the submission was blocked for review
   const { session } = useSupabase();
 
   const [tool, setTool] = useState<Tool | null>(null);
@@ -41,7 +50,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
     const browserClient = createBrowserClient();
     const { data } = await browserClient
       .from('products')
-      .select('id, name, owner_id, isPaid, launch_start, paid_launch_date')
+      .select('id, name, owner_id, isPaid, launch_start, paid_launch_date, moderation')
       .eq('slug', slug)
       .eq('deleted', false)
       .single();
@@ -114,6 +123,25 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
   const freeDate = tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
 
+  if (heldReason) {
+    return (
+      <section className="px-4">
+        <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-slate-800 p-6">
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Held for review</p>
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-50">We&apos;re taking a closer look</h1>
+          <p className="mt-3 text-sm leading-relaxed text-slate-400">
+            Your submission looks like it may be about <b className="text-slate-200">{heldReason}</b>, which DevHunt doesn&apos;t list
+            (crypto trading, gambling, adult content or anything deceptive). It&apos;s hidden for now and our team has been notified. If
+            we got it wrong, we&apos;ll unblock it after review - no need to resubmit.
+          </p>
+          <Link href="/account/tools" className="mt-6 inline-block rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
+            Go to dashboard
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="px-4">
       {status === 'error' && (
@@ -160,7 +188,48 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
         </div>
       )}
 
-      {(status === 'ready' || status === 'redirecting') && tool && (
+      {(status === 'ready' || status === 'redirecting') && tool && tool.moderation === 'not_a_fit' && (
+        <div className="mx-auto mt-4 max-w-lg space-y-6 py-12">
+          <div>
+            {isNew && (
+              <p className="inline-flex items-center gap-x-1.5 text-sm font-medium text-green-400">
+                <Check className="h-4 w-4" strokeWidth={3} /> {tool.name} is submitted
+              </p>
+            )}
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-50">Not quite a dev tool</h1>
+            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              DevHunt&apos;s weekly launches are for developer tools, so {tool.name} won&apos;t compete this time. You can still get a
+              permanent listing in our <b className="text-slate-200">Other</b> category with a dofollow backlink from DevHunt (DR 65).
+            </p>
+          </div>
+          {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you&apos;re ready.</p>}
+          {error && <p className="text-sm text-red-400">{error}</p>}
+          <div className="rounded-2xl border border-orange-500/60 bg-slate-800/40 p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-slate-50">Listing + dofollow backlink</h2>
+              <span className="rounded-full bg-orange-500 px-2.5 py-0.5 text-sm font-semibold text-white">$49</span>
+            </div>
+            <ul className="mt-3 space-y-1.5 text-sm text-slate-400">
+              <li>✓ Your own page on DevHunt with a dofollow link to your site</li>
+              <li>✓ Listed in the Other category and the all-tools directory</li>
+              <li>✓ One-time payment, no subscription</li>
+            </ul>
+            <button
+              onClick={() => void pay()}
+              disabled={status === 'redirecting'}
+              className="mt-5 w-full rounded-lg bg-orange-500 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-orange-400 disabled:opacity-50"
+            >
+              {status === 'redirecting' ? 'Opening secure checkout...' : 'Get listed for $49'}
+            </button>
+            <p className="mt-2 text-xs text-slate-500">Payments are processed securely by Stripe.</p>
+          </div>
+          <Link href="/account/tools" className="block text-center text-sm text-slate-500 hover:text-slate-300">
+            Not now
+          </Link>
+        </div>
+      )}
+
+      {(status === 'ready' || status === 'redirecting') && tool && tool.moderation !== 'not_a_fit' && (
         <div className="max-w-3xl mx-auto py-12 mt-4 space-y-8">
           <div>
             {isNew && (

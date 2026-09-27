@@ -24,23 +24,46 @@ export async function jevAsk(state: string, questions: Record<string, unknown>, 
   }
 }
 
+const DEV_TOOL_QUESTION = {
+  type: 'noul',
+  instructions: 'Is this a product for software developers or technical builders (developer tools, APIs, SDKs, infrastructure, AI/devops/data tooling, no-code builders)?',
+  criteria: {
+    true: 'A tool, library, service or platform that developers or technical builders use to build, ship or run software',
+    false: 'A consumer app, local business, service company, content site, marketplace or anything not aimed at building software',
+  },
+};
+
+const TOPIC_QUESTION = {
+  type: 'choice',
+  instructions: 'Which of these best describes what the product is mainly about?',
+  criteria: {
+    none: 'A normal legitimate product (including developer tooling for blockchains, payments or security)',
+    crypto: 'Cryptocurrency trading, tokens, coins, NFT or airdrop promotion, crypto investing or yield schemes',
+    gambling: 'Gambling, betting, casinos, lotteries or sweepstakes',
+    adult: 'Adult or sexual content, dating for sex, NSFW generators',
+    fraud: 'Scams, fake reviews or followers, spam, phishing, account selling, get-rich-quick or deceptive products',
+  },
+};
+
+const toolState = (tool: { name: string; slogan?: string | null; description?: string | null; website?: string | null }) =>
+  [`Name: ${tool.name}`, `Tagline: ${tool.slogan ?? ''}`, `Website: ${tool.website ?? ''}`, `Description: ${(tool.description ?? '').slice(0, 1500)}`].join('\n');
+
+// One JEV call per submission: is it a dev tool (0..1) and is it about a banned topic.
+export async function moderateSubmission(tool: { name: string; slogan?: string | null; description?: string | null; website?: string | null }) {
+  const answers = await jevAsk(toolState(tool), { dev_tool: DEV_TOOL_QUESTION, topic: TOPIC_QUESTION }, 6000);
+  const devToolScore = Number(answers?.dev_tool?.noul);
+  const topic = typeof answers?.topic?.choice === 'string' ? (answers.topic.choice as string) : null;
+  const topicProbability = topic ? Number(answers?.topic?.probabilities?.[topic] ?? answers?.topic?.confidence) : NaN;
+  return {
+    devToolScore: Number.isFinite(devToolScore) ? devToolScore : null,
+    topic,
+    topicProbability: Number.isFinite(topicProbability) ? topicProbability : null,
+  };
+}
+
 // 0..1: how likely a submission is a software/developer tool (moderation signal; null if JEV is off).
 export async function scoreDevTool(tool: { name: string; slogan?: string | null; description?: string | null; website?: string | null }) {
-  const state = [`Name: ${tool.name}`, `Tagline: ${tool.slogan ?? ''}`, `Website: ${tool.website ?? ''}`, `Description: ${(tool.description ?? '').slice(0, 1500)}`].join('\n');
-  const answers = await jevAsk(
-    state,
-    {
-      dev_tool: {
-        type: 'noul',
-        instructions: 'Is this a product for software developers or technical builders (developer tools, APIs, SDKs, infrastructure, AI/devops/data tooling, no-code builders)?',
-        criteria: {
-          true: 'A tool, library, service or platform that developers or technical builders use to build, ship or run software',
-          false: 'A consumer app, local business, service company, content site, marketplace or anything not aimed at building software',
-        },
-      },
-    },
-    6000,
-  );
+  const answers = await jevAsk(toolState(tool), { dev_tool: DEV_TOOL_QUESTION }, 6000);
   const score = Number(answers?.dev_tool?.noul);
   return Number.isFinite(score) ? score : null;
 }

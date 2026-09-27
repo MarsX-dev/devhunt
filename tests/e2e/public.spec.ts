@@ -27,14 +27,14 @@ test('tool page renders details and upvote button', async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto('/tool/knecht-works');
   await expect(page.getByRole('heading', { name: /Knecht Works/ }).first()).toBeVisible();
-  await expect(page.getByRole('button', { name: /Upvote/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Upvote/ }).first()).toBeVisible();
   await settle(page);
   expect(errors).toEqual([]);
 });
 
 test('upvoting while logged out goes to the login page', async ({ page }) => {
   await page.goto('/tool/knecht-works');
-  await page.getByRole('button', { name: /^Upvote \d+$/ }).click();
+  await page.getByRole('button', { name: /^Upvote \d+$/ }).first().click(); // the header button (rows below have small ones)
   await expect(page).toHaveURL(/\/login/);
   await expect(page.getByText('Continue with Google')).toBeVisible();
 });
@@ -100,12 +100,12 @@ test('/upcoming shows 4 weeks and loads 4 more with "Show more"', async ({ page 
 test('home page shows the all-time stats bar and the latest 30 winners as compact rows', async ({ page }) => {
   await page.goto('/');
   const stats = page.locator('#site-stats');
-  await expect(stats.locator('dd')).toHaveCount(4);
-  for (const label of ['Tool impressions', 'Domain rating (Ahrefs)', 'Tools launched', 'Developers joined']) {
+  await expect(stats.locator('dt')).toHaveCount(4);
+  for (const label of ['impressions', 'domain_rating', 'tools_launched', 'developers']) {
     await expect(stats.getByText(label)).toBeVisible();
   }
   // Recent growth badges fade in after load.
-  await expect(stats.getByText(/^\+[\d,.KM]+ (today|this week)$/).first()).toBeVisible();
+  await expect(stats.getByText(/▲ \+[\d,.KM]+ (today|this week)$/).first()).toBeVisible();
   const winners = page.locator('#past-winners li');
   await expect(winners.first()).toBeVisible();
   expect(await winners.count()).toBeLessThanOrEqual(30);
@@ -134,7 +134,7 @@ test('home page feels live: activity strip, top 3 as full cards, the rest compac
   await page.addInitScript(() => localStorage.setItem('isNewsletterActive', 'true'));
   await page.goto('/');
   const live = page.locator('#live-activity');
-  await expect(live.getByText('Live')).toBeVisible();
+  await expect(live.getByLabel('Live')).toBeVisible();
   await expect(live.getByText(/joined DevHunt|upvoted|commented on/)).toBeVisible();
   const first = await live.innerText();
   await expect.poll(async () => live.innerText(), { timeout: 12_000 }).not.toBe(first); // cycles to the next event
