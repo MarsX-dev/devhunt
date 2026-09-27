@@ -38,11 +38,6 @@ export default function LiveActivity({ events }: { events: ActivityEvent[] }) {
 
   if (!events.length) return null;
   const event = events[idx];
-  // The latest people who upvoted something, shown as a small stack on the right.
-  const upvoters = events
-    .filter(e => e.type === 'upvoted' && e.avatar)
-    .filter((e, i, all) => all.findIndex(x => x.name === e.name) === i)
-    .slice(0, 8);
 
   return (
     <div id="live-activity" className="flex h-9 items-center gap-x-2 overflow-hidden px-4 font-mono text-xs text-slate-500">
@@ -72,18 +67,6 @@ export default function LiveActivity({ events }: { events: ActivityEvent[] }) {
         </span>
       </div>
       <span className="inline-block h-3.5 w-1.5 flex-none bg-slate-500 motion-safe:animate-pulse" aria-hidden />
-      {upvoters.length > 2 && (
-        <div className="ml-auto hidden flex-none items-center gap-x-2 sm:flex" aria-label="Recent upvoters">
-          <div className="flex -space-x-1.5">
-            {upvoters.map(u => (
-              <span key={u.name} title={`${u.name} upvoted ${u.tool ?? ''}`} className="rounded-full ring-2 ring-slate-950">
-                <Face src={u.avatar} name={u.name} className="h-5 w-5" />
-              </span>
-            ))}
-          </div>
-          <span className="text-slate-600">upvoting</span>
-        </div>
-      )}
     </div>
   );
 }
