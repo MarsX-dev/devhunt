@@ -76,7 +76,7 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
             {compact ? (
               // One line: name · tagline, like the other lists.
               <div className="flex min-w-0 items-center gap-x-2">
-                <Name href={tool.demo_url as string} className="block max-w-[60%] flex-none truncate text-sm">
+                <Name href={tool.demo_url as string} className="max-w-[60%] flex-none gap-x-2 text-sm">
                   {tool.name}
                 </Name>
                 <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="min-w-0 truncate text-sm text-slate-500">

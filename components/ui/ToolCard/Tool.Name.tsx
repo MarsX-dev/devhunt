@@ -16,8 +16,14 @@ export default ({
   toolHref?: string;
   children?: ReactNode;
 }) => (
-  <h3 className={mergeTW(`text-slate-100 font-medium flex gap-x-3 items-center ${className}`)}>
-    {toolHref ? <Link href={toolHref}>{children}</Link> : children}
+  <h3 className={mergeTW(`text-slate-100 font-medium flex min-w-0 gap-x-3 items-center ${className}`)}>
+    {toolHref ? (
+      <Link href={toolHref} className="min-w-0 truncate">
+        {children}
+      </Link>
+    ) : (
+      <span className="min-w-0 truncate">{children}</span>
+    )}
     {/* Not an <a>: this sits inside the card's link, and nested anchors are invalid HTML. */}
     <span
       id="tool-title"
@@ -36,7 +42,8 @@ export default ({
           window.open(`${href}?ref=devhunt`, '_blank');
         }
       }}
-      className="hidden group-hover/card:block cursor-pointer"
+      // Always in the layout, only invisible until hover: showing it never moves anything.
+      className="invisible flex-none cursor-pointer group-hover/card:visible"
     >
       <ArrowTopRightOnSquareIcon className="w-4 h-4 pointer-events-none" />
     </span>
