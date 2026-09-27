@@ -17,6 +17,7 @@ import dynamic from 'next/dynamic';
 import ProfileFormModal from '@/components/ui/ProfileFormModal';
 import Analytics from '@/components/Analytics';
 import SponsorRails, { SponsorStrip } from '@/components/ui/Sponsors/SponsorRails';
+import AdResume from '@/components/ui/Sponsors/AdResume';
 
 const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
@@ -106,6 +107,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <Footer />
             <Analytics />
+            <AdResume />
           </SupabaseProvider>
         </main>
 
