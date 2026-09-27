@@ -361,7 +361,7 @@ export default () => {
                 Continue →
               </button>
             </form>
-            <p className="mt-4 font-mono text-xs text-slate-600">free · about a minute · dev tools only</p>
+            <p className="mt-4 font-mono text-xs text-slate-600">free · about a minute</p>
             <div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-sm">
               <button
                 type="button"
