@@ -8,6 +8,8 @@
 - There is no dev or staging database; everything runs against production. Dry-run destructive changes first (select what would change), and keep them restorable (soft delete, `deleted_records` snapshots).
 - Migrations live in `supabase/migrations/`, and filenames must have unique versions (other sessions add files too).
 - A migration that removes something the live site still uses (a policy, column or function) is applied only after the code that stops using it is deployed.
+- New tables get Supabase's default full grants for `anon` and `authenticated`. In the same migration, enable RLS and revoke what the browser doesn't use (e.g. `REVOKE ALL ... FROM anon`, keep only the operations the app actually does from the browser). Server code uses the service role and needs no grants. Functions: `SECURITY DEFINER` ones get `REVOKE EXECUTE ... FROM PUBLIC, anon, authenticated` unless the browser must call them, and must check `auth.uid()` themselves.
+- The repo is public: nothing security-related (secrets, exploit details) in commits or tracked files.
 
 ## Running locally
 
