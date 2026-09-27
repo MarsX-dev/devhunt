@@ -7,6 +7,13 @@ import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { getArticle } from '@/utils/blog';
 
+// Blog posts are cached after their first visit (CDN) and refreshed hourly. Nothing is built ahead (empty
+// generateStaticParams); Next 14 caches a not-found page with its 404 status.
+export const revalidate = 3600;
+export async function generateStaticParams() {
+  return [];
+}
+
 async function getPost(slug: string) {
   return await getArticle(slug);
 }

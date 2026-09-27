@@ -21,6 +21,7 @@ import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '../ToolEx
 import { type ToolProfileView } from '@/utils/toolProfileData';
 import { type ToolExtra } from '@/utils/toolExtras';
 import { loadToolPreview } from '@/utils/toolPreview';
+import { setPreviewUrl, trackPageView } from '@/utils/pageView';
 import { neighborCard } from '@/utils/toolCardRegistry';
 
 // Tool preview opened from a card: the same content as the tool page (loaded in the browser), with
@@ -75,6 +76,7 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
       const card = neighborCard(current.tool.id, direction);
       if (!card) return;
       const nextHref = `/tool/${card.tool.slug}`;
+      setPreviewUrl(nextHref); // not a page view (see utils/pageView)
       window.history.replaceState({ href: nextHref }, '', nextHref);
       setCurrent({ tool: card.tool, votesToday: card.votesToday ?? 0, href: nextHref });
       scrollRef.current?.closest('.view-modal')?.scrollTo({ top: 0 });
@@ -128,7 +130,15 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
           <button onClick={() => go(1)} disabled={!neighbors.next} aria-label="Next tool" title="Next tool (→)" className={navButton}>
             <ChevronRight className="h-4 w-4" />
           </button>
-          <Link href={current.href} className="ml-2 text-sm text-slate-400 duration-150 hover:text-slate-100">
+          <Link
+            href={current.href}
+            // Same URL as the preview, so the pathname doesn't change: count the full page view here.
+            onClick={() => {
+              setPreviewUrl(null);
+              trackPageView(current.href, { force: true });
+            }}
+            className="ml-2 text-sm text-slate-400 duration-150 hover:text-slate-100"
+          >
             Open full page →
           </Link>
         </div>

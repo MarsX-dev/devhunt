@@ -7,6 +7,7 @@ import { type ProductType } from '@/type';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerToolCard } from '@/utils/toolCardRegistry';
+import { setPreviewUrl } from '@/utils/pageView';
 
 export default ({
   href,
@@ -28,6 +29,7 @@ export default ({
   const pathname = usePathname();
 
   const closeViewModal = () => {
+    setPreviewUrl(null);
     setToolViewActive(false);
     router.back();
   };
@@ -38,6 +40,7 @@ export default ({
     const targetId = (e.target as HTMLDivElement).getAttribute('id');
     if (targetId != 'vote-item' && targetId != 'tool-title') {
       setTool(tool);
+      setPreviewUrl(href); // not a page view (see utils/pageView)
       window.history.pushState({ href }, '', href);
       setToolViewActive(true); // the modal locks page scrolling while it's open
     }
@@ -45,13 +48,31 @@ export default ({
 
   useEffect(() => (tool ? registerToolCard(tool, votesToday) : undefined), [tool, votesToday]);
 
+  // Coming Back to the history entry the preview created (e.g. after following a link inside it), Next 14
+  // restores this list page with /tool/... in the URL: reopen the preview it belongs to.
   useEffect(() => {
-    const onPop = () => setToolViewActive(false);
+    if (tool && pathname === href) {
+      setPreviewUrl(href);
+      setToolViewActive(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => {
+      setPreviewUrl(null);
+      setToolViewActive(false);
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  useEffect(() => setToolViewActive(false), [pathname]);
+  // Next 14 syncs history.pushState/replaceState with the router, so opening the modal (which puts
+  // /tool/... in the URL) and stepping through tools change the pathname too. Only a navigation away
+  // from this page closes it.
+  const [pagePath] = useState(pathname);
+  useEffect(() => {
+    if (pathname !== pagePath && !pathname?.startsWith('/tool/')) setToolViewActive(false);
+  }, [pathname, pagePath]);
 
   return (
     <>

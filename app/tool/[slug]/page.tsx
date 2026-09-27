@@ -33,7 +33,12 @@ import { type ProductType } from '@/type';
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
+// Cached after the first visit (CDN); nothing is built ahead. Next 14 caches a not-found page with its
+// 404 status (13.5 cached it as 200, so this page used to render on every request).
 export const revalidate = 60;
+export async function generateStaticParams() {
+  return [];
+}
 
 const addHttps = (url: string) => (/^https?:\/\//i.test(url) ? url : `https://${url}`);
 

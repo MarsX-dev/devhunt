@@ -9,6 +9,13 @@ import { getAlternatives } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 
+// Alternatives pages are cached after their first visit (CDN) for 10 minutes. Nothing is built ahead (empty
+// generateStaticParams); Next 14 caches a not-found page with its 404 status.
+export const revalidate = 600;
+export async function generateStaticParams() {
+  return [];
+}
+
 type Params = { params: { slug: string } };
 const year = () => new Date().getUTCFullYear();
 

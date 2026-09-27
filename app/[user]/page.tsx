@@ -14,6 +14,13 @@ import ToolRow from '@/components/ui/ToolRow';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProductType } from '@/type';
 
+// Profiles are cached after their first visit (CDN) and rebuilt at most once a minute. Nothing is built ahead (empty
+// generateStaticParams); Next 14 caches a not-found page with its 404 status.
+export const revalidate = 60;
+export async function generateStaticParams() {
+  return [];
+}
+
 const UPVOTED_SHOWN = 20;
 
 // Public profile data, cached for a minute (the page was re-queried on every visit).
