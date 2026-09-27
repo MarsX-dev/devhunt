@@ -274,16 +274,6 @@ export default () => {
             </Link>{' '}
             and other premium options to grow your dev tool.
           </li>
-          <li>
-            Consider launching on{' '}
-            <a
-              className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50"
-              href="https://uneed.best/?aff=A6pv1"
-            >
-              Uneed.best
-            </a>{' '}
-            for even more traffic.
-          </li>
         </ul>
       </div>
 
