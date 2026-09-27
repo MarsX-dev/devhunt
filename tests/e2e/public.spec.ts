@@ -135,7 +135,7 @@ test('home page feels live: activity strip, top 3 as full cards, the rest compac
   await page.goto('/');
   const live = page.locator('#live-activity');
   await expect(live.getByLabel('Live')).toBeVisible();
-  await expect(live.getByText(/joined DevHunt|upvoted|commented on/)).toBeVisible();
+  await expect(live.getByText(/joined DevHunt|upvoted|commented on|listed/)).toBeVisible();
   const first = await live.innerText();
   await expect.poll(async () => live.innerText(), { timeout: 12_000 }).not.toBe(first); // cycles to the next event
 
