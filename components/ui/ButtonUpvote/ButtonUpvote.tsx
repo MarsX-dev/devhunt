@@ -12,6 +12,7 @@ import { IconInformationCircle } from '@/components/Icons';
 import LinkItem from '../Link/LinkItem';
 import ProfileService from '@/utils/supabase/services/profile';
 import FloatingUpvotes from '../ToolCardEffect/FloatingUpvotes';
+import { useIsomorphicLayoutEffect } from '@/utils/useIsomorphicLayoutEffect';
 import { hasUserVoted } from '@/utils/userVotes';
 
 interface Props extends React.HTMLAttributes<HTMLButtonElement> {
@@ -36,7 +37,7 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   const [modalInfo, setMoadlInfo] = useState({ title: '', desc: '' });
   // Like the home cards: show today's last real vote as pending until the replay counts it up.
   const [pendingVote, setPendingVote] = useState(false);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (votesToday > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) setPendingVote(true);
   }, [votesToday]);
 

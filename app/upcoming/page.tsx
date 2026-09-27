@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { Fragment } from 'react';
 import ProductsService from '@/utils/supabase/services/products';
-import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
+import ToolRow from '@/components/ui/ToolRow';
 import { ProductType } from '@/type';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
-import { toToolCardProps } from '@/utils/toolCard';
+import { toToolRow } from '@/utils/toolRow';
 import { weekKey } from '@/utils/launchWeeks';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
@@ -89,9 +89,9 @@ export default async function Home({ searchParams }: { searchParams: { weeks?: s
                 hint={`${group.products.length} ${group.products.length === 1 ? 'tool' : 'tools'}${weekIdx === 0 ? ' · next Tuesday' : ''}`}
               />
             </div>
-            <ol className="mt-2 divide-y divide-slate-800/70">
+            <ol className="mt-2">
               {group.products.map((product, idx) => (
-                <ToolCardEffect key={product.id ?? idx} tool={toToolCardProps(product)} compact revealIndex={idx} />
+                <ToolRow key={product.id ?? idx} tool={toToolRow(product)} revealIndex={idx} />
               ))}
             </ol>
           </Fragment>

@@ -1,20 +1,36 @@
 import Link from 'next/link';
-import ProductName from '../ToolCard/Tool.Name';
-import ProductTitle from '../ToolCard/Tool.Title';
-import ProductLogo from '../ToolCard/Tool.Logo';
-import { Product } from '@/utils/supabase/types';
+import { IconVote } from '@/components/Icons';
 
-export default ({ item, ...props }: { item: Product; onClick: () => void }) => (
-  <Link
-    {...props}
-    href={'/tool/' + item.slug}
-    className="p-3 flex items-start gap-x-3 rounded-xl from-indigo-900/20 to-indigo-800/10 hover:bg-gradient-to-l border border-transparent hover:border-slate-800 duration-150"
-  >
-    <ProductLogo src={item.logo_url} imgClassName="w-7 h-7" />
+export interface SearchResult {
+  id: number;
+  slug: string;
+  name: string;
+  slogan: string | null;
+  logo_url: string | null;
+  votes_count: number | null;
+  launch_start: string | null;
+}
 
-    <div className="text-sm">
-      <ProductName className="text-slate-200">{item.name}</ProductName>
-      <ProductTitle className="mt-1 line-clamp-1 sm:text-sm">{item.slogan}</ProductTitle>
-    </div>
-  </Link>
-);
+export default function SearchItem({ item, active, onClick }: { item: SearchResult; active?: boolean; onClick: () => void }) {
+  return (
+    <Link
+      onClick={onClick}
+      href={'/tool/' + item.slug}
+      className={`flex items-center gap-x-3 rounded-xl px-3 py-2.5 duration-100 ${active ? 'bg-slate-800/70' : ''}`}
+    >
+      <img
+        src={(item.logo_url || '').replace(/w=\d+/g, 'w=64')}
+        alt=""
+        className="h-8 w-8 flex-none rounded-lg bg-slate-800 object-cover ring-1 ring-slate-800"
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium text-slate-100">{item.name}</span>
+        <span className="block truncate text-xs text-slate-500">{item.slogan}</span>
+      </span>
+      <span className="flex flex-none items-center gap-x-1 font-mono text-xs text-slate-500">
+        <IconVote className="h-3.5 w-3.5" />
+        {item.votes_count ?? 0}
+      </span>
+    </Link>
+  );
+}

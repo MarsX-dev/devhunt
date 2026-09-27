@@ -14,6 +14,7 @@ import { type CSSProperties, MouseEvent, useEffect, useRef, useState } from 'rea
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
+import { useIsomorphicLayoutEffect } from '@/utils/useIsomorphicLayoutEffect';
 import { type LatestComment } from '@/utils/activity';
 import ArrivingComment from './ArrivingComment';
 import FloatingUpvotes from './FloatingUpvotes';
@@ -37,9 +38,11 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   }, [isInView, tool.id]);
 
   // Tools with real votes today first show one vote less, then the live replay counts it up.
-  const [pendingVote, setPendingVote] = useState(
-    () => votesToday > 0 && typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+  // Decided after hydration (before paint) so the server and first client render agree.
+  const [pendingVote, setPendingVote] = useState(false);
+  useIsomorphicLayoutEffect(() => {
+    if (votesToday > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) setPendingVote(true);
+  }, [votesToday]);
 
   const reveal: CSSProperties | undefined =
     revealIndex === undefined ? undefined : { animationDelay: `${Math.min(revealIndex, 14) * 55}ms` };

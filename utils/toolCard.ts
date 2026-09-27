@@ -16,6 +16,8 @@ export function toToolCardProps(product: any): ProductType {
     asset_urls: product.asset_urls,
     owner_id: product.owner_id,
     launch_date: product.launch_date,
+    launch_start: product.launch_start,
+    week: product.week,
     launch_end: product.launch_end,
     views_count: product.views_count,
     votes_count: product.votes_count,

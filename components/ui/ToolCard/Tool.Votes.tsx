@@ -21,7 +21,9 @@ export default ({
   productId = null,
   className = '',
   pending = 0,
+  variant = 'stack',
 }: {
+  variant?: 'stack' | 'inline'; // inline: small horizontal pill for one-line rows
   count?: number;
   pending?: number; // a real vote from today not shown yet; the live replay counts it up (home page)
   launchDate: string | number;
@@ -68,6 +70,23 @@ export default ({
 
   return (
     <>
+      {variant === 'inline' ? (
+        <button
+          onClick={toggleVote}
+          id="vote-item"
+          aria-label={`Upvote ${shownCount}`}
+          className={mergeTW(
+            `flex h-8 items-center gap-x-1.5 rounded-lg border px-2.5 font-mono text-xs tabular-nums duration-150 ${
+              isUpvoted ? 'border-orange-500/70 bg-orange-500/10 text-orange-400' : 'border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-50'
+            } ${className}`,
+          )}
+        >
+          <IconVote className="h-3.5 w-3.5 pointer-events-none" />
+          <span key={shownCount} className="pointer-events-none motion-safe:animate-tick">
+            {shownCount}
+          </span>
+        </button>
+      ) : (
       <button
         onClick={toggleVote}
         id="vote-item"
@@ -82,6 +101,7 @@ export default ({
           {shownCount}
         </span>
       </button>
+      )}
       <Modal
         isActive={isModalActive}
         icon={<IconInformationCircle className="text-blue-500 w-6 h-6" />}

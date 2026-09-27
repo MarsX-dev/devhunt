@@ -21,13 +21,13 @@ test('submit form leaves the launch date for the next step', async ({ page }) =>
   expect(errors).toEqual([]);
 });
 
-test('vote state for all cards on /upcoming comes from one or two requests', async ({ page }) => {
+test('vote state for all cards on the home page comes from one or two requests', async ({ page }) => {
   const voteLookups: string[] = [];
   page.on('request', req => {
     if (req.url().includes('/rest/v1/product_votes')) voteLookups.push(req.url());
   });
-  await page.goto('/upcoming');
-  await expect(page.locator('a[href^="/tool/"]').nth(10)).toBeVisible();
+  await page.goto('/');
+  await expect(page.locator('#more-launches li').nth(5)).toBeVisible();
   await page.waitForTimeout(2_000);
   expect(voteLookups.length).toBeGreaterThan(0);
   expect(voteLookups.length).toBeLessThanOrEqual(2);

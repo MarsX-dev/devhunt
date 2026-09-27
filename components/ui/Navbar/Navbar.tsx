@@ -10,9 +10,6 @@ import CommandPalette from '../CommandPalette/CommandPalette';
 import BlurBackground from '../BlurBackground/BlurBackground';
 import AvatarMenu from '../AvatarMenu';
 import { useSupabase } from '@/components/supabase/provider';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import ProductsService from '@/utils/supabase/services/products';
-import { type Product } from '@/utils/supabase/types';
 import { IconSearch } from '@/components/Icons';
 import categories from '@/utils/categories';
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/solid';
@@ -26,11 +23,7 @@ export default () => {
   const [isBannerActive, setBannerActive] = useState(false);
   const [isNavMenuActive, setNavMenuActive] = useState(false);
   const [isCommandActive, setCommandActive] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-  const [searchResult, setSearchResult] = useState<Product[]>([]);
 
-  const browserService = createBrowserClient();
-  const toolsService = new ProductsService(browserService);
 
   const NavMenuRef = useOnclickOutside(() => {
     setNavMenuActive(false);
@@ -66,14 +59,18 @@ export default () => {
     { title: 'Best DevTools On Product Hunt', path: '/best-dev-tools-this-week-on-product-hunt' },
   ];
 
-  const handleSearch = (value: string) => {
-    setSearchValue(value);
-    setTimeout(() => {
-      toolsService.search(value).then(data => {
-        setSearchResult(data as Product[]);
-      });
-    }, 50);
-  };
+  // ⌘K / Ctrl+K or "/" opens search (not while typing in a field).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const typing = (e.target as HTMLElement)?.closest('input, textarea, [contenteditable="true"]');
+      if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !typing)) {
+        e.preventDefault();
+        setCommandActive(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   useEffect(() => {
     setActive(false);
@@ -207,16 +204,7 @@ export default () => {
         ''
       )}
       <NewsletterModal isActive={isNewsletterModalActive} closeModal={setNewsletterModalActive} />
-      <CommandPalette
-        isCommandActive={isCommandActive}
-        setCommandActive={() => {
-          setCommandActive(false);
-          setSearchValue('');
-        }}
-        searchValue={searchValue}
-        setSearch={handleSearch}
-        searchResult={searchResult}
-      />
+      <CommandPalette isCommandActive={isCommandActive} setCommandActive={setCommandActive} />
       <BlurBackground className="lg:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
     </>
   );

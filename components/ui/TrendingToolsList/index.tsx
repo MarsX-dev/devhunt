@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
+import ToolRow from '@/components/ui/ToolRow';
 import { type ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
@@ -23,9 +23,9 @@ export default function TrendingToolsList({ excludeId }: { excludeId?: number })
   }, [excludeId]);
 
   return (
-    <ol className="mt-2 divide-y divide-slate-800/70">
+    <ol className="mt-2">
       {tools.map(({ tool, rank }, idx) => (
-        <ToolCardEffect key={tool.id} tool={tool} rank={rank} compact revealIndex={idx} />
+        <ToolRow key={tool.id} tool={tool as any} rank={rank} revealIndex={idx} />
       ))}
     </ol>
   );

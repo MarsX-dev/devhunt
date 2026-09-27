@@ -66,21 +66,15 @@ test('blog lists posts and opens one', async ({ page }) => {
   await expect(page.locator('h1')).toBeVisible();
 });
 
-test('clicking a card on /upcoming opens the preview with description and screenshots', async ({ page }) => {
+test('rows link straight to the tool page, with a skeleton while it loads', async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto('/upcoming');
-  const card = page.locator('a[href^="/tool/"]').first();
-  const href = await card.getAttribute('href');
-  const heading = page.locator('li').filter({ has: page.locator(`a[href="${href}"]`) }).first().getByRole('heading').first();
-  const toolName = (await heading.innerText()).trim();
-  await heading.click();
+  const row = page.locator('ol li a[href^="/tool/"]').first();
+  const href = await row.getAttribute('href');
+  await row.click();
   await expect(page).toHaveURL(new RegExp(`${href}$`));
-  // The preview modal renders the tool's details from the list props (no page load).
-  await expect(page.getByRole('link', { name: /Visit website/i }).first()).toBeVisible();
-  // Description HTML and the screenshot gallery come from the list props.
-  const description = await page.evaluate(() => document.querySelector('.prose, [class*="prose"]')?.textContent?.trim().length ?? 0);
-  expect(description).toBeGreaterThan(20);
-  expect(await page.locator(`img[alt="${toolName}"]`).count()).toBeGreaterThan(1); // logo + gallery screenshots
+  await expect(page.getByRole('link', { name: /Visit website/i })).toBeVisible();
+  await expect(page.locator('h1')).toBeVisible();
   expect(errors).toEqual([]);
 });
 

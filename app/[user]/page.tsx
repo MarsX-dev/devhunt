@@ -9,12 +9,31 @@ import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { unstable_cache } from 'next/cache';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
-import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
+import ToolRow from '@/components/ui/ToolRow';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProductType } from '@/type';
 
 const UPVOTED_SHOWN = 20;
+
+// Public profile data, cached for a minute (the page was re-queried on every visit).
+const getProfilePageData = unstable_cache(
+  async (username: string) => {
+    const browserService = createBrowserClient();
+    const profileService = new ProfileService(browserService);
+    const profile = await profileService.getByUsername(username);
+    if (!profile) return { profile: null, tools: null, activity: null, votedTools: null };
+    const [tools, activity, votedTools] = await Promise.all([
+      new ProductsService(browserService).getUserProductsById(profile.id),
+      profileService.getUserActivityById(profile.id),
+      profileService.getUserVoteTools(profile.id),
+    ]);
+    return { profile, tools, activity, votedTools };
+  },
+  ['profile-page'],
+  { revalidate: 60 },
+);
 const stripTags = (html: string | null) => (html ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
@@ -62,16 +81,9 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
   const decoded = decodeURIComponent(user);
   if (!decoded.startsWith('@')) notFound();
   const username = decoded.slice(1);
-  const browserService = createBrowserClient();
-  const profileService = new ProfileService(browserService);
-  const profile = await profileService.getByUsername(username);
+  const { profile, tools, activity, votedTools } = await getProfilePageData(username);
 
   if (profile) {
-    const [tools, activity, votedTools] = await Promise.all([
-      new ProductsService(browserService).getUserProductsById(profile?.id),
-      profileService.getUserActivityById(profile?.id),
-      profileService.getUserVoteTools(profile?.id),
-    ]);
 
     const launches = ((tools ?? []) as ProductType[]).sort((a, b) => Date.parse(b.launch_start ?? '') - Date.parse(a.launch_start ?? ''));
     const upvoted = ((votedTools ?? []) as any[])
@@ -91,9 +103,9 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
         {launches.length > 0 && (
           <div>
             <SectionLabel title="Launches" hint={`${launches.length} ${launches.length === 1 ? 'tool' : 'tools'}`} />
-            <ol className="mt-2 divide-y divide-slate-800/70">
+            <ol className="mt-2">
               {launches.map((tool, idx) => (
-                <ToolCardEffect key={tool.id} tool={tool} revealIndex={idx} />
+                <ToolRow key={tool.id} tool={tool as any} showDate revealIndex={idx} />
               ))}
             </ol>
           </div>
@@ -101,9 +113,9 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
         {upvoted.length > 0 && (
           <div>
             <SectionLabel title="Upvoted" hint={upvoted.length > UPVOTED_SHOWN ? `${UPVOTED_SHOWN} of ${upvoted.length} tools` : `${upvoted.length} ${upvoted.length === 1 ? 'tool' : 'tools'}`} />
-            <ol className="mt-2 divide-y divide-slate-800/70">
+            <ol className="mt-2">
               {upvoted.slice(0, UPVOTED_SHOWN).map((tool, idx) => (
-                <ToolCardEffect key={tool.id} tool={tool} compact revealIndex={idx} />
+                <ToolRow key={tool.id} tool={tool as any} revealIndex={idx} />
               ))}
             </ol>
           </div>
