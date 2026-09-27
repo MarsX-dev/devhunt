@@ -39,14 +39,14 @@ export interface SiteHealthChange {
 }
 
 // Website health changes (tools hidden or restored), batched into as few messages as Discord allows.
-export async function reportSiteHealth(changes: SiteHealthChange[]) {
+export async function reportSiteHealth(changes: SiteHealthChange[], intro?: string) {
   const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
   if (!webhook || !changes.length) return;
   const line = (c: SiteHealthChange) =>
     c.to === 'ok'
       ? `✅ **${c.name}** is back online, visible again: https://devhunt.org/tool/${c.slug}`
       : `${c.to === 'hijacked' ? '🏴‍☠️' : '💀'} **${c.name}** hidden, website ${c.to}: ${c.reason ?? ''} <${c.website}> · restore: \`UPDATE products SET site_status = 'ok' WHERE id = ${c.id};\``;
-  const messages: string[] = [];
+  const messages: string[] = intro ? [intro] : [];
   for (const text of changes.map(line)) {
     const last = messages[messages.length - 1];
     if (last && last.length + text.length + 1 <= 1900) messages[messages.length - 1] = `${last}\n${text}`;
