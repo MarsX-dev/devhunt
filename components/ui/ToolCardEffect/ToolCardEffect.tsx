@@ -11,8 +11,7 @@ import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import { type ProductType } from '@/type';
 import { useInView } from 'framer-motion';
 import { type CSSProperties, MouseEvent, useEffect, useRef, useState } from 'react';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import ProductsService from '@/utils/supabase/services/products';
+import { queueView } from '@/utils/viewQueue';
 import Link from 'next/link';
 import { useIsomorphicLayoutEffect } from '@/utils/useIsomorphicLayoutEffect';
 import { type LatestComment } from '@/utils/activity';
@@ -34,7 +33,7 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   const isInView = useInView(cardRef, { once: true });
 
   useEffect(() => {
-    if (isInView) void new ProductsService(createBrowserClient()).viewed(tool.id); // one impression per visit
+    if (isInView) queueView(tool.id); // one impression per visit, sent with the page's other cards
   }, [isInView, tool.id]);
 
   // Tools with real votes today first show one vote less, then the live replay counts it up.
