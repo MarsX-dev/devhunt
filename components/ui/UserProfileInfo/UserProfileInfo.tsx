@@ -1,46 +1,84 @@
 import { type Profile } from '@/utils/supabase/types';
-import Avatar from '../Avatar/Avatar';
-import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
-import { ReactNode } from 'react';
-import { AtSymbolIcon } from '@heroicons/react/24/solid';
+import { Globe, AtSign } from 'lucide-react';
+import { formatStat } from '@/utils/statFormat';
 
-function ShowElement({ children, val }: { children: ReactNode; val: any }) {
-  return val ? <>{children}</> : <></>;
+const withProtocol = (url: string) => (url.startsWith('http') ? url : `https://${url}`);
+
+export interface ProfileStats {
+  launches: number;
+  upvotesReceived: number;
+  upvotesGiven: number;
+  comments: number;
 }
 
-export default ({ profile }: { profile: Profile }) => (
-  <div className="space-y-10">
-    <div className="items-center gap-x-6 sm:flex">
-      <Avatar className="w-20 h-20 flex-none" src={(profile?.avatar_url as string) || '/user.svg'} alt={profile?.full_name as string} />
-      <div className="mt-4 sm:mt-0">
-        <h1 className="text-2xl text-slate-50 font-medium">{profile?.full_name || 'DevHunt user'}</h1>
-        <p className="mt-1 text-sm text-slate-400">{profile?.headline}</p>
-      </div>
-    </div>
+// Profile header: identity, links and a stats bar in the same style as the tool pages.
+export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) => {
+  const items = stats
+    ? [
+        { label: 'Launches', value: stats.launches },
+        { label: 'Upvotes received', value: stats.upvotesReceived },
+        { label: 'Upvotes given', value: stats.upvotesGiven },
+        { label: 'Comments', value: stats.comments },
+      ]
+    : [];
+  return (
     <div>
-      <p className="text-slate-400">{profile?.about}</p>
-      <div className="mt-3 flex gap-3">
-        <ShowElement val={profile?.website_url}>
-          <a
-            href={profile.website_url && profile.website_url.startsWith('http') ? profile.website_url : `https://${profile.website_url}`}
-            target="_blank"
-            className="inline-flex items-center gap-x-2 text-slate-500 hover:text-slate-400 text-sm duration-150"
-          >
-            <IconGlobeAlt />
-            Website
-          </a>
-        </ShowElement>
-        <ShowElement val={profile?.social_url}>
-          <a
-            href={profile.social_url || ''}
-            target="_blank"
-            className="inline-flex items-center gap-x-2 text-slate-500 hover:text-slate-400 text-sm duration-150"
-          >
-            <AtSymbolIcon className="w-5 h-5" />
-            Social Media
-          </a>
-        </ShowElement>
+      <div className="flex items-center gap-x-4 sm:gap-x-5">
+        <img
+          src={(profile?.avatar_url as string) || '/user.svg'}
+          alt={profile?.full_name as string}
+          referrerPolicy="no-referrer"
+          className="h-16 w-16 flex-none rounded-full bg-slate-800 object-cover ring-1 ring-slate-800 sm:h-20 sm:w-20"
+        />
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">{profile?.full_name || 'DevHunt user'}</h1>
+          <p className="mt-1 text-slate-400">
+            {profile?.headline || `@${profile?.username}`}
+            {stats && stats.launches > 0 && (
+              <span className="ml-2 inline-flex translate-y-[-1px] items-center rounded-full border border-orange-500/40 bg-orange-500/[0.06] px-2 py-0.5 align-middle text-[11px] font-medium text-orange-300">
+                Maker
+              </span>
+            )}
+          </p>
+        </div>
       </div>
+      {profile?.about && <p className="mt-5 max-w-2xl text-slate-300">{profile.about}</p>}
+      {(profile?.website_url || profile?.social_url) && (
+        <div className="mt-4 flex flex-wrap gap-2 text-sm">
+          {profile.website_url && (
+            <a
+              href={withProtocol(profile.website_url)}
+              target="_blank"
+              rel="nofollow"
+              className="inline-flex items-center gap-x-1.5 rounded-full border border-slate-800 px-3 py-1 text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Website
+            </a>
+          )}
+          {profile.social_url && (
+            <a
+              href={withProtocol(profile.social_url)}
+              target="_blank"
+              rel="nofollow"
+              className="inline-flex items-center gap-x-1.5 rounded-full border border-slate-800 px-3 py-1 text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
+            >
+              <AtSign className="h-3.5 w-3.5" />
+              Social
+            </a>
+          )}
+        </div>
+      )}
+      {items.length > 0 && (
+        <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-4">
+          {items.map(item => (
+            <div key={item.label} className="bg-slate-900 px-4 py-3.5 sm:px-5">
+              <dd className="text-xl font-semibold tracking-tight text-slate-50 tabular-nums">{formatStat(item.value)}</dd>
+              <dt className="mt-0.5 text-xs text-slate-500">{item.label}</dt>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
-  </div>
-);
+  );
+};

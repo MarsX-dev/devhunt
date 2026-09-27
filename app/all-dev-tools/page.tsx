@@ -4,6 +4,8 @@ import { ProductType } from '@/type';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import Pagination from '@/components/ui/Blog/Pagination';
+import PageHeader from '@/components/ui/PageHeader';
+import { getSiteStats } from '@/utils/siteStats';
 import { toToolCardProps } from '@/utils/toolCard';
 
 const { title, description, ogImage } = {
@@ -32,24 +34,25 @@ export const metadata = {
 export default async function Page({ searchParams }: { searchParams: { page: number } }) {
   const pageCount = Math.max((searchParams.page || 0) - 1, 0);
   const productService = new ProductsService(createBrowserClient());
-  const products = await productService.getProducts('votes_count', false, 50, pageCount || 1);
+  const products = await productService.getProducts('votes_count', false, 50, pageCount + 1); // 1-based (was `pageCount || 1`: page 2 repeated page 1)
 
   const numberOfItems = products.count;
+  const stats = await getSiteStats(); // products.count is capped at 1,000
   const numberPerPage = 50;
   const numberOfPages = Math.ceil(numberOfItems / numberPerPage);
 
   return (
-    <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
-      <div>
-        <h1 className="text-slate-50 text-3xl font-semibold">All DevTools on Dev Hunt</h1>
-      </div>
+    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="All-time leaderboard" title="All dev tools on DevHunt">
+        {(stats?.tools_launched ?? numberOfItems).toLocaleString('en-US')} tools launched, ranked by upvotes from the community.
+      </PageHeader>
 
-      <div className="mt-10 mb-12">
-        <ul className="mt-3 divide-y divide-slate-800/60">
+      <div className="mt-12 mb-12">
+        <ol className="divide-y divide-slate-800/70">
           {products.data.map((product: ProductType, idx: number) => (
-            <ToolCardEffect key={idx} tool={toToolCardProps(product)} />
+            <ToolCardEffect key={product.id ?? idx} tool={toToolCardProps(product)} rank={pageCount * 50 + idx + 1} revealIndex={idx} />
           ))}
-        </ul>
+        </ol>
       </div>
       <Pagination slug="/all-dev-tools" pageNumber={pageCount || 0} lastPage={numberOfPages} />
     </section>

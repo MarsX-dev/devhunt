@@ -1,33 +1,21 @@
-import { Fragment } from 'react';
-import Logo from '@/components/ui/ToolCard/Tool.Logo';
-import Name from '@/components/ui/ToolCard/Tool.Name';
-import Tags from '@/components/ui/ToolCard/Tool.Tags';
-import Title from '@/components/ui/ToolCard/Tool.Title';
-import Votes from '@/components/ui/ToolCard/Tool.Votes';
-import ToolCard from '@/components/ui/ToolCard/ToolCard';
-
 import ProfileService from '@/utils/supabase/services/profile';
 import ProductsService from '@/utils/supabase/services/products';
 import UserProfileInfo from '@/components/ui/UserProfileInfo/UserProfileInfo';
 import { type Comment as CommentType, type Product, type Profile } from '@/utils/supabase/types';
-import ToolCardList, { type ITool } from '@/components/ui/ToolCardList/ToolCardList';
-import {
-  Comment,
-  CommentContext,
-  CommentDate,
-  CommentUserAvatar,
-  CommentUserName,
-  Comments
-} from '@/components/ui/Comment';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import moment from 'moment';
 import Link from 'next/link';
 import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import ToolCardLink from '@/components/ui/ToolCard/ToolCardLink';
 import dynamic from 'next/dynamic';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
+import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
+import SectionLabel from '@/components/ui/SectionLabel';
+import { type ProductType } from '@/type';
+
+const UPVOTED_SHOWN = 20;
+const stripTags = (html: string | null) => (html ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
 
@@ -85,108 +73,72 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
       profileService.getUserVoteTools(profile?.id),
     ]);
 
+    const launches = ((tools ?? []) as ProductType[]).sort((a, b) => Date.parse(b.launch_start ?? '') - Date.parse(a.launch_start ?? ''));
+    const upvoted = ((votedTools ?? []) as any[])
+      .filter(tool => !tool.deleted)
+      .map(tool => ({ ...tool, product_categories: (tool.product_category_product ?? []).map((c: any) => c.product_categories) }) as ProductType);
+    const comments = ((activity ?? []) as IComment[]).sort((a, b) => Date.parse(b.created_at ?? '') - Date.parse(a.created_at ?? ''));
+    const stats = {
+      launches: launches.length,
+      upvotesReceived: launches.reduce((sum, tool) => sum + (tool.votes_count ?? 0), 0),
+      upvotesGiven: upvoted.length,
+      comments: comments.length,
+    };
+
     return (
-      <div className="container-custom-screen mt-10 mb-32 space-y-10">
-        <UserProfileInfo profile={profile}/>
-        {tools && tools?.length > 0 ? (
+      <div className="container-custom-screen mt-10 mb-32 space-y-14 sm:mt-14">
+        <UserProfileInfo profile={profile} stats={stats} />
+        {launches.length > 0 && (
           <div>
-            <h3 className="font-medium text-slate-50">Launches</h3>
-            <ul className="mt-3 divide-y divide-slate-800/60">
-              {tools.map((tool, idx) => (
-                <ToolCardList key={idx} tool={tool as ITool}/>
+            <SectionLabel title="Launches" hint={`${launches.length} ${launches.length === 1 ? 'tool' : 'tools'}`} />
+            <ol className="mt-2 divide-y divide-slate-800/70">
+              {launches.map((tool, idx) => (
+                <ToolCardEffect key={tool.id} tool={tool} revealIndex={idx} />
               ))}
-            </ul>
+            </ol>
           </div>
-        ) : (
-          ''
         )}
-        {votedTools && votedTools?.length > 0 ? (
+        {upvoted.length > 0 && (
           <div>
-            <h3 className="font-medium text-slate-50">{votedTools?.length} Upvotes</h3>
-            <ul className="mt-3 divide-y divide-slate-800/60">
-              {votedTools.map((tool: any, idx: number) => (
-                <Fragment key={tool.id ?? idx}>
-                  {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-                  <li className="py-3">
-                    <ToolCard tool={tool} href={`/tool/${tool.slug}`}>
-                      <Logo src={tool.logo_url || ''} alt={tool.name}/>
-                      <div className="space-y-1">
-                        <Name href={tool.demo_url as string}>{tool.name}</Name>
-                        <Title className="line-clamp-2">{tool.slogan}</Title>
-                        <Tags
-                          items={[
-                            (tool.product_pricing_types as { title: string }).title || 'Free',
-                            ...(tool.product_category_product as { name: string }[]).map((c: {
-                              name: string
-                            }) => c.name),
-                          ]}
-                        />
-                      </div>
-                      <div className="flex-1 self-center flex justify-end">
-                        <Votes
-                          className="text-orange-500"
-                          count={tool.votes_count}
-                          productId={tool?.id}
-                          launchDate={tool.launch_date}
-                          launchEnd={tool.launch_end}
-                        />
-                      </div>
-                    </ToolCard>
-                  </li>
-                </Fragment>
+            <SectionLabel title="Upvoted" hint={upvoted.length > UPVOTED_SHOWN ? `${UPVOTED_SHOWN} of ${upvoted.length} tools` : `${upvoted.length} ${upvoted.length === 1 ? 'tool' : 'tools'}`} />
+            <ol className="mt-2 divide-y divide-slate-800/70">
+              {upvoted.slice(0, UPVOTED_SHOWN).map((tool, idx) => (
+                <ToolCardEffect key={tool.id} tool={tool} compact revealIndex={idx} />
               ))}
-            </ul>
+            </ol>
           </div>
-        ) : (
-          ''
         )}
-        {activity && activity?.length > 0 ? (
+        {comments.length > 0 && (
           <div>
-            <h3 className="font-medium text-slate-50">Activity</h3>
-            <Comments className="mt-8">
-              {(activity as IComment[]).map((item: IComment, idx) => (
-                <Comment key={idx} className="gap-4 sm:gap-6">
-                  <CommentUserAvatar src={item.profiles.avatar_url as string}/>
-                  <div className="flex-1">
-                    <Link href={`/tool/${item.products.slug}/#${item.id}`} className="flex-1">
-                      <CommentUserName>{item.profiles.full_name}</CommentUserName>
-                      <CommentDate className="mt-1">Commented {moment(item.created_at).format('LL')}</CommentDate>
-                      <CommentContext className="mt-3 text-slate-400 line-clamp-2">{item.content}</CommentContext>
-                    </Link>
-                    <ToolCardLink className="mt-3 border border-slate-800 px-2 sm:px-4"
-                                  href={'/tool/' + item.products.slug}>
-                      <Link href={'/tool/' + item.products.slug}>
-                        <Logo src={item.products.logo_url || ''} alt={item.products.name} imgClassName="w-12 h-12"/>
-                      </Link>
-                      <div className="space-y-1">
-                        <Name toolHref={'/tool/' + item.products.slug} href={item.products.demo_url as string}>
-                          {item.products.name}
-                        </Name>
-                        <Link href={'/tool/' + item.products.slug}>
-                          <Title className="line-clamp-2">{item.products.slogan}</Title>
-                        </Link>
-                      </div>
-                      <div className="flex-1 self-center flex justify-end">
-                        <Votes
-                          count={item.products.votes_count}
-                          productId={item?.id}
-                          launchDate={item.products.launch_date}
-                          launchEnd={item.products.launch_end as string}
-                        />
-                      </div>
-                    </ToolCardLink>
-                  </div>
-                </Comment>
+            <SectionLabel title="Comments" hint={`${comments.length} ${comments.length === 1 ? 'comment' : 'comments'}`} />
+            <ol className="mt-2 divide-y divide-slate-800/70">
+              {comments.map(item => (
+                <li key={item.id}>
+                  <Link href={`/tool/${item.products.slug}#${item.id}`} className="group flex gap-x-3 py-4">
+                    <img
+                      src={(item.products.logo_url || '').replace(/w=\d+/g, 'w=80')}
+                      alt={item.products.name}
+                      className="h-10 w-10 flex-none rounded-lg bg-slate-800 object-cover ring-1 ring-slate-800"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-slate-500">
+                        Commented on <span className="font-medium text-slate-200 group-hover:text-slate-50">{item.products.name}</span> ·{' '}
+                        {moment(item.created_at).format('ll')}
+                      </p>
+                      <p className="mt-1.5 line-clamp-3 w-fit max-w-full rounded-2xl rounded-tl-md bg-slate-800/60 px-3 py-2 text-sm text-slate-300">
+                        {stripTags(item.content)}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
               ))}
-            </Comments>
+            </ol>
           </div>
-        ) : (
-          ''
         )}
-        <MonitizorAdCards/>
+        <MonitizorAdCards />
         <div>
-          <h3 className="font-medium text-slate-50">Trending tools</h3>
-          <TrendingToolsList/>
+          <SectionLabel title="Trending this week" />
+          <TrendingToolsList />
         </div>
       </div>
     );

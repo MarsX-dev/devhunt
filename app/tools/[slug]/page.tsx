@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
 import categories from '@/utils/categories';
+import PageHeader from '@/components/ui/PageHeader';
+
+const categoryDescription = (name?: string) => categories.find(c => c.name === name)?.description ?? '';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import CategoryService from '@/utils/supabase/services/categories';
@@ -61,18 +64,16 @@ export default async ({ params: { slug } }: { params: { slug: string } }) => {
   );
 
   return (
-    <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
-      <>
-        <>
-          <h1 className="text-xl text-slate-50 font-extrabold mb-10">Best {getOriginalSlug(slug)} tools</h1>
-          <MonitizorAdCards />
-          <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
-            {products.map((product: Product, idx: number) => (
-              <ToolCardEffect key={idx} tool={toToolCardProps(product)} />
-            ))}
-          </ul>
-        </>
-      </>
+    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="Category" title={`Best ${getOriginalSlug(slug)} tools`}>
+        {categoryDescription(getOriginalSlug(slug))} Ranked by upvotes from the community.
+      </PageHeader>
+      <MonitizorAdCards />
+      <ol className="mt-12 mb-12 divide-y divide-slate-800/70">
+        {products.map((product: Product, idx: number) => (
+          <ToolCardEffect key={product.id ?? idx} tool={toToolCardProps(product)} rank={idx + 1} revealIndex={idx} />
+        ))}
+      </ol>
     </section>
   );
 };

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Fragment } from 'react';
 import ProductsService from '@/utils/supabase/services/products';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
@@ -6,6 +7,8 @@ import { ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { toToolCardProps } from '@/utils/toolCard';
 import { weekKey } from '@/utils/launchWeeks';
+import PageHeader from '@/components/ui/PageHeader';
+import SectionLabel from '@/components/ui/SectionLabel';
 
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
@@ -69,23 +72,28 @@ export default async function Home({ searchParams }: { searchParams: { weeks?: s
     : { count: 0 };
 
   return (
-    <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
-      <div>
-        <h1 className="text-slate-50 text-3xl font-semibold">The upcoming tools</h1>
-        <p className="text-slate-300 mt-3">Browse the upcoming tools, and be in update with the next.</p>
-      </div>
+    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="Coming up" title="The next dev tools to launch">
+        New launches go live every Tuesday. Here&apos;s who&apos;s next in line.{' '}
+        <Link href="/account/tools/new" className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50">
+          Launch yours
+        </Link>
+      </PageHeader>
 
       <div className="mt-10 mb-12">
         {launchWeeks.map((group, weekIdx) => (
           <Fragment key={group.startDate.toISOString()}>
-            <div id={`week-${weekIdx + 1}`} className="mt-3 text-slate-400 text-sm scroll-mt-24" data-week={weekKey(group.startDate)}>
-              {group.startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+            <div id={`week-${weekIdx + 1}`} className={`scroll-mt-24 ${weekIdx ? 'mt-14' : ''}`} data-week={weekKey(group.startDate)}>
+              <SectionLabel
+                title={`Week of ${group.startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' })}`}
+                hint={`${group.products.length} ${group.products.length === 1 ? 'tool' : 'tools'}${weekIdx === 0 ? ' · next Tuesday' : ''}`}
+              />
             </div>
-            <ul className="mt-3 divide-y divide-slate-800/60">
+            <ol className="mt-2 divide-y divide-slate-800/70">
               {group.products.map((product, idx) => (
-                <ToolCardEffect key={product.id ?? idx} tool={toToolCardProps(product)} />
+                <ToolCardEffect key={product.id ?? idx} tool={toToolCardProps(product)} compact revealIndex={idx} />
               ))}
-            </ul>
+            </ol>
           </Fragment>
         ))}
         {!!laterCount && weeksToShow < MAX_WEEKS && (
@@ -94,7 +102,7 @@ export default async function Home({ searchParams }: { searchParams: { weeks?: s
                 opens the page at the first newly added week. */}
             <a
               href={`/upcoming?weeks=${weeksToShow + WEEKS_PER_PAGE}#week-${weeksToShow + 1}`}
-              className="inline-block rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-700 duration-150"
+              className="inline-block rounded-full border border-slate-800 px-4 py-2 text-sm text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
             >
               Show more ({laterCount.toLocaleString('en-US')} tools scheduled)
             </a>
