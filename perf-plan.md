@@ -63,16 +63,18 @@ instant (prefetch hits the CDN, not a function).
       holding PostgREST connections. Now: daily counter sharded over 16 rows, rows locked in id order,
       `lock_timeout 2s` (drop the impression rather than hold a connection), old `updateViews` routed to it.
       Migration `20260928160000_bump_views.sql` applied on prod 2026-09-27.
-- [ ] `track_pageview`: insert-only (or sharded) + cron rollup, instead of every view updating the same
+- [x] `track_pageview`: counters sharded over 8 rows per (day, country) and (day, path), `lock_timeout 2s`;
+      daily report merges a country's rows. Migration `20260928170000` (c0eeb71). Was: every view updating the same
       `(day, country)` row.
-- [ ] Store the final week rank on `products` (cron at week close) or a refreshed materialized
+- [x] `product_week_ranks` table (all 9,592 ranks, pg_cron refresh every 10 min, ~150ms); tool pages read it
+      by PK, view only as fallback. Migration `20260928180000` (1bf7f20). Was: store the final week rank on `products` (cron at week close) or a refreshed materialized
       `product_ranks`; then drop the view from the request path entirely.
-- [ ] `get_prev_launch_weeks`: filter by week before building JSON.
+- [~] `get_prev_launch_weeks`: no longer called per visitor (only via the 30s home-data cache), so left as is.
 
 ## Cleanup
 
-- [ ] Delete dead code: `ProductsService.getProducts` (fetches whole table). (`components/ui/ToolPage` removed.)
-- [ ] `getUpvotesGroupedByProducts` (cron): profile fetched twice per group.
+- [x] Dead code removed: `ProductsService.getProducts` (fetched the whole table) + its unused callers, `components/ui/ToolPage`.
+- [x] `getUpvotesGroupedByProducts` (cron): voter profile fetched once per group.
 
 ## Watch after each deploy
 
