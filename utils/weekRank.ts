@@ -4,12 +4,20 @@ import AwardsService from '@/utils/supabase/services/awards';
 import { getHomeData } from '@/utils/homeData';
 import { type ProductType } from '@/type';
 
-// A finished week's rank never changes, so it is cached for a week. The `product_ranks` view ranks every
-// product ever launched on each call (~100ms of DB time), which made it the heaviest query on the site.
+// A finished week's rank never changes, so it is cached for a week. It is read from product_week_ranks
+// (precomputed every 10 minutes by pg_cron); the product_ranks view ranks every product ever launched on
+// each call (~100ms), so it is only the fallback for a week that ended in the last few minutes.
 const finalWeekRank = (productId: number) =>
   unstable_cache(
     async () => {
-      const ranks = await new AwardsService(createBrowserClient()).getProductRanks(productId);
+      const client = createBrowserClient();
+      const { data } = await client
+        .from('product_week_ranks' as never)
+        .select('rank')
+        .eq('product_id', productId)
+        .maybeSingle();
+      if (data) return Number((data as { rank: number }).rank) || null;
+      const ranks = await new AwardsService(client).getProductRanks(productId);
       return Number((ranks[0] as any)?.rank) || null;
     },
     ['final-week-rank', String(productId)],
