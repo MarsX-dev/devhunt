@@ -128,7 +128,10 @@ export async function createAdCheckout(ads: { id: number; kind: AdKind; plan: Ad
     customer_email: user.email ?? undefined,
     client_reference_id: `ads_${meta.ad_ids}`,
     metadata: meta,
-    ...(recurring ? { subscription_data: { metadata: meta } } : { invoice_creation: { enabled: true }, payment_intent_data: { metadata: meta } }),
+    // A 100%-off code (how our own products book spots) must go through without a card: subscriptions
+    // only ask for one when something is due, and payment mode gets no payment_intent_data (it would
+    // force a card, see /api/checkout).
+    ...(recurring ? { subscription_data: { metadata: meta }, payment_method_collection: 'if_required' as const } : { invoice_creation: { enabled: true } }),
     success_url: `${origin}/account/advertise?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/account/advertise?canceled=1`,
   });

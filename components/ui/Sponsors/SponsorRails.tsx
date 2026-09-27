@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useImpression } from './track';
-import { AD_PRICE_USD, AD_SLOTS, HOUSE_AD, spotsLeft, type PublicAd } from '@/utils/ads';
+import { AD_PRICE_USD, AD_SLOTS, spotsLeft, type PublicAd } from '@/utils/ads';
 
 type LiveAd = PublicAd & { freeFrom: string | null };
-type Card = { ad: LiveAd | PublicAd | null; slot: number; freeFrom?: string | null };
+type Card = { ad: LiveAd | null; slot: number; freeFrom?: string | null };
 
 const shortDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -30,8 +30,8 @@ const useHidden = () => /^\/(account\/)?advertise(\/|$)/.test(usePathname() ?? '
 
 function useSponsors() {
   const ads = useLiveAds().filter(a => a.kind === 'rail');
-  // House ad first, then slots 1..5 (filled or open).
-  const cards: Card[] = [{ ad: HOUSE_AD, slot: 0 }];
+  // Slots 1..6, filled or open; odd ones on the left, even on the right.
+  const cards: Card[] = [];
   for (let s = 1; s <= AD_SLOTS; s++) {
     const ad = ads.find(a => a.slot === s) ?? null;
     cards.push({ ad, slot: s, freeFrom: ad?.freeFrom });

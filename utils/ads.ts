@@ -6,7 +6,6 @@ export interface AdProduct {
   title: string;
   price: number; // USD per month, recurring
   slots: number; // for sale at the same time
-  house: number; // spots our own ad (ListingBott) holds; counted as taken so the scarcity is real
   per?: string; // what one month buys, when it isn't obvious
   pitch: string;
   where: string[];
@@ -17,8 +16,7 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     kind: 'rail',
     title: 'Sidebar card',
     price: 499,
-    slots: 5,
-    house: 1,
+    slots: 6,
     pitch: 'Your logo, name and headline in a card beside the content on every public page of DevHunt, all month long.',
     where: ['Every public page: home, tool pages, categories, blog', 'Stays in view while visitors scroll (desktop)', 'Scrolling logo strip under the header on mobile', 'Only 6 spots, never rotated'],
   },
@@ -26,8 +24,7 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     kind: 'inline',
     title: 'Inline listing',
     price: 299,
-    slots: 3,
-    house: 1,
+    slots: 4,
     pitch: 'A row inside the tool lists developers browse to find new tools, styled like the launches around it and marked "Sponsored".',
     where: ['Home page, right after the top 3 launches of the week', 'Every category list, after the 5th tool', 'Logo, name and headline, links to your site', 'Only 4 sponsors share the spot'],
   },
@@ -36,7 +33,6 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     title: 'Weekly newsletter',
     price: 999,
     slots: 1,
-    house: 0,
     per: '4 editions',
     pitch: 'The only sponsor in the weekly DevHunt email, sent to 40,000 developers. Monthly (4 editions) or a single edition to try it.',
     where: ['4 editions a month, one every week, or a single one', 'Banner, headline and description', 'The only sponsor in each email'],
@@ -54,10 +50,10 @@ export const planLabel = (kind: AdKind, plan: AdPlan = 'monthly') =>
 
 export const AD_KINDS = Object.keys(AD_PRODUCTS) as AdKind[];
 
-// "5 of 6 spots left": our own ad counts as a taken spot. `free` = unsold paid slots.
+// "5 of 6 spots left". `free` = unsold slots. Our own products (ListingBott) buy spots like any
+// advertiser (with a 100% coupon), so every taken spot is a real ad.
 export function spotsLeft(kind: AdKind, free: number) {
-  const p = AD_PRODUCTS[kind];
-  const total = p.slots + p.house;
+  const total = AD_PRODUCTS[kind].slots;
   if (free <= 0) return 'sold out';
   return `${free} of ${total} spot${total > 1 ? 's' : ''} left`;
 }
@@ -104,15 +100,6 @@ export interface PublicAd {
   url: string;
   logo_url: string | null;
 }
-
-// Our own ad: always the first rail card, and the inline ad when no inline slot is sold.
-export const HOUSE_AD: PublicAd = {
-  slot: 0,
-  name: 'ListingBott',
-  tagline: 'Submit your product to 100+ directories. Backlinks on autopilot.',
-  url: 'https://listingbott.com/?ref=devhunt',
-  logo_url: 'https://www.google.com/s2/favicons?domain=listingbott.com&sz=128',
-};
 
 // Outgoing sponsor links carry ?ref=devhunt so advertisers see us in their analytics.
 export function withRef(url: string) {
