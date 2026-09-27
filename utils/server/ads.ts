@@ -298,7 +298,7 @@ export async function newsletterSent(adId: number) {
 export async function notifyAdDiscord(content: string) {
   const webhook = process.env.DISCORD_PAYMENTS_WEBHOOK;
   if (!webhook) return;
-  await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) }).catch(err =>
+  await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, allowed_mentions: { parse: [] } }) }).catch(err =>
     console.error(`[ads] discord notify failed: ${(err as Error).message}`),
   );
 }
