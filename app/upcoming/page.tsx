@@ -1,8 +1,8 @@
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 import { Fragment } from 'react';
 import ProductsService from '@/utils/supabase/services/products';
 import ToolRow from '@/components/ui/ToolRow';
-import { ProductType } from '@/type';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { toToolRow } from '@/utils/toolRow';
@@ -54,24 +54,38 @@ function getDate(weekStartDay: number): Date {
 const WEEKS_PER_PAGE = 4;
 const MAX_WEEKS = 52;
 
+// The upcoming weeks, shared by all visitors and cached for 5 minutes: the page renders per request
+// (it reads ?weeks=), and get_next_launch_weeks builds JSON of every scheduled product.
+const getUpcoming = unstable_cache(
+  async (weeksToShow: number) => {
+    const supabase = createBrowserClient();
+    const productService = new ProductsService(supabase);
+    const today = getDate(2);
+    const week = await productService.getWeekNumber(today, 2);
+    const launchWeeks = await productService.getNextLaunchWeeks(today.getFullYear(), 2, week, weeksToShow);
+
+    // How many tools are scheduled after the last week shown (for the "Show more" button).
+    const lastShownEnd = launchWeeks.length ? launchWeeks[launchWeeks.length - 1].endDate : null;
+    const { count: laterCount } = lastShownEnd
+      ? await supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('deleted', false)
+          .gt('launch_start', lastShownEnd.toISOString())
+      : { count: 0 };
+
+    // Plain JSON (the cache doesn't keep Dates) with only the fields a tool row shows.
+    const weeks = launchWeeks.map(group => ({ start: group.startDate.toISOString(), products: group.products.map(toToolRow) }));
+    return { weeks, laterCount: laterCount ?? 0 };
+  },
+  ['upcoming-weeks'],
+  { revalidate: 300 },
+);
+
 export default async function Home({ searchParams }: { searchParams: { weeks?: string } }) {
   const weeksToShow = Math.min(Math.max(Number(searchParams.weeks) || WEEKS_PER_PAGE, WEEKS_PER_PAGE), MAX_WEEKS);
-  const weekStartDay = 2;
-  const today = getDate(weekStartDay);
-  const supabase = createBrowserClient();
-  const productService = new ProductsService(supabase);
-  const week = await productService.getWeekNumber(today, 2);
-  const launchWeeks = await productService.getNextLaunchWeeks(today.getFullYear(), 2, week, weeksToShow);
-
-  // How many tools are scheduled after the last week shown (for the "Show more" button).
-  const lastShownEnd = launchWeeks.length ? launchWeeks[launchWeeks.length - 1].endDate : null;
-  const { count: laterCount } = lastShownEnd
-    ? await supabase
-        .from('products')
-        .select('id', { count: 'exact', head: true })
-        .eq('deleted', false)
-        .gt('launch_start', lastShownEnd.toISOString())
-    : { count: 0 };
+  const { weeks, laterCount } = await getUpcoming(weeksToShow);
+  const launchWeeks = weeks.map(group => ({ startDate: new Date(group.start), products: group.products }));
 
   return (
     <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
@@ -93,7 +107,7 @@ export default async function Home({ searchParams }: { searchParams: { weeks?: s
             </div>
             <ol className="mt-2">
               {group.products.map((product, idx) => (
-                <ToolRow key={product.id ?? idx} tool={toToolRow(product)} revealIndex={idx} />
+                <ToolRow key={product.id ?? idx} tool={product} revealIndex={idx} />
               ))}
             </ol>
           </Fragment>
