@@ -69,6 +69,13 @@ describe('protected endpoints reject anonymous callers', () => {
     },
   );
 
+  it('website import needs a signed-in user (or is switched off without a Firecrawl key)', async () => {
+    const res = await get('/api/tools/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"url":"example.com"}' });
+    expect([401, 503]).toContain(res.status);
+    const status = await (await get('/api/tools/import')).json();
+    expect(typeof status.enabled).toBe('boolean');
+  });
+
   it('/api/top-3-past-winners-email does nothing in production', async () => {
     const res = await get('/api/top-3-past-winners-email');
     const body = await res.text();

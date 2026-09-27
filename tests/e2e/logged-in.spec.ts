@@ -70,3 +70,41 @@ test('owners cannot mark tools paid, move launches, change counters or insert to
   });
   expect(insert.status).toBe(403);
 });
+
+test('"Start with your website" fills in the whole form (Firecrawl/JEV mocked)', async ({ page }) => {
+  const errors = trackErrors(page);
+  const logo = 'https://mars-images.imgix.net/1790424424410-1790424423031qa-logo.png?auto=compress&fit=max&w=128';
+  const shot = 'https://mars-images.imgix.net/1790424426140-1790424425553qa.png?auto=compress&fit=max&w=750';
+  await page.route('**/api/tools/import', route =>
+    route.request().method() === 'GET'
+      ? route.fulfill({ json: { enabled: true, ai: true } })
+      : route.fulfill({
+          json: {
+            draft: {
+              name: 'FooBar',
+              slogan: 'Trace and monitor your LLM apps.',
+              description: 'FooBar is an open-source observability platform for LLM apps.',
+              website: 'https://foobar.dev/',
+              pricingTypeId: 2,
+              categoryIds: [10],
+              logoUrl: logo,
+              screenshotUrls: [shot],
+            },
+            categories: [{ id: 10, name: 'AI' }],
+          },
+        }),
+  );
+  await page.goto('/account/tools/new');
+  await page.getByPlaceholder('https://myawesomedevtool.com', { exact: true }).fill('foobar.dev');
+  await page.getByRole('button', { name: 'Fill the form' }).click();
+  await expect(page.getByText(/Done! Check the details/)).toBeVisible();
+  await expect(page.getByPlaceholder('My Awesome Dev Tool')).toHaveValue('FooBar');
+  await expect(page.getByPlaceholder('Supercharge Your Development Workflow!')).toHaveValue('Trace and monitor your LLM apps.');
+  await expect(page.getByPlaceholder('https://myawesomedevtool.com/')).toHaveValue('https://foobar.dev/');
+  await expect(page.getByPlaceholder(/Briefly explain/)).toHaveValue(/open-source observability/);
+  await expect(page.getByRole('radio', { name: 'Subscription' })).toBeChecked();
+  await expect(page.locator('form').getByText('AI', { exact: true })).toBeVisible();
+  await expect(page.locator(`form img[src="${logo}"]`)).toBeVisible();
+  await expect(page.locator(`form img[src="${shot}"]`)).toBeVisible();
+  expect(errors).toEqual([]);
+});

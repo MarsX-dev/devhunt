@@ -77,6 +77,12 @@ export default () => {
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isLaunching, setLaunching] = useState<boolean>(false);
 
+  // "Start with your website" import (only when FIRECRAWL_API_KEY is set on the server)
+  const [importEnabled, setImportEnabled] = useState(false);
+  const [importUrl, setImportUrl] = useState('');
+  const [importState, setImportState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [importError, setImportError] = useState('');
+
   // ProductHunt import state
   const [isPhModalOpen, setIsPhModalOpen] = useState(false);
   const [phSlug, setPhSlug] = useState('');
@@ -85,6 +91,10 @@ export default () => {
   const [phProductAlert, setPhProductAlert] = useState<boolean>(true);
 
   useEffect(() => {
+    axios
+      .get('/api/tools/import')
+      .then(({ data }) => setImportEnabled(!!data.enabled))
+      .catch(() => {});
     pricingTypesList.then(types => {
       setPricingType([...(types as ProductPricingType[])]);
     });
@@ -204,6 +214,34 @@ export default () => {
   };
 
   // Function to fetch ProductHunt data and auto-fill form
+  const handleWebsiteImport = async () => {
+    if (!importUrl.trim()) return;
+    setImportState('loading');
+    setImportError('');
+    try {
+      const { data } = await axios.post('/api/tools/import', { url: importUrl.trim() });
+      const draft = data.draft;
+      setValue('tool_name', draft.name, { shouldValidate: true });
+      setValue('slogan', draft.slogan, { shouldValidate: true });
+      setValue('tool_website', draft.website, { shouldValidate: true });
+      setValue('tool_description', draft.description, { shouldValidate: true });
+      if (draft.pricingTypeId) setValue('pricing_type', draft.pricingTypeId, { shouldValidate: true });
+      if (data.categories?.length) setCategory(data.categories);
+      if (draft.logoUrl) {
+        setLogoPreview(draft.logoUrl);
+        setLogoFile(draft.logoUrl);
+      }
+      if (draft.screenshotUrls?.length) {
+        setImagePreview(draft.screenshotUrls);
+        setImageFile(draft.screenshotUrls);
+      }
+      setImportState('done');
+    } catch (err: any) {
+      setImportError(err?.response?.data?.error ?? "We couldn't read that website. Please fill in the form yourself.");
+      setImportState('error');
+    }
+  };
+
   const handlePhImport = async () => {
     if (!phSlug.trim()) {
       setPhError('Please enter a ProductHunt slug');
@@ -258,7 +296,41 @@ export default () => {
               title="Tell us about your tool"
               description="Share basic info to help fellow devs get the gist of your awesome creation."
             >
-              {phProductAlert && (
+              {importEnabled && (
+                <div id="website-import" className="rounded-2xl border border-orange-500/30 bg-orange-500/[0.04] p-4">
+                  <p className="text-sm font-medium text-slate-100">Start with your website</p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Paste your URL and we&apos;ll fill in the form for you: name, tagline, description, pricing, categories, logo and a
+                    screenshot. You can edit everything before submitting.
+                  </p>
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                    <Input
+                      placeholder="https://myawesomedevtool.com"
+                      value={importUrl}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setImportUrl(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          void handleWebsiteImport();
+                        }
+                      }}
+                      className="w-full"
+                    />
+                    <Button
+                      type="button"
+                      isLoad={importState === 'loading'}
+                      onClick={() => void handleWebsiteImport()}
+                      className="flex-none whitespace-nowrap hover:bg-orange-400"
+                    >
+                      {importState === 'loading' ? 'Reading your site...' : 'Fill the form'}
+                    </Button>
+                  </div>
+                  {importState === 'done' && <p className="mt-2 text-xs text-green-400">Done! Check the details below and edit anything you like.</p>}
+                  {importState === 'error' && <LabelError className="mt-2">{importError}</LabelError>}
+                </div>
+              )}
+
+              {!importEnabled && phProductAlert && (
                 <div className="relative mb-6 p-4 bg-slate-700/50 rounded-lg border border-slate-600">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -352,7 +424,13 @@ export default () => {
                     rules={{ required: true }}
                     render={({ field }) => (
                       <div className="mt-2 flex items-center gap-x-2">
-                        <Radio value="free" onChange={e => field.onChange(item.id)} id={item.title as string} name="pricing-type" />
+                        <Radio
+                          value={item.id}
+                          checked={field.value === item.id}
+                          onChange={() => field.onChange(item.id)}
+                          id={item.title as string}
+                          name="pricing-type"
+                        />
                         <Label htmlFor={item.title as string} className="font-normal">
                           {item.title}
                         </Label>
