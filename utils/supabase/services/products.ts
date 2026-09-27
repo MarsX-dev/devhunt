@@ -202,45 +202,10 @@ export default class ProductsService extends BaseDbService {
     return results;
   }
 
-  getProducts(
-    sortBy: string = 'votes_count',
-    ascending: boolean = false,
-    pageSize = 50,
-    pageNumber = 1,
-    categoryId?: number | null,
-    selectQuery = this.EXTENDED_PRODUCT_SELECT,
-    showAll: boolean = false,
-  ) {
-    const key = `products-${sortBy}-${ascending}-${categoryId}-${pageNumber}-${pageSize}-${selectQuery}`;
-
-    return cache.get(key, async () => {
-      // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-      let products = this.supabase.from('products').select(selectQuery).eq('deleted', false);
-      const count = (await products).data?.length;
-      if (categoryId) {
-        products = products.eq('product_categories.id', categoryId);
-      }
-
-      if (!showAll) {
-        products = products.eq('isPaid', true);
-      }
-
-      const getProducts = await products.range(pageSize * (pageNumber - 1), pageSize * pageNumber - 1).order(sortBy, { ascending });
-
-      return { ...getProducts, count };
-    });
-  }
-
   async getSimilarProducts(productId: number): Promise<Product[]> {
     const { data, error } = await this.supabase.rpc('get_similar_products', { _product_id: productId });
     if (error !== null) throw new Error(error.message);
     return data;
-  }
-
-  async getTopProducts(sortBy: string, ascending: boolean): Promise<ExtendedProduct[]> {
-    const { data: products, error } = await this.getProducts(sortBy, ascending);
-    if (error) throw new Error(error.message);
-    return products as ExtendedProduct[];
   }
 
   async getMostDiscussedProducts(limit = 10): Promise<ExtendedProduct[]> {
@@ -253,26 +218,6 @@ export default class ProductsService extends BaseDbService {
 
     if (error !== null) throw new Error(error.message);
     return data as ExtendedProduct[];
-  }
-
-  async getRelatedProducts(
-    productId: number,
-    categoryNames: { name: string }[],
-    sortBy: string,
-    ascending: boolean,
-  ): Promise<ExtendedProduct[]> {
-    const { data: products, error } = await this.getProducts(sortBy, ascending).neq('id', productId);
-
-    if (error) {
-      console.error(error);
-      return [];
-    }
-
-    const filteredProducts = products
-      .filter(item => item.product_categories?.some(category => categoryNames.includes(category.name)))
-      .slice(0, 8);
-
-    return filteredProducts as ExtendedProduct[];
   }
 
   async getUserProductsById(userId: string) {
@@ -454,13 +399,10 @@ export default class ProductsService extends BaseDbService {
     );
 
     return Promise.all(
-      Object.values(groups).map(async g => ({
-        product: g.ref,
-        voter_data: {
-          full_name: (await this.getUserProfileById(g.items[0].user_id))?.full_name,
-          id: (await this.getUserProfileById(g.items[0].user_id))?.id,
-        },
-      })),
+      Object.values(groups).map(async g => {
+        const voter = await this.getUserProfileById(g.items[0].user_id);
+        return { product: g.ref, voter_data: { full_name: voter?.full_name, id: voter?.id } };
+      }),
     );
   }
 
