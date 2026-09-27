@@ -13,13 +13,17 @@ export const toolExists = unstable_cache(
   { revalidate: 60 }, // short: hiding or restoring a tool (website health) shows within a minute
 );
 
-export const profileExists = unstable_cache(
-  async (username: string) => {
-    const { data } = await createBrowserClient().from('profiles').select('id').eq('username', username).is('deleted_at', null).maybeSingle();
-    return !!data;
-  },
-  ['route-profile-exists-v2'], // deleted accounts are a 404
-  { revalidate: 300 },
-);
+// Profile caches are tagged per username; saving a profile (/api/profile) clears the old and new username's.
+export const profileCacheTag = (username: string) => `profile:${username.toLowerCase()}`;
+
+export const profileExists = (username: string) =>
+  unstable_cache(
+    async () => {
+      const { data } = await createBrowserClient().from('profiles').select('id').eq('username', username).is('deleted_at', null).maybeSingle();
+      return !!data;
+    },
+    ['route-profile-exists-v2', username], // deleted accounts are a 404
+    { revalidate: 300, tags: [profileCacheTag(username)] },
+  )();
 
 export const categoryExists = (slug: string) => categories.some(item => slug.replaceAll('-', ' ') == item.name.toLowerCase());

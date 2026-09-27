@@ -1,8 +1,7 @@
 import { type Profile } from '@/utils/supabase/types';
-import { Globe, AtSign } from 'lucide-react';
 import { formatStat } from '@/utils/statFormat';
-
-const withProtocol = (url: string) => (url.startsWith('http') ? url : `https://${url}`);
+import { linkLabel, normalizeUrl, platformName, profileLinks, type SocialLink } from '@/utils/socialLinks';
+import SocialIcon from '@/components/ui/SocialIcon';
 
 export interface ProfileStats {
   launches: number;
@@ -21,6 +20,12 @@ export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) 
         { label: 'Comments', value: stats.comments },
       ]
     : [];
+  // The website first, then the social profiles; old rows (social_url only) are parsed on the fly.
+  const website = normalizeUrl(profile?.website_url);
+  const links: SocialLink[] = [
+    ...(website ? [{ platform: 'website' as const, handle: website, url: website }] : []),
+    ...profileLinks(profile ?? {}).filter(link => link.url !== website),
+  ];
   return (
     <div>
       <div className="flex items-center gap-x-4 sm:gap-x-5">
@@ -43,30 +48,21 @@ export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) 
         </div>
       </div>
       {profile?.about && <p className="mt-5 max-w-2xl text-slate-300">{profile.about}</p>}
-      {(profile?.website_url || profile?.social_url) && (
+      {links.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          {profile.website_url && (
+          {links.map(link => (
             <a
-              href={withProtocol(profile.website_url)}
+              key={link.url}
+              href={link.url}
               target="_blank"
-              rel="nofollow"
-              className="inline-flex items-center gap-x-1.5 rounded-full border border-slate-800 px-3 py-1 text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
+              rel="nofollow ugc noopener"
+              title={platformName(link.platform)}
+              className="inline-flex max-w-full items-center gap-x-1.5 rounded-full border border-slate-800 px-3 py-1 text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
             >
-              <Globe className="h-3.5 w-3.5" />
-              Website
+              <SocialIcon platform={link.platform} className="h-3.5 w-3.5 flex-none" />
+              <span className="truncate">{linkLabel(link)}</span>
             </a>
-          )}
-          {profile.social_url && (
-            <a
-              href={withProtocol(profile.social_url)}
-              target="_blank"
-              rel="nofollow"
-              className="inline-flex items-center gap-x-1.5 rounded-full border border-slate-800 px-3 py-1 text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
-            >
-              <AtSign className="h-3.5 w-3.5" />
-              Social
-            </a>
-          )}
+          ))}
         </div>
       )}
       {items.length > 0 && (

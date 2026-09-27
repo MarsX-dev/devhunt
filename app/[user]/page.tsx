@@ -13,26 +13,29 @@ import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import ToolRow from '@/components/ui/ToolRow';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProductType } from '@/type';
+import { profileCacheTag } from '@/utils/routeExists';
 
 const UPVOTED_SHOWN = 20;
 
-// Public profile data, cached for a minute (the page was re-queried on every visit).
-const getProfilePageData = unstable_cache(
-  async (username: string) => {
-    const browserService = createBrowserClient();
-    const profileService = new ProfileService(browserService);
-    const profile = await profileService.getByUsername(username);
-    if (!profile) return { profile: null, tools: null, activity: null, votedTools: null };
-    const [tools, activity, votedTools] = await Promise.all([
-      new ProductsService(browserService).getUserProductsById(profile.id),
-      profileService.getUserActivityById(profile.id),
-      profileService.getUserVoteTools(profile.id),
-    ]);
-    return { profile, tools, activity, votedTools };
-  },
-  ['profile-page'],
-  { revalidate: 60 },
-);
+// Public profile data, cached for a minute (the page was re-queried on every visit). Tagged per username so
+// saving a profile (/api/profile) shows the change right away.
+const getProfilePageData = (username: string) =>
+  unstable_cache(
+    async () => {
+      const browserService = createBrowserClient();
+      const profileService = new ProfileService(browserService);
+      const profile = await profileService.getByUsername(username);
+      if (!profile) return { profile: null, tools: null, activity: null, votedTools: null };
+      const [tools, activity, votedTools] = await Promise.all([
+        new ProductsService(browserService).getUserProductsById(profile.id),
+        profileService.getUserActivityById(profile.id),
+        profileService.getUserVoteTools(profile.id),
+      ]);
+      return { profile, tools, activity, votedTools };
+    },
+    ['profile-page', username],
+    { revalidate: 60, tags: [profileCacheTag(username)] },
+  )();
 const stripTags = (html: string | null) => (html ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
