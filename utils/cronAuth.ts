@@ -1,9 +1,9 @@
 import { timingSafeEqual } from 'node:crypto';
 
 // Cron/mailer endpoints must be called with `Authorization: Bearer <secret>`: CRON_SECRET is what Vercel
-// Cron sends (vercel.json), MARSX_MAILER_AUTH is kept for manual calls.
+// Cron sends (vercel.json), MARSX_MAILER_AUTH is kept for manual calls. Also in local development (set
+// CRON_SECRET in .env.local): `next dev` listens on the network and these routes send real email.
 export function isAuthorizedCron(req: Request): boolean {
-  if (process.env.NODE_ENV === 'development') return true;
 
   const auth = req.headers.get('authorization');
   if (!auth) return false;

@@ -3,7 +3,6 @@ import ProductsService from '@/utils/supabase/services/products';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { Product } from '@/utils/supabase/types';
 import { ExtendedProduct } from '@/utils/supabase/CustomTypes';
-import {checkAuthToken} from "@/pages/api/auth-token";
 
 export interface ChatGptDto {
   status: string
@@ -64,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const tools = await new ProductsService(createBrowserClient()).getToolsByNameOrDescription(input as string, 10);
 
   if (!tools) {
-    res.json({ ...errorPayload, message: 'Nothing found' });
+    return res.json({ ...errorPayload, message: 'Nothing found' });
   }
 
   res.json(prepareSuccessDto(input as string, tools as ExtendedProduct[]));

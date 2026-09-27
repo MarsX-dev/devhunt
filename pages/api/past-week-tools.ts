@@ -3,11 +3,10 @@ import ProductsService from '@/utils/supabase/services/products';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 import { cache } from '@/utils/supabase/services/CacheService';
-import ApiService from '@/utils/supabase/services/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  let limit = parseInt((req.query.limit as string) || '2');
-  if (limit < 1) limit = 2;
+  // Public endpoint: a small, bounded number of weeks (each distinct limit is its own cache entry).
+  const limit = Math.min(Math.max(parseInt((req.query.limit as string) || '2') || 2, 1), 10);
 
   const today = new Date();
   const productService = new ProductsService(createBrowserClient());
@@ -25,9 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ...i,
     products: i.products.map(simpleToolApiDtoFormatter),
   }));
-
-  const apiService = new ApiService();
-  await apiService.insertLog({ type: 'past-week-tools', data: JSON.stringify({ today, currentWeek, tools: result }) });
 
   res.json(result);
 }

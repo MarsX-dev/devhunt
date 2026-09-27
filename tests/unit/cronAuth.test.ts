@@ -34,8 +34,11 @@ describe('isAuthorizedCron', () => {
     expect(isAuthorizedCron(req('Bearer other'))).toBe(false);
   });
 
-  it('allows local development without a token', () => {
+  it('needs the token in local development too (next dev listens on the network)', () => {
     vi.stubEnv('NODE_ENV', 'development');
-    expect(isAuthorizedCron(req())).toBe(true);
+    vi.stubEnv('MARSX_MAILER_AUTH', '');
+    vi.stubEnv('CRON_SECRET', 'local');
+    expect(isAuthorizedCron(req())).toBe(false);
+    expect(isAuthorizedCron(req('Bearer local'))).toBe(true);
   });
 });

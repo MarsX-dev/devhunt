@@ -238,10 +238,13 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getToolsByNameOrDescription(input: string, limit: number): Promise<ExtendedProduct[] | null> {
-    const key = `product-search-by-text-${input}-${limit}`;
+    // The text goes into a PostgREST filter string: drop the characters that have meaning there
+    // (commas, parentheses, quotes, wildcards) so a search can't add filters of its own.
+    const term = String(input ?? '').replace(/[,()*%\\"'.:]/g, ' ').trim().slice(0, 100);
+    const key = `product-search-by-text-${term}-${limit}`;
 
     return cache.get(key, async () => {
-      const query = `%${input}%`;
+      const query = `%${term}%`;
 
       const { data } = await this.supabase
         .from('products')
