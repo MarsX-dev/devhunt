@@ -59,3 +59,14 @@ export async function reportSiteHealth(changes: SiteHealthChange[], intro?: stri
     await new Promise(r => setTimeout(r, 800)); // stay under Discord's webhook rate limit
   }
 }
+
+// Scheduled job problems (failed runs, half-sent emails). Never throws.
+export async function reportCronProblem(job: string, text: string) {
+  const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
+  if (!webhook) return;
+  await fetch(webhook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: `⏰ Cron **${job}**: ${text}`.slice(0, 1900), allowed_mentions: { parse: [] } }),
+  }).catch((err: Error) => console.error('Discord cron webhook failed:', err.message));
+}

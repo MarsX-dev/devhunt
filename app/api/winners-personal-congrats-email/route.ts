@@ -1,69 +1,44 @@
 import ApiService from '@/utils/supabase/services/api';
-import { NextResponse } from 'next/server';
-import { isAuthorizedCron } from '@/utils/cronAuth';
 import winnersPersonalCongratsEmailTemplate from '@/utils/email-templates/winners-personal-congrats-email-template';
 import { Resend } from 'resend';
+import { cronPeriod, cronRoute, sendOnce } from '@/utils/server/cronJob';
 
-// Cron-triggered: never prerender at build time.
+// Cron-triggered (vercel.json, Tuesdays): never prerender at build time.
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
-  try {
-    if (!isAuthorizedCron(req)) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-    const resend = new Resend(process.env.RESEND_API_KEY);
+const JOB = 'winners-personal-congrats-email';
 
-    const apiService = new ApiService();
-    const today = new Date();
-    const currentWeek = await apiService.getWeekNumber(today, 2);
-    const year = today.getFullYear();
+export const GET = cronRoute(JOB, async () => {
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const weeks = await apiService.getPrevLaunchWeeks(year, 2, currentWeek, 1);
-    if (!weeks?.length) {
-      return NextResponse.json({
-        week: currentWeek,
-        year,
-        tools: [],
-        html: '',
-      });
-    }
+  const apiService = new ApiService();
+  const today = new Date();
+  const currentWeek = await apiService.getWeekNumber(today, 2);
+  const year = today.getFullYear();
 
-    const { products, week } = weeks[0];
+  const weeks = await apiService.getPrevLaunchWeeks(year, 2, currentWeek, 1);
+  if (!weeks?.length) return { week: currentWeek, year, sent: 'nothing to send' };
 
-    const ranks = ['1st', '2nd', '3rd'];
+  const { products, week } = weeks[0];
+  const ranks = ['1st', '2nd', '3rd'];
+  const period = cronPeriod();
+  const results: Record<string, string> = {};
 
-    const emailData = products.slice(0, 3).map((p: any, idx) => {
-      const emailToName = p.email.split('@')[0];
-      const rank = ranks[idx];
-      const html = winnersPersonalCongratsEmailTemplate.replace('{{namehere}}', emailToName || '').replace('{{rankhere}}', rank || '');
-      return { html, email: p.email, rank };
-    });
-
-    emailData.forEach(async ({ html, email, rank }: { html: string; email: string; rank: string }) => {
-      const toEmails = process.env.NODE_ENV == 'development' ? ['sididev3@gmail.com', 'nazar@marsx.dev'] : email;
-      await resend.emails.send({
+  // One at a time and awaited: each winner is recorded separately, so a retry only sends to the ones missed.
+  for (let idx = 0; idx < Math.min(products.length, 3); idx++) {
+    const p = products[idx] as any;
+    const rank = ranks[idx];
+    const html = winnersPersonalCongratsEmailTemplate.replace('{{namehere}}', p.email.split('@')[0] || '').replace('{{rankhere}}', rank || '');
+    results[rank] = await sendOnce(JOB, period, p.email, async () => {
+      const { error } = await resend.emails.send({
         from: 'DevHunt <hey@devhunt.org>',
-        to: toEmails,
+        to: process.env.NODE_ENV == 'development' ? ['sididev3@gmail.com', 'nazar@marsx.dev'] : p.email,
         subject: `Celebrating your ${rank} remarkable place win on DevHunt 🎉`,
         replyTo: 'hey@devhunt.org',
         html,
       });
+      if (error) throw new Error(`Resend (${rank}): ${error.message}`);
     });
-
-    console.log('winners-personal-congrats-email: Campaign scheduled successfully');
-
-    return NextResponse.json({
-      success: true,
-    });
-    // return new NextResponse(htmlTemplates[0], {
-    //   status: 200,
-    //   headers: {
-    //     'Content-Type': 'text/html; charset=utf-8',
-    //   },
-    // });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ data: error }, { status: 500 });
   }
-}
+  return { week, year, sent: results };
+});
