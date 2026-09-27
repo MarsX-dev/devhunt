@@ -24,7 +24,7 @@ export async function announceNewTool(tool: { id?: number; name: string; slug: s
   await fetch(webhook, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ content, allowed_mentions: { parse: [] } }), // names are user input: never ping
   }).catch((err: Error) => console.error('Discord new-tool webhook failed:', err.message));
 }
 

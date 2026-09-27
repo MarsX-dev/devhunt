@@ -43,7 +43,7 @@ export async function POST() {
     await fetch(discordWebhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: `**${fullName}** [open the profile](https://devhunt.org/@${profile.username})` }),
+      body: JSON.stringify({ content: `**${fullName}** [open the profile](https://devhunt.org/@${profile.username})`, allowed_mentions: { parse: [] } }),
     }).catch((err: Error) => console.error('Discord new-user webhook failed:', err.message));
   }
 

@@ -46,7 +46,7 @@ export async function notifyPaymentDiscord(kind: 'paid' | 'failed', info: { tool
     kind === 'paid'
       ? `✅ **Paid launch** ${money(info.amount, info.currency)}: ${tool}${info.email ? ` by ${info.email}` : ''}${info.launchStart ? `, launches ${info.launchStart.slice(0, 10)}` : ''}`
       : `❌ **Payment failed** ${money(info.amount, info.currency)}: ${tool}${info.email ? ` by ${info.email}` : ''}${info.reason ? ` (${info.reason})` : ''}`;
-  await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) }).catch(err =>
+  await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, allowed_mentions: { parse: [] } }) }).catch(err =>
     console.error(`[payments] discord notify failed: ${(err as Error).message}`),
   );
 }
