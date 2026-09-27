@@ -3,6 +3,7 @@ import './globals.css';
 import './prismjs-theme.css';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
+import { Suspense } from 'react';
 
 import SupabaseProvider from '@/components/supabase/provider';
 import type { Database } from '@/utils/supabase/types';
@@ -86,7 +87,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ProfileFormModal />
             <Banner />
             <Navbar />
-            <ModalBannerCodeClient />
+            {/* It reads useSearchParams: without a Suspense boundary, every static page (home, the-story, ...)
+                skipped server rendering entirely and was built in the browser (empty HTML for search engines). */}
+            <Suspense fallback={null}>
+              <ModalBannerCodeClient />
+            </Suspense>
             {children}
             <Footer />
             <Analytics />
