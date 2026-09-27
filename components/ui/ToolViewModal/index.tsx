@@ -21,6 +21,7 @@ import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '../ToolEx
 import { type ToolProfileView } from '@/utils/toolProfileData';
 import { type ToolExtra } from '@/utils/toolExtras';
 import { loadToolPreview } from '@/utils/toolPreview';
+import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import { setPreviewUrl, trackPageView } from '@/utils/pageView';
 import { neighborCard } from '@/utils/toolCardRegistry';
 
@@ -167,7 +168,7 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
         />
         <div id="description" className="scroll-mt-32 pb-4">
           <div className="container-custom-screen">
-            <div className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: t?.description as string }}></div>
+            <div className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: sanitizeHtml(t?.description) }}></div>
             {t?.product_categories?.length ? (
               <div className="mt-6 flex flex-wrap items-center gap-2">
                 {t.product_categories.map((pc: { name: string }) => (

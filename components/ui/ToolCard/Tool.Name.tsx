@@ -1,5 +1,6 @@
 'use client';
 
+import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import mergeTW from '@/utils/mergeTW';
 import { ReactNode } from 'react';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
@@ -36,13 +37,13 @@ export default ({
         onClick={e => {
           e.preventDefault();
           e.stopPropagation();
-          window.open(`${href}?ref=devhunt`, '_blank');
+          window.open(`${addHttpsToUrl(href ?? '')}?ref=devhunt`, '_blank'); // never a javascript: or other non-web URL
         }}
         onKeyDown={e => {
           if (e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
-            window.open(`${href}?ref=devhunt`, '_blank');
+            window.open(`${addHttpsToUrl(href ?? '')}?ref=devhunt`, '_blank'); // never a javascript: or other non-web URL
           }
         }}
         // Always in the layout, only invisible until hover: showing it never moves anything.
