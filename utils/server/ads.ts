@@ -1,5 +1,6 @@
 import type Stripe from 'stripe';
-import { AD_PRICE_USD, AD_SLOTS, LIVE_STATUSES } from '@/utils/ads';
+import { AD_PRODUCTS, LIVE_STATUSES, REFUND_DAYS, withRef, type AdKind } from '@/utils/ads';
+import { type EmailSponsorAdConfig } from '@/utils/email-templates/email-sponsor-ad';
 import { groqJson } from '@/utils/server/enrich';
 import { jevAsk } from '@/utils/server/jev';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
@@ -10,6 +11,7 @@ import { supabase as serviceClient } from '@/utils/supabase/services/supabaseCli
 
 export const AD_NAME_MAX = 24;
 export const AD_TAGLINE_MAX = 70;
+export const AD_DESCRIPTION_MAX = 220; // newsletter body
 
 // Ads we don't run. Same banned topics as tool submissions, plus a "fine" option JEV can pick.
 const AD_TOPIC_QUESTION = {
@@ -38,20 +40,25 @@ export async function moderateAd(ad: { url: string; name: string; tagline: strin
 }
 
 // Name + headline for the ad, written by the LLM from the scraped page (falls back to the page title).
-async function writeCopy(page: ScrapedPage): Promise<{ name: string; tagline: string }> {
-  const fallback = { name: splitTitle(page.siteName || page.title).name.slice(0, AD_NAME_MAX), tagline: cutTagline(page.description || page.title, AD_TAGLINE_MAX) };
+async function writeCopy(page: ScrapedPage): Promise<{ name: string; tagline: string; description: string }> {
+  const fallback = {
+    name: splitTitle(page.siteName || page.title).name.slice(0, AD_NAME_MAX),
+    tagline: cutTagline(page.description || page.title, AD_TAGLINE_MAX),
+    description: cutTagline(page.description || page.title, AD_DESCRIPTION_MAX),
+  };
   if (!process.env.GROQ_API_KEY) return fallback;
   try {
     const out = (await groqJson(
-      `You write tiny sponsor ads shown to software developers. Return JSON {"name": string, "tagline": string}. name: the product's brand name exactly as the page uses it (max ${AD_NAME_MAX} chars). tagline: one punchy benefit-led line of at most 60 characters, concrete, no hype words, no emojis, no trailing period. Use only facts stated on the page; never invent products or features.`,
+      `You write tiny sponsor ads shown to software developers. Return JSON {"name": string, "tagline": string, "description": string}. name: the product's brand name exactly as the page uses it (max ${AD_NAME_MAX} chars). tagline: one punchy benefit-led line of at most 60 characters, concrete, no hype words, no emojis, no trailing period. description: 1-2 plain sentences for a newsletter sponsor slot (max ${AD_DESCRIPTION_MAX} chars) saying what it does and for whom. Use only facts stated on the page; never invent products or features.`,
       [`URL: ${page.url}`, `Title: ${page.title ?? ''}`, `Description: ${page.description ?? ''}`, `Page:\n${(page.markdown ?? '').slice(0, 5000)}`].join('\n'),
       400,
-    )) as { name?: string; tagline?: string } | null;
+    )) as { name?: string; tagline?: string; description?: string } | null;
     const name = String(out?.name ?? '').trim().slice(0, AD_NAME_MAX);
     const raw = String(out?.tagline ?? '').trim().replace(/\.$/, '');
     // Too long: cut at a word boundary rather than mid-word.
     const tagline = raw.length <= AD_TAGLINE_MAX ? raw : raw.slice(0, AD_TAGLINE_MAX + 1).replace(/\s+\S*$/, '').replace(/[,;:\-–—\s]+$/, '');
-    return { name: name || fallback.name, tagline: tagline || fallback.tagline };
+    const description = String(out?.description ?? '').trim().slice(0, AD_DESCRIPTION_MAX);
+    return { name: name || fallback.name, tagline: tagline || fallback.tagline, description: description || fallback.description };
   } catch (err) {
     console.error('ad copy failed:', (err as Error).message);
     return fallback;
@@ -60,53 +67,62 @@ async function writeCopy(page: ScrapedPage): Promise<{ name: string; tagline: st
 
 // URL -> draft ad (scrape, write copy, rehost logo, JEV check). The row is saved either way, so blocked
 // attempts stay reviewable.
-export async function draftAd(userId: string, url: string) {
+// URL -> one draft ad per chosen type, sharing the copy (scrape, write copy, rehost images, JEV check).
+// Rows are saved either way, so blocked attempts stay reviewable.
+export async function draftAds(userId: string, url: string, kinds: AdKind[]) {
   const page = await scrapeWithFirecrawl(url);
   const copy = await writeCopy(page);
   const host = new URL(page.url).hostname;
-  const [logo, moderation] = await Promise.all([
+  const [logo, image, moderation] = await Promise.all([
     rehostImage(page.favicon || `https://www.google.com/s2/favicons?domain=${host}&sz=128`, 'w=128').catch(() => null),
+    kinds.includes('newsletter') && page.ogImage ? rehostImage(page.ogImage, 'w=600').catch(() => null) : Promise.resolve(null),
     moderateAd({ url: page.url, ...copy, about: `${page.description ?? ''}\n${page.markdown ?? ''}` }),
   ]);
+  const status = moderation.ok ? 'draft' : 'blocked';
   const { data, error } = await serviceClient
     .from('ad_slots' as any)
-    .insert({ user_id: userId, url: page.url, name: copy.name, tagline: copy.tagline, logo_url: logo, status: moderation.ok ? 'draft' : 'blocked', moderation })
-    .select('id, url, name, tagline, logo_url, status')
-    .single();
+    .insert(kinds.map(kind => ({ user_id: userId, kind, url: page.url, ...copy, logo_url: logo, image_url: image, status, moderation })))
+    .select('id, kind, url, name, tagline, description, logo_url, image_url, status');
   if (error) throw new Error(error.message);
-  return { ad: data as any, moderation };
+  return { ads: (data ?? []) as any[], moderation };
 }
 
-export async function liveSlots(): Promise<number[]> {
-  const { data } = await serviceClient.from('ad_slots' as any).select('slot').in('status', LIVE_STATUSES as any);
+export async function liveSlots(kind: AdKind): Promise<number[]> {
+  const { data } = await serviceClient.from('ad_slots' as any).select('slot').eq('kind', kind).in('status', LIVE_STATUSES as any);
   return ((data ?? []) as any[]).map(r => r.slot as number);
 }
-export async function freeSlot(): Promise<number | null> {
-  const taken = new Set(await liveSlots());
-  for (let s = 1; s <= AD_SLOTS; s++) if (!taken.has(s)) return s;
+export async function freeSlot(kind: AdKind): Promise<number | null> {
+  const taken = new Set(await liveSlots(kind));
+  for (let s = 1; s <= AD_PRODUCTS[kind].slots; s++) if (!taken.has(s)) return s;
   return null;
 }
+// Free slots per product, for the advertise pages.
+export async function availability(): Promise<Record<AdKind, number>> {
+  const { data } = await serviceClient.from('ad_slots' as any).select('kind').in('status', LIVE_STATUSES as any);
+  const used = ((data ?? []) as any[]).reduce<Record<string, number>>((m, r) => ({ ...m, [r.kind]: (m[r.kind] ?? 0) + 1 }), {});
+  return Object.fromEntries(Object.values(AD_PRODUCTS).map(p => [p.kind, Math.max(0, p.slots - (used[p.kind] ?? 0))])) as Record<AdKind, number>;
+}
 
-export async function createAdCheckout(ad: { id: number; name: string; url: string }, user: { id: string; email?: string | null }, origin: string) {
+// One subscription for everything picked: one line item per ad.
+export async function createAdCheckout(ads: { id: number; kind: AdKind; name: string }[], user: { id: string; email?: string | null }, origin: string) {
+  const meta = { kind: 'ad', ad_ids: ads.map(a => a.id).join(','), products: ads.map(a => a.kind).join(','), user_id: user.id };
   return stripe().checkout.sessions.create({
     mode: 'subscription',
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: 'usd',
-          unit_amount: AD_PRICE_USD * 100,
-          recurring: { interval: 'month' },
-          product_data: { name: `DevHunt sponsor slot: ${ad.name}` },
-        },
+    line_items: ads.map(ad => ({
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        unit_amount: AD_PRODUCTS[ad.kind].price * 100,
+        recurring: { interval: 'month' as const },
+        product_data: { name: `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}${AD_PRODUCTS[ad.kind].per ? ` (${AD_PRODUCTS[ad.kind].per} a month)` : ''}: ${ad.name}` },
       },
-    ],
+    })),
     allow_promotion_codes: true,
     adaptive_pricing: { enabled: false },
     customer_email: user.email ?? undefined,
-    client_reference_id: `ad_${ad.id}`,
-    metadata: { kind: 'ad', ad_id: String(ad.id), user_id: user.id },
-    subscription_data: { metadata: { kind: 'ad', ad_id: String(ad.id), user_id: user.id } },
+    client_reference_id: `ads_${meta.ad_ids}`,
+    metadata: meta,
+    subscription_data: { metadata: meta },
     success_url: `${origin}/account/advertise?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/account/advertise?canceled=1`,
   });
@@ -117,42 +133,59 @@ const periodEnd = (sub: Stripe.Subscription) => {
   return end ? new Date(end * 1000).toISOString() : null;
 };
 
-// Paid checkout -> the ad goes live in the first free slot. Idempotent (webhook + success page).
+const adIds = (meta?: Stripe.Metadata | null) =>
+  String(meta?.ad_ids ?? meta?.ad_id ?? '')
+    .split(',')
+    .map(Number)
+    .filter(Boolean);
+
+// Paid checkout -> each ad goes live in the first free slot of its type. Idempotent (webhook + success page).
 export async function activateAd(session: Stripe.Checkout.Session, source: 'webhook' | 'confirm') {
-  const adId = Number(session.metadata?.ad_id);
-  if (session.metadata?.kind !== 'ad' || !adId || session.status !== 'complete') return { status: 'not-paid' as const };
-  const { data: ad } = await serviceClient.from('ad_slots' as any).select('*').eq('id', adId).single();
-  if (!ad) return { status: 'invalid' as const };
-  const row = ad as any;
-  if (row.status === 'active' || row.status === 'canceling') return { status: 'already-active' as const, ad: row };
+  const ids = adIds(session.metadata);
+  if (session.metadata?.kind !== 'ad' || !ids.length || session.status !== 'complete') return { status: 'not-paid' as const };
+  const { data } = await serviceClient.from('ad_slots' as any).select('*').in('id', ids);
+  const rows = (data ?? []) as any[];
+  if (!rows.length) return { status: 'invalid' as const };
 
   const subId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
   const sub = subId ? await stripe().subscriptions.retrieve(subId) : null;
-  // Two buyers can race for the last slot; the unique index decides, and the loser is flagged.
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const slot = await freeSlot();
-    if (!slot) break;
-    const { error } = await serviceClient
-      .from('ad_slots' as any)
-      .update({
-        slot,
-        status: 'active',
-        started_at: new Date().toISOString(),
-        stripe_session_id: session.id,
-        stripe_subscription_id: subId ?? null,
-        stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null,
-        current_period_end: sub ? periodEnd(sub) : null,
-      })
-      .eq('id', adId);
-    if (!error) {
-      await logPaymentEvent({ event: 'ad_activated', stripeSessionId: session.id, userId: row.user_id, amountTotal: session.amount_total, currency: session.currency, details: { ad_id: adId, slot, source } });
-      await notifyAdDiscord(`💸 **New sponsor** $${AD_PRICE_USD}/mo: [${row.name}](${row.url}) in slot ${slot}${session.customer_details?.email ? ` by ${session.customer_details.email}` : ''}`);
-      return { status: 'activated' as const, ad: { ...row, slot, status: 'active' } };
+  const email = session.customer_details?.email;
+  let activated = 0;
+  let noSlot = 0;
+  for (const row of rows) {
+    if (row.status === 'active' || row.status === 'canceling') continue;
+    let done = false;
+    // Two buyers can race for the last slot; the unique index decides, and the loser is flagged.
+    for (let attempt = 0; attempt < 3 && !done; attempt++) {
+      const slot = await freeSlot(row.kind);
+      if (!slot) break;
+      const { error } = await serviceClient
+        .from('ad_slots' as any)
+        .update({
+          slot,
+          status: 'active',
+          started_at: new Date().toISOString(),
+          stripe_session_id: session.id,
+          stripe_subscription_id: subId ?? null,
+          stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null,
+          current_period_end: sub ? periodEnd(sub) : null,
+        })
+        .eq('id', row.id);
+      if (!error) {
+        done = true;
+        activated++;
+        await logPaymentEvent({ event: 'ad_activated', stripeSessionId: session.id, userId: row.user_id, details: { ad_id: row.id, kind: row.kind, slot, source } });
+        await notifyAdDiscord(`💸 **New sponsor** ${AD_PRODUCTS[row.kind as AdKind].title} $${AD_PRODUCTS[row.kind as AdKind].price}/mo: [${row.name}](${row.url}) in slot ${slot}${email ? ` by ${email}` : ''}`);
+      }
+    }
+    if (!done) {
+      noSlot++;
+      await logPaymentEvent({ event: 'ad_no_slot', level: 'error', stripeSessionId: session.id, userId: row.user_id, details: { ad_id: row.id, kind: row.kind } });
+      await notifyAdDiscord(`⚠️ **Sponsor paid but the ${row.kind} slots are taken**: [${row.name}](${row.url}), session ${session.id}. Refund that item or add a slot.`);
     }
   }
-  await logPaymentEvent({ event: 'ad_no_slot', level: 'error', stripeSessionId: session.id, userId: row.user_id, details: { ad_id: adId } });
-  await notifyAdDiscord(`⚠️ **Sponsor paid but all slots are taken**: [${row.name}](${row.url}), session ${session.id}. Refund or add a slot.`);
-  return { status: 'no-slot' as const };
+  if (noSlot) return { status: 'no-slot' as const };
+  return { status: activated ? ('activated' as const) : ('already-active' as const) };
 }
 
 // Keeps the row in step with Stripe (renewal, cancel at period end, resume, ended).
@@ -165,9 +198,62 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
     .update({ status, current_period_end: periodEnd(sub), ...(status !== 'active' ? { canceled_at: new Date().toISOString() } : { canceled_at: null }) })
     .eq('stripe_subscription_id', sub.id)
     .in('status', ['active', 'canceling'])
-    .select('name, url, slot')
+    .select('name, slot, kind');
+  if (data?.length && status === 'ended') {
+    await notifyAdDiscord(`🔚 Sponsor ended: ${(data as any[]).map(r => `${r.name} (${r.kind} slot ${r.slot})`).join(', ')}; slots are free again`);
+  }
+}
+
+// "Cancel and refund": within REFUND_DAYS of the latest charge, refunds it and ends the subscription
+// (every ad in it) now. Returns null when the latest payment is too old (a normal cancel still works).
+export async function refundSubscription(subscriptionId: string, label: string) {
+  const { data: invoices } = await stripe().invoices.list({ subscription: subscriptionId, status: 'paid', limit: 1 });
+  const invoice = invoices[0];
+  if (!invoice || Date.now() - invoice.created * 1000 > REFUND_DAYS * 86400_000) return null;
+  let refunded = 0;
+  if (invoice.amount_paid > 0) {
+    const { data: payments } = await stripe().invoicePayments.list({ invoice: invoice.id!, status: 'paid' });
+    const intent = payments[0]?.payment?.payment_intent;
+    const intentId = typeof intent === 'string' ? intent : intent?.id;
+    if (!intentId) throw new Error('no payment to refund');
+    const refund = await stripe().refunds.create({ payment_intent: intentId, metadata: { subscription: subscriptionId } });
+    refunded = refund.amount;
+  }
+  const sub = await stripe().subscriptions.cancel(subscriptionId);
+  await serviceClient.from('ad_slots' as any).update({ refunded_at: new Date().toISOString() }).eq('stripe_subscription_id', subscriptionId);
+  await syncAdSubscription(sub);
+  await notifyAdDiscord(`↩️ Sponsor refunded $${(refunded / 100).toFixed(2)} and ended: ${label}`);
+  return { refunded };
+}
+
+// The refund window for an ad's latest charge (for the "Cancel and refund" button).
+export async function refundableUntil(subscriptionId: string): Promise<string | null> {
+  const { data } = await stripe().invoices.list({ subscription: subscriptionId, status: 'paid', limit: 1 }).catch(() => ({ data: [] as Stripe.Invoice[] }));
+  const until = data[0] ? data[0].created * 1000 + REFUND_DAYS * 86400_000 : 0;
+  return until > Date.now() ? new Date(until).toISOString() : null;
+}
+
+// The paid newsletter ad, shaped for the weekly email's sponsor block (null: use the house ad).
+export async function newsletterSponsor(): Promise<EmailSponsorAdConfig | null> {
+  const { data } = await serviceClient
+    .from('ad_slots' as any)
+    .select('name, tagline, description, url, logo_url, image_url')
+    .eq('kind', 'newsletter')
+    .in('status', LIVE_STATUSES as any)
+    .order('slot')
+    .limit(1)
     .maybeSingle();
-  if (data && status === 'ended') await notifyAdDiscord(`🔚 Sponsor ended: ${(data as any).name}, slot ${(data as any).slot} is free again`);
+  const ad = data as any;
+  if (!ad) return null;
+  const link = withRef(ad.url);
+  return {
+    bannerImageUrl: ad.image_url || ad.logo_url || '',
+    bannerLinkUrl: link,
+    title: `${ad.name}: ${ad.tagline}`,
+    description: ad.description || ad.tagline,
+    ctaLinkUrl: link,
+    ctaText: 'Learn More ›',
+  };
 }
 
 export async function notifyAdDiscord(content: string) {

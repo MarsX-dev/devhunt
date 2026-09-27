@@ -1,8 +1,16 @@
-import { HOUSE_AD } from '@/utils/ads';
+'use client';
 
-// Native ad row in tool lists (same columns as ToolRow). Hardcoded to ListingBott for now.
+import { useMemo } from 'react';
+import { HOUSE_AD } from '@/utils/ads';
+import { useLiveAds } from './SponsorRails';
+
+// Native ad row in tool lists (same columns as ToolRow): one of the inline sponsors per page view.
+// ListingBott holds one of the spots like any sponsor.
 export default function InlineSponsor({ as: Tag = 'li' }: { as?: 'li' | 'div' }) {
-  const ad = HOUSE_AD;
+  const inline = useLiveAds().filter(a => a.kind === 'inline');
+  const pick = useMemo(() => Math.random(), []);
+  const pool = [HOUSE_AD, ...inline];
+  const ad = pool[Math.floor(pick * pool.length)];
   return (
     <Tag className="list-none">
       <a

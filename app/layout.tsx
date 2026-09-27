@@ -98,10 +98,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Suspense fallback={null}>
               <ModalBannerCodeClient />
             </Suspense>
-            {children}
+            {/* Rails sit in the side gutters and stick while scrolling, but stop at the footer; the min height
+                keeps all 3 cards clear of it on short pages. */}
+            <div className="relative min-[1180px]:min-h-[660px]">
+              <SponsorRails />
+              {children}
+            </div>
             <Footer />
             <Analytics />
-            <SponsorRails />
           </SupabaseProvider>
         </main>
 

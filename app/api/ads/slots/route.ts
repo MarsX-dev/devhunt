@@ -8,10 +8,12 @@ export const revalidate = 60;
 export async function GET() {
   const { data } = await serviceClient
     .from('ad_slots' as any)
-    .select('slot, name, tagline, url, logo_url, status, current_period_end')
+    .select('kind, slot, name, tagline, url, logo_url, status, current_period_end')
     .in('status', LIVE_STATUSES as any)
+    .in('kind', ['rail', 'inline'])
     .order('slot');
   const ads: (PublicAd & { freeFrom: string | null })[] = ((data ?? []) as any[]).map(r => ({
+    kind: r.kind,
     slot: r.slot,
     name: r.name,
     tagline: r.tagline,

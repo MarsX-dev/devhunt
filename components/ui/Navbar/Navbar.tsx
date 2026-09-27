@@ -61,7 +61,7 @@ export default () => {
   };
 
   const navigation = [
-    { title: 'Advertise', path: '/the-story#ads', className: 'text-orange-400 hover:text-orange-300' },
+    { title: 'Advertise', path: '/advertise', className: 'text-orange-400 hover:text-orange-300' },
     {
       title: 'Submit',
       path: submitPath,

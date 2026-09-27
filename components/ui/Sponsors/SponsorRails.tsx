@@ -1,22 +1,34 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AD_PRICE_USD, AD_SLOTS, HOUSE_AD, type PublicAd } from '@/utils/ads';
+import { AD_PRICE_USD, AD_SLOTS, HOUSE_AD, spotsLeft, type PublicAd } from '@/utils/ads';
 
 type LiveAd = PublicAd & { freeFrom: string | null };
 type Card = { ad: LiveAd | PublicAd | null; slot: number; freeFrom?: string | null };
 
 const shortDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-function useSponsors() {
+// One request per page view, answered by the CDN (see /api/ads/slots); shared by rails, strip and inline ads.
+let request: Promise<LiveAd[]> | null = null;
+export function useLiveAds() {
   const [ads, setAds] = useState<LiveAd[]>([]);
   useEffect(() => {
-    fetch('/api/ads/slots')
+    request ??= fetch('/api/ads/slots')
       .then(r => (r.ok ? r.json() : { ads: [] }))
-      .then(d => setAds(d.ads ?? []))
-      .catch(() => {});
+      .then(d => (d.ads ?? []) as LiveAd[])
+      .catch(() => []);
+    request.then(setAds);
   }, []);
+  return ads;
+}
+
+// The advertise pages already show every slot and price; rails there are just noise.
+const useHidden = () => /^\/(account\/)?advertise(\/|$)/.test(usePathname() ?? '');
+
+function useSponsors() {
+  const ads = useLiveAds().filter(a => a.kind === 'rail');
   // House ad first, then slots 1..5 (filled or open).
   const cards: Card[] = [{ ad: HOUSE_AD, slot: 0 }];
   for (let s = 1; s <= AD_SLOTS; s++) {
@@ -37,7 +49,7 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
   const { ad } = card;
   if (!ad)
     return (
-      <Link href="/account/advertise" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center duration-150 hover:border-orange-500/60">
+      <Link href="/advertise" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center duration-150 hover:border-orange-500/60">
         <span className="font-mono text-[10px] tracking-[0.25em] text-slate-500">OPEN SLOT</span>
         <span className="mt-2 text-lg font-bold text-slate-100">
           ${AD_PRICE_USD}
@@ -59,7 +71,7 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
       <span className="mt-1 line-clamp-3 font-mono text-[11px] leading-snug text-slate-400">{ad.tagline}</span>
     </a>
     {card.freeFrom && (
-      <Link href="/account/advertise" className="absolute inset-x-0 bottom-1.5 text-center font-mono text-[10px] text-slate-500 hover:text-orange-400">
+      <Link href="/advertise" className="absolute inset-x-0 bottom-1.5 text-center font-mono text-[10px] text-slate-500 hover:text-orange-400">
         free from {shortDate(card.freeFrom)}
       </Link>
     )}
@@ -70,19 +82,27 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
 // Desktop: 3 cards in each side gutter (from 1180px). Below that, a scrolling pill strip on top.
 export default function SponsorRails() {
   const { cards, left } = useSponsors();
-  const rail = 'fixed top-20 z-20 hidden w-[min(220px,calc((100vw-56rem)/2-2rem))] flex-col gap-3 min-[1180px]:flex';
+  if (useHidden()) return null;
+  // Absolute columns the height of the page content; the inner stack is sticky, so it follows the
+  // scroll but never runs into the footer.
+  const rail = 'pointer-events-none absolute inset-y-0 z-20 hidden w-[min(220px,calc((100vw-56rem)/2-2rem))] pt-6 min-[1180px]:block';
+  const stack = 'pointer-events-auto sticky top-20 flex flex-col gap-3';
   return (
     <>
       <div className={`${rail} left-4`}>
-        {[0, 2, 4].map(i => (
-          <RailCard key={i} card={cards[i]} side="l" />
-        ))}
+        <div className={stack}>
+          {[0, 2, 4].map(i => (
+            <RailCard key={i} card={cards[i]} side="l" />
+          ))}
+        </div>
       </div>
       <div className={`${rail} right-4`}>
-        {[1, 3, 5].map(i => (
-          <RailCard key={i} card={cards[i]} side="r" />
-        ))}
-        {left > 0 && <p className="text-center font-mono text-[10px] text-slate-500">{left} of {AD_SLOTS} slots left</p>}
+        <div className={stack}>
+          {[1, 3, 5].map(i => (
+            <RailCard key={i} card={cards[i]} side="r" />
+          ))}
+          {left > 0 && <p className="text-center font-mono text-[10px] text-slate-500">{spotsLeft('rail', left)}</p>}
+        </div>
       </div>
     </>
   );
@@ -90,6 +110,7 @@ export default function SponsorRails() {
 
 export function SponsorStrip() {
   const { cards } = useSponsors();
+  if (useHidden()) return null;
   const pills = [...cards, ...cards]; // doubled for a seamless loop
   return (
     <div className="overflow-hidden border-b border-slate-800 bg-slate-950 py-2 min-[1180px]:hidden">
@@ -101,7 +122,7 @@ export function SponsorStrip() {
               {ad.name}
             </a>
           ) : (
-            <Link key={i} href="/account/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400">
+            <Link key={i} href="/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400">
               your tool here · ${AD_PRICE_USD}/mo
             </Link>
           ),
