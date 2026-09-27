@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 // Supabase auth needs to be triggered client-side
 
 export default function Auth({ onLogout }: { onLogout?: () => void }) {
-  const { supabase, session, user } = useSupabase();
+  const { supabase, session, user, loading } = useSupabase();
   const [isGoogleAuthLoad, setGoogleAuthLoad] = useState<boolean>(false);
   const [isGithubAuthLoad, setGithubAuthLoad] = useState<boolean>(false);
   const [isModalActive, setModalActive] = useState<boolean>(false);
@@ -72,11 +72,8 @@ export default function Auth({ onLogout }: { onLogout?: () => void }) {
     HandleSignInNotification();
   }, []);
 
-  // console.log(session && session.user)
-
-  // this `session` is from the root loader - server-side
-  // therefore, it can safely be used to conditionally render
-  // SSR pages without issues with hydration
+  // The session loads in the browser: hold the slot (same size as "Sign In") until it is known.
+  if (loading) return <span className="block h-7 w-[62px] animate-pulse rounded-full bg-slate-800" aria-hidden />;
 
   return Boolean(session) ? (
     <div className="hidden md:block">

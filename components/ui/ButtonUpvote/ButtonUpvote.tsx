@@ -62,7 +62,7 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
 
   useEffect(() => {
     if (session?.user && productId) void hasUserVoted(session.user.id, productId).then(setUpvoted);
-  }, []);
+  }, [session?.user?.id, productId]); // the session loads in the browser after the first render
 
   const handleHoverEffect: MouseEventHandler<HTMLButtonElement> = e => {
     const button = e.currentTarget;

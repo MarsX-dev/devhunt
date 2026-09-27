@@ -4,13 +4,10 @@ import './prismjs-theme.css';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import Script from 'next/script';
 
-import SupabaseListener from '@/components/supabase/listener';
 import SupabaseProvider from '@/components/supabase/provider';
-import { createServerClient } from '@/utils/supabase/server';
-import type { Database, Profile } from '@/utils/supabase/types';
+import type { Database } from '@/utils/supabase/types';
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import Footer from '@/components/ui/Footer/Footer';
-import ProfileService from '@/utils/supabase/services/profile';
 import Banner from '@/components/ui/Banner';
 import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCodeClient';
 
@@ -49,17 +46,9 @@ export const metadata = {
 const inter = Inter({ subsets: ['latin'] });
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
-// do not cache this layout
-export const revalidate = 0;
-
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user;
-  const profileService = new ProfileService(createServerClient());
-  const profile = user ? await profileService.getById(user?.id) : null;
+// No per-user data here: the session is read in the browser (SupabaseProvider), so pages can be
+// cached by the CDN. Reading cookies in this layout made every page render on every request.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang="en" className="bg-slate-900">
@@ -93,9 +82,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${inter.className} ${mono.variable} antialiased`} id="root">
         <main className="overflow-x-clip">
           <ChatWindow />
-          <SupabaseProvider user={profile as Profile} session={session}>
-            <SupabaseListener serverAccessToken={session?.access_token} />
-            <ProfileFormModal isModalOpen={user ? (profile?.social_url == null ? true : false) : false} />
+          <SupabaseProvider>
+            <ProfileFormModal />
             <Banner />
             <Navbar />
             <ModalBannerCodeClient />

@@ -2,6 +2,9 @@ import axios from 'axios';
 import PageHeader from '@/components/ui/PageHeader';
 import Image from 'next/image';
 
+// Served from the CDN and refreshed hourly.
+export const revalidate = 3600;
+
 type Product = {
   node: {
     id: string;

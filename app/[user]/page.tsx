@@ -5,7 +5,6 @@ import { type Comment as CommentType, type Product, type Profile } from '@/utils
 import { createBrowserClient } from '@/utils/supabase/browser';
 import moment from 'moment';
 import Link from 'next/link';
-import { createServerClient } from '@/utils/supabase/server';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -48,9 +47,7 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
   const decoded = decodeURIComponent(user);
   if (!decoded.startsWith('@')) return { title: 'Page not found - Dev Hunt' };
   const username = decoded.slice(1);
-  const supabaseClient = createServerClient();
-  const profileService = new ProfileService(supabaseClient);
-  const profile = await profileService.getByUsername(username);
+  const { profile } = await getProfilePageData(username); // same cached data as the page
   if (!profile) return { title: 'Page not found - Dev Hunt' };
 
   const name = profile?.full_name || `@${username}`;

@@ -19,7 +19,7 @@ export default ({ onLogout, session }: Props) => {
   const { user } = useSupabase();
 
   const navigation = [
-    { title: 'Profile', path: isLoggin ? `/@${user.username}` : '' },
+    { title: 'Profile', path: isLoggin && user ? `/@${user.username}` : '' },
     { title: 'My tools', path: '/account/tools' },
     { title: 'Edit profile', path: '/account/details' },
   ];
@@ -38,7 +38,7 @@ export default ({ onLogout, session }: Props) => {
         className=" outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
         onClick={() => setState(!state)}
       >
-        {user.avatar_url ? (
+        {user?.avatar_url ? (
           <Avatar src={user.avatar_url} className="h-8 w-8" />
         ) : (
           <div className="w-8 h-8 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>

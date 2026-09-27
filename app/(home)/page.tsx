@@ -7,6 +7,9 @@ import { getHomeData } from '@/utils/homeData';
 import { getSiteStats } from '@/utils/siteStats';
 import HomeFeed from './HomeFeed';
 
+// The home page is served from the CDN and rebuilt every 30s (its data caches refresh at the same pace).
+export const revalidate = 30;
+
 export const metadata = { alternates: { canonical: '/' } };
 
 const STRUCTURED_DATA = {

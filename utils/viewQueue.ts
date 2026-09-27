@@ -14,8 +14,9 @@ function flush() {
   const ids = Array.from(pending);
   pending.clear();
   // The query builder only sends the request once it is awaited or then()'d.
+  const args: { _ids: number[] } = { _ids: ids };
   createBrowserClient()
-    .rpc('bump_views' as never, { _ids: ids } as never)
+    .rpc('bump_views' as never, args as never)
     .then(
       () => {},
       () => {},

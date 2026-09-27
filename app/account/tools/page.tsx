@@ -146,6 +146,14 @@ export default () => {
                           Status: <span className="text-orange-400">draft</span>
                         </p>
                       )} */}
+                      {tool.site_status && tool.site_status !== 'ok' && (
+                        <p className="mt-1 text-sm text-red-300/90">
+                          Hidden from DevHunt (its page is a 404) because the website looks{' '}
+                          {tool.site_status === 'hijacked' ? 'hijacked' : 'down'}
+                          {tool.site_status_reason ? ` (${tool.site_status_reason})` : ''}. It&apos;s restored automatically at the next
+                          check once the site is back.
+                        </p>
+                      )}
                       <Title className="line-clamp-2">{tool.slogan}</Title>
                       <Tags
                         items={[

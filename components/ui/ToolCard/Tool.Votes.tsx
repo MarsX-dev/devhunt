@@ -61,7 +61,7 @@ export default ({
 
   useEffect(() => {
     if (session?.user && productId) void hasUserVoted(session.user.id, productId).then(setUpvoted);
-  }, []);
+  }, [session?.user?.id, productId]); // the session loads in the browser after the first render
 
   return (
     <>

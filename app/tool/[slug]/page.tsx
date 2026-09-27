@@ -5,17 +5,13 @@ import { Tabs } from '@/components/ui/TabsLink';
 
 // Rendered on the server so the tab bar has its height from the first paint.
 import TabLink from '@/components/ui/TabsLink/TabLink';
-import ProductsService from '@/utils/supabase/services/products';
-import CommentService from '@/utils/supabase/services/comments';
 import CommentSection from '@/components/ui/Client/CommentSection';
-import { createServerClient } from '@/utils/supabase/server';
-import { createBrowserClient } from '@/utils/supabase/browser';
 import { getWeekRank } from '@/utils/weekRank';
+import { getToolPageData } from '@/utils/toolPageData';
 import { type Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import Link from 'next/link';
-import ProfileService from '@/utils/supabase/services/profile';
 import { notFound } from 'next/navigation';
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), {
@@ -27,8 +23,6 @@ import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import ToolHero, { ToolMaker } from '@/components/ui/ToolHero';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '@/components/ui/ToolExtras';
-import { getToolExtras } from '@/utils/toolExtras';
-import { getToolProfile } from '@/utils/toolProfileData';
 import { sectionShown } from '@/utils/toolProfile';
 import { ProfileSource, cleanName, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
@@ -54,10 +48,8 @@ function metaDescription(slogan?: string | null, description?: string | null) {
 
 // set dynamic metadata
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-  const supabaseClient = createServerClient();
-  const productsService = new ProductsService(supabaseClient);
-  const tool = await productsService.getBySlug(slug);
-  if (!tool || tool.deleted) return { title: 'Page not found - Dev Hunt' };
+  const tool = (await getToolPageData(slug))?.product;
+  if (!tool) return { title: 'Page not found - Dev Hunt' };
 
   const description = metaDescription(tool.slogan, tool.description);
   return {
@@ -84,23 +76,13 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 }
 
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
-  // const supabaseBrowserClient = createServerClient();
-  const supabaseBrowserClient = createBrowserClient();
+  // Hidden tools (website dead or hijacked) are a 404 (the owner sees why in their dashboard): the page
+  // is the same for everyone, so it can't depend on who is signed in.
+  const data = await getToolPageData(slug);
+  if (!data) notFound();
+  const { product, owner: owned, comments, extras, profile } = data;
 
-  const productsService = new ProductsService(supabaseBrowserClient);
-  // Hidden tools (website dead or hijacked) only load for their owner, through the signed-in client.
-  const product = (await productsService.getBySlug(slug)) ?? (await new ProductsService(createServerClient()).getBySlug(slug));
-  if (!product || product.deleted) notFound();
-  const hidden = (product as any).site_status && (product as any).site_status !== 'ok';
-
-  const commentService = new CommentService(supabaseBrowserClient);
-
-  const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
-  const weekRank$ = getWeekRank(product);
-  const comments$ = commentService.getByProductId(product.id);
-
-  const [owned, weekRank, comments] = await Promise.all([owned$, weekRank$, comments$]);
-  const [activity, extras, profile] = await Promise.all([getRecentActivity(), getToolExtras(product.id), getToolProfile(product.id)]);
+  const [weekRank, activity] = await Promise.all([getWeekRank(product), getRecentActivity()]);
   const pricingTitle: string | null = (product as any).product_pricing_types?.title ?? null;
   const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
@@ -136,18 +118,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       {!profile && <RequestProfile productId={product.id} />}
       <TrackToolView productId={product.id} />
       <div className="container-custom-screen">
-        {hidden && (
-          <div role="alert" className="mb-8 rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-200">
-            <strong className="font-medium">Only you can see this page.</strong> We hid {product.name} from DevHunt because its website looks{' '}
-            {(product as any).site_status === 'hijacked' ? 'hijacked' : 'down'}
-            {(product as any).site_status_reason ? ` (${(product as any).site_status_reason})` : ''}. Once the site is back, it&apos;s restored automatically at the
-            next check, or{' '}
-            <a className="underline" href="https://x.com/johnrush" target="_blank" rel="noopener">
-              contact us
-            </a>
-            .
-          </div>
-        )}
         <ToolHero
           tool={product as ProductType}
           owner={owned as Profile}

@@ -23,17 +23,3 @@ export const profileExists = unstable_cache(
 );
 
 export const categoryExists = (slug: string) => categories.some(item => slug.replaceAll('-', ' ') == item.name.toLowerCase());
-
-// A tool hidden because its website is dead or hijacked is visible to its owner only (RLS). Not
-// cached: it depends on who is signed in.
-export async function ownHiddenTool(slug: string) {
-  const { createServerClient } = await import('@/utils/supabase/server');
-  const { data } = await createServerClient()
-    .from('products')
-    .select('id, site_status, site_status_reason')
-    .eq('slug', slug)
-    .eq('deleted', false)
-    .neq('site_status', 'ok')
-    .maybeSingle();
-  return data as { id: number; site_status: 'dead' | 'hijacked'; site_status_reason: string | null } | null;
-}

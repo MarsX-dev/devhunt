@@ -17,7 +17,6 @@ function ProfileFormModal() {
   const { session, user } = useSupabase();
   const userSession = session?.user;
   const profileService = new ProfileService(createBrowserClient());
-  const profile = profileService.getById(userSession?.id as string);
 
   const [isLoad, setLoad] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -40,17 +39,17 @@ function ProfileFormModal() {
   const [headlineError, setHeadLineError] = useState('');
   const [socialMediaLinkError, setSocialMediaLinkError] = useState('');
 
+  // Mounted only while the modal is open, i.e. once the signed-in user's profile is loaded.
   useEffect(() => {
-    profile.then(res => {
-      setAvatar((user?.avatar_url as string) || '/user.svg');
-      setFullName(res?.full_name || '');
-      setUsername(res?.username || '');
-      setSocialMediaLink(res?.social_url || '');
-      setAbout(res?.about || '');
-      setWebsiteUrl(res?.website_url || '');
-      setEmail(userSession?.user_metadata.email || '');
-      setHeadLine(res?.headline || '');
-    });
+    const res = user;
+    setAvatar((user?.avatar_url as string) || '/user.svg');
+    setFullName(res?.full_name || '');
+    setUsername(res?.username || '');
+    setSocialMediaLink(res?.social_url || '');
+    setAbout(res?.about || '');
+    setWebsiteUrl(res?.website_url || '');
+    setEmail(userSession?.user_metadata.email || '');
+    setHeadLine(res?.headline || '');
   }, []);
 
   const formValidator = () => {
