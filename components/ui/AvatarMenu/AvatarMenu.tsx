@@ -3,6 +3,7 @@ import Button from '../Button/Button';
 import LinkItem from '../Link/LinkItem';
 import { Session } from '@supabase/supabase-js';
 import Avatar from '../Avatar/Avatar';
+import { useRouter } from 'next/navigation';
 import { useSupabase } from '@/components/supabase/provider';
 
 type Props = {
@@ -17,6 +18,9 @@ export default ({ onLogout, session }: Props) => {
   const isLoggin = session && session.user;
 
   const { user } = useSupabase();
+  const router = useRouter();
+  // The menu's links are hidden until it opens, so Next never prefetched them: do it on hover/focus.
+  const prefetchMenu = () => navigation.forEach(item => item.path && router.prefetch(item.path));
 
   const navigation = [
     { title: 'Profile', path: isLoggin && user ? `/@${user.username}` : '' },
@@ -37,6 +41,8 @@ export default ({ onLogout, session }: Props) => {
         ref={profileRef}
         className=" outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
         onClick={() => setState(!state)}
+        onMouseEnter={prefetchMenu}
+        onFocus={prefetchMenu}
       >
         {user?.avatar_url ? (
           <Avatar src={user.avatar_url} className="h-8 w-8" />

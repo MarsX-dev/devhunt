@@ -62,6 +62,12 @@ export default () => {
   const router = useRouter();
   // "Submit your Dev Tool" lands here with ?submit=1: makers without tools go straight to the URL step.
   const fromSubmit = useSearchParams()?.get('submit') === '1';
+  // Known to have no tools: go to the form right away instead of waiting for the list.
+  useEffect(() => {
+    try {
+      if (fromSubmit && localStorage.getItem('dh_my_tools') === '0') router.replace('/account/tools/new');
+    } catch {}
+  }, [fromSubmit]);
 
   useEffect(() => {
     if (!user?.id) return;

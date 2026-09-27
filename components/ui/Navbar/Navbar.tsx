@@ -35,6 +35,22 @@ export default () => {
 
   const isLoggedin = session?.user;
 
+  // Submit goes straight to the form when we know the user has no tools yet (the dashboard stores
+  // the count); otherwise the dashboard. Both are prefetched once we know who's signed in, so the
+  // click is instant.
+  const [knownNoTools, setKnownNoTools] = useState(false);
+  useEffect(() => {
+    try {
+      setKnownNoTools(localStorage.getItem('dh_my_tools') === '0');
+    } catch {}
+  }, [pathname]);
+  const submitPath = !isLoggedin ? '/login' : knownNoTools ? '/account/tools/new' : '/account/tools?submit=1';
+  useEffect(() => {
+    const paths = isLoggedin ? ['/account/tools', '/account/tools/new', '/account/details'] : ['/login'];
+    const idle = (window as any).requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1500));
+    idle(() => paths.forEach(path => router.prefetch(path)));
+  }, [isLoggedin]);
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     router.push('/');
@@ -47,7 +63,7 @@ export default () => {
     { title: 'Advertise', path: '/the-story#ads', className: 'text-orange-400 hover:text-orange-300' },
     {
       title: 'Submit',
-      path: isLoggedin ? '/account/tools?submit=1' : '/login',
+      path: submitPath,
       className: 'bg-slate-50 hover:bg-white text-slate-900 font-medium text-center rounded-full px-3 py-1 duration-150',
     },
   ];
@@ -117,6 +133,7 @@ export default () => {
                   <div ref={NavMenuRef} className="relative">
                     <button
                       onClick={() => setNavMenuActive(!isNavMenuActive)}
+                      onMouseEnter={() => submenu.forEach(item => router.prefetch(item.path))}
                       aria-label="Browse tools"
                       aria-expanded={isNavMenuActive}
                       title="Browse tools"
