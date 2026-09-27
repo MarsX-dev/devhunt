@@ -16,6 +16,7 @@ import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCo
 
 import dynamic from 'next/dynamic';
 import ProfileFormModal from '@/components/ui/ProfileFormModal';
+import Analytics from '@/components/Analytics';
 
 const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
@@ -100,6 +101,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <ModalBannerCodeClient />
             {children}
             <Footer />
+            <Analytics />
           </SupabaseProvider>
         </main>
 

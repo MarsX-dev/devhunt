@@ -14,6 +14,7 @@ export interface SiteStats {
   tools_this_week: number;
   users: number;
   users_today: number;
+  unique_visitors: number;
 }
 
 export const getSiteStats = unstable_cache(

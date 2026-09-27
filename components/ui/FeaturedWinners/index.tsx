@@ -1,32 +1,29 @@
 import Link from 'next/link';
-import moment from 'moment';
 import { unstable_cache } from 'next/cache';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { createBrowserClient } from '@/utils/supabase/browser';
-
-const SHOWN = 8;
 
 const getFeaturedWinners = unstable_cache(
   async () => {
     const { data } = await createBrowserClient()
       .from('products')
-      .select('id, slug, name, slogan, logo_url, launch_start')
+      .select('id, slug, name, slogan, logo_url, votes_count')
       .eq('is_featured', true)
-      .eq('deleted', false);
+      .eq('deleted', false)
+      .order('votes_count', { ascending: false });
     return data ?? [];
   },
-  ['featured-winners'],
+  ['top-winners'],
   { revalidate: 3600 },
 );
 
-// Well-known past winners (products.is_featured), a different shuffle on every visit.
+// Hand-picked past winners (products.is_featured), most upvoted first.
 export default async function FeaturedWinners() {
-  const all = await getFeaturedWinners();
-  if (!all.length) return null;
-  const shown = [...all].sort(() => Math.random() - 0.5).slice(0, SHOWN);
+  const shown = await getFeaturedWinners();
+  if (!shown.length) return null;
   return (
-    <div id="featured-winners" className="mt-14">
-      <SectionLabel title="Featured winners" hint="Launched on DevHunt" />
+    <div id="top-winners" className="mt-14">
+      <SectionLabel title="Top winners" hint="Launched on DevHunt" />
       <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {shown.map(tool => (
           <li key={tool.id}>
@@ -43,7 +40,7 @@ export default async function FeaturedWinners() {
               <span className="mt-3 truncate font-medium text-slate-100">{tool.name.trim()}</span>
               <span className="mt-0.5 line-clamp-2 text-xs text-slate-500">{tool.slogan}</span>
               <span className="mt-auto pt-3 font-mono text-[11px] text-orange-400/90">
-                🏆 Winner · {moment.utc(tool.launch_start).format('MMM YYYY')}
+                ▲ {tool.votes_count.toLocaleString('en-US')} upvotes
               </span>
             </Link>
           </li>

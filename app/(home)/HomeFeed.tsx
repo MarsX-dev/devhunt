@@ -23,6 +23,7 @@ export default function HomeFeed({
   bottom,
   votesToday = {},
   latestComments = {},
+  uniqueVisitors,
 }: {
   data: HomeData;
   children?: ReactNode;
@@ -30,6 +31,7 @@ export default function HomeFeed({
   bottom?: ReactNode;
   votesToday?: Record<string, number>;
   latestComments?: Record<string, LatestComment>;
+  uniqueVisitors?: number;
 }) {
   const [winners, setWinners] = useState(data.winners);
   const [paging, setPaging] = useState({ offset: data.winnersOffset, total: data.winnersTotal, loadingMore: false });
@@ -58,7 +60,7 @@ export default function HomeFeed({
 
   return (
     <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
-      <CountdownPanel />
+      <CountdownPanel uniqueVisitors={uniqueVisitors} />
       {children}
       <MonitizorAdCards />
       <div className="mt-12 mb-12">

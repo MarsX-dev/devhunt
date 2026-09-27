@@ -195,7 +195,7 @@ const SponsorsSection = () => {
   );
 };
 
-export default () => (
+export default ({ uniqueVisitors }: { uniqueVisitors?: number }) => (
   <div className="relative isolate pt-6 pb-10 sm:pt-12 text-center">
     <div aria-hidden className="bg-dot-grid pointer-events-none absolute -inset-x-40 -top-24 h-[460px] -z-10" />
     <div
@@ -213,7 +213,7 @@ export default () => (
     <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-400">
       <People />
       <span>
-        100k+ developers found tools here ·{' '}
+        {(uniqueVisitors ?? 452356).toLocaleString('en-US')} unique visitors since launch ·{' '}
         <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641">
           how it started
         </a>
