@@ -43,7 +43,7 @@ describe('database security (anonymous API key)', () => {
     expect(rejected(res.status)).toBe(true);
   });
 
-  it.each(['get_site_stats', 'get_recent_activity', 'get_category_counts'])('cannot call the server-only function %s', async fn => {
+  it.each(['get_site_stats', 'get_recent_activity', 'get_category_counts', 'get_analytics', 'track_pageview', 'claim_tool_profile'])('cannot call the server-only function %s', async fn => {
     const res = await supabase(`rpc/${fn}`, { method: 'POST', body: '{}' });
     expect(res.ok).toBe(false);
   });
@@ -55,6 +55,15 @@ describe('database security (anonymous API key)', () => {
     expect(update.ok ? (await update.json()).length : 0).toBe(0);
   });
 
+  it('tool profiles are read-only and only ready ones are public', async () => {
+    const read = await supabase('tool_profiles?select=status&status=neq.ready&limit=5');
+    expect(read.ok ? (await read.json()).length : 0).toBe(0);
+    const insert = await supabase('tool_profiles', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ product_id: SOME_PRODUCT_ID, status: 'ready', data: {} }) });
+    expect(insert.ok).toBe(false);
+    const update = await supabase('tool_profiles?product_id=gt.0', { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ status: 'hidden' }) });
+    expect(update.ok ? (await update.json()).length : 0).toBe(0);
+  });
+
   it('search is public and ranked', async () => {
     const res = await supabase('rpc/search_tools', { method: 'POST', body: JSON.stringify({ q: 'daytona', max_results: 3 }) });
     expect(res.status).toBe(200);
@@ -63,7 +72,7 @@ describe('database security (anonymous API key)', () => {
     expect(Object.keys(rows[0]).sort()).toEqual(['id', 'launch_start', 'logo_url', 'name', 'slogan', 'slug', 'votes_count']);
   });
 
-  it.each(['site_daily_views', 'payments', 'payment_events'])('cannot read or write server-only table %s', async table => {
+  it.each(['site_daily_views', 'payments', 'payment_events', 'analytics_daily', 'analytics_pages'])('cannot read or write server-only table %s', async table => {
     const read = await supabase(`${table}?select=*&limit=1`);
     expect(read.ok ? (await read.json()).length : 0).toBe(0);
     const write = await supabase(table, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: '{}' });

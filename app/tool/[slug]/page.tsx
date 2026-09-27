@@ -24,7 +24,7 @@ import SectionLabel from '@/components/ui/SectionLabel';
 import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '@/components/ui/ToolExtras';
 import { getToolExtras } from '@/utils/toolExtras';
 import { getToolProfile } from '@/utils/toolProfileData';
-import { ProfileSource, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
+import { ProfileSource, cleanName, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { type ProductType } from '@/type';
@@ -184,13 +184,13 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         </div>
         {profile && (
           <div className="container-custom-screen space-y-14">
-            <ToolFeatures profile={profile} name={product.name.trim()} />
-            <ToolPricing profile={profile} name={product.name.trim()} />
+            <ToolFeatures profile={profile} name={cleanName(product.name)} />
+            <ToolPricing profile={profile} name={cleanName(product.name)} />
             <ToolCompare
               profile={profile}
               self={{ name: product.name, slug: product.slug, logo_url: product.logo_url, votes_count: product.votes_count, launch_start: product.launch_start, pricing: pricingTitle }}
             />
-            <ToolFaq profile={profile} name={product.name.trim()} />
+            <ToolFaq profile={profile} name={cleanName(product.name)} />
             <ProfileSource profile={profile} />
           </div>
         )}

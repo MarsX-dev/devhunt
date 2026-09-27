@@ -178,3 +178,26 @@ test('past winners load more, categories link to their pages, countdown is runni
   await expect(page).toHaveURL(new RegExp(`${href}$`));
   await expect(page.getByRole('heading').first()).toBeVisible();
 });
+
+test('home page shows top winners by upvotes and the unique visitor count', async ({ page }) => {
+  await page.goto('/');
+  const top = page.locator('#top-winners');
+  await expect(top.getByRole('heading', { name: 'Top winners' })).toBeVisible();
+  const votes = (await top.locator('li').allInnerTexts()).map(t => Number(t.match(/▲\s*([\d,]+) upvotes/)?.[1].replace(/,/g, '')));
+  expect(votes.length).toBeGreaterThan(3);
+  expect(votes.every(Number.isFinite)).toBe(true);
+  expect([...votes].sort((a, b) => b - a)).toEqual(votes);
+  await expect(page.getByText(/[\d,]{7,} unique visitors since launch/)).toBeVisible();
+});
+
+test('tool pages show features, alternatives and an FAQ with structured data', async ({ page }) => {
+  await page.goto('/tool/clerk');
+  await expect(page.getByRole('heading', { name: 'Key features' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Clerk vs alternatives' })).toBeVisible();
+  await expect(page.locator('#compare table a[href^="/tool/"]').first()).toBeVisible();
+  const faq = page.locator('#faq details').first();
+  await faq.locator('summary').click();
+  await expect(faq.locator('p')).toBeVisible();
+  const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
+  expect(ld.some(s => s.includes('"FAQPage"'))).toBe(true);
+});

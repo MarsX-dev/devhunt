@@ -13,6 +13,8 @@ const hostOf = (url: string) => {
     return url;
   }
 };
+// Tool names without leading emoji ("🪢 Langfuse" -> "Langfuse") for headings and tables.
+export const cleanName = (name: string) => name.replace(/^[^\p{L}\p{N}]+/u, '').trim() || name.trim();
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
 const logo = (url: string | null) => (url ?? '').replace(/w=\d+/g, 'w=64');
 
@@ -163,23 +165,23 @@ export function ToolCompare({ profile, self }: { profile: ToolProfileView; self:
   ];
   return (
     <div id="compare" className="scroll-mt-32">
-      <SectionLabel title={`${self.name} vs alternatives`} hint="similar tools on DevHunt" />
+      <SectionLabel title={`${cleanName(self.name)} vs alternatives`} hint="similar tools on DevHunt" />
       <div className="mt-4 overflow-x-auto rounded-xl border border-slate-800">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-800">
-              <th className="w-32 px-4 py-3" />
+              <th className="sticky left-0 z-[1] w-32 bg-slate-900 px-4 py-3" />
               {columns.map(c => (
                 <th key={c.id} scope="col" className={`px-4 py-3 align-top font-medium ${c.self ? 'bg-slate-800/40' : ''}`}>
                   {c.self ? (
                     <span className="flex items-center gap-x-2 text-slate-50">
                       {c.logo_url && <img src={logo(c.logo_url)} alt="" className="h-6 w-6 rounded-md bg-slate-800 object-cover" />}
-                      {c.name.trim()}
+                      {cleanName(c.name)}
                     </span>
                   ) : (
                     <Link href={`/tool/${c.slug}`} className="flex items-center gap-x-2 text-slate-200 hover:text-white">
                       {c.logo_url && <img src={logo(c.logo_url)} alt="" loading="lazy" className="h-6 w-6 rounded-md bg-slate-800 object-cover" />}
-                      {c.name.trim()}
+                      {cleanName(c.name)}
                     </Link>
                   )}
                 </th>
@@ -189,7 +191,7 @@ export function ToolCompare({ profile, self }: { profile: ToolProfileView; self:
           <tbody>
             {rows.map(r => (
               <tr key={r.label} className="border-b border-slate-800 last:border-0">
-                <th scope="row" className="whitespace-nowrap px-4 py-3 font-mono text-[11px] font-normal text-slate-500">
+                <th scope="row" className="sticky left-0 z-[1] whitespace-nowrap bg-slate-900 px-4 py-3 font-mono text-[11px] font-normal text-slate-500">
                   {r.label}
                 </th>
                 {columns.map(c => (
@@ -206,7 +208,7 @@ export function ToolCompare({ profile, self }: { profile: ToolProfileView; self:
         {alts.map(a => (
           <li key={a.id} className="text-sm leading-relaxed text-slate-400">
             <Link href={`/tool/${a.slug}`} className="font-medium text-slate-200 hover:text-white">
-              {self.name.trim()} vs {a.name.trim()}:
+              {cleanName(self.name)} vs {cleanName(a.name)}:
             </Link>{' '}
             {altInfo.get(a.id)?.difference}
           </li>
