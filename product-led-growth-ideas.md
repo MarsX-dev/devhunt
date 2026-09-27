@@ -196,7 +196,104 @@ Only for a few prime slots. Two options:
 
 ---
 
-## 5. Priorities
+## 5. Free developer tools under devhunt.org/free-tools/
+
+### 5.1 Verdict
+
+Yes, but not "a ton" of generic ones. Utilities bring real developers (not downloader traffic), are cheap to build, get bookmarked and reused, earn links, and give repeat-visit sponsor slots ("JSON formatter, presented by X").
+
+**Risks:**
+- The classic utilities are saturated (jwt.io, regex101, CyberChef, it-tools, codebeautify, transform.tools). At DA 31, head terms rank slowly, if at all.
+- Google penalizes scaled content. Hundreds of thin, near-identical tool pages can drag down the whole domain.
+- Utility users are task-focused and leave, so generic utilities convert very little to paid launches.
+
+**Rules:**
+- All under `/free-tools/`, one real page each with an explanation. No auto-generated variants (except a handful of genuinely useful long-tail pages like common cron schedules).
+- Run in the browser, or on cached server routes. **No database query per visitor** (see the 2026-09-27 Supabase overload).
+- Tools that crawl a URL (Firecrawl) or call an LLM cost money per use: cache per domain and rate-limit. The AI visibility checker is a good place to ask for an email.
+- Every tool links to related DevHunt pages ("JWT decoder → auth tools") and has one sponsor slot.
+- Ship about 10, then watch GSC for 60–90 days before building more.
+
+### 5.2 Keyword data (Ubersuggest, 2026-09-28)
+
+Global monthly searches. SEO difficulty (SD, 0–100) is only available per country; the US figures are shown where pulled.
+
+**Maker tools (convert to paid launches):**
+
+| Keyword | Global vol. | US vol. / SD | CPC | Notes |
+|---|---|---|---|---|
+| meta tag checker | 4,400 | 590 / 39 | $3.50 | Launch-readiness funnel |
+| og image checker | 3,600 | 480 / 38 | $0.74 | Combine with meta tag checker; growing |
+| open graph generator | 880 | – | – | Same page family |
+| llms.txt generator | 4,400 | 480 / **13** | $2.40 | Easiest to rank; fits the AEO/GEO theme |
+| ai visibility checker | 1,000 | – | $8.10 | Grew ~25× in a year; lead magnet for the maker subscription |
+| startup name generator | 1,300 | – | $1.50 | Generic; maybe |
+| roast my landing page | 210 | – | $11.00 | Low volume but high-intent makers; word of mouth |
+| changelog generator | 170 | – | $2.60 | Low; build only as a maker feature |
+| landing page grader | 10 | – | – | Use the "roast" wording instead |
+| product hunt launch checklist | 40 | – | $5.85 | Better as a guide than a tool |
+
+**DevHunt-data tools:**
+
+| Keyword | Global vol. | Notes |
+|---|---|---|
+| is it down | 110,000 | Downdetector-type sites dominate; build only for listed dev tools with real status data from cron checks |
+| is github down | 22,200 | Example of per-tool demand (spiky) |
+| open source alternatives | 8,100 | Directory page more than a tool; fits the alternatives pages |
+| builtwith alternative | 1,000 | Tech stack detector; links detected tools to DevHunt pages |
+| website tech stack checker | 260 | Same tool |
+| mcp config generator | 0 | No search demand; build as a product feature, not an SEO play |
+
+**Classic utilities (high volume, saturated):**
+
+| Keyword | Global vol. | US vol. / SD | CPC |
+|---|---|---|---|
+| json formatter | 823,000 | – | $0.93 |
+| base64 decode | 368,000 | – | $2.12 |
+| unix timestamp converter | 165,000 | – | $0.06 |
+| jwt decoder | 135,000 | 18,100 / 42 | $3.59 |
+| uuid generator | 135,000 | – | $2.96 |
+| favicon generator | 90,500 | – | $1.89 |
+| regex tester | 60,500 | – | $2.46 |
+| sql formatter | 60,500 | – | $3.53 |
+| cidr calculator | 27,100 | – | $0.33 |
+| schema markup validator | 18,100 | – | $6.18 |
+| robots.txt generator | 12,100 | – | $2.25 |
+| json to typescript | 9,900 | 590 / 40 | $6.18 |
+| gitignore generator | 9,900 | – | $4.10 |
+| chmod calculator | 8,100 | – | $6.81 |
+| curl converter | 6,600 | – | $5.59 |
+| cron expression generator | 5,400 | 1,300 / 31 | $2.95 |
+| readme generator | 5,400 | – | $11.02 |
+| cron every 5 minutes | 4,400 | – | $2.70 |
+
+US difficulty for the sampled tool keywords sits at 31–42, which is moderate. For comparison, the site's average position is ~9.
+
+### 5.3 First 10 to build
+
+**Maker suite:** 1–4 share one URL-crawl engine, so each extra page is cheap.
+- [ ] 1. Meta tag + OG image checker (with an OG/open graph generator), ending in "ready to launch? pick a week"
+- [ ] 2. llms.txt generator (lowest difficulty)
+- [ ] 3. AI visibility checker ("Does ChatGPT recommend your tool?"), with email capture feeding the maker subscription
+- [ ] 4. Roast my landing page
+
+**Classic utilities (browser-only, zero server cost):**
+- [ ] 5. JWT decoder
+- [ ] 6. Unix timestamp converter
+- [ ] 7. UUID generator
+- [ ] 8. Cron expression generator, plus about 10 common-schedule pages ("every 5 minutes", "every day at midnight")
+- [ ] 9. Base64 encode/decode
+- [ ] 10. Favicon generator (makers need it too)
+
+**Phase 2:**
+- [ ] "Is X down" for popular listed dev tools, using cached cron checks
+- [ ] Tech stack detector
+- [ ] SQL formatter, regex tester, CIDR calculator, gitignore generator, JSON → TypeScript, curl converter, chmod calculator
+- Skip for now: JSON formatter (hardest head term); schema markup validator (Google owns this result).
+
+---
+
+## 6. Priorities
 
 ### Top picks overall (impact for the effort)
 
@@ -223,7 +320,7 @@ Only for a few prime slots. Two options:
 
 ---
 
-## 6. Progress log
+## 7. Progress log
 
 | Date | What shipped | Commit |
 |---|---|---|
