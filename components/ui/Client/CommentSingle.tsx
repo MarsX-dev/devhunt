@@ -1,3 +1,4 @@
+import { DELETED_NAME } from '@/utils/deletion';
 import {
   CommentUserAvatar,
   Comments,
@@ -95,17 +96,30 @@ export default ({ comment, productId }: Props) => {
     });
   };
 
+  const authorDeleted = !newComment.profiles?.username || newComment.profiles.username.startsWith('deleted-');
+
   return (
     <Comment id={`${newComment.id}`} className="items-start gap-x-2">
       {/*TODO add First Letters Like avatars if there is no avatar */}
-      <Link className="flex-none" href={`/@${newComment.profiles.username}`}>
-        <CommentUserAvatar alt={newComment.profiles.full_name} src={newComment.profiles.avatar_url} />
-      </Link>
+      {authorDeleted ? (
+        // Deleted account: no profile to link to and no avatar.
+        <span className="flex-none">
+          <CommentUserAvatar alt={DELETED_NAME} src="/user.svg" />
+        </span>
+      ) : (
+        <Link className="flex-none" href={`/@${newComment.profiles.username}`}>
+          <CommentUserAvatar alt={newComment.profiles.full_name} src={newComment.profiles.avatar_url || '/user.svg'} />
+        </Link>
+      )}
       <div className="flex-1">
         <div className="flex items-center gap-x-3">
-          <Link className="block" href={`/@${newComment.profiles.username}`}>
-            <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
-          </Link>
+          {authorDeleted ? (
+            <CommentUserName className="text-slate-500">{DELETED_NAME}</CommentUserName>
+          ) : (
+            <Link className="block" href={`/@${newComment.profiles.username}`}>
+              <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
+            </Link>
+          )}
           {newComment.user_id == productId ? (
             <div className="text-xs px-2 py-0.5 rounded-full bg-indigo-400 border-indigo-600 text-white font-medium">Maker</div>
           ) : (

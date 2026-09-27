@@ -11,14 +11,30 @@ type Props = {
   session: Session | null;
 };
 
+// Zenvoice page where makers download invoices for their paid launches.
+const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
+
 // Avtar with darpdown menu
 export default ({ onLogout, session }: Props) => {
   const [state, setState] = useState(false);
   const profileRef = useRef<HTMLButtonElement>(null);
   const isLoggin = session && session.user;
 
-  const { user } = useSupabase();
+  const { user, supabase } = useSupabase();
   const router = useRouter();
+  // "Download invoice" for makers who paid for a launch. Checked once, when the menu first opens
+  // (not on every page view).
+  const [hasPaid, setHasPaid] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!state || hasPaid !== null || !session?.user.id) return;
+    void supabase
+      .from('products')
+      .select('id')
+      .eq('owner_id', session.user.id)
+      .eq('isPaid', true)
+      .limit(1)
+      .then(({ data }) => setHasPaid(!!data?.length));
+  }, [state, hasPaid, session?.user.id]);
   // The menu's links are hidden until it opens, so Next never prefetched them: do it on hover/focus.
   const prefetchMenu = () => navigation.forEach(item => item.path && router.prefetch(item.path));
 
@@ -61,6 +77,18 @@ export default ({ onLogout, session }: Props) => {
             </LinkItem>
           </li>
         ))}
+        {hasPaid && (
+          <li>
+            <a
+              href={INVOICE_URL}
+              target="_blank"
+              rel="noopener"
+              className="block w-full py-2 px-3 font-normal text-slate-300 text-left rounded-none hover:bg-slate-700"
+            >
+              Download invoice ↗
+            </a>
+          </li>
+        )}
         <Button
           onClick={onLogout}
           className="block w-full py-2 px-3 font-normal text-slate-300 text-left rounded-none border-t border-slate-700 bg-transparent hover:bg-slate-700"

@@ -12,6 +12,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProfileService from '@/utils/supabase/services/profile';
 import LabelError from '@/components/ui/LabelError/LabelError';
 import validateURL from '@/utils/validateURL';
+import DeleteAccount from '@/components/ui/DeleteAccount';
 
 function Profile() {
   const { session, user } = useSupabase();
@@ -207,6 +208,7 @@ function Profile() {
             </Button>
           </div>
         </form>
+        <DeleteAccount />
       </div>
     </div>
   );

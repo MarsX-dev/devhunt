@@ -18,6 +18,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
 import { trackStep } from '@/utils/funnelClient';
+import ConfirmDelete from '@/components/ui/ConfirmDelete';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -81,13 +82,25 @@ export default () => {
     });
   }, [user?.id]);
 
-  const handleDeleteConfirm = (id: number, idx: number) => {
-    const confirm = window.confirm('Are you sure you want to delete this?');
-    if (confirm) {
-      toolsService.delete(id).then(() => {
-        setTools(tools.filter((_, i) => i !== idx));
-      });
-    }
+  // Deleting goes through the server (it checks ownership and keeps a restorable snapshot); the
+  // dialog asks for the tool name so nothing is deleted by accident.
+  const [toDelete, setToDelete] = useState<ProductType | null>(null);
+  const handleDeleteConfirm = (id: number) => setToDelete((tools as ProductType[]).find(t => t.id === id) ?? null);
+  const deleteTool = async (): Promise<string | null> => {
+    if (!toDelete) return null;
+    const res = await fetch(`/api/tools/${toDelete.id}/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: toDelete.name }),
+    });
+    if (!res.ok) return (await res.json().catch(() => null))?.error ?? 'Could not delete the tool, please try again.';
+    const remaining = (tools as ProductType[]).filter(t => t.id !== toDelete.id);
+    setTools(remaining as []);
+    try {
+      localStorage.setItem('dh_my_tools', String(remaining.length));
+    } catch {}
+    setToDelete(null);
+    return null;
   };
 
   const copyDone = () => {
@@ -199,7 +212,7 @@ export default () => {
                       )}
                       <button
                         onClick={() => {
-                          handleDeleteConfirm(tool.id, idx);
+                          handleDeleteConfirm(tool.id);
                         }}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
                         aria-label="Delete tool"
@@ -280,6 +293,24 @@ export default () => {
         setModalOpen={setModalOpen}
         setToolSlug={setToolSlug}
         copyDone={copyDone}
+      />
+      <ConfirmDelete
+        isActive={!!toDelete}
+        title={`Delete ${toDelete?.name ?? 'this tool'}?`}
+        consequences={[
+          'Its page, votes and comments disappear from DevHunt.',
+          ...(toDelete?.isPaid ? ['Paid launches are not refunded.'] : []),
+          'Changed your mind later? Contact us and we can restore it.',
+        ]}
+        confirmText={toDelete?.name ?? ''}
+        confirmLabel={
+          <>
+            Type <span className="font-mono text-slate-100">{toDelete?.name}</span> to confirm
+          </>
+        }
+        buttonLabel="Delete tool"
+        onConfirm={deleteTool}
+        onCancel={() => setToDelete(null)}
       />
     </section>
   );

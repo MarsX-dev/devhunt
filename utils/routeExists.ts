@@ -15,10 +15,10 @@ export const toolExists = unstable_cache(
 
 export const profileExists = unstable_cache(
   async (username: string) => {
-    const { data } = await createBrowserClient().from('profiles').select('id').eq('username', username).maybeSingle();
+    const { data } = await createBrowserClient().from('profiles').select('id').eq('username', username).is('deleted_at', null).maybeSingle();
     return !!data;
   },
-  ['route-profile-exists'],
+  ['route-profile-exists-v2'], // deleted accounts are a 404
   { revalidate: 300 },
 );
 

@@ -59,9 +59,17 @@ test('owners cannot mark tools paid, move launches, change counters or insert to
   const id = own[0].id;
   const patch = (body: object) => fetch(`${result.base}/products?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify(body) });
 
+  // Deleting/restoring goes through /api/tools/[id]/delete (snapshot first), never a direct update.
   for (const body of [{ isPaid: true }, { launch_start: '2026-10-06T00:00:00Z' }, { votes_count: 9999 }]) {
     expect((await patch(body)).status, JSON.stringify(body)).toBe(403);
   }
+  // Un-deleting one of the account's deleted tools directly is refused too.
+  const [gone] = await (await fetch(`${result.base}/products?owner_id=eq.${result.userId}&deleted=eq.true&select=id&limit=1`, { headers })).json();
+  const undelete = await fetch(`${result.base}/products?id=eq.${gone.id}`, { method: 'PATCH', headers, body: JSON.stringify({ deleted: false }) });
+  expect(undelete.status).toBe(403);
+  // Users can't mark their own profile deleted (that bans the account, server-side only).
+  const profilePatch = await fetch(`${result.base}/profiles?id=eq.${result.userId}`, { method: 'PATCH', headers, body: JSON.stringify({ deleted_at: new Date().toISOString() }) });
+  expect(profilePatch.status).toBe(403);
   // Normal content edits still work.
   const ok = await patch({ slogan: own[0].slogan });
   expect(ok.status).toBe(200);
@@ -110,4 +118,23 @@ test('"Start with your website" fills in the whole form (Firecrawl/JEV mocked)',
   await expect(page.locator(`form img[src="${logo}"]`)).toBeVisible();
   await expect(page.locator(`form img[src="${shot}"]`)).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test('makers who paid get "Download invoice" in the profile menu', async ({ page }) => {
+  // Pretend the account has a paid tool (the test account has none).
+  await page.route(/\/rest\/v1\/products\?select=id&owner_id=eq\.[^&]+&isPaid=eq\.true/, route => route.fulfill({ json: [{ id: 1 }] }));
+  await page.goto('/the-story');
+  await page.locator('nav button:has(img)').last().click();
+  const invoice = page.getByRole('link', { name: /Download invoice/ });
+  await expect(invoice).toBeVisible();
+  await expect(invoice).toHaveAttribute('href', 'https://zenvoice.io/p/65d6370232047df47b4c142b');
+  await expect(invoice).toHaveAttribute('target', '_blank');
+});
+
+test('people who never paid see no invoice link', async ({ page }) => {
+  await page.goto('/the-story');
+  await page.locator('nav button:has(img)').last().click();
+  await expect(page.getByRole('link', { name: 'My tools' }).first()).toBeVisible();
+  await page.waitForTimeout(800);
+  await expect(page.getByRole('link', { name: /Download invoice/ })).toHaveCount(0);
 });

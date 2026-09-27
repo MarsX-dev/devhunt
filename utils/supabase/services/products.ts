@@ -347,7 +347,7 @@ export default class ProductsService extends BaseDbService {
       // One request per 100 voters (not one per voter: a popular tool used to fire 300+ requests per view).
       const chunks = Array.from({ length: Math.ceil(ids.length / 100) }, (_, i) => ids.slice(i * 100, i * 100 + 100));
       const rows = (
-        await Promise.all(chunks.map(async chunk => (await this.supabase.from('profiles').select().in('id', chunk)).data ?? []))
+        await Promise.all(chunks.map(async chunk => (await this.supabase.from('profiles').select().in('id', chunk).is('deleted_at', null)).data ?? [])) // deleted accounts aren't shown
       ).flat();
       const byId = new Map(rows.map(p => [p.id, p]));
       return ids.map(uid => byId.get(uid)).filter(Boolean) as Profile[];

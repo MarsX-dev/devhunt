@@ -82,6 +82,12 @@ describe('protected endpoints reject anonymous callers', () => {
     expect(res.status === 401 || body.includes('Not allowed in production')).toBe(true);
   });
 
+  it('deleting a tool or an account needs a signed-in owner', async () => {
+    const json = { method: 'POST', headers: { 'Content-Type': 'application/json' } };
+    expect((await get('/api/tools/33467882/delete', { ...json, body: JSON.stringify({ confirm: 'Knecht Works' }) })).status).toBe(401);
+    expect((await get('/api/account/delete', { ...json, body: JSON.stringify({ confirm: 'anyone' }) })).status).toBe(401);
+  });
+
   it('GET /api/checkout/confirm -> 401 without a session', async () => {
     expect((await get('/api/checkout/confirm?session_id=cs_live_abc')).status).toBe(401);
   });

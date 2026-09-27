@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { TypedSupabaseClient } from '@/app/layout';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { type Profile } from '@/utils/supabase/types';
+import { isDeletedAccountError } from '@/utils/deletion';
 
 type MaybeSession = Session | null
 
@@ -35,10 +36,22 @@ export default function SupabaseProvider({ children }: { children: React.ReactNo
       return;
     }
     const { data } = await supabase.from('profiles').select().eq('id', id).maybeSingle();
+    // A deleted account (its auth user is banned too) is signed out right away.
+    if ((data as any)?.deleted_at) {
+      await supabase.auth.signOut().catch(() => null);
+      if (!window.location.pathname.startsWith('/login')) window.location.href = '/login?deleted=1';
+      return;
+    }
     setUser(data as Profile);
   };
 
   useEffect(() => {
+    // Sign-in of a deleted (banned) account comes back with an error in the URL.
+    const params = new URLSearchParams(`${window.location.search.slice(1)}&${window.location.hash.slice(1)}`);
+    if (isDeletedAccountError(params.get('error_description')) && !window.location.pathname.startsWith('/login')) {
+      window.location.href = '/login?deleted=1';
+      return;
+    }
     let alive = true;
     void supabase.auth.getSession().then(async ({ data }) => {
       if (!alive) return;
