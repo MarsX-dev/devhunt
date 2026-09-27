@@ -5,7 +5,7 @@ import { formatStat, type StatItem } from '@/utils/statFormat';
 
 const COUNT_MS = 1400;
 
-// A small terminal: `$ devhunt stats --live`, four counters that count up to now with their
+// A small terminal box: four counters that count up to now with their
 // recent growth, and the live activity line at the bottom.
 export default function SiteStatsBar({ items, live }: { items: StatItem[]; live?: ReactNode }) {
   const [progress, setProgress] = useState(0); // 0 = before the recent growth, 1 = now
@@ -29,18 +29,6 @@ export default function SiteStatsBar({ items, live }: { items: StatItem[]; live?
 
   return (
     <div id="site-stats" className="mb-6 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/40 font-mono">
-      <div className="flex items-center justify-between border-b border-slate-800 px-4 py-2 text-[11px] text-slate-500">
-        <span>
-          <span className="text-green-400">$</span> devhunt stats --live
-        </span>
-        <span className="flex items-center gap-x-1.5 text-green-400">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-70 motion-safe:animate-ping" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-400" />
-          </span>
-          live
-        </span>
-      </div>
       <dl className="grid grid-cols-2 gap-px bg-slate-800 sm:grid-cols-4">
         {items.map(item => {
           const counts = typeof item.value === 'number';
