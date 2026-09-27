@@ -10,7 +10,17 @@ const MAX_BURSTS = 12; // per page visit and tool
 // Replays a tool's real votes from the last 24 hours as upvotes floating up from its vote button,
 // at most one burst per real vote per minute. The first burst reports back (onBurst) so the card
 // can count its last real vote up; later bursts don't change the count.
-export default function FloatingUpvotes({ votesToday, active, onBurst }: { votesToday: number; active: boolean; onBurst?: () => void }) {
+export default function FloatingUpvotes({
+  votesToday,
+  active,
+  onBurst,
+  ringClassName = 'rounded-xl',
+}: {
+  votesToday: number;
+  active: boolean;
+  onBurst?: () => void;
+  ringClassName?: string; // match the button's corner radius
+}) {
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
@@ -44,7 +54,7 @@ export default function FloatingUpvotes({ votesToday, active, onBurst }: { votes
   return (
     <span aria-hidden className="pointer-events-none absolute inset-0 z-10">
       {burstIds.map(id => (
-        <span key={`ring-${id}`} className="absolute inset-0 rounded-xl ring-2 ring-orange-500 animate-ring-pop" />
+        <span key={`ring-${id}`} className={`absolute inset-0 ${ringClassName} ring-2 ring-orange-500 animate-ring-pop`} />
       ))}
       {particles.map(p => (
         <span

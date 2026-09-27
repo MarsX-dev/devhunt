@@ -5,6 +5,7 @@ import CommentFormSection from './CommentFormSection';
 import CommentsSection from './CommentsSection';
 import type { Comment as CommentType, Product } from '@/utils/supabase/types';
 import { useSupabase } from '@/components/supabase/provider';
+import SectionLabel from '@/components/ui/SectionLabel';
 
 interface CommentTypeProp extends CommentType {
   profiles: {
@@ -22,7 +23,10 @@ export default ({ comments, slug, productId }: { comments: CommentTypeProp[]; sl
 
   return (
     <div className="container-custom-screen" id="comments">
-      <h3 className="text-slate-50 font-medium">Comments, support and feedback</h3>
+      <SectionLabel
+        title="Comments"
+        hint={commentsCollection?.length ? `${commentsCollection.length} ${commentsCollection.length === 1 ? 'comment' : 'comments'}` : 'Support and feedback'}
+      />
       <CommentFormSection
         comments={commentsCollection}
         setCommentsCollection={setCommentsCollection}

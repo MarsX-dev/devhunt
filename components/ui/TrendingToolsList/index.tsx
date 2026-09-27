@@ -1,64 +1,32 @@
 'use client';
-import { Fragment } from 'react';
 
-import ToolName from '@/components/ui/ToolCard/Tool.Name';
-import Tags from '@/components/ui/ToolCard/Tool.Tags';
-import Title from '@/components/ui/ToolCard/Tool.Title';
-import ToolCard from '@/components/ui/ToolCard/ToolCard';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import ToolVotes from '@/components/ui/ToolCard/Tool.Votes';
-import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
-import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import { useEffect, useState } from 'react';
-import { ProductType } from '@/type';
+import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
+import { type ProductType } from '@/type';
+import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
-import ToolLogo from '@/components/ui/ToolCard/Tool.Logo';
-import Link from 'next/link';
 
-const getTrendingTools = async () => {
-  const today = new Date();
-  const productService = new ProductsService(createBrowserClient());
-  const week = await productService.getWeekNumber(today, 2);
-  return await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1);
-};
+const SHOWN = 8;
 
-export default () => {
-  const [trendingTools, setTrendingTools] = useState<[]>([]);
+// This week's leaders as compact ranked rows (tool page and preview modal).
+export default function TrendingToolsList({ excludeId }: { excludeId?: number }) {
+  const [tools, setTools] = useState<{ tool: ProductType; rank: number }[]>([]);
 
   useEffect(() => {
-    getTrendingTools().then(tools => {
-      const allTools = tools?.map(tool => tool);
-      setTrendingTools(allTools as any);
+    const productService = new ProductsService(createBrowserClient());
+    const today = new Date();
+    void productService.getWeekNumber(today, 2).then(async week => {
+      const [thisWeek] = await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1);
+      const ranked = ((thisWeek?.products ?? []) as ProductType[]).map((tool, idx) => ({ tool, rank: idx + 1 })); // real week ranks
+      setTools(ranked.filter(({ tool }) => tool.id !== excludeId).slice(0, SHOWN));
     });
-  }, []);
+  }, [excludeId]);
 
   return (
-    <ul className="mt-3 divide-y divide-slate-800/60">
-      {trendingTools?.map((group, groupIdx) => (
-        <div key={groupIdx}>
-          {(group as { products: ProductType[] }).products.map((tool: ProductType, idx: number) => (
-            <Fragment key={tool.id ?? idx}>
-              {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              <li className="py-3">
-                <ToolCard tool={tool} href={'/tool/' + tool.slug}>
-                  <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
-                    <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
-                    <div className="w-full space-y-1">
-                      <ToolName href={tool.demo_url as string}>{tool.name}</ToolName>
-                      <Title className="line-clamp-2">{tool.slogan}</Title>
-                      <ToolFooter>
-                        <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
-                        <ToolViews count={tool.views_count} />
-                      </ToolFooter>
-                    </div>
-                  </Link>
-                  <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
-                </ToolCard>
-              </li>
-            </Fragment>
-          ))}
-        </div>
+    <ol className="mt-2 divide-y divide-slate-800/70">
+      {tools.map(({ tool, rank }, idx) => (
+        <ToolCardEffect key={tool.id} tool={tool} rank={rank} compact revealIndex={idx} />
       ))}
-    </ul>
+    </ol>
   );
-};
+}

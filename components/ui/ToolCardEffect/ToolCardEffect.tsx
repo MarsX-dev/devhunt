@@ -57,7 +57,7 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
       className={`${compact ? 'py-0.5' : 'py-3'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
       style={reveal}
     >
-      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-2.5' : ''}>
+      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-2.5' : ''} votesToday={votesToday}>
         {/* Same columns in both sizes (rank 24px, logo 56px, text, votes 56px) so the whole list lines up. */}
         <div className="w-full flex items-center gap-x-4">
           {rank && (

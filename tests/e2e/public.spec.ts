@@ -34,7 +34,7 @@ test('tool page renders details and upvote button', async ({ page }) => {
 
 test('upvoting while logged out goes to the login page', async ({ page }) => {
   await page.goto('/tool/knecht-works');
-  await page.getByRole('button', { name: /^\d+ Upvote$/ }).click();
+  await page.getByRole('button', { name: /^Upvote \d+$/ }).click();
   await expect(page).toHaveURL(/\/login/);
   await expect(page.getByText('Continue with Google')).toBeVisible();
 });
@@ -76,7 +76,7 @@ test('clicking a card on /upcoming opens the preview with description and screen
   await heading.click();
   await expect(page).toHaveURL(new RegExp(`${href}$`));
   // The preview modal renders the tool's details from the list props (no page load).
-  await expect(page.getByRole('link', { name: /Live preview/i }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /Visit website/i }).first()).toBeVisible();
   // Description HTML and the screenshot gallery come from the list props.
   const description = await page.evaluate(() => document.querySelector('.prose, [class*="prose"]')?.textContent?.trim().length ?? 0);
   expect(description).toBeGreaterThan(20);
