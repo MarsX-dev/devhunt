@@ -10,7 +10,7 @@ export const toolExists = unstable_cache(
     return !!data;
   },
   ['route-tool-exists'],
-  { revalidate: 300 },
+  { revalidate: 60 }, // short: hiding or restoring a tool (website health) shows within a minute
 );
 
 export const profileExists = unstable_cache(
