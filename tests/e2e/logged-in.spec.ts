@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { expectNoHorizontalScroll, trackErrors } from './helpers';
 
 // Read-only checks with the saved session (see login.setup.ts). Nothing here creates or changes data.
@@ -120,11 +120,14 @@ test('"Start with your website" fills in the whole form (Firecrawl/JEV mocked)',
   expect(errors).toEqual([]);
 });
 
+// The navbar has two avatar buttons (phone and desktop layouts); only one is visible at a time.
+const openProfileMenu = async (page: Page) => page.locator('nav button:has(img)').filter({ visible: true }).first().click();
+
 test('makers who paid get "Download invoice" in the profile menu', async ({ page }) => {
   // Pretend the account has a paid tool (the test account has none).
   await page.route(/\/rest\/v1\/products\?select=id&owner_id=eq\.[^&]+&isPaid=eq\.true/, route => route.fulfill({ json: [{ id: 1 }] }));
   await page.goto('/the-story');
-  await page.locator('nav button:has(img)').last().click();
+  await openProfileMenu(page);
   const invoice = page.getByRole('link', { name: /Download invoice/ });
   await expect(invoice).toBeVisible();
   await expect(invoice).toHaveAttribute('href', 'https://zenvoice.io/p/65d6370232047df47b4c142b');
@@ -133,7 +136,7 @@ test('makers who paid get "Download invoice" in the profile menu', async ({ page
 
 test('people who never paid see no invoice link', async ({ page }) => {
   await page.goto('/the-story');
-  await page.locator('nav button:has(img)').last().click();
+  await openProfileMenu(page);
   await expect(page.getByRole('link', { name: 'My tools' }).first()).toBeVisible();
   await page.waitForTimeout(800);
   await expect(page.getByRole('link', { name: /Download invoice/ })).toHaveCount(0);
