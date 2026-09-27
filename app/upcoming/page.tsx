@@ -9,6 +9,7 @@ import { toToolRow } from '@/utils/toolRow';
 import { weekKey } from '@/utils/launchWeeks';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
+import ScrollToHash from '@/components/ui/ScrollToHash';
 
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
@@ -97,6 +98,7 @@ export default async function Home({ searchParams }: { searchParams: { weeks?: s
       </PageHeader>
 
       <div className="mt-10 mb-12">
+        <ScrollToHash />
         {launchWeeks.map((group, weekIdx) => (
           <Fragment key={group.startDate.toISOString()}>
             <div id={`week-${weekIdx + 1}`} className={`scroll-mt-24 ${weekIdx ? 'mt-14' : ''}`} data-week={weekKey(group.startDate)}>
