@@ -90,7 +90,7 @@ export default ({ productId, owner, small }: { productId: number; owner: Profile
 
   return (
     <Tooltip.Provider delayDuration={200}>
-      {/* One line until expanded (same height as the skeleton); the count text is desktop-only. */}
+      {/* One line until expanded (same height as the skeleton); the empty-state text is desktop-only. */}
       <div id="voters" className={`flex ${small ? 'min-h-6 text-xs' : 'min-h-8'} items-center gap-x-3 gap-y-2 ${expanded ? 'flex-wrap' : 'flex-nowrap'}`}>
         <ul className={expanded ? 'flex flex-wrap gap-1.5' : `flex flex-none ${small ? '-space-x-1.5' : '-space-x-2'}`}>
           {shown.map((person, idx) => (
@@ -107,9 +107,9 @@ export default ({ productId, owner, small }: { productId: number; owner: Profile
             +{hidden} more
           </button>
         )}
-        <span className={`hidden truncate text-slate-500 sm:inline ${small ? 'text-xs' : 'text-sm'}`}>
-          {voters.length > 0 ? `${voters.length} ${voters.length === 1 ? 'person' : 'people'} upvoted` : 'Be the first to upvote'}
-        </span>
+        {voters.length === 0 && (
+          <span className={`hidden truncate text-slate-500 sm:inline ${small ? 'text-xs' : 'text-sm'}`}>Be the first to upvote</span>
+        )}
       </div>
     </Tooltip.Provider>
   );
