@@ -34,7 +34,14 @@ export default async function Page({ searchParams }: { searchParams: { page?: st
       </PageHeader>
       <ol className="mt-10 mb-4">
         {rows.map((tool, idx) => (
-          <ToolRow key={tool.id} tool={tool} rank={(page - 1) * LIST_PAGE_SIZE + idx + 1} showDate revealIndex={idx} />
+          <ToolRow
+            key={tool.id}
+            tool={tool}
+            rank={(page - 1) * LIST_PAGE_SIZE + idx + 1}
+            rankDigits={String(page * LIST_PAGE_SIZE).length}
+            showDate
+            revealIndex={idx}
+          />
         ))}
       </ol>
       <ListPagination basePath="/all-dev-tools" page={page} totalPages={totalPages} />

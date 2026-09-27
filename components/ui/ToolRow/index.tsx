@@ -7,6 +7,7 @@ import { type ToolRowData } from '@/utils/toolRow';
 interface Props {
   tool: ToolRowData;
   rank?: number;
+  rankDigits?: number; // widest rank in the list, so every row's logo sits at the same x
   showDate?: boolean; // launch date on the right (desktop)
   revealIndex?: number;
 }
@@ -16,7 +17,7 @@ const isLive = (tool: ToolRowData, now = Date.now()) =>
 
 // One line per tool: [rank] logo · name · tagline · [date] · votes. Tools in their launch week get
 // a small upvote button; the rest show their final count. The whole row links to the tool page.
-export default function ToolRow({ tool, rank, showDate = false, revealIndex }: Props) {
+export default function ToolRow({ tool, rank, rankDigits = 2, showDate = false, revealIndex }: Props) {
   const live = isLive(tool);
   return (
     <li
@@ -25,7 +26,13 @@ export default function ToolRow({ tool, rank, showDate = false, revealIndex }: P
     >
       <div className="group relative -mx-2 flex items-center gap-x-3 rounded-lg px-2 py-2.5 duration-150 hover:bg-slate-800/50">
         {rank !== undefined && (
-          <span className={`w-7 flex-none text-right font-mono text-xs tabular-nums ${rank <= 3 ? 'text-orange-500' : 'text-slate-600'}`}>{rank}</span>
+          // Left-aligned and just as wide as the longest rank, so the digits start on the heading's edge.
+          <span
+            className={`flex-none text-left font-mono text-xs tabular-nums ${rank <= 3 ? 'text-orange-500' : 'text-slate-600'}`}
+            style={{ width: `${rankDigits}ch` }}
+          >
+            {rank}
+          </span>
         )}
         <img
           src={(tool.logo_url || '').replace(/w=\d+/g, 'w=64')}

@@ -1,8 +1,8 @@
 'use client';
 
-import { IconLoading } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import Page404 from '@/components/ui/Page404/Page404';
+import { FormPageSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { useParams } from 'next/navigation';
@@ -26,9 +26,7 @@ export default ({ children }: { children: ReactNode }) => {
 
   return isLoad
     ? (
-    <div className="min-h-screen">
-      <IconLoading className="w-7 h-7 text-orange-500 mx-auto mt-16" />
-    </div>
+    <FormPageSkeleton />
       )
     : isTool
       ? (

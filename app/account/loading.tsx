@@ -1,5 +1,5 @@
-import { ListPageSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
+import AccountLoading from '@/components/ui/Skeletons/AccountLoading';
 
 export default function Loading() {
-  return <ListPageSkeleton />;
+  return <AccountLoading />;
 }

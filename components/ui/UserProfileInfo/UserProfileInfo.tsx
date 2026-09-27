@@ -72,7 +72,7 @@ export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) 
       {items.length > 0 && (
         <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-4">
           {items.map(item => (
-            <div key={item.label} className="bg-slate-900 px-4 py-3.5 sm:px-5">
+            <div key={item.label} className="bg-slate-900 px-4 py-3.5">
               <dd className="text-xl font-semibold tracking-tight text-slate-50 tabular-nums">{formatStat(item.value)}</dd>
               <dt className="mt-0.5 text-xs text-slate-500">{item.label}</dt>
             </div>

@@ -51,7 +51,14 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
       <MonitizorAdCards />
       <ol className="mt-10 mb-4">
         {rows.map((tool, idx) => (
-          <ToolRow key={tool.id} tool={tool} rank={(page - 1) * LIST_PAGE_SIZE + idx + 1} showDate revealIndex={idx} />
+          <ToolRow
+            key={tool.id}
+            tool={tool}
+            rank={(page - 1) * LIST_PAGE_SIZE + idx + 1}
+            rankDigits={String(page * LIST_PAGE_SIZE).length}
+            showDate
+            revealIndex={idx}
+          />
         ))}
       </ol>
       <ListPagination basePath={`/tools/${slug}`} page={page} totalPages={totalPages} />

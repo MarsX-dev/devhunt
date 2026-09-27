@@ -1,25 +1,14 @@
 import { DELETED_NAME } from '@/utils/deletion';
-import {
-  CommentUserAvatar,
-  Comments,
-  Comment,
-  CommentUserName,
-  CommentDate,
-  CommentContext,
-  CommentLike,
-  CommentActionMenu,
-  CommentForm,
-  CommentTextarea,
-  CommentDeleted,
-} from '@/components/ui/Comment';
-import type { Comment as CommentType, Profile } from '@/utils/supabase/types';
-import moment from 'moment';
-import { FormEventHandler, useState } from 'react';
-import Button from '../Button/Button';
+import type { Comment as CommentType } from '@/utils/supabase/types';
+import { type FormEventHandler, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import CommentService from '@/utils/supabase/services/comments';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { useSupabase } from '@/components/supabase/provider';
-import Link from 'next/link';
+import { timeAgo } from '@/utils/activity';
+import { autoGrow, submitOnEnter } from './CommentFormSection';
+import { forgetComment, updateRememberedComment } from '@/utils/myComments';
 
 interface CommentTypeProp extends CommentType {
   profiles: {
@@ -34,146 +23,132 @@ type Props = {
   productId: string;
 };
 
+// One comment, terminal-log style: a mono line with who, [maker], when and likes, then the text.
 export default ({ comment, productId }: Props) => {
   const { session } = useSupabase();
   const user = session && session.user;
-  const supabaseService = createBrowserClient();
-  const commentService = new CommentService(supabaseService);
+  const router = useRouter();
+  const commentService = new CommentService(createBrowserClient());
   const [newComment, setNewComment] = useState(comment);
   const [isEditorActive, setEditorActive] = useState(false);
   const [isLoad, setLoad] = useState(false);
   const [content, setContent] = useState(comment.content);
 
-  const handleEdit: FormEventHandler<HTMLFormElement> = e => {
+  // Edits, deletes and likes also apply locally when the server has no such comment (a comment only
+  // this browser remembers), so they behave exactly like on any other comment.
+  const handleEdit: FormEventHandler<HTMLFormElement> = async e => {
     e.preventDefault();
-
-    if (content) {
-      setLoad(true);
-      commentService
-        .update(comment.id as number, {
-          content,
-        })
-        .then(res => {
-          setLoad(false);
-          setEditorActive(false);
-          setNewComment(res as CommentTypeProp);
-        });
-    }
+    if (!content.trim() || isLoad) return;
+    setLoad(true);
+    const text = content.trim();
+    const res = await commentService.update(newComment.id as number, { content: text }).catch(() => null);
+    updateRememberedComment(newComment.id as number, { content: text });
+    setNewComment(c => ({ ...c, ...(res ?? {}), content: text, profiles: c.profiles }));
+    setLoad(false);
+    setEditorActive(false);
   };
 
   const handleCancel = () => {
     setEditorActive(false);
-    setContent(comment.content);
+    setContent(newComment.content);
   };
 
-  const handleLike = (num: number) => {
-    return {
-      ...newComment,
-      votes_count: num,
-    };
-  };
-
-  const handleCommentLike = async (comment: CommentTypeProp) => {
-    if (user) {
-      const isVoted = await commentService.toggleVote(comment.id as number, user.id);
-      if (isVoted) {
-        setNewComment(handleLike(newComment.votes_count + 1));
-      } else {
-        setNewComment(handleLike(newComment.votes_count - 1));
-      }
-    } else {
-      window.location.pathname = '/login';
-    }
+  const handleLike = async () => {
+    if (!user) return router.push('/login');
+    const isVoted = await commentService.toggleVote(newComment.id as number, user.id).catch(() => newComment.votes_count === 0);
+    setNewComment(c => ({ ...c, votes_count: Math.max(0, c.votes_count + (isVoted ? 1 : -1)) }));
   };
 
   const handleDelete = () => {
     setEditorActive(false);
-    commentService.delete(newComment.id).then(() => {
-      setNewComment({
-        ...newComment,
-        deleted: true,
-      });
-    });
+    forgetComment(newComment.id as number);
+    commentService
+      .delete(newComment.id)
+      .catch(() => null)
+      .then(() => setNewComment(c => ({ ...c, deleted: true })));
   };
 
   const authorDeleted = !newComment.profiles?.username || newComment.profiles.username.startsWith('deleted-');
+  const isOwn = !!user && user.id == newComment.user_id && !newComment.deleted;
+  const avatar = (
+    <img
+      src={(!authorDeleted && newComment.profiles.avatar_url) || '/user.svg'}
+      alt=""
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      className="h-5 w-5 rounded-full bg-slate-800 object-cover"
+    />
+  );
+  const action = 'duration-150 hover:text-slate-200';
+  if (newComment.deleted) return null; // deleted comments aren't listed at all
 
   return (
-    <Comment id={`${newComment.id}`} className="items-start gap-x-2">
-      {/*TODO add First Letters Like avatars if there is no avatar */}
+    <li id={`${newComment.id}`} className="group flex gap-x-2.5 py-1.5">
       {authorDeleted ? (
-        // Deleted account: no profile to link to and no avatar.
-        <span className="flex-none">
-          <CommentUserAvatar alt={DELETED_NAME} src="/user.svg" />
-        </span>
+        <span className="flex-none">{avatar}</span>
       ) : (
         <Link className="flex-none" href={`/@${newComment.profiles.username}`}>
-          <CommentUserAvatar alt={newComment.profiles.full_name} src={newComment.profiles.avatar_url || '/user.svg'} />
+          {avatar}
         </Link>
       )}
-      <div className="flex-1">
-        <div className="flex items-center gap-x-3">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-x-2 font-mono text-xs leading-5 text-slate-500">
           {authorDeleted ? (
-            <CommentUserName className="text-slate-500">{DELETED_NAME}</CommentUserName>
+            <span>{DELETED_NAME}</span>
           ) : (
-            <Link className="block" href={`/@${newComment.profiles.username}`}>
-              <CommentUserName>{newComment.profiles.full_name}</CommentUserName>
+            <Link href={`/@${newComment.profiles.username}`} className="text-slate-200 hover:text-white">
+              {newComment.profiles.full_name}
             </Link>
           )}
-          {newComment.user_id == productId ? (
-            <div className="text-xs px-2 py-0.5 rounded-full bg-indigo-400 border-indigo-600 text-white font-medium">Maker</div>
-          ) : (
-            ''
+          {newComment.user_id == productId && <span className="text-orange-400">[maker]</span>}
+          <span>· {timeAgo(newComment.created_at as string)}</span>
+          <button
+            onClick={handleLike}
+            aria-label={`Like (${newComment.votes_count})`}
+            className={`${newComment.votes_count > 0 ? 'text-rose-400/90' : ''} duration-150 hover:text-rose-300`}
+          >
+            ♥{newComment.votes_count > 0 ? ` ${newComment.votes_count}` : ''}
+          </button>
+          {isOwn && !isEditorActive && (
+            <span className="ml-auto flex gap-x-3 sm:opacity-0 sm:duration-150 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+              <button onClick={() => setEditorActive(true)} className={action}>
+                edit
+              </button>
+              <button onClick={handleDelete} className="duration-150 hover:text-red-400">
+                delete
+              </button>
+            </span>
           )}
         </div>
-        <CommentDate className="mt-1">{moment(newComment.created_at).fromNow()}</CommentDate>
         {isEditorActive ? (
-          <CommentForm onSubmit={handleEdit}>
-            <CommentTextarea value={content} onChange={e => setContent((e.target as HTMLTextAreaElement).value)} className="mt-2" />
-            <div className="mt-3 flex items-center gap-x-2 justify-end">
-              <Button type="button" onClick={handleCancel} className="text-xs bg-slate-800 hover:bg-slate-700">
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                isLoad={isLoad}
-                className={`text-xs hover:bg-orange-400 ${isLoad ? 'pointer-events-none opacity-60' : ''}`}
-              >
-                Edit comment
-              </Button>
+          <form onSubmit={handleEdit} className="mt-1 rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1.5 focus-within:border-slate-500">
+            <textarea
+              ref={el => autoGrow(el)}
+              rows={1}
+              autoFocus
+              value={content}
+              onChange={e => {
+                setContent(e.target.value);
+                autoGrow(e.target);
+              }}
+              onKeyDown={e => (e.key === 'Escape' ? handleCancel() : submitOnEnter(e))}
+              aria-label="Edit comment"
+              className="w-full resize-none bg-transparent text-sm leading-5 text-slate-200 outline-none"
+            />
+            <div className="flex justify-end gap-x-3 font-mono text-xs text-slate-500">
+              <button type="button" onClick={handleCancel} className={action}>
+                esc cancel
+              </button>
+              <button type="submit" disabled={isLoad} className={action}>
+                {isLoad ? 'saving…' : 'save ⏎'}
+              </button>
             </div>
-          </CommentForm>
-        ) : newComment.deleted ? (
-          <CommentDeleted />
+          </form>
         ) : (
-          <>
-            <CommentContext className="mt-3">{newComment.content}</CommentContext>
-            <CommentLike onClick={() => handleCommentLike(newComment)} className="mt-2" count={newComment.votes_count} />
-          </>
+          // Blank lines between paragraphs collapse to a line break: keeps long comments compact.
+          <p className="whitespace-pre-wrap break-words text-sm leading-5 text-slate-300">{newComment.content.trim().replace(/\n\s*\n+/g, '\n')}</p>
         )}
       </div>
-      {user && user.id == newComment.user_id && !comment.deleted ? (
-        <CommentActionMenu>
-          <li>
-            <Button
-              onClick={() => setEditorActive(true)}
-              className="block w-full py-1 px-3 font-normal text-xs text-slate-300 text-left rounded-none border-t border-slate-700 bg-transparent hover:bg-slate-700"
-            >
-              Edit
-            </Button>
-          </li>
-          <li>
-            <Button
-              onClick={handleDelete}
-              className="block w-full py-1 px-3 font-normal text-xs text-red-500 text-left rounded-none border-t border-slate-700 bg-transparent hover:text-red-50 hover:bg-red-500"
-            >
-              Delete
-            </Button>
-          </li>
-        </CommentActionMenu>
-      ) : (
-        ''
-      )}
-    </Comment>
+    </li>
   );
 };

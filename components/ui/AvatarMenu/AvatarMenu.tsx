@@ -5,6 +5,7 @@ import { Session } from '@supabase/supabase-js';
 import Avatar from '../Avatar/Avatar';
 import { useRouter } from 'next/navigation';
 import { useSupabase } from '@/components/supabase/provider';
+import { prefetchRoute } from '@/utils/prefetch';
 
 type Props = {
   onLogout?: () => void;
@@ -35,8 +36,9 @@ export default ({ onLogout, session }: Props) => {
       .limit(1)
       .then(({ data }) => setHasPaid(!!data?.length));
   }, [state, hasPaid, session?.user.id]);
-  // The menu's links are hidden until it opens, so Next never prefetched them: do it on hover/focus.
-  const prefetchMenu = () => navigation.forEach(item => item.path && router.prefetch(item.path));
+  // The menu's links are hidden until it opens, so Next never prefetched them: do it on hover/focus,
+  // and on open for touch screens (no hover).
+  const prefetchMenu = () => navigation.forEach(item => item.path && prefetchRoute(router, item.path));
 
   const navigation = [
     { title: 'Profile', path: isLoggin && user ? `/@${user.username}` : '' },
@@ -56,7 +58,10 @@ export default ({ onLogout, session }: Props) => {
       <button
         ref={profileRef}
         className=" outline-none rounded-full ring-offset-2 ring-slate-700 lg:focus:ring-2"
-        onClick={() => setState(!state)}
+        onClick={() => {
+          if (!state) prefetchMenu();
+          setState(!state);
+        }}
         onMouseEnter={prefetchMenu}
         onFocus={prefetchMenu}
       >

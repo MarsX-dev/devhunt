@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { IconSearch } from '@/components/Icons';
 import BlurBackground from '../BlurBackground/BlurBackground';
 import SearchItem, { type SearchResult } from './SearchItem';
 import EmptyState from './EmptyState';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import { prefetchRoute } from '@/utils/prefetch';
 
 const DEBOUNCE_MS = 120;
 
@@ -25,6 +26,7 @@ export default function CommandPalette({ isCommandActive, setCommandActive = () 
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState(0);
   const latest = useRef(0);
+  const pathname = usePathname();
 
   const close = () => {
     setCommandActive(false);
@@ -47,6 +49,8 @@ export default function CommandPalette({ isCommandActive, setCommandActive = () 
       .then(({ data }) => setTrending((data ?? []) as SearchResult[]));
   }, [isCommandActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => close(), [pathname]); // eslint-disable-line react-hooks/exhaustive-deps -- any link inside navigates away
+
   useEffect(() => {
     const term = query.trim();
     setSelected(0);
@@ -67,6 +71,12 @@ export default function CommandPalette({ isCommandActive, setCommandActive = () 
   }, [query]);
 
   const list = query.trim() ? results : trending;
+
+  // Enter opens the highlighted result: keep it prefetched so its skeleton shows instantly.
+  const selectedSlug = list[selected]?.slug;
+  useEffect(() => {
+    if (selectedSlug) prefetchRoute(router, `/tool/${selectedSlug}`);
+  }, [selectedSlug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') close();
@@ -105,7 +115,7 @@ export default function CommandPalette({ isCommandActive, setCommandActive = () 
         <div className="max-h-[360px] overflow-auto p-2">
           {!query.trim() && <p className="px-3 pb-1 pt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">Leading this week</p>}
           {query.trim() && !searching && results.length === 0 ? (
-            <EmptyState />
+            <EmptyState onNavigate={close} />
           ) : (
             <ul>
               {list.map((item, idx) => (

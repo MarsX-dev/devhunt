@@ -8,6 +8,7 @@ import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import SectionLabel from '@/components/ui/SectionLabel';
 import PageHeader from '@/components/ui/PageHeader';
+import { ListPageSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 
 type Status = 'pending' | 'approved' | 'hidden';
 interface Item {
@@ -104,7 +105,7 @@ export default function ToolHighlights({ params: { id } }: { params: { id: strin
   };
 
   if (state === 'error') return <p className="container-custom-screen mt-20 text-slate-400">Tool not found.</p>;
-  if (!tool) return null;
+  if (!tool) return <ListPageSkeleton />;
 
   const pending = items.filter(i => i.status === 'pending');
 

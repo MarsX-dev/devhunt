@@ -95,8 +95,8 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
 
   // Profile tabs arrive after the rest loads, so they go last (nothing shifts when they appear).
   const tabs = [
-    { name: 'About', sectionId: 'about' },
     { name: 'Comments', sectionId: 'comments' },
+    { name: 'About', sectionId: 'description' },
     { name: 'Maker', sectionId: 'details' },
     { name: 'Trending', sectionId: 'launches' },
     ...(profile?.data.features.length ? [{ name: 'Features', sectionId: 'features' }] : []),
@@ -143,10 +143,17 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
           </TabLink>
         ))}
       </Tabs>
-      <div className="space-y-16" key={`body-${t.id}`}>
+      <div className="mt-10 space-y-16" key={`body-${t.id}`}>
         {profile === null && <RequestProfile productId={t.id} />}
-        <div className="pb-4">
-          <div className="container-custom-screen mt-10">
+        {/* Comments first (visitors read them most); while loading, placeholders keep their height. */}
+        <CommentSection
+          productId={t?.owner_id as string}
+          comments={(comments ?? []) as any}
+          slug={t?.slug}
+          loadingCount={comments ? undefined : t.comments_count ?? 0}
+        />
+        <div id="description" className="scroll-mt-32 pb-4">
+          <div className="container-custom-screen">
             <div className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: t?.description as string }}></div>
             {t?.product_categories?.length ? (
               <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -202,12 +209,6 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
             <ToolMentions extras={extras} />
           </div>
         )}
-        <CommentSection
-          productId={t?.owner_id as string}
-          comments={(comments ?? []) as any}
-          slug={t?.slug}
-          loadingCount={comments ? undefined : t.comments_count ?? 0}
-        />
         <div className="container-custom-screen">
           <ToolMaker tool={t} owner={owner} />
         </div>

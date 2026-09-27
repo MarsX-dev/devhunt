@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // `next dev` builds into its own folder (NEXT_DIST_DIR=.next-dev, see .claude/launch.json) so it can
+  // run next to `next start` without overwriting the production build in .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   eslint: {
     ignoreDuringBuilds: true,
   },

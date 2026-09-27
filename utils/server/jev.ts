@@ -67,3 +67,28 @@ export async function scoreDevTool(tool: { name: string; slogan?: string | null;
   const score = Number(answers?.dev_tool?.noul);
   return Number.isFinite(score) ? score : null;
 }
+
+// Comment spam (calibrated on the 2026-09-28 cleanup: known spam vs live comments).
+const COMMENT_QUESTION = {
+  type: 'choice',
+  instructions:
+    'A comment posted under a developer tool launched on DevHunt (a Product Hunt for dev tools). Classify the comment. Most comments are genuine; only pick spam or scam when the comment clearly is one.',
+  criteria: {
+    genuine:
+      'A real reaction to this tool: praise, congratulations, questions, feedback, criticism, bug reports, warnings, a maker replying, or someone mentioning their own related project in context. Short or low-effort comments are still genuine.',
+    spam: 'Unsolicited promotion or solicitation not about this tool: ads for other products or sites, link drops with no real comment, selling services (SEO, backlinks, domains, copywriting, development), "contact me on WhatsApp/Telegram/email for feedback" pitches, templated copy-paste text, asking people to upvote something else.',
+    scam: 'Scams or illegal offers: fake documents or money, stolen accounts, crypto or investment schemes, phishing.',
+  },
+};
+
+// Spam + scam probability of a comment (null if JEV is off or slow: comments are never held up by it).
+export async function moderateComment(input: { toolName: string; toolSlogan?: string | null; content: string }) {
+  const state = [`Tool: ${input.toolName} - ${input.toolSlogan ?? ''}`, "Commenter is the tool's maker: no", `Comment: ${input.content.slice(0, 1500)}`].join('\n');
+  const answers = await jevAsk(state, { comment: COMMENT_QUESTION }, 5000);
+  const p = answers?.comment?.probabilities;
+  const spamProbability = p ? Number(p.spam ?? 0) + Number(p.scam ?? 0) : NaN;
+  return {
+    choice: typeof answers?.comment?.choice === 'string' ? (answers.comment.choice as string) : null,
+    spamProbability: Number.isFinite(spamProbability) ? spamProbability : null,
+  };
+}

@@ -1,4 +1,5 @@
 import Navbar from '@/components/ui/Navbar';
+import InstantNav from '@/components/ui/InstantNav';
 import './globals.css';
 import './prismjs-theme.css';
 import { Inter, JetBrains_Mono } from 'next/font/google';
@@ -87,6 +88,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ProfileFormModal />
             <Banner />
             <Navbar />
+            <Suspense fallback={null}>
+              <InstantNav />
+            </Suspense>
             {/* It reads useSearchParams: without a Suspense boundary, every static page (home, the-story, ...)
                 skipped server rendering entirely and was built in the browser (empty HTML for search engines). */}
             <Suspense fallback={null}>

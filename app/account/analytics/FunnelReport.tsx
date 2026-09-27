@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import moment from 'moment';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { FUNNEL_STEPS, MAIN_PATH } from '@/utils/funnel';
@@ -117,9 +118,9 @@ export default async function FunnelReport({ days }: { days: number }) {
                     {j.tool && (
                       <>
                         {' · '}
-                        <a href={`/tool/${j.tool_slug}`} className="text-slate-200 underline decoration-slate-700 underline-offset-2">
+                        <Link href={`/tool/${j.tool_slug}`} className="text-slate-200 underline decoration-slate-700 underline-offset-2">
                           {j.tool}
-                        </a>
+                        </Link>
                       </>
                     )}
                     {!j.tool && j.url && <span className="text-slate-500"> · {j.url}</span>}

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
@@ -83,9 +84,9 @@ const People = () => {
         .slice(0, 8)
         .map(person => (
           <li key={person.href} className="flex-none hover:z-10 hover:-translate-y-0.5 duration-150">
-            <a href={person.href} title={person.name}>
+            <Link href={person.href} title={person.name}>
               <img className="w-8 h-8 rounded-full object-cover ring-2 ring-slate-900" alt={person.name} src={person.image} />
-            </a>
+            </Link>
           </li>
         ))}
     </ul>

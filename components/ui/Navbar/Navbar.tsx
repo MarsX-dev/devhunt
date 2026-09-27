@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { type MouseEvent, useEffect, useState } from 'react';
 import Brand from '../Brand';
 import Link from 'next/link';
 import { trackStep } from '@/utils/funnelClient';
@@ -17,6 +17,7 @@ import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import NewsletterInbox from '../Newsletter/NewsletterInbox';
 import { LayoutGrid, Search } from 'lucide-react';
 import useOnclickOutside from 'react-cool-onclickoutside';
+import { prefetchRoute } from '@/utils/prefetch';
 
 export default () => {
   const [isActive, setActive] = useState(false);
@@ -48,7 +49,7 @@ export default () => {
   useEffect(() => {
     const paths = isLoggedin ? ['/account/tools', '/account/tools/new', '/account/details'] : ['/login'];
     const idle = (window as any).requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1500));
-    idle(() => paths.forEach(path => router.prefetch(path)));
+    idle(() => paths.forEach(path => prefetchRoute(router, path)));
   }, [isLoggedin]);
 
   const handleLogout = async () => {
@@ -74,6 +75,15 @@ export default () => {
     { title: 'Best DevTools On Product Hunt', path: '/best-dev-tools-this-week-on-product-hunt' },
   ];
 
+  // Picking a link closes the menus right away, not when the new page arrives: until then they'd sit
+  // under the loading skeleton and show up again once the page renders.
+  const closeMenusOnLink = (e: MouseEvent) => {
+    if (!(e.target as Element).closest('a')) return;
+    setActive(false);
+    setNavMenuActive(false);
+  };
+  const prefetchSubmenu = () => submenu.forEach(item => prefetchRoute(router, item.path));
+
   // ⌘K / Ctrl+K or "/" opens search (not while typing in a field).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -89,6 +99,7 @@ export default () => {
 
   useEffect(() => {
     setActive(false);
+    setNavMenuActive(false);
   }, [pathname]);
 
   return (
@@ -109,7 +120,7 @@ export default () => {
               </div>
             </div>
           </div>
-          <div className={`flex-1 lg:static  ${isActive ? 'w-full fixed top-14 inset-x-0 px-4 lg:px-0' : 'hidden lg:block'}`}>
+          <div onClick={closeMenusOnLink} className={`flex-1 lg:static  ${isActive ? 'w-full fixed top-14 inset-x-0 px-4 lg:px-0' : 'hidden lg:block'}`}>
             <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg lg:block lg:mt-0 lg:p-0 lg:bg-transparent">
               <ul className="justify-end items-center space-y-6 text-slate-400 lg:flex lg:space-x-4 lg:space-y-0">
                 {!isLoggedin ? (
@@ -132,8 +143,11 @@ export default () => {
                 <li>
                   <div ref={NavMenuRef} className="relative">
                     <button
-                      onClick={() => setNavMenuActive(!isNavMenuActive)}
-                      onMouseEnter={() => submenu.forEach(item => router.prefetch(item.path))}
+                      onClick={() => {
+                        if (!isNavMenuActive) prefetchSubmenu();
+                        setNavMenuActive(!isNavMenuActive);
+                      }}
+                      onMouseEnter={prefetchSubmenu}
                       aria-label="Browse tools"
                       aria-expanded={isNavMenuActive}
                       title="Browse tools"

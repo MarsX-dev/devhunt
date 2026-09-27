@@ -49,9 +49,9 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       {post.category
         ? (
         <div className="flex flex-wrap items-center gap-2 mb-1 w-full text-sm">
-          <a className="text-orange-500 hover:text-orange-400 duration-200" href="/">
+          <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/">
             Home
-          </a>
+          </Link>
           <ChevronRightIcon className="w-4 h-4 text-slate-500" />
           <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/blog/">
             Blog
@@ -101,9 +101,9 @@ export default async function Article({ params: { slug } }: { params: { slug: st
           <ul className="text-base">
             {post.relatedPosts.map((p: any, ix: number) => (
               <li key={ix}>
-                <a className="duration-200" href={`/blog/${p.slug}`}>
+                <Link className="duration-200" href={`/blog/${p.slug}`}>
                   {p.headline}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

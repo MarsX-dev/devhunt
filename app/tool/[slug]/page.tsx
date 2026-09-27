@@ -16,7 +16,7 @@ import { notFound } from 'next/navigation';
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), {
   ssr: false,
-  loading: () => <RowsSkeleton rows={8} className="mt-2" />,
+  loading: () => <RowsSkeleton rows={8} className="mt-2" ranked />,
 });
 import { Profile } from '@/utils/supabase/types';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
@@ -87,10 +87,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
   const tabs = [
-    { name: 'About', hash: '#' },
+    // Comments come first on the page (visitors read them most), right under the tabs.
+    { name: 'Comments', hash: '#comments', isActive: true },
+    { name: 'About', hash: '#description' },
     ...(profile?.data.features.length && sectionShown(profile.data, 'features') ? [{ name: 'Features', hash: '#features' }] : []),
     ...(profile?.compare.length && sectionShown(profile.data, 'compare') ? [{ name: 'Alternatives', hash: '#compare' }] : []),
-    { name: 'Comments', hash: '#comments' },
     { name: 'Maker', hash: '#details' },
     { name: 'Trending', hash: '#launches' },
   ];
@@ -129,14 +130,15 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       </div>
       <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-12 z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map((item, idx) => (
-          <TabLink hash={item.hash} key={idx}>
+          <TabLink hash={item.hash} isActive={item.isActive} key={idx}>
             {item.name}
           </TabLink>
         ))}
       </Tabs>
-      <div className="space-y-16">
-        <div className="pb-4">
-          <div className="container-custom-screen mt-10">
+      <div className="mt-10 space-y-16">
+        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
+        <div id="description" className="scroll-mt-32 pb-4">
+          <div className="container-custom-screen">
             <div
               className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
               // Use DOMPurify method for XSS sanitizeration
@@ -189,7 +191,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <ToolMentions extras={extras} />
           </div>
         )}
-        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         <div className="container-custom-screen">
           <ToolMaker tool={product as ProductType} owner={owned as Profile} />
         </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useSupabase } from '@/components/supabase/provider';
 import Brand from '@/components/ui/Brand';
 import { useEffect, useState } from 'react';
@@ -52,7 +53,7 @@ export default () => {
             <Brand w="180" h="50" className="mx-auto" />
             <h1 className="text-slate-50 text-2xl font-semibold">Log in to your account</h1>
             <p className="text-slate-300 whitespace-pre-wrap mb-2">We use GitHub, and Google provider to filter out bots and fakes.</p>
-            <p className="text-slate-300 whitespace-pre-wrap"><a className="text-orange-500 whitespace-pre-wrap" href="/the-story">Read the Rules </a>for voting and what dev tools you can submit here</p>
+            <p className="text-slate-300 whitespace-pre-wrap"><Link className="text-orange-500 whitespace-pre-wrap" href="/the-story">Read the Rules </Link>for voting and what dev tools you can submit here</p>
           </div>
           {deleted && (
             <p role="alert" className="mx-auto mt-6 max-w-md rounded-xl border border-red-500/40 bg-red-500/[0.07] px-4 py-3 text-sm text-red-200">

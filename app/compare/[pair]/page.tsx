@@ -1,29 +1,20 @@
 import { type Metadata } from 'next';
 import Link from 'next/link';
 import moment from 'moment';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Check } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { cleanName } from '@/components/ui/ToolProfile';
-import { getComparison, type Comparison, type CompareProduct } from '@/utils/compareData';
-import { comparePath, isCanonicalPair, pairCandidates } from '@/utils/compare';
+import { type Comparison, type CompareProduct } from '@/utils/compareData';
+import { comparePath } from '@/utils/compare';
+import { resolve } from './resolve';
 import { sectionShown } from '@/utils/toolProfile';
 import { type ToolProfileView } from '@/utils/toolProfileData';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 
 type Params = { params: { pair: string } };
 
-async function resolve(pair: string): Promise<Comparison | null> {
-  for (const [a, b] of pairCandidates(pair)) {
-    const comparison = await getComparison(...([a, b].sort() as [string, string]));
-    if (comparison) {
-      if (!isCanonicalPair(a, b)) redirect(comparePath(a, b));
-      return comparison;
-    }
-  }
-  return null;
-}
 
 export async function generateMetadata({ params: { pair } }: Params): Promise<Metadata> {
   const c = await resolve(pair);
@@ -74,7 +65,7 @@ export default async function ComparePage({ params: { pair } }: Params) {
   const rows = allRows.filter(row => tools.some(({ tool, profile }) => row.value(tool, profile) !== '—'));
 
   return (
-    <section className="container-custom-screen mt-10 mb-20 max-w-4xl">
+    <section className="container-custom-screen mt-10 mb-20">
       {tools.filter(t => !t.profile).map(t => (
         <RequestProfile key={t.tool.id} productId={t.tool.id} />
       ))}

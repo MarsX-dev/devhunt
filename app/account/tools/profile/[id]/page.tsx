@@ -9,6 +9,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProfileSection, type ToolProfileData } from '@/utils/toolProfile';
+import { FormPageSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 
 const input =
   'w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none duration-150 placeholder:text-slate-600 focus:border-slate-500';
@@ -115,7 +116,7 @@ export default function EditToolProfile({ params: { id } }: { params: { id: stri
     }
   };
 
-  if (state === 'loading') return <p className="mt-24 text-center text-sm text-slate-500">Loading…</p>;
+  if (state === 'loading') return <FormPageSkeleton className="container-custom-screen max-w-2xl" />;
   if (state === 'error' || state === 'missing' || !data || !tool) {
     return (
       <section className="container-custom-screen mt-14 max-w-2xl">

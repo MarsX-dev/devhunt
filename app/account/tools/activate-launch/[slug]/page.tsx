@@ -13,6 +13,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { weekKey } from '@/utils/launchWeeks';
 import mergeTW from '@/utils/mergeTW';
+import { prefetchRoute } from '@/utils/prefetch';
 
 type Tool = {
   id: number;
@@ -125,9 +126,11 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
     }
   };
 
+  const keepFreePath = isNew ? `/tool/${slug}?banner=true` : '/account/tools';
+  useEffect(() => prefetchRoute(router, keepFreePath), [keepFreePath]); // eslint-disable-line react-hooks/exhaustive-deps
   const keepFree = () => {
     if (tool) trackStep('free_chosen', { free_date: tool.launch_start }, tool.id);
-    router.push(isNew ? `/tool/${slug}?banner=true` : '/account/tools');
+    router.push(keepFreePath);
   };
 
   const freeDate = tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;

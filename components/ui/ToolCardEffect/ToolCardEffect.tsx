@@ -21,13 +21,14 @@ import FloatingUpvotes from './FloatingUpvotes';
 interface Props {
   tool: ProductType;
   rank?: number;
-  compact?: boolean; // slimmer row (home page: below the top 3)
+  compact?: boolean; // one-line row without the meta line (home page: below the top 3)
   votesToday?: number; // real votes in the last 24 hours: badge + floating upvotes
   latestComment?: LatestComment; // shown as an arriving comment once the card is on screen
   revealIndex?: number; // position in the list, for the one-by-one reveal
 }
 
-// Full card for the top 3 of the week (and everywhere else); `compact` is a slimmer row for the rest.
+// A row of this week's list. Every row has the same columns; the top 3 are just taller (tagline and
+// meta on their own lines), `compact` rows fit on one line.
 export default ({ tool, rank, compact = false, votesToday = 0, latestComment, revealIndex }: Props) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true });
@@ -56,21 +57,37 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   return (
     <li
       ref={cardRef}
-      className={`${compact ? 'py-0' : 'py-1'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
+      className={`py-1 ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
       style={reveal}
     >
-      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-1.5' : 'py-3'} votesToday={votesToday}>
-        {/* Same columns in both sizes (rank 24px, logo 56px, text, votes 56px) so the whole list lines up. */}
+      <ToolCard
+        tool={tool}
+        href={'/tool/' + tool.slug}
+        className={compact ? 'py-1.5' : 'py-3'}
+        votesToday={votesToday}
+        below={
+          latestComment && (
+            // Inside the card so its hover background covers it too. Indented to start exactly under
+            // the tool name: [rank 20px + gap 4px] + logo 40px + gap 16px.
+            <div className={`${compact ? '-mt-1 pb-2' : '-mt-1.5 pb-3'} pl-[56px] ${rank ? 'sm:pl-[80px]' : ''}`}>
+              <ArrivingComment comment={latestComment} active={isInView} />
+            </div>
+          )
+        }
+      >
+        {/* Same columns in every row (rank 20px + 4px gap, logo 40px, text, votes 56px) so the whole list lines up. */}
         <div className="flex w-full min-w-0 items-center gap-x-4">
           {rank && (
             <span
-              className={`hidden sm:block w-6 flex-none text-right font-mono text-sm tabular-nums ${rank <= 3 ? 'text-orange-500' : 'text-slate-600'}`}
+              className={`hidden sm:block -mr-3 w-5 flex-none text-left font-mono text-sm tabular-nums ${
+                rank <= 3 ? 'text-orange-500' : 'text-slate-600'
+              }`}
             >
               {rank}
             </span>
           )}
-          <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="flex w-14 flex-none justify-center">
-            <Logo src={tool.logo_url || ''} alt={tool.name} imgClassName={compact ? 'w-8 h-8 rounded-lg' : ''} />
+          <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="flex-none">
+            <Logo src={tool.logo_url || ''} alt={tool.name} imgClassName="h-10 w-10 rounded-lg" />
           </Link>
           <div className="w-full min-w-0 space-y-1">
             {compact ? (
@@ -105,19 +122,13 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
             productId={tool?.id}
             launchDate={tool.launch_date}
             launchEnd={tool.launch_end as string}
-            variant={compact ? 'inline' : 'stack'}
-            className={compact ? 'w-14 justify-center' : ''}
+            variant="inline"
+            className="w-14 justify-center"
             pending={pendingVote ? 1 : 0}
           />
           <FloatingUpvotes votesToday={votesToday} active={isInView} onBurst={() => setPendingVote(false)} />
         </div>
       </ToolCard>
-      {latestComment && (
-        // Indented to start exactly under the tool name: [rank 24px + gap 16px] + logo 56px + gap 16px.
-        <div className={`${compact ? '-mt-1 pb-1.5' : '-mt-1.5 pb-2'} pl-[72px] ${rank ? 'sm:pl-[112px]' : ''}`}>
-          <ArrivingComment comment={latestComment} active={isInView} />
-        </div>
-      )}
     </li>
   );
 };
