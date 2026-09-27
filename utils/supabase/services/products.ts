@@ -315,7 +315,7 @@ export default class ProductsService extends BaseDbService {
 
     return cache.get(key, async () => {
       return this._getOne('id', id);
-    });
+    }, undefined, (p: any) => !p || p.site_status === 'ok');
   }
 
   async getBySlug(slug: string, trackViews = false): Promise<ExtendedProduct | null> {
@@ -325,7 +325,7 @@ export default class ProductsService extends BaseDbService {
       const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('slug', slug).maybeSingle();
 
       return data;
-    });
+    }, undefined, (p: any) => !p || p.site_status === 'ok'); // hidden tools are owner-only: never shared via the cache
 
     if (trackViews && product && !product.deleted) {
       this.viewed(product.id);

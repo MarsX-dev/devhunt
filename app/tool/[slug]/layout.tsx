@@ -1,9 +1,11 @@
 import { type ReactNode } from 'react';
 import { notFound } from 'next/navigation';
-import { toolExists } from '@/utils/routeExists';
+import { ownHiddenTool, toolExists } from '@/utils/routeExists';
 
-// Runs before the loading skeleton streams, so unknown or deleted tools return a real 404.
+// Runs before the loading skeleton streams, so unknown, deleted or hidden tools return a real 404.
 export default async function ToolLayout({ children, params: { slug } }: { children: ReactNode; params: { slug: string } }) {
-  if (!(await toolExists(decodeURIComponent(slug)))) notFound();
+  const name = decodeURIComponent(slug);
+  // Hidden tools (dead or hijacked website) are a 404 for everyone except their owner.
+  if (!(await toolExists(name)) && !(await ownHiddenTool(name))) notFound();
   return <>{children}</>;
 }

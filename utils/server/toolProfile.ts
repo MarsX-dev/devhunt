@@ -64,6 +64,7 @@ async function candidatesFor(productId: number, categoryIds: number[]): Promise<
     .in('product_category_product.category_id', categoryIds)
     .eq('deleted', false)
     .eq('moderation', 'ok')
+    .eq('site_status', 'ok')
     .neq('id', productId)
     .not('launch_start', 'is', null)
     .order('votes_count', { ascending: false })

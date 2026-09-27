@@ -27,3 +27,35 @@ export async function announceNewTool(tool: { id?: number; name: string; slug: s
     body: JSON.stringify({ content }),
   }).catch((err: Error) => console.error('Discord new-tool webhook failed:', err.message));
 }
+
+export interface SiteHealthChange {
+  id: number;
+  name: string;
+  slug: string;
+  website: string;
+  from: string;
+  to: 'ok' | 'dead' | 'hijacked';
+  reason: string | null;
+}
+
+// Website health changes (tools hidden or restored), batched into as few messages as Discord allows.
+export async function reportSiteHealth(changes: SiteHealthChange[]) {
+  const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
+  if (!webhook || !changes.length) return;
+  const line = (c: SiteHealthChange) =>
+    c.to === 'ok'
+      ? `✅ **${c.name}** is back online, visible again: https://devhunt.org/tool/${c.slug}`
+      : `${c.to === 'hijacked' ? '🏴‍☠️' : '💀'} **${c.name}** hidden, website ${c.to}: ${c.reason ?? ''} <${c.website}> · restore: \`UPDATE products SET site_status = 'ok' WHERE id = ${c.id};\``;
+  const messages: string[] = [];
+  for (const text of changes.map(line)) {
+    const last = messages[messages.length - 1];
+    if (last && last.length + text.length + 1 <= 1900) messages[messages.length - 1] = `${last}\n${text}`;
+    else messages.push(text.slice(0, 1900));
+  }
+  for (const content of messages) {
+    await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, allowed_mentions: { parse: [] } }) }).catch(
+      (err: Error) => console.error('Discord site-health webhook failed:', err.message),
+    );
+    await new Promise(r => setTimeout(r, 800)); // stay under Discord's webhook rate limit
+  }
+}

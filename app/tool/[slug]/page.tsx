@@ -81,8 +81,10 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const supabaseBrowserClient = createBrowserClient();
 
   const productsService = new ProductsService(supabaseBrowserClient);
-  const product = await productsService.getBySlug(slug, true);
+  // Hidden tools (website dead or hijacked) only load for their owner, through the signed-in client.
+  const product = (await productsService.getBySlug(slug, true)) ?? (await new ProductsService(createServerClient()).getBySlug(slug));
   if (!product || product.deleted) notFound();
+  const hidden = (product as any).site_status && (product as any).site_status !== 'ok';
 
   const awardService = new AwardsService(supabaseBrowserClient);
   const commentService = new CommentService(supabaseBrowserClient);
@@ -129,6 +131,18 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
       {faqData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData).replace(/</g, '\\u003c') }} />}
       {!profile && <RequestProfile productId={product.id} />}
       <div className="container-custom-screen">
+        {hidden && (
+          <div role="alert" className="mb-8 rounded-xl border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-200">
+            <strong className="font-medium">Only you can see this page.</strong> We hid {product.name} from DevHunt because its website looks{' '}
+            {(product as any).site_status === 'hijacked' ? 'hijacked' : 'down'}
+            {(product as any).site_status_reason ? ` (${(product as any).site_status_reason})` : ''}. Once the site is back, it&apos;s restored automatically at the
+            next check, or{' '}
+            <a className="underline" href="https://x.com/johnrush" target="_blank" rel="noopener">
+              contact us
+            </a>
+            .
+          </div>
+        )}
         <ToolHero
           tool={product as ProductType}
           owner={owned as Profile}
