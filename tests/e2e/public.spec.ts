@@ -239,3 +239,13 @@ test('the tool preview steps to the next and previous tool without closing', asy
   await expect(page).toHaveURL(firstUrl);
   await expect(page.getByRole('heading', { level: 1, name: firstName })).toBeVisible();
 });
+
+test('"Open full page" from the tool preview leaves a scrollable page', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#podium li').first().click({ position: { x: 300, y: 20 } });
+  await page.getByRole('link', { name: /Open full page/ }).click();
+  await expect(page.locator('main h1').first()).toBeVisible();
+  await expect(page.locator('body')).not.toHaveClass(/overflow-hidden/);
+  await page.mouse.wheel(0, 1200);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+});

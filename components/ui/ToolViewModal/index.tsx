@@ -26,6 +26,12 @@ import { neighborCard } from '@/utils/toolCardRegistry';
 // Tool preview opened from a card: the same content as the tool page (loaded in the browser), with
 // previous/next buttons (and ← → keys) to step through the cards of the list without closing.
 export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: ProductType; close: () => void; votesToday?: number }) => {
+  // Page scrolling is locked while the preview is open and always released when it goes away, however
+  // that happens (Back, Escape, or "Open full page", which unmounts it along with the old page).
+  useEffect(() => {
+    document.body.classList.add('overflow-hidden');
+    return () => document.body.classList.remove('overflow-hidden');
+  }, []);
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
 

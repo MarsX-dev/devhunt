@@ -29,7 +29,6 @@ export default ({
 
   const closeViewModal = () => {
     setToolViewActive(false);
-    document.body.classList.remove('overflow-hidden');
     router.back();
   };
 
@@ -40,24 +39,19 @@ export default ({
     if (targetId != 'vote-item' && targetId != 'tool-title') {
       setTool(tool);
       window.history.pushState({ href }, '', href);
-      setToolViewActive(true);
-      document.body.classList.add('overflow-hidden');
+      setToolViewActive(true); // the modal locks page scrolling while it's open
     }
   };
 
   useEffect(() => (tool ? registerToolCard(tool, votesToday) : undefined), [tool, votesToday]);
 
   useEffect(() => {
-    window.addEventListener('popstate', e => {
-      setToolViewActive(false);
-      document.body.classList.remove('overflow-hidden');
-    });
+    const onPop = () => setToolViewActive(false);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  useEffect(() => {
-    setToolViewActive(false);
-    document.body.classList.remove('overflow-hidden');
-  }, [pathname]);
+  useEffect(() => setToolViewActive(false), [pathname]);
 
   return (
     <>
