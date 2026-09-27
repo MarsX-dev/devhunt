@@ -48,7 +48,7 @@ export default ({
       setMoadlInfo(
         new Date(launchEnd).getTime() >= Date.now()
           ? { title: 'Not Launched Yet!', desc: `Oops, this tool hasn't launched yet! Check back on ${customDateFromNow(launchDate)}.` }
-          : { title: 'This tool week is ends', desc: `Oops, you missed this tool week, it was launched ${customDateFromNow(launchDate)}.` },
+          : { title: 'Voting has ended', desc: `Voting for this tool closed at the end of its launch week. It launched ${customDateFromNow(launchDate)}.` },
       );
       if (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now()) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
@@ -111,7 +111,7 @@ export default ({
           onClick={() => setModalActive(false)}
           className="flex-1 block w-full text-sm border border-slate-700 bg-transparent hover:bg-slate-900 mt-2 sm:mt-0"
         >
-          Continue
+          Close
         </Button>
       </Modal>
     </>

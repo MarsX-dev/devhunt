@@ -87,8 +87,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
   const tabs = [
-    // Comments come first on the page (visitors read them most), right under the tabs.
-    { name: 'Comments', hash: '#comments', isActive: true },
+    // Comments come first on the page (visitors read them most), right under the tabs. The tab carries
+    // the count, so the section itself needs no heading.
+    { name: 'Comments', hash: '#comments', isActive: true, count: product.comments_count ?? 0 },
     { name: 'About', hash: '#description' },
     ...(profile?.data.features.length && sectionShown(profile.data, 'features') ? [{ name: 'Features', hash: '#features' }] : []),
     ...(profile?.compare.length && sectionShown(profile.data, 'compare') ? [{ name: 'Alternatives', hash: '#compare' }] : []),
@@ -124,7 +125,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           owner={owned as Profile}
           weekRank={weekRank}
           votesToday={votesToday}
-          commentsCount={(comments as unknown[] | null)?.length ?? 0}
+          commentsCount={product.comments_count ?? 0} // kept by a trigger; excludes deleted comments
         />
         <ToolAwards extras={extras} />
       </div>
@@ -132,10 +133,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         {tabs.map((item, idx) => (
           <TabLink hash={item.hash} isActive={item.isActive} key={idx}>
             {item.name}
+            {item.count ? <span className="ml-1.5 font-mono text-xs text-slate-500 tabular-nums">{item.count}</span> : null}
           </TabLink>
         ))}
       </Tabs>
-      <div className="mt-10 space-y-16">
+      <div className="mt-6 space-y-16">
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         <div id="description" className="scroll-mt-32 pb-4">
           <div className="container-custom-screen">

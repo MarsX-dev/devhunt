@@ -83,7 +83,7 @@ export default ({ comment, productId }: Props) => {
   if (newComment.deleted) return null; // deleted comments aren't listed at all
 
   return (
-    <li id={`${newComment.id}`} className="group flex gap-x-2.5 py-1.5">
+    <li id={`${newComment.id}`} className="group flex gap-x-2.5 py-2.5">
       {authorDeleted ? (
         <span className="flex-none">{avatar}</span>
       ) : (

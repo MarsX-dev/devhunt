@@ -93,9 +93,11 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
     return () => window.removeEventListener('keydown', onKey);
   }, [go]);
 
+  // Visible comments once they're loaded (the home page's tool data has no comment count).
+  const commentsCount = comments ? comments.filter((c: { deleted?: boolean }) => !c.deleted).length : t.comments_count ?? 0;
   // Profile tabs arrive after the rest loads, so they go last (nothing shifts when they appear).
   const tabs = [
-    { name: 'Comments', sectionId: 'comments' },
+    { name: 'Comments', sectionId: 'comments', count: commentsCount },
     { name: 'About', sectionId: 'description' },
     { name: 'Maker', sectionId: 'details' },
     { name: 'Trending', sectionId: 'launches' },
@@ -134,16 +136,17 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
         </div>
       </div>
       <div className="container-custom-screen" key={`hero-${t.id}`}>
-        <ToolHero tool={t} owner={owner} weekRank={weekRank} votesToday={current.votesToday} commentsCount={comments?.length ?? t.comments_count ?? 0} />
+        <ToolHero tool={t} owner={owner} weekRank={weekRank} votesToday={current.votesToday} commentsCount={commentsCount} />
       </div>
       <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-0 z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map(item => (
           <TabLink variant="nonlink" sectionId={item.sectionId} key={item.sectionId}>
             {item.name}
+            {item.count ? <span className="ml-1.5 font-mono text-xs text-slate-500 tabular-nums">{item.count}</span> : null}
           </TabLink>
         ))}
       </Tabs>
-      <div className="mt-10 space-y-16" key={`body-${t.id}`}>
+      <div className="mt-6 space-y-16" key={`body-${t.id}`}>
         {profile === null && <RequestProfile productId={t.id} />}
         {/* Comments first (visitors read them most); while loading, placeholders keep their height. */}
         <CommentSection

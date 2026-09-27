@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import CommentFormSection from './CommentFormSection';
 import CommentsSection from './CommentsSection';
 import type { Comment as CommentType, Product } from '@/utils/supabase/types';
-import SectionLabel from '@/components/ui/SectionLabel';
 import { useSupabase } from '@/components/supabase/provider';
 import { myComments } from '@/utils/myComments';
 
@@ -32,17 +31,15 @@ export default ({ comments, slug, productId, loadingCount }: { comments: Comment
 
   return (
     <div className="container-custom-screen scroll-mt-32" id="comments">
-      <SectionLabel
-        title="Comments"
-        hint={commentsCollection?.length ? `${commentsCollection.length} ${commentsCollection.length === 1 ? 'comment' : 'comments'}` : 'Support and feedback'}
-      />
+      {/* No visible heading: the "Comments" tab above carries the title and the count. */}
+      <h2 className="sr-only">Comments</h2>
       <CommentFormSection comments={commentsCollection} setCommentsCollection={setCommentsCollection} slug={slug} />
-      <div className="mt-1.5">
+      <div className="mt-2">
         {loadingCount !== undefined ? (
           // Same height as a one-line comment (meta line + text line), so nothing moves when they arrive.
           <ul aria-busy="true" aria-label="Loading comments">
             {Array.from({ length: Math.min(loadingCount, 10) }, (_, i) => (
-              <li key={i} className="flex gap-x-2.5 py-1.5">
+              <li key={i} className="flex gap-x-2.5 py-2.5">
                 <span className="h-5 w-5 flex-none animate-pulse rounded-full bg-slate-800" />
                 <span className="flex-1">
                   <span className="flex h-5 items-center">

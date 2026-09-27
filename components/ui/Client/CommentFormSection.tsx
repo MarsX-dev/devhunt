@@ -57,7 +57,7 @@ export default ({
     setLoad(false);
   };
 
-  const box = 'mt-2 flex items-start gap-x-2 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1.5 font-mono text-sm duration-150';
+  const box = 'flex items-start gap-x-2 rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1.5 font-mono text-sm duration-150';
   if (!user) {
     return (
       <Link href="/login" className={`${box} text-slate-500 hover:border-slate-600 hover:text-slate-300`}>
