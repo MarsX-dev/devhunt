@@ -24,6 +24,7 @@ const NOT_FOUND = [
   '/tool/does-not-exist',
   '/tool/devhunt29',
   '/blog/does-not-exist-zzz',
+  '/compare/does-not-exist-zzz-vs-nada-zzz',
   '/email-sponsor-ad',
   '/api/test',
   '/api/add-contact-quick',

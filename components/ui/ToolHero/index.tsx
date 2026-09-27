@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { IconVote } from '@/components/Icons';
+import { type MouseEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import moment from 'moment';
 import { ArrowUpRight, CalendarClock, Trophy } from 'lucide-react';
@@ -83,14 +84,30 @@ interface Props {
 // Header of a tool (page and preview modal): status, identity, actions, live stats and voters.
 export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commentsCount = 0 }: Props) {
   const phase = launchPhase(tool);
-  // Meta line in the same style as the home page cards: pricing · categories · impressions · +today · rank · comments.
-  const meta = [
-    tool.product_pricing_types?.title,
-    ...(tool.product_categories ?? []).slice(0, 3).map(c => c.name),
-    `${formatStat(tool.views_count ?? 0)} impressions`,
-    phase === 'upcoming' ? `launches ${moment.utc(tool.launch_start).format('MMM D')}` : weekRank ? `#${weekRank} ${phase === 'live' ? 'this week' : 'of its week'}` : null,
-    commentsCount ? `${formatStat(commentsCount)} ${commentsCount === 1 ? 'comment' : 'comments'}` : null,
-  ].filter(Boolean) as string[];
+  // Meta line in the same style as the home page cards: pricing · categories · impressions · rank · comments.
+  // Categories open their category page; the comment count scrolls to the comments (in the page, or
+  // inside the preview modal, which scrolls on its own).
+  const meta: { label: string; href?: string; section?: string }[] = [
+    { label: tool.product_pricing_types?.title ?? '' },
+    ...(tool.product_categories ?? []).slice(0, 3).map(c => ({ label: c.name, href: `/tools/${c.name.toLowerCase().replaceAll(' ', '-')}` })),
+    { label: `${formatStat(tool.views_count ?? 0)} impressions` },
+    {
+      label:
+        phase === 'upcoming'
+          ? `launches ${moment.utc(tool.launch_start).format('MMM D')}`
+          : weekRank
+            ? `#${weekRank} ${phase === 'live' ? 'this week' : 'of its week'}`
+            : '',
+    },
+    { label: commentsCount ? `${formatStat(commentsCount)} ${commentsCount === 1 ? 'comment' : 'comments'}` : '', section: 'comments' },
+  ].filter(item => item.label);
+  const scrollTo = (e: MouseEvent, id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  const metaLink = 'duration-150 hover:text-slate-200 hover:underline hover:decoration-slate-600 hover:underline-offset-4';
 
   return (
     <div id="about">
@@ -105,7 +122,7 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
             />
             <div className="min-w-0">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-4xl">{tool.name}</h1>
-              <p className="mt-1 text-slate-400 sm:mt-1.5 sm:text-lg">{tool.slogan}</p>
+              <p className="mt-1 text-[15px] text-slate-400 sm:mt-1.5">{tool.slogan}</p>
             </div>
           </div>
         </div>
@@ -134,12 +151,30 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
 
       <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
         {meta.map((item, idx) => (
-          <span key={item} className="flex items-center gap-x-2">
+          <span key={item.label} className="flex items-center gap-x-2">
             {idx > 0 && <span aria-hidden className="text-slate-700">·</span>}
-            {item}
+            {item.href ? (
+              <Link href={item.href} className={metaLink}>
+                {item.label}
+              </Link>
+            ) : item.section ? (
+              <a href={`#${item.section}`} onClick={e => scrollTo(e, item.section as string)} className={metaLink}>
+                {item.label}
+              </a>
+            ) : (
+              item.label
+            )}
           </span>
         ))}
-        {votesToday > 0 && <span className="font-mono text-xs text-green-400">+{votesToday} today</span>}
+        {votesToday > 0 && (
+          // Same ▲ as the vote button, so it isn't read as more impressions (as on the home page).
+          <span
+            title={`${votesToday} ${votesToday === 1 ? 'upvote' : 'upvotes'} today`}
+            className="inline-flex items-center gap-x-1 font-mono text-xs text-green-400"
+          >
+            <IconVote className="h-2.5 w-2.5" />+{votesToday} today
+          </span>
+        )}
       </p>
 
       {/* owner undefined = still loading (preview modal): keep the row's space with a skeleton. */}

@@ -144,7 +144,7 @@ export default () => {
           tools.map((tool: ProductType, idx: number) => (
             <>
               <li key={idx} className="py-3">
-                <div className="p-2 flex items-start gap-x-4">
+                <div className="flex items-start gap-x-4">
                   <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
                   <div>
                     <Link href={`/tool/${tool.slug}`}>
@@ -263,26 +263,16 @@ export default () => {
         <SectionLabel title="Resources" />
         <ul className="mt-3 space-y-2 text-sm text-slate-400">
           <li>
-            <a className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story">
+            <Link className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story">
               Read the rules
-            </a>{' '}
+            </Link>{' '}
             for voting and which dev tools you can submit.
           </li>
           <li>
-            <a className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story#ads">
+            <Link className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story#ads">
               Advertising
-            </a>{' '}
+            </Link>{' '}
             and other premium options to grow your dev tool.
-          </li>
-          <li>
-            Consider launching on{' '}
-            <a
-              className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50"
-              href="https://uneed.best/?aff=A6pv1"
-            >
-              Uneed.best
-            </a>{' '}
-            for even more traffic.
           </li>
         </ul>
       </div>

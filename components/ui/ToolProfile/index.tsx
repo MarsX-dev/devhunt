@@ -32,7 +32,7 @@ export function ToolGlance({ profile }: { profile: ToolProfileView }) {
   ].filter(Boolean) as { label: string; value: string }[];
   return (
     <div className="mt-8 overflow-hidden rounded-xl border border-slate-800">
-      <p className="border-b border-slate-800 px-4 py-3 text-[15px] leading-relaxed text-slate-200">{data.summary}</p>
+      <p className="border-b border-slate-800 px-4 py-3 text-sm leading-6 text-slate-200">{data.summary}</p>
       {!!facts.length && (
         <dl className={`grid gap-px bg-slate-800 ${['', '', 'sm:grid-cols-2', 'sm:grid-cols-3'][facts.length]}`}>
           {facts.map(f => (

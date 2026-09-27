@@ -46,7 +46,7 @@ export default async function Blog({ searchParams: { page } }: { searchParams: {
       <PageHeader eyebrow="Blog" title="Notes on dev tools">
         Lists, comparisons and guides for developers and makers.
       </PageHeader>
-      <ul>
+      <ul className="mt-4">
         {posts.map((article: any) => (
           <ArticleCard key={article.id} article={article} />
         ))}

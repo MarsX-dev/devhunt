@@ -1,16 +1,14 @@
 'use client';
 
+import { IconVote } from '@/components/Icons';
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
 import Name from '@/components/ui/ToolCard/Tool.Name';
-import Tags from '@/components/ui/ToolCard/Tool.Tags';
 import Title from '@/components/ui/ToolCard/Tool.Title';
 import Votes from '@/components/ui/ToolCard/Tool.Votes';
 import ToolCard from '@/components/ui/ToolCard/ToolCard';
-import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
-import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import { type ProductType } from '@/type';
 import { useInView } from 'framer-motion';
-import { type CSSProperties, MouseEvent, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, Fragment, MouseEvent, useEffect, useRef, useState } from 'react';
 import { queueView } from '@/utils/viewQueue';
 import Link from 'next/link';
 import { useIsomorphicLayoutEffect } from '@/utils/useIsomorphicLayoutEffect';
@@ -21,13 +19,14 @@ import FloatingUpvotes from './FloatingUpvotes';
 interface Props {
   tool: ProductType;
   rank?: number;
-  compact?: boolean; // slimmer row (home page: below the top 3)
+  compact?: boolean; // one-line row without the meta line (home page: below the top 3)
   votesToday?: number; // real votes in the last 24 hours: badge + floating upvotes
   latestComment?: LatestComment; // shown as an arriving comment once the card is on screen
   revealIndex?: number; // position in the list, for the one-by-one reveal
 }
 
-// Full card for the top 3 of the week (and everywhere else); `compact` is a slimmer row for the rest.
+// A row of this week's list. Every row has the same columns; the top 3 are just taller (tagline and
+// meta on their own lines), `compact` rows fit on one line.
 export default ({ tool, rank, compact = false, votesToday = 0, latestComment, revealIndex }: Props) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true });
@@ -49,39 +48,69 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   function preventDefault(e: MouseEvent) {
     e.preventDefault();
   }
+  // Upvotes in the last 24 hours. The ▲ (same icon as the vote button) keeps it from reading as more
+  // impressions, which it sits next to.
+  const todayLabel = `${votesToday} ${votesToday === 1 ? 'upvote' : 'upvotes'} today`;
   const todayBadge = votesToday > 0 && (
-    <span className="flex-none font-mono text-[11px] text-green-400 tabular-nums">+{votesToday} today</span>
+    <span
+      title={todayLabel}
+      className="inline-flex flex-none items-center gap-x-1 font-mono text-[11px] text-green-400 tabular-nums"
+    >
+      <IconVote className="h-2.5 w-2.5" />
+      <span className="sr-only">{todayLabel}</span>
+      <span aria-hidden>+{votesToday} today</span>
+    </span>
   );
 
   return (
     <li
       ref={cardRef}
-      className={`${compact ? 'py-0' : 'py-1'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
+      className={`py-1 ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
       style={reveal}
     >
-      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-1.5' : 'py-3'} votesToday={votesToday}>
-        {/* Same columns in both sizes (rank 24px, logo 56px, text, votes 56px) so the whole list lines up. */}
+      <ToolCard
+        tool={tool}
+        href={'/tool/' + tool.slug}
+        className={compact ? 'py-1.5' : 'py-3'}
+        votesToday={votesToday}
+        below={
+          latestComment && (
+            // Inside the card so its hover background covers it too. Indented to start exactly under
+            // the tool name: [rank 20px + gap 4px] + logo 40px + gap 16px.
+            <div className={`${compact ? '-mt-1 pb-2' : '-mt-2 pb-3'} pl-[56px] ${rank ? 'sm:pl-[80px]' : ''}`}>
+              <ArrivingComment comment={latestComment} active={isInView} />
+            </div>
+          )
+        }
+      >
+        {/* Same columns in every row (rank 20px + 4px gap, logo 40px, text, votes 56px) so the whole list lines up. */}
         <div className="flex w-full min-w-0 items-center gap-x-4">
           {rank && (
             <span
-              className={`hidden sm:block w-6 flex-none text-right font-mono text-sm tabular-nums ${rank <= 3 ? 'text-orange-500' : 'text-slate-600'}`}
+              className={`hidden sm:block -mr-3 w-5 flex-none text-left font-mono text-sm tabular-nums ${
+                rank <= 3 ? 'text-orange-500' : 'text-slate-600'
+              }`}
             >
               {rank}
             </span>
           )}
-          <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="flex w-14 flex-none justify-center">
-            <Logo src={tool.logo_url || ''} alt={tool.name} imgClassName={compact ? 'w-8 h-8 rounded-lg' : ''} />
+          <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="flex-none">
+            <Logo src={tool.logo_url || ''} alt={tool.name} imgClassName="h-10 w-10 rounded-lg" />
           </Link>
           <div className="w-full min-w-0 space-y-1">
             {compact ? (
-              // One line: name · tagline, like the other lists.
-              <div className="flex min-w-0 items-center gap-x-2">
-                <Name href={tool.demo_url as string} className="max-w-[60%] flex-none gap-x-2 text-sm">
-                  {tool.name}
-                </Name>
-                <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="min-w-0 truncate text-sm text-slate-500">
-                  · {tool.slogan}
-                </Link>
+              // One line: name · tagline, like the other lists. No "open website" icon here: its reserved
+              // space left an uneven gap before the tagline. The today badges line up on the right.
+              <div className="flex min-w-0 items-center gap-x-3">
+                <div className="flex min-w-0 flex-1 items-center gap-x-1.5 text-sm">
+                  <Name href={tool.demo_url as string} linkIcon={false} className="max-w-full flex-none text-sm sm:max-w-[60%]">
+                    {tool.name}
+                  </Name>
+                  {/* Phones: the name only (a few letters of tagline say nothing). */}
+                  <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="hidden min-w-0 truncate text-slate-500 sm:block">
+                    · {tool.slogan}
+                  </Link>
+                </div>
                 {todayBadge}
               </div>
             ) : (
@@ -90,11 +119,25 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
                 <Link onClick={preventDefault} href={'/tool/' + tool.slug}>
                   <Title className="line-clamp-1 sm:text-[15px]">{tool.slogan}</Title>
                 </Link>
-                <ToolFooter>
-                  <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
-                  <ToolViews count={tool.views_count} />
-                  {todayBadge}
-                </ToolFooter>
+                {/* One quiet mono line: pricing · categories · impressions · upvotes today. */}
+                <div className="flex flex-wrap items-center gap-x-2 pt-0.5 font-mono text-xs leading-5 text-slate-500">
+                  {[
+                    tool.product_pricing_types?.title ?? 'Free',
+                    ...(tool.product_categories || []).slice(0, 2).map(c => c.name),
+                    `${(tool.views_count ?? 0).toLocaleString('en-US')} impressions`,
+                  ].map((item, idx) => (
+                    <Fragment key={idx}>
+                      {idx > 0 && <span className="text-slate-700">·</span>}
+                      <span className="tabular-nums">{item}</span>
+                    </Fragment>
+                  ))}
+                  {todayBadge && (
+                    <>
+                      <span className="text-slate-700">·</span>
+                      {todayBadge}
+                    </>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -105,19 +148,13 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
             productId={tool?.id}
             launchDate={tool.launch_date}
             launchEnd={tool.launch_end as string}
-            variant={compact ? 'inline' : 'stack'}
-            className={compact ? 'w-14 justify-center' : ''}
+            variant="inline"
+            className="w-14 justify-center"
             pending={pendingVote ? 1 : 0}
           />
           <FloatingUpvotes votesToday={votesToday} active={isInView} onBurst={() => setPendingVote(false)} />
         </div>
       </ToolCard>
-      {latestComment && (
-        // Indented to start exactly under the tool name: [rank 24px + gap 16px] + logo 56px + gap 16px.
-        <div className={`${compact ? '-mt-1 pb-1.5' : '-mt-1.5 pb-2'} pl-[72px] ${rank ? 'sm:pl-[112px]' : ''}`}>
-          <ArrivingComment comment={latestComment} active={isInView} />
-        </div>
-      )}
     </li>
   );
 };

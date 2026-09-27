@@ -56,9 +56,9 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       {post.category
         ? (
         <div className="flex flex-wrap items-center gap-2 mb-1 w-full text-sm">
-          <a className="text-orange-500 hover:text-orange-400 duration-200" href="/">
+          <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/">
             Home
-          </a>
+          </Link>
           <ChevronRightIcon className="w-4 h-4 text-slate-500" />
           <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/blog/">
             Blog
@@ -87,7 +87,7 @@ export default async function Article({ params: { slug } }: { params: { slug: st
           : null
       }
       <div
-        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8"
+        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8 text-[15px] leading-7"
         dangerouslySetInnerHTML={{ __html: post.html }}
       ></div>
       <div className="flex flex-wrap gap-2 justify-start w-full">
@@ -103,14 +103,14 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       </div>
       {post.relatedPosts?.length
         ? (
-        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert">
+        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert text-[15px] leading-7">
           <h2>Related posts</h2>
-          <ul className="text-base">
+          <ul>
             {post.relatedPosts.map((p: any, ix: number) => (
               <li key={ix}>
-                <a className="duration-200" href={`/blog/${p.slug}`}>
+                <Link className="duration-200" href={`/blog/${p.slug}`}>
                   {p.headline}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

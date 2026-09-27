@@ -55,7 +55,7 @@ export default async function AlternativesPage({ params: { slug } }: Params) {
   };
 
   return (
-    <section className="container-custom-screen mt-10 mb-20 max-w-4xl">
+    <section className="container-custom-screen mt-10 mb-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       {!profile && <RequestProfile productId={tool.id} />}
       <Link href={`/tool/${tool.slug}`} className="inline-flex items-center gap-x-2 text-sm text-slate-400 hover:text-slate-200">

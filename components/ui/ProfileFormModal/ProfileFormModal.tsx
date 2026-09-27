@@ -10,97 +10,66 @@ import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProfileService from '@/utils/supabase/services/profile';
 import LabelError from '@/components/ui/LabelError/LabelError';
-import validateURL from '@/utils/validateURL';
+import SocialIcon from '@/components/ui/SocialIcon';
+import { githubFromSession, linksValue } from '@/components/ui/ProfileLinksFields';
+import { parseSocialLink, platformName } from '@/utils/socialLinks';
 import Alert from '../Alert';
 
 function ProfileFormModal() {
-  const { session, user } = useSupabase();
+  const { session, user, refreshUser } = useSupabase();
   const userSession = session?.user;
-  const profileService = new ProfileService(createBrowserClient());
+  const verifiedGithub = githubFromSession(userSession);
 
   const [isLoad, setLoad] = useState(false);
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
-  const [email, setEmail] = useState('');
-  const [isEmailTyping, setEmailTyping] = useState(false);
   const [about, setAbout] = useState('');
-  const [headline, setHeadLine] = useState('');
   const [socialMediaLink, setSocialMediaLink] = useState('');
 
   const [avatar, setAvatar] = useState('/user.svg');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
 
-  const [fullNameError, setFullNameError] = useState('');
-  const [usernameError, setUsernameError] = useState('');
-  const [websiteUrlError, setWebsiteUrlError] = useState('');
-  const [aboutError, setAboutError] = useState('');
-  const [headlineError, setHeadLineError] = useState('');
-  const [socialMediaLinkError, setSocialMediaLinkError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState('');
+
+  const detected = socialMediaLink.trim() ? parseSocialLink(socialMediaLink) : null;
 
   // Mounted only while the modal is open, i.e. once the signed-in user's profile is loaded.
   useEffect(() => {
-    const res = user;
     setAvatar((user?.avatar_url as string) || '/user.svg');
-    setFullName(res?.full_name || '');
-    setUsername(res?.username || '');
-    setSocialMediaLink(res?.social_url || '');
-    setAbout(res?.about || '');
-    setWebsiteUrl(res?.website_url || '');
-    setEmail(userSession?.user_metadata.email || '');
-    setHeadLine(res?.headline || '');
+    setFullName(user?.full_name || '');
+    setUsername(user?.username || '');
+    setSocialMediaLink(linksValue(user).more[0] ?? '');
+    setAbout(user?.about || '');
   }, []);
-
-  const formValidator = () => {
-    setFullNameError('');
-    setWebsiteUrlError('');
-    setSocialMediaLinkError('');
-    if (fullName.length < 2) setFullNameError('Please enter a correct full name');
-    if (username.length < 4) setUsernameError('the username should at least be 4 chars or more');
-    if (!socialMediaLink && !validateURL(socialMediaLink)) setSocialMediaLinkError('Please enter a valid URL');
-    else return true;
-  };
 
   const handleSubmit: FormEventHandler = async e => {
     e.preventDefault();
-    if (formValidator()) {
-      setUsernameError('');
-      setLoad(true);
-
-      selectedImage ? await profileService.updateAvatar(userSession?.id as string, selectedImage) : null;
-      profileService
-        .update(userSession?.id as string, {
-          full_name: fullName,
-          username,
-          about,
-          headline,
-          website_url: websiteUrl,
-          social_url: socialMediaLink,
-        })
-        .then(() => {
-          setLoad(false);
-          avatarPreview ? setAvatar(avatarPreview) : null;
-          setAvatarPreview('');
-          setSelectedImage(null);
-          window.location.reload();
-        })
-        .catch(err => {
-          setLoad(false);
-          if (err) {
-            setUsernameError('This username is already used, please use a different username');
-          } else {
-            setUsernameError('');
-          }
-        });
+    setLoad(true);
+    setFormError('');
+    try {
+      if (selectedImage) await new ProfileService(createBrowserClient()).updateAvatar(userSession?.id as string, selectedImage);
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: fullName, username, about, links: { more: [socialMediaLink] } }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErrors(body.errors ?? {});
+        setFormError(body.error ?? '');
+        return;
+      }
+      await refreshUser(); // the profile now has a link, so the modal closes
+    } catch {
+      setFormError('Could not save your profile, please try again.');
+    } finally {
+      setLoad(false);
     }
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setEmailTyping(false);
-    }, 6000);
-  }, [isEmailTyping]);
+  const linkError = errors.more || errors.links;
 
   return (
     <>
@@ -129,7 +98,7 @@ function ProfileFormModal() {
                 }}
                 className="w-full mt-2"
               />
-              <LabelError className="mt">{fullNameError}</LabelError>
+              <LabelError className="mt">{errors.full_name}</LabelError>
             </div>
             <div>
               <Label>Username (required)</Label>
@@ -141,36 +110,50 @@ function ProfileFormModal() {
                 }}
                 className="w-full mt-2"
               />
-              <LabelError className="mt">{usernameError}</LabelError>
+              <LabelError className="mt">{errors.username}</LabelError>
             </div>
             <div>
-              <Label>Social Media URL (required)</Label>
+              <Label>{verifiedGithub ? 'Another social profile (optional)' : 'Your X, LinkedIn or GitHub profile (required)'}</Label>
+              {verifiedGithub && (
+                <p className="mt-1 inline-flex items-center gap-x-1.5 text-sm text-slate-400">
+                  <SocialIcon platform="github" className="h-3.5 w-3.5" />
+                  github.com/{verifiedGithub} is linked from your GitHub sign-in.
+                </p>
+              )}
               <Input
                 value={socialMediaLink}
-                placeholder="Twitter/Linkedin/Facebook or Any other social media"
+                placeholder="x.com/yourname, linkedin.com/in/yourname…"
                 onChange={e => {
                   setSocialMediaLink((e.target as HTMLInputElement).value);
                 }}
-                required
+                required={!verifiedGithub}
                 className="w-full mt-2"
               />
-              <LabelError className="mt">{socialMediaLinkError}</LabelError>
+              {detected && !linkError && (
+                <p className="mt-1 inline-flex items-center gap-x-1.5 text-xs text-slate-500">
+                  <SocialIcon platform={detected.platform} className="h-3 w-3" />
+                  {platformName(detected.platform)}: {detected.url.replace(/^https:\/\/(www\.)?/, '')}
+                </p>
+              )}
+              <LabelError className="mt">{linkError}</LabelError>
             </div>
             <div>
               <Label>About (optional)</Label>
               <Textarea
                 placeholder="Tell a bit about yourself. This page is gonna be visited by other developers."
                 value={about}
+                maxLength={499}
                 onChange={e => {
                   setAbout((e.target as HTMLInputElement).value);
                 }}
                 className="w-full h-28 mt-2"
               />
-              <LabelError className="mt">{aboutError}</LabelError>
+              <LabelError className="mt">{errors.about}</LabelError>
             </div>
             <Button isLoad={isLoad} className="flex justify-center w-full ring-offset-2 ring-orange-500 focus:ring-2 hover:bg-orange-400">
               {isLoad ? 'Updating' : 'save'}
             </Button>
+            {formError && <LabelError className="text-center">{formError}</LabelError>}
           </div>
         </form>
       </div>

@@ -13,8 +13,8 @@ import { type LatestComment } from '@/utils/activity';
 import { type HomeData } from '@/utils/homeData';
 import { PAST_WINNERS, toToolRow } from '@/utils/toolRow';
 
-// Client part of the home page, rendered from server data: this week's contestants (top 3 as full
-// cards), then `featured`, past winners as rows ("Show more" loads further pages), then `bottom`.
+// Client part of the home page, rendered from server data: this week's contestants (one list, top 3 as
+// taller rows), then `featured`, past winners as rows ("Show more" loads further pages), then `bottom`.
 // `children` render under the hero.
 export default function HomeFeed({
   data,
@@ -65,24 +65,16 @@ export default function HomeFeed({
       <MonitizorAdCards />
       <div className="mt-12 mb-12">
         <SectionLabel title="This week's launches" hint="Vote for your favorite 👇" />
-        {/* The current top 3 get their own panel; the rest follow as compact rows on the same columns. */}
-        <ol
-          id="podium"
-          className="mt-4 divide-y divide-slate-800/70 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-800/40 to-slate-900/0 px-3 sm:px-4"
-        >
+        {/* One list on the same columns: the top 3 are taller rows (meta line), the rest compact rows.
+            Split in two only so the ad slot can sit after the top 3. */}
+        <ol id="podium" className="mt-2 divide-y divide-slate-800/70">
           {contestants.slice(0, 3).map(card)}
         </ol>
         <div id="TA_AD_CONTAINER"></div>
         {contestants.length > 3 && (
-          <>
-            <div className="mt-8 border-x border-transparent px-3 sm:px-4">
-              <SectionLabel title="Also launching this week" />
-            </div>
-            {/* Transparent border: same 1px inset as the podium panel so the columns line up exactly. */}
-            <ol id="more-launches" start={4} className="mt-2 divide-y divide-slate-800/70 border-x border-transparent px-3 sm:px-4">
-              {contestants.slice(3).map((product, idx) => card(product, idx + 3))}
-            </ol>
-          </>
+          <ol id="more-launches" start={4} className="divide-y divide-slate-800/70 border-t border-slate-800/70">
+            {contestants.slice(3).map((product, idx) => card(product, idx + 3))}
+          </ol>
         )}
 
         {featured}

@@ -16,7 +16,7 @@ import { notFound } from 'next/navigation';
 
 const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), {
   ssr: false,
-  loading: () => <RowsSkeleton rows={8} className="mt-2" />,
+  loading: () => <RowsSkeleton rows={8} className="mt-2" ranked />,
 });
 import { Profile } from '@/utils/supabase/types';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
@@ -92,10 +92,12 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
   const tabs = [
-    { name: 'About', hash: '#' },
+    // Comments come first on the page (visitors read them most), right under the tabs. The tab carries
+    // the count, so the section itself needs no heading.
+    { name: 'Comments', hash: '#comments', isActive: true, count: product.comments_count ?? 0 },
+    { name: 'About', hash: '#description' },
     ...(profile?.data.features.length && sectionShown(profile.data, 'features') ? [{ name: 'Features', hash: '#features' }] : []),
     ...(profile?.compare.length && sectionShown(profile.data, 'compare') ? [{ name: 'Alternatives', hash: '#compare' }] : []),
-    { name: 'Comments', hash: '#comments' },
     { name: 'Maker', hash: '#details' },
     { name: 'Trending', hash: '#launches' },
   ];
@@ -128,22 +130,24 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           owner={owned as Profile}
           weekRank={weekRank}
           votesToday={votesToday}
-          commentsCount={(comments as unknown[] | null)?.length ?? 0}
+          commentsCount={product.comments_count ?? 0} // kept by a trigger; excludes deleted comments
         />
         <ToolAwards extras={extras} />
       </div>
       <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-12 z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map((item, idx) => (
-          <TabLink hash={item.hash} key={idx}>
+          <TabLink hash={item.hash} isActive={item.isActive} key={idx}>
             {item.name}
+            {item.count ? <span className="ml-1.5 font-mono text-xs text-slate-500 tabular-nums">{item.count}</span> : null}
           </TabLink>
         ))}
       </Tabs>
-      <div className="space-y-16">
-        <div className="pb-4">
-          <div className="container-custom-screen mt-10">
+      <div className="mt-6 space-y-16">
+        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
+        <div id="description" className="scroll-mt-32 pb-4">
+          <div className="container-custom-screen">
             <div
-              className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
+              className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
               // Use DOMPurify method for XSS sanitizeration
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
             ></div>
@@ -194,7 +198,6 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <ToolMentions extras={extras} />
           </div>
         )}
-        <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         <div className="container-custom-screen">
           <ToolMaker tool={product as ProductType} owner={owned as Profile} />
         </div>

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
@@ -52,7 +53,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
   ];
 
   return (
-    <section className="container-custom-screen mt-10 mb-20 max-w-4xl">
+    <section className="container-custom-screen mt-10 mb-20">
       <PageHeader eyebrow="Internal" title="Analytics">
         First-party page views, visitors, countries and the submit funnel. Counted without cookies; bots and automated browsers are skipped.
       </PageHeader>
@@ -103,7 +104,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
           <SectionLabel title="Countries" hint="by unique visitors" />
           <ul className="mt-4 space-y-1 text-sm">
             {a.countries.map(c => (
-              <li key={c.country} className="relative flex items-center justify-between rounded-md px-2 py-1.5">
+              <li key={c.country} className="relative -mx-2 flex items-center justify-between rounded-md px-2 py-1.5">
                 <span className="absolute inset-y-0 left-0 rounded-md bg-slate-800/70" style={{ width: `${(Number(c.visitors) / maxCountry) * 100}%` }} />
                 <span className="relative truncate text-slate-200">
                   {flag(c.country)} {countryName(c.country)}
@@ -117,11 +118,11 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
           <SectionLabel title="Top pages" hint="by page views" />
           <ul className="mt-4 space-y-1 text-sm">
             {a.pages.map(p => (
-              <li key={p.path} className="relative flex items-center justify-between gap-3 rounded-md px-2 py-1.5">
+              <li key={p.path} className="relative -mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-1.5">
                 <span className="absolute inset-y-0 left-0 rounded-md bg-slate-800/70" style={{ width: `${(Number(p.pageviews) / maxPage) * 100}%` }} />
-                <a href={p.path} className="relative truncate font-mono text-xs text-slate-200 hover:text-white">
+                <Link href={p.path} className="relative truncate font-mono text-xs text-slate-200 hover:text-white">
                   {p.path}
-                </a>
+                </Link>
                 <span className="relative font-mono text-xs text-slate-400">{fmt(p.pageviews)}</span>
               </li>
             ))}

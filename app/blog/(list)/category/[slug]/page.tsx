@@ -3,10 +3,10 @@ import Pagination from '@/components/ui/Blog/Pagination';
 import { type Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { getTagArticles } from '@/utils/blog';
+import { getCategoryArticles } from '@/utils/blog';
 
 async function getPosts(slug: string, page: number) {
-  return await getTagArticles(slug, page, 10);
+  return await getCategoryArticles(slug, page, 10);
 }
 
 function deslugify(str: string) {
@@ -19,14 +19,14 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
     title,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
-      canonical: `/blog/tag/${slug}`,
+      canonical: `/blog/category/${slug}`,
     },
     openGraph: {
       type: 'article',
       title,
       // description: '',
       // images: [],
-      url: `https://devhunt.org/blog/tag/${slug}`,
+      url: `https://devhunt.org/blog/category/${slug}`,
     },
     twitter: {
       title,
@@ -37,7 +37,7 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
   };
 }
 
-export default async function Tag({
+export default async function Category({
   params: { slug },
   searchParams: { page },
 }: {
@@ -51,22 +51,22 @@ export default async function Tag({
 
   return (
     <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8">
-      <div className="flex flex-wrap items-center gap-2 text-sm mb-4">
-        <a className="text-orange-500 hover:text-orange-400 duration-200" href="/">
+      <div className="flex flex-wrap items-center gap-2 w-full text-sm mb-4">
+        <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/">
           Home
-        </a>
+        </Link>
         <ChevronRightIcon className="w-4 h-4 text-slate-500" />
         <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/blog/">
           Blog
         </Link>
       </div>
-      <h1 className="text-4xl my-4 font-semibold text-white">Tag: {slug}</h1>
+      <h1 className="text-4xl my-4 font-semibold text-white">Category: {slug}</h1>
       <ul>
         {posts.map((article: any) => (
           <ArticleCard key={article.id} article={article} />
         ))}
       </ul>
-      {lastPage > 1 && <Pagination slug={`/blog/tag/${slug}`} pageNumber={pageNumber} lastPage={lastPage} />}
+      {lastPage > 1 && <Pagination slug={`/blog/category/${slug}`} pageNumber={pageNumber} lastPage={lastPage} />}
     </section>
   );
 }

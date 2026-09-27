@@ -139,7 +139,7 @@ test('home page feels live: activity strip, top 3 as full cards, the rest compac
   const first = await live.innerText();
   await expect.poll(async () => live.innerText(), { timeout: 12_000 }).not.toBe(first); // cycles to the next event
 
-  // Top 3 in the podium panel, the rest compact, and every tool name starts at the same x.
+  // One list: the top 3 are taller rows, the rest compact, and every tool name starts at the same x.
   const podium = page.locator('#podium > li');
   await expect(podium.first()).toBeVisible();
   expect(await podium.count()).toBeLessThanOrEqual(3);

@@ -1,44 +1,29 @@
-'use client';
-
-import { IconChatBubbleLeft } from '@/components/Icons';
-import LinkItem from '../Link/LinkItem';
-import { IconChatBubbleOvalLeftEllipsis } from '@/components/Icons';
-import { useEffect, useState } from 'react';
 import johnPicture from '@/public/johnrush.jpeg';
 import Image from 'next/image';
-import { XMarkIcon } from '@heroicons/react/24/solid';
-import * as Popover from '@radix-ui/react-popover';
 
-function TwitterLink() {
+// Founder badge pinned to the bottom-right corner. Sits flush with the
+// viewport edge on every screen size, and clears the iOS home indicator.
+export default function FounderBadge() {
   return (
     <a
-      className="fixed bottom-[40px] md:bottom-0 right-0 bg-slate-900 py-1 px-2 z-10 cursor-pointer rounded-tl-xl border-t border-l border-slate-600 border-dashed text-sm font-semibold hover:bg-base-200 duration-200 group"
       href="https://x.com/johnrush"
       target="_blank"
+      rel="noopener"
+      aria-label="Built by John Rush, follow on X"
+      className="group fixed bottom-0 right-0 z-10 flex items-center gap-1.5 rounded-tl-xl border-l border-t border-slate-700/80 bg-slate-900/90 py-1 pl-2.5 pr-1.5 shadow-[0_-4px_24px_-8px_rgba(249,115,22,0.35)] backdrop-blur-md duration-200 hover:border-orange-500/60 hover:bg-slate-800/90"
+      style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}
     >
-      <div className="flex opacity-75 hover:opacity-100 text-orange-100 flex-row justify-center items-center text-center gap-1.5">
-        <div>
-          {' '}
-          <span className="text-orange-500 text-xs font-bold">John Rush</span>
-        </div>
-        <div className="avatar -mt-1 -mb-1">
-          <div className="relative w-7 rounded-full group-hover:rotate-12 group-hover:scale-110 duration-300">
-            <Image src={johnPicture} width={32} height={32} className="flex-none w-8 h-8 object-cover rounded-full" alt="John rush" />
-          </div>
-        </div>
-      </div>
+      <span className="text-[11px] font-bold text-orange-400 duration-200 group-hover:text-orange-300">John Rush</span>
+      <span className="relative flex-none rounded-full p-px bg-gradient-to-br from-orange-400 to-orange-600 duration-300 group-hover:rotate-12 group-hover:scale-110">
+        <Image
+          src={johnPicture}
+          width={40}
+          height={40}
+          className="h-5 w-5 rounded-full object-cover ring-1 ring-slate-900"
+          alt=""
+        />
+        <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-[1.5px] border-slate-900 bg-emerald-400" aria-hidden />
+      </span>
     </a>
   );
 }
-
-export default () => {
-  const [isPopupActive, setPopupActive] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setPopupActive(false);
-    }, 6000);
-  }, []);
-
-  return <TwitterLink />;
-};

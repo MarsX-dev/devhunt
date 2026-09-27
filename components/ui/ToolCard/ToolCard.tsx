@@ -14,12 +14,14 @@ export default ({
   className,
   tool,
   children,
+  below,
   votesToday,
 }: {
   href: string;
   className?: string;
   tool?: ProductType;
   children?: ReactNode;
+  below?: ReactNode; // under the row, inside the card (clickable, covered by the hover background)
   votesToday?: number; // forwarded to the preview modal
 }) => {
   const [isToolViewActive, setToolViewActive] = useState(false);
@@ -76,11 +78,15 @@ export default ({
 
   return (
     <>
-      <div className="relative group group/card" data-tool-card-id={tool?.id}>
-        <div onClick={handleClick} className={mergeTW(`flex items-start gap-x-4 relative py-4 rounded-2xl cursor-pointer ${className}`)}>
-          {children}
+      {/* data-no-instant-nav: a click opens the preview modal in place, not a navigation (see InstantNav). */}
+      <div className="relative group group/card" data-tool-card-id={tool?.id} data-no-instant-nav>
+        <div onClick={handleClick} className="cursor-pointer">
+          <div className={mergeTW(`flex items-start gap-x-4 relative py-4 ${className}`)}>{children}</div>
+          {below}
         </div>
-        <div className="absolute -z-10 -inset-2 rounded-2xl group-hover:bg-slate-800/40 opacity-0 group-hover:opacity-100 duration-150 sm:-inset-3"></div>
+        {/* Wider than the card but never taller: the card's own padding is the vertical gap, so the
+            hover background can't run into the neighbouring rows or the heading above. */}
+        <div className="absolute -z-10 -inset-x-2 inset-y-0 rounded-2xl bg-slate-800/40 opacity-0 group-hover:opacity-100 duration-150 sm:-inset-x-3"></div>
       </div>
       {isToolViewActive ? <ToolViewModal close={closeViewModal} tool={toolState as ProductType} href={href} votesToday={votesToday} /> : ''}
     </>

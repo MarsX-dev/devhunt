@@ -27,11 +27,8 @@ export default ({ children, hash, href, sectionId, className = '', linkClassName
     const currentHash = window.location.hash;
 
     if (!currentHash) {
-      if (hash === '#') {
-        setLinkActive(true);
-      } else {
-        setLinkActive(false);
-      }
+      // No hash yet: the '#' tab, or the one passed as isActive, is the default.
+      setLinkActive(hash === '#' || !!isActive);
     } else {
       if (currentHash === hash) {
         setLinkActive(true);

@@ -95,10 +95,12 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
     return () => window.removeEventListener('keydown', onKey);
   }, [go]);
 
+  // Visible comments once they're loaded (the home page's tool data has no comment count).
+  const commentsCount = comments ? comments.filter((c: { deleted?: boolean }) => !c.deleted).length : t.comments_count ?? 0;
   // Profile tabs arrive after the rest loads, so they go last (nothing shifts when they appear).
   const tabs = [
-    { name: 'About', sectionId: 'about' },
-    { name: 'Comments', sectionId: 'comments' },
+    { name: 'Comments', sectionId: 'comments', count: commentsCount },
+    { name: 'About', sectionId: 'description' },
     { name: 'Maker', sectionId: 'details' },
     { name: 'Trending', sectionId: 'launches' },
     ...(profile?.data.features.length ? [{ name: 'Features', sectionId: 'features' }] : []),
@@ -144,20 +146,28 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
         </div>
       </div>
       <div className="container-custom-screen" key={`hero-${t.id}`}>
-        <ToolHero tool={t} owner={owner} weekRank={weekRank} votesToday={current.votesToday} commentsCount={comments?.length ?? t.comments_count ?? 0} />
+        <ToolHero tool={t} owner={owner} weekRank={weekRank} votesToday={current.votesToday} commentsCount={commentsCount} />
       </div>
       <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-0 z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map(item => (
           <TabLink variant="nonlink" sectionId={item.sectionId} key={item.sectionId}>
             {item.name}
+            {item.count ? <span className="ml-1.5 font-mono text-xs text-slate-500 tabular-nums">{item.count}</span> : null}
           </TabLink>
         ))}
       </Tabs>
-      <div className="space-y-16" key={`body-${t.id}`}>
+      <div className="mt-6 space-y-16" key={`body-${t.id}`}>
         {profile === null && <RequestProfile productId={t.id} />}
-        <div className="pb-4">
-          <div className="container-custom-screen mt-10">
-            <div className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: t?.description as string }}></div>
+        {/* Comments first (visitors read them most); while loading, placeholders keep their height. */}
+        <CommentSection
+          productId={t?.owner_id as string}
+          comments={(comments ?? []) as any}
+          slug={t?.slug}
+          loadingCount={comments ? undefined : t.comments_count ?? 0}
+        />
+        <div id="description" className="scroll-mt-32 pb-4">
+          <div className="container-custom-screen">
+            <div className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: t?.description as string }}></div>
             {t?.product_categories?.length ? (
               <div className="mt-6 flex flex-wrap items-center gap-2">
                 {t.product_categories.map((pc: { name: string }) => (
@@ -212,12 +222,6 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
             <ToolMentions extras={extras} />
           </div>
         )}
-        <CommentSection
-          productId={t?.owner_id as string}
-          comments={(comments ?? []) as any}
-          slug={t?.slug}
-          loadingCount={comments ? undefined : t.comments_count ?? 0}
-        />
         <div className="container-custom-screen">
           <ToolMaker tool={t} owner={owner} />
         </div>

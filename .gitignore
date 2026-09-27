@@ -10,6 +10,7 @@
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 
 # production
@@ -43,3 +44,6 @@ next-env.d.ts
 /tests/e2e/.auth/
 /test-results/
 /playwright-report/
+
+# backfill review output (user data)
+social-links-backfill.csv

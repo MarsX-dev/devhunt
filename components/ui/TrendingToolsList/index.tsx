@@ -32,7 +32,7 @@ export default function TrendingToolsList({ excludeId }: { excludeId?: number })
     };
   }, [excludeId]);
 
-  if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" />;
+  if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" ranked />;
   return (
     <ol className="mt-2">
       {tools.map(({ tool, rank }, idx) => (

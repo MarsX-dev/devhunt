@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Brand from '../Brand/Brand';
 import NewsletterForm from '../Newsletter/NewsletterForm';
 
@@ -63,9 +64,16 @@ export default () => {
           <ul className="mt-10 flex flex-1 flex-col gap-y-2 text-sm text-slate-400 leading-relaxed sm:flex-row sm:flex-wrap sm:gap-x-10 lg:mt-1">
             {footerNavs.map((item, idx) => (
               <li key={idx} className="sm:w-[45%] md:w-[30%]">
-                <a href={item.href} className="block hover:text-slate-100 transition-colors duration-200">
-                  {item.name}
-                </a>
+                {/* Internal pages through <Link> (instant, with their loading skeleton); other sites as plain links. */}
+                {item.href.startsWith('/') ? (
+                  <Link href={item.href} className="block hover:text-slate-100 transition-colors duration-200">
+                    {item.name}
+                  </Link>
+                ) : (
+                  <a href={item.href} className="block hover:text-slate-100 transition-colors duration-200">
+                    {item.name}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
