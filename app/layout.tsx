@@ -16,6 +16,7 @@ import ModalBannerCodeClient from '@/components/ui/ModalBannerCode/ModalBannerCo
 import dynamic from 'next/dynamic';
 import ProfileFormModal from '@/components/ui/ProfileFormModal';
 import Analytics from '@/components/Analytics';
+import SponsorRails, { SponsorStrip } from '@/components/ui/Sponsors/SponsorRails';
 
 const ChatWindow = dynamic(() => import('@/components/ui/ChatWindow'), { ssr: false });
 
@@ -87,6 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SupabaseProvider>
             <ProfileFormModal />
             <Banner />
+            <SponsorStrip />
             <Navbar />
             <Suspense fallback={null}>
               <InstantNav />
@@ -99,6 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
             <Footer />
             <Analytics />
+            <SponsorRails />
           </SupabaseProvider>
         </main>
 

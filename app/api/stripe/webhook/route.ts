@@ -4,6 +4,7 @@ import { activateFromCheckoutSession } from '@/utils/server/activateLaunch';
 import { trackFunnel } from '@/utils/server/funnel';
 import { logPaymentEvent, notifyPaymentDiscord } from '@/utils/server/paymentLog';
 import { stripe } from '@/utils/server/stripe';
+import { activateAd, syncAdSubscription } from '@/utils/server/ads';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
@@ -69,7 +70,19 @@ export async function POST(req: Request) {
   await logPaymentEvent({ event: 'webhook_received', stripeEventId: event.id, stripeSessionId: object.id?.startsWith('cs_') ? object.id : null, details: { type: event.type } });
 
   try {
+    // Sponsor ads (subscriptions) have their own handling; everything else is a paid launch.
+    const adSession = event.type.startsWith('checkout.session.') && (event.data.object as Stripe.Checkout.Session).metadata?.kind === 'ad';
+    if (adSession) {
+      if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+        await activateAd(event.data.object as Stripe.Checkout.Session, 'webhook');
+      }
+      return NextResponse.json({ received: true });
+    }
     switch (event.type) {
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted':
+        await syncAdSubscription(event.data.object as Stripe.Subscription);
+        break;
       case 'checkout.session.completed':
       case 'checkout.session.async_payment_succeeded':
         await activateFromCheckoutSession(event.data.object as Stripe.Checkout.Session, 'webhook', event.id);

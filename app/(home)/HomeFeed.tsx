@@ -1,5 +1,6 @@
 'use client';
 
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
 import React, { type ReactNode, useState } from 'react';
 import ProductsService from '@/utils/supabase/services/products';
 import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
@@ -71,6 +72,9 @@ export default function HomeFeed({
           {contestants.slice(0, 3).map(card)}
         </ol>
         <div id="TA_AD_CONTAINER"></div>
+        <ul className="border-t border-slate-800/70 py-1">
+          <InlineSponsor />
+        </ul>
         {contestants.length > 3 && (
           <ol id="more-launches" start={4} className="divide-y divide-slate-800/70 border-t border-slate-800/70">
             {contestants.slice(3).map((product, idx) => card(product, idx + 3))}

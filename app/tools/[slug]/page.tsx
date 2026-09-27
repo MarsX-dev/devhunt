@@ -1,3 +1,4 @@
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import categories from '@/utils/categories';
@@ -50,7 +51,8 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
       </PageHeader>
       <MonitizorAdCards />
       <ol className="mt-10 mb-4">
-        {rows.map((tool, idx) => (
+        {rows.map((tool, idx) => [
+          idx === 5 && <InlineSponsor key="sponsor" />,
           <ToolRow
             key={tool.id}
             tool={tool}
@@ -58,8 +60,8 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
             rankDigits={String(page * LIST_PAGE_SIZE).length}
             showDate
             revealIndex={idx}
-          />
-        ))}
+          />,
+        ])}
       </ol>
       <ListPagination basePath={`/tools/${slug}`} page={page} totalPages={totalPages} />
       <div className="mb-16" />

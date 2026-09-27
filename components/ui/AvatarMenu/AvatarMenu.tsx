@@ -44,6 +44,7 @@ export default ({ onLogout, session }: Props) => {
     { title: 'Profile', path: isLoggin && user ? `/@${user.username}` : '' },
     { title: 'My tools', path: '/account/tools' },
     { title: 'Edit profile', path: '/account/details' },
+    { title: 'Advertise', path: '/account/advertise' },
   ];
 
   useEffect(() => {
