@@ -10,6 +10,7 @@ export async function POST(req: Request) {
     if (!personalEMail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personalEMail)) {
       return NextResponse.json({ error: 'Valid email is required' }, { status: 400 });
     }
+    const source = typeof body?.source === 'string' && /^[a-z_]{1,30}$/.test(body.source) ? body.source : 'newsletter';
 
     const auth = process.env.MARSX_MAILER_AUTH;
     const audienceId = process.env.MARSX_MAILER_AUDIENCE_ID || '69f455ab8aee3505f37b2c29';
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         email: personalEMail,
         customData: {
-          signup_source: 'newsletter',
+          signup_source: source,
         },
         audienceId,
       }),

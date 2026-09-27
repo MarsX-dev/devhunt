@@ -1,6 +1,7 @@
 'use client';
 
 import Brand from '../Brand/Brand';
+import NewsletterForm from '../Newsletter/NewsletterForm';
 
 export default () => {
   const footerNavs = [
@@ -51,16 +52,17 @@ export default () => {
   return (
     <footer className="mt-20 text-slate-400 bg-slate-900 px-4 py-5 max-w-screen-xl mx-auto md:px-8">
       <div className="border-t border-slate-800 pt-8">
-        <div className="max-w-lg sm:mx-auto sm:text-center">
-          <Brand className="sm:m-auto" />
-          <p className="leading-relaxed mt-3 text-slate-300 text-[15px]">
-            A launchpad for dev tools, built by developers. Open-source and fair.
-          </p>
-        </div>
-        <div className="mt-10">
-          <ul className="flex flex-col sm:flex-wrap sm:flex-row sm:gap-x-10 gap-y-2 text-sm text-slate-400 leading-relaxed">
+        <div className="gap-x-12 lg:flex">
+          <div className="max-w-sm flex-none">
+            <Brand />
+            <p className="leading-relaxed mt-3 text-slate-300 text-[15px]">
+              Get the best new dev tools in your inbox every Tuesday. Unsubscribe anytime.
+            </p>
+            <NewsletterForm source="footer" className="mt-4" />
+          </div>
+          <ul className="mt-10 flex flex-1 flex-col gap-y-2 text-sm text-slate-400 leading-relaxed sm:flex-row sm:flex-wrap sm:gap-x-10 lg:mt-1">
             {footerNavs.map((item, idx) => (
-              <li key={idx} className="sm:w-[45%] md:w-[30%] lg:w-[22%]">
+              <li key={idx} className="sm:w-[45%] md:w-[30%]">
                 <a href={item.href} className="block hover:text-slate-100 transition-colors duration-200">
                   {item.name}
                 </a>

@@ -26,4 +26,3 @@ export * from './IconClipboard';
 export * from './IconFirstWinnerBadge';
 export * from './IconSecondWinnerBadge';
 export * from './IconThirdWinnerBadge';
-export * from './IconNewsletterEnvolpe';

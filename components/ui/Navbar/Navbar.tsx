@@ -13,16 +13,13 @@ import AvatarMenu from '../AvatarMenu';
 import { useSupabase } from '@/components/supabase/provider';
 import { IconSearch } from '@/components/Icons';
 import categories from '@/utils/categories';
-import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import NewsletterModal from '../NewsletterModal';
-import { BellAlertIcon } from '@heroicons/react/24/outline';
-import { Bell, LayoutGrid, Search } from 'lucide-react';
+import { ChevronDownIcon } from '@heroicons/react/24/solid';
+import NewsletterInbox from '../Newsletter/NewsletterInbox';
+import { LayoutGrid, Search } from 'lucide-react';
 import useOnclickOutside from 'react-cool-onclickoutside';
 
 export default () => {
   const [isActive, setActive] = useState(false);
-  const [isNewsletterModalActive, setNewsletterModalActive] = useState(false);
-  const [isBannerActive, setBannerActive] = useState(false);
   const [isNavMenuActive, setNavMenuActive] = useState(false);
   const [isCommandActive, setCommandActive] = useState(false);
 
@@ -76,7 +73,6 @@ export default () => {
 
   useEffect(() => {
     setActive(false);
-    setBannerActive(localStorage.getItem('isNewsletterActive') ? false : true);
   }, [pathname]);
 
   return (
@@ -102,15 +98,7 @@ export default () => {
               <ul className="justify-end items-center space-y-6 text-slate-400 lg:flex lg:space-x-4 lg:space-y-0">
                 {!isLoggedin ? (
                   <li>
-                    <button
-                      onClick={() => setNewsletterModalActive(true)}
-                      aria-label="Subscribe"
-                      title="Subscribe to the weekly email"
-                      className="flex items-center gap-x-2 hover:text-slate-200 lg:rounded-full lg:p-1.5 lg:hover:bg-slate-800"
-                    >
-                      <Bell className="h-[18px] w-[18px]" />
-                      <span className="lg:sr-only">Subscribe</span>
-                    </button>
+                    <NewsletterInbox />
                   </li>
                 ) : (
                   ''
@@ -194,36 +182,6 @@ export default () => {
           </div>
         </div>
       </nav>
-      {isBannerActive && !isLoggedin ? (
-        <div className="animate-bottom-bannner fixed bottom-6 inset-x-0 z-30 max-w-xl mx-auto px-4">
-          <div className="flex items-center gap-x-3 rounded-2xl border border-slate-700/80 bg-slate-900/90 p-3 shadow-2xl shadow-black/40 backdrop-blur-md">
-            <div className="flex flex-none items-center justify-center rounded-xl w-10 h-10 bg-slate-800 text-orange-400">
-              <BellAlertIcon className="w-5 h-5" />
-            </div>
-            <p className="flex-1 text-sm text-slate-300">
-              <button
-                onClick={() => setNewsletterModalActive(true)}
-                className="text-slate-100 hover:text-orange-500 duration-150 underline"
-              >
-                Subscribe
-              </button>{' '}
-              to get weekly email with best new dev tools.
-            </p>
-            <button
-              onClick={() => {
-                setBannerActive(false);
-                localStorage.setItem('isNewsletterActive', 'true');
-              }}
-              className="p-1 rounded-md text-slate-400 hover:bg-slate-700 duration-150"
-            >
-              <XMarkIcon className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      ) : (
-        ''
-      )}
-      <NewsletterModal isActive={isNewsletterModalActive} closeModal={setNewsletterModalActive} />
       <CommandPalette isCommandActive={isCommandActive} setCommandActive={setCommandActive} />
       <BlurBackground className="lg:hidden z-20" isActive={isActive} setActive={() => setActive(false)} />
     </>
