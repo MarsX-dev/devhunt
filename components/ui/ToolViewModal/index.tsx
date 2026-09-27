@@ -4,18 +4,13 @@ import { IconArrowLongLeft } from '@/components/Icons';
 import { Gallery, GalleryImage } from '@/components/ui/Gallery';
 import { Tabs } from '@/components/ui/TabsLink';
 import TabLink from '@/components/ui/TabsLink/TabLink';
-import CommentService from '@/utils/supabase/services/comments';
 import CommentSection from '@/components/ui/Client/CommentSection';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import AwardsService from '@/utils/supabase/services/awards';
 import Link from 'next/link';
-import ProfileService from '@/utils/supabase/services/profile';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Modal from '../Modal';
 import { type ProductType } from '@/type';
 import { Profile } from '@/utils/supabase/types';
-import { ProductAward } from '@/utils/supabase/CustomTypes';
 import { useRouter } from 'next/navigation';
 import TrendingToolsList from '../TrendingToolsList';
 import ToolHero, { ToolMaker } from '../ToolHero';
@@ -23,14 +18,14 @@ import SectionLabel from '../SectionLabel';
 import { ProfileSource, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, cleanName } from '../ToolProfile';
 import RequestProfile from '../ToolProfile/RequestProfile';
 import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '../ToolExtras';
-import { getToolProfile, type ToolProfileView } from '@/utils/toolProfileData';
-import { getToolExtras, type ToolExtra } from '@/utils/toolExtras';
+import { type ToolProfileView } from '@/utils/toolProfileData';
+import { type ToolExtra } from '@/utils/toolExtras';
+import { loadToolPreview } from '@/utils/toolPreview';
 import { neighborCard } from '@/utils/toolCardRegistry';
 
 // Tool preview opened from a card: the same content as the tool page (loaded in the browser), with
 // previous/next buttons (and ← → keys) to step through the cards of the list without closing.
 export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: ProductType; close: () => void; votesToday?: number }) => {
-  const supabaseBrowserClient = createBrowserClient();
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -51,11 +46,19 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
     setExtras([]);
     setNeighbors({ prev: !!neighborCard(t.id, -1), next: !!neighborCard(t.id, 1) });
     let alive = true;
-    new CommentService(supabaseBrowserClient).getByProductId(t.id).then(list => alive && setComments((list ?? []) as any[]));
-    new ProfileService(supabaseBrowserClient).getById(t.owner_id as string).then(o => alive && setOwner((o as Profile) ?? null));
-    new AwardsService(supabaseBrowserClient).getWeeklyRank(t.id).then((award: ProductAward[]) => alive && setWeekRank(Number((award as any)?.rank) || undefined));
-    getToolProfile(t.id).then(p => alive && setProfile(p));
-    getToolExtras(t.id).then(e => alive && setExtras(e));
+    void loadToolPreview(t.slug).then(preview => {
+      if (!alive) return;
+      setComments(preview?.comments ?? []);
+      setOwner(preview?.owner ?? null);
+      setWeekRank(preview?.weekRank ?? undefined);
+      setProfile(preview?.profile ?? null);
+      setExtras(preview?.extras ?? []);
+    });
+    // Preload the neighbours so ←/→ shows them without waiting.
+    for (const direction of [-1, 1] as const) {
+      const card = neighborCard(t.id, direction);
+      if (card) void loadToolPreview(card.tool.slug);
+    }
     return () => {
       alive = false;
     };
