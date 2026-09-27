@@ -84,10 +84,11 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
           onClick={toggleVote}
           {...props}
           onMouseMove={handleHoverEffect}
-          className={`flex items-center gap-x-2.5 rounded-full px-4 py-2 font-medium active:scale-[0.98] overflow-hidden relative duration-200 group ${
+          // Both states have a 1px border (transparent until voted), so voting never changes the size.
+          className={`flex items-center gap-x-2.5 rounded-full border px-4 py-2 font-medium active:scale-[0.98] overflow-hidden relative duration-200 group ${
             isUpvoted
-              ? 'bg-orange-500/10 border border-orange-500/70 text-orange-400 hover:bg-orange-500/15'
-              : 'bg-orange-500 hover:bg-orange-400 text-white shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)]'
+              ? 'bg-orange-500/10 border-orange-500/70 text-orange-400 hover:bg-orange-500/15'
+              : 'border-transparent bg-orange-500 hover:bg-orange-400 text-white shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)]'
           } ${className}`}
         >
           <IconVote className="w-4 h-4" />

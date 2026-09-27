@@ -1,5 +1,6 @@
 'use client';
 
+import { IconVote } from '@/components/Icons';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import moment from 'moment';
@@ -105,7 +106,7 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
             />
             <div className="min-w-0">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-4xl">{tool.name}</h1>
-              <p className="mt-1 text-slate-400 sm:mt-1.5 sm:text-lg">{tool.slogan}</p>
+              <p className="mt-1 text-[15px] text-slate-400 sm:mt-1.5">{tool.slogan}</p>
             </div>
           </div>
         </div>
@@ -139,7 +140,15 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
             {item}
           </span>
         ))}
-        {votesToday > 0 && <span className="font-mono text-xs text-green-400">+{votesToday} today</span>}
+        {votesToday > 0 && (
+          // Same ▲ as the vote button, so it isn't read as more impressions (as on the home page).
+          <span
+            title={`${votesToday} ${votesToday === 1 ? 'upvote' : 'upvotes'} today`}
+            className="inline-flex items-center gap-x-1 font-mono text-xs text-green-400"
+          >
+            <IconVote className="h-2.5 w-2.5" />+{votesToday} today
+          </span>
+        )}
       </p>
 
       {/* owner undefined = still loading (preview modal): keep the row's space with a skeleton. */}

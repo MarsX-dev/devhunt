@@ -140,7 +140,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         <div id="description" className="scroll-mt-32 pb-4">
           <div className="container-custom-screen">
             <div
-              className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
+              className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
               // Use DOMPurify method for XSS sanitizeration
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
             ></div>

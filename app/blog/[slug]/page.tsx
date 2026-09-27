@@ -80,7 +80,7 @@ export default async function Article({ params: { slug } }: { params: { slug: st
           : null
       }
       <div
-        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8"
+        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8 text-[15px] leading-7"
         dangerouslySetInnerHTML={{ __html: post.html }}
       ></div>
       <div className="flex flex-wrap gap-2 justify-start w-full">
@@ -96,9 +96,9 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       </div>
       {post.relatedPosts?.length
         ? (
-        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert">
+        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert text-[15px] leading-7">
           <h2>Related posts</h2>
-          <ul className="text-base">
+          <ul>
             {post.relatedPosts.map((p: any, ix: number) => (
               <li key={ix}>
                 <Link className="duration-200" href={`/blog/${p.slug}`}>

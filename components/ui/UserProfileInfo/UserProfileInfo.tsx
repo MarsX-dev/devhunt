@@ -37,7 +37,7 @@ export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) 
         />
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">{profile?.full_name || 'DevHunt user'}</h1>
-          <p className="mt-1 text-slate-400">
+          <p className="mt-1 text-[15px] text-slate-400">
             {profile?.headline || `@${profile?.username}`}
             {stats && stats.launches > 0 && (
               <span className="ml-2 inline-flex translate-y-[-1px] items-center rounded-full border border-orange-500/40 bg-orange-500/[0.06] px-2 py-0.5 align-middle text-[11px] font-medium text-orange-300">
@@ -47,7 +47,7 @@ export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) 
           </p>
         </div>
       </div>
-      {profile?.about && <p className="mt-5 max-w-2xl text-slate-300">{profile.about}</p>}
+      {profile?.about && <p className="mt-5 max-w-2xl text-sm leading-6 text-slate-300">{profile.about}</p>}
       {links.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           {links.map(link => (
