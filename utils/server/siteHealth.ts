@@ -1,4 +1,5 @@
 import { jevAsk } from '@/utils/server/jev';
+import { safeFetch } from '@/utils/server/safeFetch';
 import { directVerdict, goneReason, hijackQuestions, hijackVerdict, htmlToSnapshot, mentionsTool, siteVariants, type PageSnapshot, type SiteStatus } from '@/utils/siteHealth';
 
 const FIRECRAWL_KEY = () => process.env.FIRECRAWL_KEY || process.env.FIRECRAWL_API_KEY;
@@ -7,7 +8,8 @@ const addHttps = (url: string) => (/^https?:\/\//i.test(url) ? url : `https://${
 
 async function fetchDirect(url: string): Promise<PageSnapshot> {
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'text/html,*/*' }, redirect: 'follow', signal: AbortSignal.timeout(15000) });
+    // Tool websites are set by their owners: public hosts only (redirects re-checked).
+    const res = await safeFetch(url, { headers: { 'User-Agent': UA, Accept: 'text/html,*/*' }, signal: AbortSignal.timeout(15000) });
     const html = (res.headers.get('content-type') ?? '').includes('html') ? (await res.text()).slice(0, 400000) : '';
     return htmlToSnapshot(html, res.status, res.url);
   } catch (e: any) {

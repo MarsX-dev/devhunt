@@ -1,6 +1,7 @@
 import { jevRequest, parseJevAnswers, type CategoryOption, type ScrapedPage } from '@/utils/toolImport';
 import categoryList from '@/utils/categories';
 import { jevAsk, jevEnabled } from '@/utils/server/jev';
+import { safeFetch } from '@/utils/server/safeFetch';
 
 // Env vars (server-only):
 //   FIRECRAWL_KEY  enables "start with your website URL" on the submit form (Firecrawl scrapes the page)
@@ -48,7 +49,7 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 // hotlink files the site may change or remove. Falls back to the original URL.
 export async function rehostImage(url: string, imgixOptions: string): Promise<string> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000), redirect: 'follow' });
+    const res = await safeFetch(url, { signal: AbortSignal.timeout(8000) }); // scraped URLs: public hosts only
     const type = res.headers.get('content-type') ?? '';
     if (!res.ok || !type.startsWith('image/')) throw new Error(`not an image (${res.status} ${type})`);
     const bytes = await res.arrayBuffer();
