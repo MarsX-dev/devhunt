@@ -1,6 +1,7 @@
 import SiteStats from '@/components/ui/SiteStats';
 import LiveActivity from '@/components/ui/LiveActivity';
 import CategoryGrid from '@/components/ui/CategoryGrid';
+import FeaturedWinners from '@/components/ui/FeaturedWinners';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { getHomeData } from '@/utils/homeData';
 import HomeFeed from './HomeFeed';
@@ -13,6 +14,7 @@ export default async function Home() {
   return (
     <HomeFeed
       data={data}
+      featured={<FeaturedWinners />}
       votesToday={activity?.votes_today ?? {}} latestComments={activity?.latest_comments ?? {}} bottom={<CategoryGrid />}>
       <SiteStats />
       <LiveActivity events={(activity?.events ?? []).filter(e => e.name?.length > 1 && !PLACEHOLDER_NAME.test(e.name))} />

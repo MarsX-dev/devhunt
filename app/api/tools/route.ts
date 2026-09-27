@@ -4,6 +4,7 @@ import { planLaunch, type SubmitType } from '@/utils/launchPlanning';
 import { getRouteUser } from '@/utils/server/auth';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { announceNewTool } from '@/utils/server/discord';
+import { scoreDevTool } from '@/utils/server/jev';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
@@ -90,8 +91,13 @@ export async function POST(req: Request) {
     await serviceClient.from('product_category_product').insert(categoryIds.map(category_id => ({ product_id: product.id, category_id })));
   }
 
-  const { data: profile } = await serviceClient.from('profiles').select('full_name').eq('id', user.id).single();
-  await announceNewTool(product, profile?.full_name ?? null);
+  // Moderation signal (also keeps non-dev submissions out of the home page's live strip).
+  const [devToolScore, { data: profile }] = await Promise.all([
+    scoreDevTool({ name, slogan: body.slogan, description: body.description, website: body.website }),
+    serviceClient.from('profiles').select('full_name').eq('id', user.id).single(),
+  ]);
+  if (devToolScore !== null) await serviceClient.from('products').update({ dev_tool_score: devToolScore } as never).eq('id', product.id);
+  await announceNewTool(product, profile?.full_name ?? null, devToolScore);
 
   return NextResponse.json({ product, paid: submitType === 'paid' });
 }

@@ -48,6 +48,21 @@ describe('database security (anonymous API key)', () => {
     expect(res.ok).toBe(false);
   });
 
+  it('cannot add or edit rich launch page findings', async () => {
+    const insert = await supabase('tool_enrichments', { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ product_id: SOME_PRODUCT_ID, kind: 'award', title: 'x' }) });
+    expect(insert.ok).toBe(false);
+    const update = await supabase('tool_enrichments?id=gt.0', { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ status: 'approved' }) });
+    expect(update.ok ? (await update.json()).length : 0).toBe(0);
+  });
+
+  it('search is public and ranked', async () => {
+    const res = await supabase('rpc/search_tools', { method: 'POST', body: JSON.stringify({ q: 'daytona', max_results: 3 }) });
+    expect(res.status).toBe(200);
+    const rows = await res.json();
+    expect(rows[0].name.toLowerCase()).toBe('daytona');
+    expect(Object.keys(rows[0]).sort()).toEqual(['id', 'launch_start', 'logo_url', 'name', 'slogan', 'slug', 'votes_count']);
+  });
+
   it.each(['site_daily_views', 'payments', 'payment_events'])('cannot read or write server-only table %s', async table => {
     const read = await supabase(`${table}?select=*&limit=1`);
     expect(read.ok ? (await read.json()).length : 0).toBe(0);

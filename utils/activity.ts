@@ -1,6 +1,6 @@
 // Client-safe types and formatting for the home page's live activity strip.
 export interface ActivityEvent {
-  type: 'joined' | 'upvoted' | 'commented';
+  type: 'joined' | 'upvoted' | 'commented' | 'listed';
   at: string;
   name: string;
   avatar: string;
@@ -22,7 +22,7 @@ export interface RecentActivity {
   latest_comments: Record<string, LatestComment>; // product id -> newest top-level comment
 }
 
-export const activityVerb = { joined: 'joined DevHunt', upvoted: 'upvoted', commented: 'commented on' } as const;
+export const activityVerb = { joined: 'joined DevHunt', upvoted: 'upvoted', commented: 'commented on', listed: 'listed' } as const;
 
 export function timeAgo(at: string, now = Date.now()) {
   const minutes = Math.max(0, Math.round((now - Date.parse(at)) / 60_000));

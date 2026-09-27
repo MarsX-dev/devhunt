@@ -149,9 +149,12 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
             {tool.name} launches on <b className="text-slate-100">{moment.utc(tool.launch_start).format('LL')}</b>.
           </p>
           <Link
-            href="/account/tools"
-            className="w-full rounded-lg bg-green-500 px-6 py-3 font-semibold text-white hover:bg-green-600 transition-colors"
+            href={`/account/tools/highlights/${tool.id}`}
+            className="block w-full rounded-full bg-slate-50 px-6 py-3 font-semibold text-slate-900 hover:bg-white transition-colors"
           >
+            ✨ Add your awards &amp; reviews
+          </Link>
+          <Link href="/account/tools" className="mt-3 block text-sm text-slate-400 hover:text-slate-200">
             Go to dashboard
           </Link>
         </div>
@@ -201,7 +204,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
                 <h2 className="text-lg font-semibold text-slate-50">Launch in the next 4 weeks</h2>
                 <span className="flex-none rounded-full bg-orange-500 px-2.5 py-0.5 text-sm font-semibold text-white">$49</span>
               </div>
-              <p className="mt-1 text-sm text-slate-400">Skip the queue and choose your week.</p>
+              <p className="mt-1 text-sm text-slate-400">Skip the queue, choose your week, and get a rich launch page with your awards, reviews and press.</p>
               <fieldset className="mt-4 grid grid-cols-2 gap-2" aria-label="Launch week">
                 {weeks.map((w, idx) => {
                   const key = weekKey(w.startDate);

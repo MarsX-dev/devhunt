@@ -103,6 +103,14 @@ export default () => {
                       >
                         <IconPencilSquare /> Edit your tool
                       </Link>
+                      {tool.isPaid && (
+                        <Link
+                          href={`/account/tools/highlights/${tool.id}`}
+                          className="inline-flex items-center gap-x-1.5 text-sm text-slate-300 hover:text-slate-50 duration-150"
+                        >
+                          ✨ Awards &amp; reviews
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           handleDeleteConfirm(tool.id, idx);

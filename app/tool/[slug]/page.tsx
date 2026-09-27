@@ -21,6 +21,8 @@ import { Profile } from '@/utils/supabase/types';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import ToolHero, { ToolMaker } from '@/components/ui/ToolHero';
 import SectionLabel from '@/components/ui/SectionLabel';
+import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '@/components/ui/ToolExtras';
+import { getToolExtras } from '@/utils/toolExtras';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { type ProductType } from '@/type';
 
@@ -77,7 +79,8 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
   const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
 
   const weekRank = Number((weekAward[0] as any)?.rank) || undefined;
-  const votesToday = (await getRecentActivity())?.votes_today?.[product.id] ?? 0;
+  const [activity, extras] = await Promise.all([getRecentActivity(), getToolExtras(product.id)]);
+  const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
   const tabs = [
     { name: 'About', hash: '#' },
@@ -96,6 +99,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           votesToday={votesToday}
           commentsCount={(comments as unknown[] | null)?.length ?? 0}
         />
+        <ToolAwards extras={extras} />
       </div>
       <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-[3.75rem] z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map((item, idx) => (
@@ -127,6 +131,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             ) : (
               ''
             )}
+            <ToolHighlights extras={extras} />
           </div>
           {product?.asset_urls?.length && (
             <div className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
@@ -139,6 +144,12 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             </div>
           )}
         </div>
+        {extras.some(e => e.kind === 'review' || e.kind === 'mention') && (
+          <div className="container-custom-screen space-y-14">
+            <ToolReviews extras={extras} />
+            <ToolMentions extras={extras} />
+          </div>
+        )}
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
         <div className="container-custom-screen">
           <ToolMaker tool={product as ProductType} owner={owned as Profile} />

@@ -1,15 +1,14 @@
 import { jevRequest, parseJevAnswers, type CategoryOption, type ScrapedPage } from '@/utils/toolImport';
 import categoryList from '@/utils/categories';
+import { jevAsk, jevEnabled } from '@/utils/server/jev';
 
 // Env vars (server-only):
 //   FIRECRAWL_KEY  enables "start with your website URL" on the submit form (Firecrawl scrapes the page)
 //   JEV_KEY        optional: TypeSafe JEV classifies pricing and categories (else keyword matching)
 //   JEV_API_URL    optional override of the JEV endpoint
 const FIRECRAWL_KEY = () => process.env.FIRECRAWL_KEY || process.env.FIRECRAWL_API_KEY;
-const JEV_KEY = () => process.env.JEV_KEY || process.env.JEV_API_KEY;
-const JEV_URL = () => process.env.JEV_API_URL || 'https://api.typesafe.ai/v1/systemone';
 export const importEnabled = () => !!FIRECRAWL_KEY();
-export const aiEnabled = () => !!JEV_KEY();
+export const aiEnabled = jevEnabled;
 
 export async function scrapeWithFirecrawl(url: string): Promise<ScrapedPage> {
   const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
@@ -36,22 +35,10 @@ export async function scrapeWithFirecrawl(url: string): Promise<ScrapedPage> {
 // Classifies pricing and categories with JEV. Returns null when JEV is not configured or fails;
 // the caller then keeps the keyword-based draft.
 export async function classifyWithJev(page: ScrapedPage, categories: CategoryOption[]): Promise<unknown | null> {
-  if (!aiEnabled()) return null;
   const described = categories.map(c => ({ ...c, description: categoryList.find(k => k.name === c.name)?.description }));
-  try {
-    const res = await fetch(JEV_URL(), {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${JEV_KEY()}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(jevRequest(page, described)),
-      signal: AbortSignal.timeout(15000),
-    });
-    const body = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(`status ${res.status}: ${JSON.stringify(body)?.slice(0, 200)}`);
-    return parseJevAnswers(body, categories);
-  } catch (err) {
-    console.error('jev classify failed:', (err as Error).message);
-    return null;
-  }
+  const { state, questions } = jevRequest(page, described);
+  const answers = await jevAsk(state, questions);
+  return answers ? parseJevAnswers({ answers }, categories) : null;
 }
 
 const UPLOAD_URL = 'https://d1gl9g4ciwvjfq.cloudfront.net/api/UploadFile'; // same host as the form's uploads
