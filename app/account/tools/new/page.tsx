@@ -22,6 +22,7 @@ import { type ChangeEvent, type ReactNode, useEffect, useState } from 'react';
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { trackStep } from '@/utils/funnelClient';
 import ProfileService from '@/utils/supabase/services/profile';
 import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
@@ -100,6 +101,8 @@ export default () => {
   const [phSlug, setPhSlug] = useState('');
   const [isPhLoading, setIsPhLoading] = useState(false);
   const [phError, setPhError] = useState('');
+
+  useEffect(() => trackStep('submit_view'), []);
 
   useEffect(() => {
     axios
@@ -197,6 +200,18 @@ export default () => {
         const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
 
         setLaunching(true);
+        trackStep('form_submitted', {
+          url: tool_website,
+          name: tool_name,
+          slogan,
+          pricing_type: Number(pricing_type),
+          categories: categories.map(item => item.name),
+          screenshots: imagePreviews.length,
+          has_logo: !!logoPreview,
+          has_github: !!github_repo,
+          has_video: !!demo_video,
+          imported: importState === 'done',
+        });
         // The tool joins the free launch queue; the owner picks free vs. a paid week on the next step.
         const { data: res } = await axios.post('/api/tools', {
           name: tool_name,
@@ -223,6 +238,7 @@ export default () => {
       }
     } catch (err: any) {
       console.log('error on submit', err);
+      trackStep('form_submitted', { error: String(err?.response?.data?.error ?? err?.message ?? 'submit failed').slice(0, 200) });
       if (err?.response?.data?.error) alert(err.response.data.error);
       setLaunching(false);
     }
@@ -232,6 +248,8 @@ export default () => {
   const handleWebsiteImport = async () => {
     const url = importUrl.trim();
     if (!url) return;
+    trackStep('url_entered', { url });
+    const started = Date.now();
     setValue('tool_website', /^https?:\/\//i.test(url) ? url : `https://${url}`);
     if (!importEnabled) {
       setStage('form');
@@ -258,9 +276,11 @@ export default () => {
         setImageFile(draft.screenshotUrls);
       }
       setImportState('done');
+      trackStep('import_done', { url, ok: true, ms: Date.now() - started, name: draft.name, categories: (data.categories ?? []).map((c: any) => c.name) });
     } catch (err: any) {
       setImportError(err?.response?.data?.error ?? "We couldn't read that website. Please fill in the form yourself.");
       setImportState('error');
+      trackStep('import_done', { url, ok: false, ms: Date.now() - started, error: String(err?.response?.data?.error ?? err?.message ?? 'failed').slice(0, 200) });
     }
     setStage('form');
   };
@@ -343,7 +363,13 @@ export default () => {
             </form>
             <p className="mt-4 font-mono text-xs text-slate-600">free · about a minute · dev tools only</p>
             <div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <button type="button" onClick={() => setStage('form')} className="text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">
+              <button
+                type="button"
+                onClick={() => {
+                  trackStep('manual_form');
+                  setStage('form');
+                }}
+                className="text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">
                 Fill it in manually
               </button>
               <button type="button" onClick={() => setIsPhModalOpen(true)} className="text-slate-400 underline decoration-slate-700 underline-offset-4 hover:text-slate-200">

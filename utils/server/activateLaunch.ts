@@ -1,3 +1,4 @@
+import { trackFunnel } from '@/utils/server/funnel';
 import type Stripe from 'stripe';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import { isCheckoutPaid, resolvePaidWeek, type PlannedWeek } from '@/utils/launchPlanning';
@@ -29,6 +30,14 @@ export async function activateFromCheckoutSession(session: Stripe.Checkout.Sessi
       details: { source, status: session.status, payment_status: session.payment_status, week_start: session.metadata?.week_start, ...(result.status === 'activated' || result.status === 'already-activated' ? { launchStart: result.launchStart } : {}) },
     });
     if (result.status === 'activated') {
+      await trackFunnel({
+        step: 'paid',
+        userId: base.userId,
+        productId: result.productId,
+        visitorId: session.metadata?.visitor_id || null,
+        sessionId: session.metadata?.session_id || null,
+        props: { amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, week: session.metadata?.week_start, via: source, promo: !!session.total_details?.amount_discount },
+      });
       const { data: tool } = await serviceClient.from('products').select('name, slug').eq('id', result.productId).single();
       await notifyPaymentDiscord('paid', {
         toolName: tool?.name,

@@ -1,4 +1,4 @@
-import { Award, Check } from 'lucide-react';
+import { Award } from 'lucide-react';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ToolExtra } from '@/utils/toolExtras';
 
@@ -38,10 +38,12 @@ export function ToolHighlights({ extras }: { extras: ToolExtra[] }) {
   const highlights = extras.filter(e => e.kind === 'highlight');
   if (!highlights.length) return null;
   return (
-    <ul className="mt-6 grid gap-2 sm:grid-cols-2" aria-label="Highlights">
+    <ul className="mt-6 grid gap-x-10 sm:grid-cols-2" aria-label="Highlights">
       {highlights.map(h => (
-        <li key={h.id} className="flex items-start gap-x-2.5 rounded-xl border border-slate-800 px-3.5 py-2.5 text-sm text-slate-300">
-          <Check className="mt-0.5 h-4 w-4 flex-none text-green-400" />
+        <li key={h.id} className="flex gap-x-3 py-1 text-sm leading-6 text-slate-300">
+          <span aria-hidden className="font-mono text-green-400/80">
+            +
+          </span>
           {h.title}
         </li>
       ))}
@@ -55,15 +57,15 @@ export function ToolReviews({ extras }: { extras: ToolExtra[] }) {
   return (
     <div id="reviews">
       <SectionLabel title="What people say" hint={`${reviews.length} ${reviews.length === 1 ? 'quote' : 'quotes'} from around the web`} />
-      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+      <ul className="mt-4 grid gap-x-10 gap-y-5 sm:grid-cols-2">
         {reviews.map(review => (
-          <li key={review.id} className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900 p-5">
+          <li key={review.id} className="flex flex-col border-l border-slate-700 pl-4">
             <p className="text-sm leading-relaxed text-slate-200">“{review.title}”</p>
             <a
               href={review.url ?? undefined}
               target="_blank"
               rel="nofollow noopener"
-              className="mt-auto flex items-center gap-x-2 pt-4 text-xs text-slate-500 hover:text-slate-300"
+              className="mt-2 flex items-center gap-x-2 text-xs text-slate-500 hover:text-slate-300"
             >
               {hostIcon(review.url) && <img src={hostIcon(review.url)!} alt="" className="h-4 w-4 rounded" loading="lazy" />}
               {[review.body, review.source].filter(Boolean).join(' · ')}

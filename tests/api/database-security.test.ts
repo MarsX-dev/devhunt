@@ -43,7 +43,7 @@ describe('database security (anonymous API key)', () => {
     expect(rejected(res.status)).toBe(true);
   });
 
-  it.each(['get_site_stats', 'get_recent_activity', 'get_category_counts', 'get_analytics', 'track_pageview', 'claim_tool_profile'])('cannot call the server-only function %s', async fn => {
+  it.each(['get_site_stats', 'get_recent_activity', 'get_category_counts', 'get_analytics', 'track_pageview', 'claim_tool_profile', 'get_funnel', 'get_funnel_daily'])('cannot call the server-only function %s', async fn => {
     const res = await supabase(`rpc/${fn}`, { method: 'POST', body: '{}' });
     expect(res.ok).toBe(false);
   });
@@ -72,7 +72,7 @@ describe('database security (anonymous API key)', () => {
     expect(Object.keys(rows[0]).sort()).toEqual(['id', 'launch_start', 'logo_url', 'name', 'slogan', 'slug', 'votes_count']);
   });
 
-  it.each(['site_daily_views', 'payments', 'payment_events', 'analytics_daily', 'analytics_pages'])('cannot read or write server-only table %s', async table => {
+  it.each(['site_daily_views', 'payments', 'payment_events', 'analytics_daily', 'analytics_pages', 'funnel_events'])('cannot read or write server-only table %s', async table => {
     const read = await supabase(`${table}?select=*&limit=1`);
     expect(read.ok ? (await read.json()).length : 0).toBe(0);
     const write = await supabase(table, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: '{}' });

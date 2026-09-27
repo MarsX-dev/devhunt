@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Brand from '../Brand';
 import Link from 'next/link';
+import { trackStep } from '@/utils/funnelClient';
 import ButtonMenu from './ButtonMenu';
 import Auth from '../Auth';
 import { usePathname, useRouter } from 'next/navigation';
@@ -158,7 +159,11 @@ export default () => {
                 {navigation.map((item, idx) => {
                   return (
                     <li key={idx} className="hover:text-slate-200">
-                      <Link href={item.path} className={`block ${item?.className || ''}`}>
+                      <Link
+                        href={item.path}
+                        className={`block ${item?.className || ''}`}
+                        onClick={item.title === 'Submit your Dev Tool' ? () => trackStep('submit_click', { logged_in: isLoggedin, from: 'navbar' }) : undefined}
+                      >
                         {item.title}
                       </Link>
                     </li>

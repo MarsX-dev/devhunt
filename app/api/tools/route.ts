@@ -4,6 +4,7 @@ import { planLaunch, type SubmitType } from '@/utils/launchPlanning';
 import { getRouteUser } from '@/utils/server/auth';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { announceNewTool } from '@/utils/server/discord';
+import { trackFunnel } from '@/utils/server/funnel';
 import { moderateSubmission } from '@/utils/server/jev';
 import { moderationDecision } from '@/utils/moderation';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
@@ -114,6 +115,12 @@ export async function POST(req: Request) {
     if (other) await serviceClient.from('product_category_product').insert({ product_id: product.id, category_id: other.id });
   }
   await announceNewTool(product, profile?.full_name ?? null, { ...decision, devToolScore: answers.devToolScore, topicProbability: answers.topicProbability });
+  await trackFunnel({
+    step: 'tool_created',
+    userId: user.id,
+    productId: product.id,
+    props: { name: product.name, url: body.website, moderation: decision.status, reason: decision.reason ?? undefined, dev_score: answers.devToolScore ?? undefined },
+  });
   console.log(JSON.stringify({ event: 'tool_submitted', tool: product.id, moderation: decision.status, reason: decision.reason, score: answers.devToolScore }));
 
   return NextResponse.json({ product, paid: submitType === 'paid', moderation: decision.status, moderationReason: decision.reason });

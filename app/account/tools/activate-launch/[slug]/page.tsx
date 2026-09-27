@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { trackStep } from '@/utils/funnelClient';
 import moment from 'moment';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
@@ -96,7 +97,13 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
       return keys.includes(saved) ? saved : keys[0] ?? '';
     });
     setStatus('ready');
-  }, [slug, session, sessionId]);
+    trackStep(
+      'launch_view',
+      { moderation: (product as any).moderation ?? 'ok', is_new: isNew, free_date: product.launch_start ?? undefined, weeks_open: upcoming.length },
+      product.id,
+    );
+    if (canceled) trackStep('checkout_canceled', {}, product.id);
+  }, [slug, session, sessionId, isNew, canceled]);
 
   useEffect(() => {
     if (session) void load();
@@ -118,7 +125,10 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
     }
   };
 
-  const keepFree = () => router.push(isNew ? `/tool/${slug}?banner=true` : '/account/tools');
+  const keepFree = () => {
+    if (tool) trackStep('free_chosen', { free_date: tool.launch_start }, tool.id);
+    router.push(isNew ? `/tool/${slug}?banner=true` : '/account/tools');
+  };
 
   const freeDate = tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
@@ -286,7 +296,10 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
                         selected ? 'border-orange-500 bg-orange-500 text-white' : 'border-slate-700 text-slate-300 hover:border-slate-500',
                       )}
                     >
-                      <input type="radio" name="week" value={key} checked={selected} onChange={() => setWeek(key)} className="sr-only" />
+                      <input type="radio" name="week" value={key} checked={selected} onChange={() => {
+                        setWeek(key);
+                        if (tool) trackStep('week_picked', { week: key }, tool.id);
+                      }} className="sr-only" />
                       <span className="block font-medium">{moment.utc(w.startDate).format('MMM D')}</span>
                       <span className={mergeTW('block text-xs', selected ? 'text-orange-100' : 'text-slate-400')}>{idx === 0 ? 'Next week' : `In ${idx + 1} weeks`}</span>
                     </label>

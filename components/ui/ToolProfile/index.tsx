@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { type ReactNode } from 'react';
 import moment from 'moment';
-import { Check, GitFork, Star } from 'lucide-react';
+import { GitFork, Star } from 'lucide-react';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type CompareTool, type ToolProfileView } from '@/utils/toolProfileData';
 import { sectionShown } from '@/utils/toolProfile';
@@ -87,6 +88,22 @@ export function ToolGlance({ profile }: { profile: ToolProfileView }) {
   );
 }
 
+// Terminal-style list line: a mono marker, the item, and a muted explanation on the same line.
+export function TermItem({ mark = '+', markClass = 'text-green-400/80', title, children }: { mark?: string; markClass?: string; title?: string; children?: ReactNode }) {
+  return (
+    <li className="flex gap-x-3 py-1.5 text-sm leading-6">
+      <span aria-hidden className={`flex-none font-mono ${markClass}`}>
+        {mark}
+      </span>
+      <span className="min-w-0">
+        {title && <span className="text-slate-100">{title}</span>}
+        {title && children ? <span className="text-slate-600"> — </span> : null}
+        {children && <span className="text-slate-400">{children}</span>}
+      </span>
+    </li>
+  );
+}
+
 export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name: string }) {
   const features = sectionShown(profile.data, 'features') ? profile.data.features : [];
   const use_cases = sectionShown(profile.data, 'use_cases') ? profile.data.use_cases : [];
@@ -96,12 +113,11 @@ export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name
       {!!features.length && (
         <div>
           <SectionLabel title="Key features" hint={`${features.length} features of ${name}`} />
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-3 grid gap-x-10 sm:grid-cols-2">
             {features.map(f => (
-              <li key={f.title} className="rounded-xl border border-slate-800 px-4 py-3.5">
-                <h3 className="text-sm font-medium text-slate-100">{f.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-slate-400">{f.description}</p>
-              </li>
+              <TermItem key={f.title} title={f.title}>
+                {f.description}
+              </TermItem>
             ))}
           </ul>
         </div>
@@ -109,12 +125,11 @@ export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name
       {!!use_cases.length && (
         <div>
           <SectionLabel title="Use cases" />
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-3">
             {use_cases.map(u => (
-              <li key={u} className="flex items-start gap-x-2.5 text-sm text-slate-300">
-                <Check className="mt-0.5 h-4 w-4 flex-none text-green-400" />
+              <TermItem key={u} mark="→" markClass="text-slate-600">
                 {u}
-              </li>
+              </TermItem>
             ))}
           </ul>
         </div>
@@ -123,6 +138,7 @@ export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name
   );
 }
 
+// Plans as rows: name, price, billing, highlights.
 export function ToolPricing({ profile, name }: { profile: ToolProfileView; name: string }) {
   const plans = profile.data.pricing?.plans ?? [];
   if (plans.length < 2 || !sectionShown(profile.data, 'pricing')) return null;
@@ -139,24 +155,15 @@ export function ToolPricing({ profile, name }: { profile: ToolProfileView; name:
           ) : undefined
         }
       />
-      <ul className={`mt-4 grid gap-3 ${plans.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
+      <ul className="mt-2 divide-y divide-slate-800/70">
         {plans.map(p => (
-          <li key={p.name} className="flex flex-col rounded-xl border border-slate-800 p-4">
-            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-500">{p.name}</span>
-            <span className="mt-2 text-2xl font-semibold text-slate-50">
+          <li key={p.name} className="grid gap-x-4 py-2.5 text-sm sm:grid-cols-[7rem_13rem_1fr]">
+            <span className="font-mono text-xs uppercase tracking-wider text-slate-400 sm:pt-0.5">{p.name}</span>
+            <span className="font-mono text-slate-50">
               {p.price}
-              {p.billing && <span className="ml-1 text-xs font-normal text-slate-500">{p.billing}</span>}
+              {p.billing && <span className="ml-1.5 text-[11px] text-slate-500">{p.billing.replace(/^per /, '/')}</span>}
             </span>
-            {!!p.highlights.length && (
-              <ul className="mt-3 space-y-1.5 text-xs text-slate-400">
-                {p.highlights.map(h => (
-                  <li key={h} className="flex items-start gap-x-2">
-                    <Check className="mt-px h-3.5 w-3.5 flex-none text-slate-500" />
-                    {h}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <span className="text-slate-400">{p.highlights.join(' · ')}</span>
           </li>
         ))}
       </ul>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { activateFromCheckoutSession } from '@/utils/server/activateLaunch';
+import { trackFunnel } from '@/utils/server/funnel';
 import { logPaymentEvent, notifyPaymentDiscord } from '@/utils/server/paymentLog';
 import { stripe } from '@/utils/server/stripe';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
@@ -26,6 +27,14 @@ async function reportFailure(event: Stripe.Event, session: Stripe.Checkout.Sessi
     amountTotal: session?.amount_total,
     currency: session?.currency,
     details: { type: event.type, reason, ...extra },
+  });
+  await trackFunnel({
+    step: 'payment_failed',
+    userId: session?.metadata?.user_id ?? null,
+    productId: Number(session?.metadata?.product_id) || null,
+    visitorId: session?.metadata?.visitor_id || null,
+    sessionId: session?.metadata?.session_id || null,
+    props: { error: reason, stripe_event: event.type, amount: (session?.amount_total ?? 0) / 100 },
   });
   const tool = await toolFor(session?.metadata?.product_id);
   await notifyPaymentDiscord('failed', {

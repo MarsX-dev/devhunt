@@ -17,6 +17,7 @@ import { type ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
+import { trackStep } from '@/utils/funnelClient';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -86,6 +87,7 @@ export default () => {
         </PageHeader>
         <Link
           href="/account/tools/new"
+          onClick={() => trackStep('submit_click', { logged_in: true, from: 'dashboard' })}
           className="mt-6 inline-flex flex-none rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-900 duration-150 hover:bg-white md:mt-0"
         >
           + Launch a tool
@@ -194,7 +196,10 @@ export default () => {
           <div className="rounded-2xl border border-dashed border-slate-700 p-8 text-center">
             <p className="font-medium text-slate-200">No launches yet</p>
             <p className="mt-1 text-sm text-slate-500">Submit your dev tool and pick a launch date in two steps.</p>
-            <Link href="/account/tools/new" className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400">
+            <Link
+              href="/account/tools/new"
+              onClick={() => trackStep('submit_click', { logged_in: true, from: 'dashboard_empty' })}
+              className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400">
               Launch your first tool
             </Link>
           </div>

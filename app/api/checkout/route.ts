@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { weekKey } from '@/utils/launchWeeks';
 import { resolvePaidWeek, type PlannedWeek } from '@/utils/launchPlanning';
 import { getRouteUser } from '@/utils/server/auth';
+import { requestContext, trackFunnel } from '@/utils/server/funnel';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { LAUNCH_PRICE_ID, stripe } from '@/utils/server/stripe';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
@@ -50,6 +51,11 @@ export async function POST(req: Request) {
         week: String(target.week),
         week_start: target.startDate,
         week_end: target.endDate,
+        // Funnel ids, so the webhook's paid/failed steps join this visitor's journey.
+        ...(() => {
+          const ctx = requestContext();
+          return { visitor_id: ctx.visitorId ?? '', session_id: ctx.sessionId ?? '' };
+        })(),
       },
       // No payment_intent_data: it makes Checkout require a card, so 100%-off codes are rejected.
       success_url: `${origin}/account/tools/activate-launch/${product.slug}?session_id={CHECKOUT_SESSION_ID}`,
@@ -63,6 +69,7 @@ export async function POST(req: Request) {
       userId: user.id,
       details: { message: (err as Error).message },
     });
+    await trackFunnel({ step: 'payment_failed', userId: user.id, productId: product.id, props: { error: `checkout did not start: ${(err as Error).message}` } });
     return NextResponse.json({ error: 'Could not start the payment, please try again.' }, { status: 502 });
   }
 
@@ -74,6 +81,12 @@ export async function POST(req: Request) {
     amountTotal: session.amount_total,
     currency: session.currency,
     details: { week: target.week, week_start: target.startDate, tool: product.slug },
+  });
+  await trackFunnel({
+    step: 'checkout_started',
+    userId: user.id,
+    productId: product.id,
+    props: { week: target.startDate, amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, stripe_session: session.id, tool: product.slug },
   });
   return NextResponse.json({ url: session.url });
 }

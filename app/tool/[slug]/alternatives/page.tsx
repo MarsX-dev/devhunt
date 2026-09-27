@@ -62,24 +62,26 @@ export default async function AlternativesPage({ params: { slug } }: Params) {
       {!!picked.length && (
         <div className="mt-12">
           <SectionLabel title="Closest alternatives" hint={`compared with ${name}`} />
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-2 divide-y divide-slate-800/70">
             {picked.map(alt => (
-              <li key={alt.id} className="flex flex-col rounded-2xl border border-slate-800 p-5">
-                <Link href={`/tool/${alt.slug}`} className="flex items-center gap-x-3 text-slate-50 hover:text-white">
-                  {alt.logo_url && <img src={alt.logo_url.replace(/w=\d+/g, 'w=80')} alt="" loading="lazy" className="h-10 w-10 rounded-xl bg-slate-800 object-cover" />}
-                  <span>
-                    <span className="block font-medium">{cleanName(alt.name)}</span>
-                    {info.get(alt.id)?.best_for && <span className="block text-xs text-slate-500">{info.get(alt.id)?.best_for}</span>}
+              <li key={alt.id} className="py-3.5">
+                <div className="flex items-center gap-x-3 text-sm">
+                  {alt.logo_url && <img src={alt.logo_url.replace(/w=\d+/g, 'w=48')} alt="" loading="lazy" className="h-6 w-6 flex-none rounded-md bg-slate-800 object-cover" />}
+                  <Link href={`/tool/${alt.slug}`} className="font-medium text-slate-100 hover:text-white">
+                    {cleanName(alt.name)}
+                  </Link>
+                  {info.get(alt.id)?.best_for && <span className="hidden truncate text-slate-500 sm:inline">— {info.get(alt.id)?.best_for}</span>}
+                  <span className="ml-auto flex-none font-mono text-xs text-slate-500">
+                    ▲ {alt.votes_count.toLocaleString('en-US')}
+                    {alt.pricing && ` · ${alt.pricing}`}
                   </span>
-                </Link>
-                <p className="mt-3 text-sm leading-relaxed text-slate-400">{info.get(alt.id)?.difference}</p>
-                <div className="mt-auto flex items-center gap-x-4 pt-4 font-mono text-[11px] text-slate-500">
-                  <span>▲ {alt.votes_count.toLocaleString('en-US')}</span>
-                  {alt.pricing && <span>{alt.pricing}</span>}
-                  <Link href={comparePath(tool.slug, alt.slug)} className="ml-auto text-orange-400 hover:text-orange-300">
+                </div>
+                <p className="mt-1.5 pl-9 text-sm leading-relaxed text-slate-400">
+                  {info.get(alt.id)?.difference}{' '}
+                  <Link href={comparePath(tool.slug, alt.slug)} className="whitespace-nowrap font-mono text-xs text-orange-400 hover:text-orange-300">
                     {name} vs {cleanName(alt.name)} →
                   </Link>
-                </div>
+                </p>
               </li>
             ))}
           </ul>

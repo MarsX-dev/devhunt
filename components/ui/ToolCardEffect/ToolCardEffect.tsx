@@ -57,12 +57,12 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   return (
     <li
       ref={cardRef}
-      className={`${compact ? 'py-0.5' : 'py-3'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
+      className={`${compact ? 'py-0' : 'py-3'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
       style={reveal}
     >
-      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-2.5' : ''} votesToday={votesToday}>
+      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-1.5' : ''} votesToday={votesToday}>
         {/* Same columns in both sizes (rank 24px, logo 56px, text, votes 56px) so the whole list lines up. */}
-        <div className="w-full flex items-center gap-x-4">
+        <div className="flex w-full min-w-0 items-center gap-x-4">
           {rank && (
             <span
               className={`hidden sm:block w-6 flex-none text-right font-mono text-sm tabular-nums ${rank <= 3 ? 'text-orange-500' : 'text-slate-600'}`}
@@ -71,21 +71,20 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
             </span>
           )}
           <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="flex w-14 flex-none justify-center">
-            <Logo src={tool.logo_url || ''} alt={tool.name} imgClassName={compact ? 'w-10 h-10 rounded-lg' : ''} />
+            <Logo src={tool.logo_url || ''} alt={tool.name} imgClassName={compact ? 'w-8 h-8 rounded-lg' : ''} />
           </Link>
           <div className="w-full min-w-0 space-y-1">
             {compact ? (
-              <>
-                <div className="flex items-center gap-x-2">
-                  <Name href={tool.demo_url as string} className="text-[15px]">
-                    {tool.name}
-                  </Name>
-                  {todayBadge}
-                </div>
-                <Link onClick={preventDefault} href={'/tool/' + tool.slug}>
-                  <Title className="line-clamp-1 text-sm sm:text-sm">{tool.slogan}</Title>
+              // One line: name · tagline, like the other lists.
+              <div className="flex min-w-0 items-center gap-x-2">
+                <Name href={tool.demo_url as string} className="block max-w-[60%] flex-none truncate text-sm">
+                  {tool.name}
+                </Name>
+                <Link onClick={preventDefault} href={'/tool/' + tool.slug} className="min-w-0 truncate text-sm text-slate-500">
+                  · {tool.slogan}
                 </Link>
-              </>
+                {todayBadge}
+              </div>
             ) : (
               <>
                 <Name href={tool.demo_url as string}>{tool.name}</Name>
@@ -107,7 +106,8 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
             productId={tool?.id}
             launchDate={tool.launch_date}
             launchEnd={tool.launch_end as string}
-            className={compact ? 'py-1' : ''}
+            variant={compact ? 'inline' : 'stack'}
+            className={compact ? 'w-14 justify-center' : ''}
             pending={pendingVote ? 1 : 0}
           />
           <FloatingUpvotes votesToday={votesToday} active={isInView} onBurst={() => setPendingVote(false)} />
@@ -115,7 +115,7 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
       </ToolCard>
       {latestComment && (
         // Indented to start exactly under the tool name: [rank 24px + gap 16px] + logo 56px + gap 16px.
-        <div className={`${compact ? '-mt-1.5' : '-mt-2.5'} pl-[72px] ${rank ? 'sm:pl-[112px]' : ''}`}>
+        <div className={`${compact ? '-mt-1 pb-1.5' : '-mt-2.5'} pl-[72px] ${rank ? 'sm:pl-[112px]' : ''}`}>
           <ArrivingComment comment={latestComment} active={isInView} />
         </div>
       )}

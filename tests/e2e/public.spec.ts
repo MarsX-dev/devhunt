@@ -183,7 +183,7 @@ test('home page shows top winners by upvotes and the unique visitor count', asyn
   await page.goto('/');
   const top = page.locator('#top-winners');
   await expect(top.getByRole('heading', { name: 'Top winners' })).toBeVisible();
-  const votes = (await top.locator('li').allInnerTexts()).map(t => Number(t.match(/▲\s*([\d,]+) upvotes/)?.[1].replace(/,/g, '')));
+  const votes = (await top.locator('li').allInnerTexts()).map(t => Number(t.match(/▲\s*([\d,]+)/)?.[1].replace(/,/g, '')));
   expect(votes.length).toBeGreaterThan(3);
   expect(votes.every(Number.isFinite)).toBe(true);
   expect([...votes].sort((a, b) => b - a)).toEqual(votes);
