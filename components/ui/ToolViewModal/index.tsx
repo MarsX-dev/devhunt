@@ -25,19 +25,19 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
   const supabaseBrowserClient = createBrowserClient();
 
   const router = useRouter();
-  const [comments, setComments] = useState([]);
-  const [owner, setOwner] = useState<Profile>();
+  const [comments, setComments] = useState<any[] | null>(null); // null while loading
+  const [owner, setOwner] = useState<Profile | null>(); // undefined = loading, null = none
   const [weekRank, setWeekRank] = useState<number>();
 
   useEffect(() => {
     const commentService = new CommentService(supabaseBrowserClient);
 
     commentService.getByProductId(tool.id).then(comments => {
-      setComments(comments as any);
+      setComments((comments ?? []) as any[]);
     });
 
     new ProfileService(supabaseBrowserClient).getById(tool.owner_id as string).then(ownerData => {
-      setOwner(ownerData as Profile);
+      setOwner((ownerData as Profile) ?? null);
     });
 
     new AwardsService(supabaseBrowserClient).getWeeklyRank(tool.id).then((toolAward: ProductAward[]) => {
@@ -74,7 +74,7 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
           </Link>
         </div>
         <div className="container-custom-screen">
-          <ToolHero tool={tool} owner={owner} weekRank={weekRank} votesToday={votesToday} commentsCount={comments.length} />
+          <ToolHero tool={tool} owner={owner} weekRank={weekRank} votesToday={votesToday} commentsCount={comments?.length ?? tool.comments_count ?? 0} />
         </div>
         <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-0 z-10 bg-slate-900/85 backdrop-blur-md">
           {tabs.map((item, idx) => (
@@ -114,7 +114,12 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
               </div>
             )}
           </div>
-          <CommentSection productId={tool?.owner_id as string} comments={comments as any} slug={tool?.slug} />
+          <CommentSection
+            productId={tool?.owner_id as string}
+            comments={(comments ?? []) as any}
+            slug={tool?.slug}
+            loadingCount={comments ? undefined : tool.comments_count ?? 0}
+          />
           <div className="container-custom-screen">
             <ToolMaker tool={tool} owner={owner} />
           </div>

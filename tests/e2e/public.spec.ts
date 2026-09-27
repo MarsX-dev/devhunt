@@ -201,3 +201,26 @@ test('tool pages show features, alternatives and an FAQ with structured data', a
   const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(ld.some(s => s.includes('"FAQPage"'))).toBe(true);
 });
+
+// Zero layout shift: nothing may move while pages (and the tool preview modal) load and scroll.
+for (const path of ['/', '/tool/knecht-works', '/upcoming', '/tools/api', 'modal']) {
+  test(`no layout shift: ${path}`, async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as any).__cls = 0;
+      new PerformanceObserver(list => {
+        for (const e of list.getEntries() as any[]) if (!e.hadRecentInput) (window as any).__cls += e.value;
+      }).observe({ type: 'layout-shift', buffered: true });
+    });
+    await page.goto(path === 'modal' ? '/' : path, { waitUntil: 'networkidle' });
+    if (path === 'modal') {
+      await page.evaluate(() => ((window as any).__cls = 0));
+      await page.locator('#podium li').first().click({ position: { x: 300, y: 20 } });
+    }
+    for (let i = 0; i < 6; i++) {
+      await page.mouse.wheel(0, 600);
+      await page.waitForTimeout(250);
+    }
+    await page.waitForTimeout(1000);
+    expect(await page.evaluate(() => (window as any).__cls)).toBeLessThan(0.005);
+  });
+}

@@ -1,11 +1,13 @@
 // Skeleton screens shown instantly while a page loads (app/**/loading.tsx), shaped like the real pages.
+// Each is at least a screen tall, so the footer never peeks out and then jumps when the page arrives.
 
 const Bar = ({ className = '' }: { className?: string }) => <div className={`rounded-full bg-slate-800 animate-pulse ${className}`} />;
 const Block = ({ className = '' }: { className?: string }) => <div className={`rounded-xl bg-slate-800/80 animate-pulse ${className}`} />;
 
-export function RowsSkeleton({ rows = 12 }: { rows?: number }) {
+// Same row height as ToolRow (py-2.5 around a 32px logo), so swapping in the real rows moves nothing.
+export function RowsSkeleton({ rows = 12, className = 'mt-10' }: { rows?: number; className?: string }) {
   return (
-    <ul className="mt-10 space-y-1" aria-hidden>
+    <ul className={className} aria-hidden>
       {Array.from({ length: rows }, (_, idx) => (
         <li key={idx} className="flex items-center gap-x-3 py-2.5" style={{ opacity: 1 - idx * 0.06 }}>
           <Bar className="h-3 w-5" />
@@ -20,7 +22,7 @@ export function RowsSkeleton({ rows = 12 }: { rows?: number }) {
 
 export function ListPageSkeleton() {
   return (
-    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8" aria-busy="true" aria-label="Loading">
+    <section className="max-w-4xl mt-10 mx-auto min-h-screen px-4 md:px-8" aria-busy="true" aria-label="Loading">
       <div className="pt-4 sm:pt-8">
         <Bar className="h-3 w-24" />
         <Bar className="mt-4 h-9 w-2/3 sm:h-12" />
@@ -33,7 +35,7 @@ export function ListPageSkeleton() {
 
 export function ToolPageSkeleton() {
   return (
-    <section className="mt-10 pb-10 sm:mt-14" aria-busy="true" aria-label="Loading">
+    <section className="mt-10 min-h-screen pb-10 sm:mt-14" aria-busy="true" aria-label="Loading">
       <div className="container-custom-screen">
         <Bar className="h-6 w-56" />
         <div className="mt-5 flex items-center gap-x-5">
@@ -65,7 +67,7 @@ export function ToolPageSkeleton() {
 
 export function ProfileSkeleton() {
   return (
-    <div className="container-custom-screen mt-10 mb-32 sm:mt-14" aria-busy="true" aria-label="Loading">
+    <div className="container-custom-screen mt-10 mb-32 min-h-screen sm:mt-14" aria-busy="true" aria-label="Loading">
       <div className="flex items-center gap-x-5">
         <div className="h-16 w-16 rounded-full bg-slate-800 animate-pulse sm:h-20 sm:w-20" />
         <div className="flex-1">
@@ -81,7 +83,7 @@ export function ProfileSkeleton() {
 
 export function HomeSkeleton() {
   return (
-    <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8" aria-busy="true" aria-label="Loading">
+    <section className="max-w-4xl mt-5 lg:mt-10 mx-auto min-h-screen px-4 md:px-8" aria-busy="true" aria-label="Loading">
       <div className="flex flex-col items-center pt-6 pb-10 sm:pt-12">
         <Bar className="h-8 w-72" />
         <Bar className="mt-6 h-10 w-full max-w-xl sm:h-14" />

@@ -148,7 +148,13 @@ function VotingCountdown() {
             <TimePart value={pad(diff.seconds())} unit="s" tick />
           </>
         ) : (
-          <TimePart value="--" unit="" />
+          // Same shape as the running timer (days, hours, minutes, seconds) before it starts.
+          <>
+            <TimePart value="-" unit="d" />
+            <TimePart value="--" unit="h" />
+            <TimePart value="--" unit="m" />
+            <TimePart value="--" unit="s" />
+          </>
         )}
       </span>
     </span>

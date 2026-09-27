@@ -4,7 +4,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import moment from 'moment';
 
-import { IconCodeBracket, IconLoading, IconPencilSquare, IconTrash } from '@/components/Icons';
+import { IconCodeBracket, IconPencilSquare, IconTrash } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import ModalBannerCode from '@/components/ui/ModalBannerCode';
 
@@ -49,6 +49,13 @@ export default () => {
   const browserService = createBrowserClient();
   const toolsService = new ProductsService(browserService);
   const [isLoad, setLoad] = useState(true);
+  const [skeletonRows, setSkeletonRows] = useState(1);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('dh_my_tools');
+      setSkeletonRows(saved === null ? 1 : Math.min(6, Number(saved) || 0));
+    } catch {}
+  }, []);
   const [tools, setTools] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [toolSlug, setToolSlug] = useState('');
@@ -61,6 +68,9 @@ export default () => {
     toolsService.getUserProductsById(user.id).then(data => {
       if (fromSubmit && !data?.length) return router.replace('/account/tools/new');
       setTools([...((data ?? []) as [])]);
+      try {
+        localStorage.setItem('dh_my_tools', String(data?.length ?? 0));
+      } catch {}
       setLoad(false);
     });
   }, [user?.id]);
@@ -95,9 +105,22 @@ export default () => {
       </div>
       <ul className="mt-6 divide-y divide-slate-800/60">
         {isLoad ? (
-          <div>
-            <IconLoading className="w-6 h-6 mx-auto text-orange-500" />
-          </div>
+          // Placeholder rows (as many as last time), so the page doesn't jump when the list arrives.
+          skeletonRows === 0 ? (
+            <div className="h-[178px] animate-pulse rounded-2xl border border-dashed border-slate-800" aria-hidden />
+          ) : (
+            Array.from({ length: skeletonRows }, (_, i) => (
+              <li key={i} className="flex items-start gap-x-4 py-3" aria-hidden>
+                <span className="h-14 w-14 flex-none animate-pulse rounded-xl bg-slate-800 sm:h-16 sm:w-16" />
+                <span className="flex-1 space-y-2.5 pt-1">
+                  <span className="block h-4 w-40 animate-pulse rounded bg-slate-800" />
+                  <span className="block h-3.5 w-72 max-w-full animate-pulse rounded bg-slate-800" />
+                  <span className="block h-3.5 w-56 max-w-full animate-pulse rounded bg-slate-800" />
+                  <span className="block h-4 w-80 max-w-full animate-pulse rounded bg-slate-800" />
+                </span>
+              </li>
+            ))
+          )
         ) : tools.length > 0 ? (
           tools.map((tool: ProductType, idx: number) => (
             <>
@@ -110,7 +133,10 @@ export default () => {
                         <Name>{tool.name}</Name>
                         <StatusChip tool={tool} />
                         {tool.site_status && tool.site_status !== 'ok' && (
-                          <span className="rounded-full border border-red-500/40 px-2 py-0.5 text-xs text-red-300" title={tool.site_status_reason ?? undefined}>
+                          <span
+                            className="rounded-full border border-red-500/40 px-2 py-0.5 text-xs text-red-300"
+                            title={tool.site_status_reason ?? undefined}
+                          >
                             Hidden: website {tool.site_status === 'hijacked' ? 'hijacked' : 'down'}
                           </span>
                         )}
@@ -199,7 +225,8 @@ export default () => {
             <Link
               href="/account/tools/new"
               onClick={() => trackStep('submit_click', { logged_in: true, from: 'dashboard_empty' })}
-              className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400">
+              className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400"
+            >
               Launch your first tool
             </Link>
           </div>
@@ -222,7 +249,10 @@ export default () => {
           </li>
           <li>
             Consider launching on{' '}
-            <a className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="https://uneed.best/?aff=A6pv1">
+            <a
+              className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50"
+              href="https://uneed.best/?aff=A6pv1"
+            >
               Uneed.best
             </a>{' '}
             for even more traffic.

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { type LatestComment, timeAgo } from '@/utils/activity';
 
 // The tool's latest real comment, "arriving" once the card is on screen: a typing bubble first,
-// then the message. The wrapper animates its height so the list grows smoothly instead of jumping.
+// then the message. Its space is reserved from the start and it only fades in, so nothing moves.
 export default function ArrivingComment({ comment, active }: { comment: LatestComment; active: boolean }) {
   const [stage, setStage] = useState<'hidden' | 'typing' | 'shown'>('hidden');
 
@@ -23,12 +23,10 @@ export default function ArrivingComment({ comment, active }: { comment: LatestCo
 
   return (
     <div
-      className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out ${
-        stage === 'hidden' ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
-      }`}
+      className={`transition-[opacity,transform] duration-500 ease-out ${stage === 'hidden' ? 'translate-y-1 opacity-0' : 'translate-y-0 opacity-100'}`}
       aria-hidden={stage === 'hidden'}
     >
-      <div className="min-h-0 overflow-hidden">
+      <div>
         <div className="flex items-center gap-x-2 pt-2.5">
           <img
             src={comment.avatar}

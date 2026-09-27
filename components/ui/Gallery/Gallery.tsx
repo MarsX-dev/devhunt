@@ -43,7 +43,7 @@ export const Gallery = ({
             {media[0].includes('youtube') || media[0].includes('youtu.be') ? (
               <VideoThumbnail src={`https://img.youtube.com/vi/${extractVideoId(src as string)?.id}/mqdefault.jpg`} />
             ) : (
-              <video controls className="w-[459px] h-auto rounded-lg">
+              <video controls className="aspect-video w-[459px] rounded-lg bg-slate-800/40">
                 <source src={src} />
               </video>
             )}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ToolRow from '@/components/ui/ToolRow';
+import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import { type ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
@@ -10,7 +11,7 @@ const SHOWN = 8;
 
 // This week's leaders as compact ranked rows (tool page and preview modal).
 export default function TrendingToolsList({ excludeId }: { excludeId?: number }) {
-  const [tools, setTools] = useState<{ tool: ProductType; rank: number }[]>([]);
+  const [tools, setTools] = useState<{ tool: ProductType; rank: number }[] | null>(null); // null while loading
 
   useEffect(() => {
     const productService = new ProductsService(createBrowserClient());
@@ -22,6 +23,7 @@ export default function TrendingToolsList({ excludeId }: { excludeId?: number })
     });
   }, [excludeId]);
 
+  if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" />;
   return (
     <ol className="mt-2">
       {tools.map(({ tool, rank }, idx) => (

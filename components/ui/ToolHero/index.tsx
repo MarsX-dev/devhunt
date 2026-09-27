@@ -5,7 +5,7 @@ import Link from 'next/link';
 import moment from 'moment';
 import { ArrowUpRight, CalendarClock, Trophy } from 'lucide-react';
 import ButtonUpvote from '@/components/ui/ButtonUpvote';
-import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
+import VoterAvatarsList, { VotersSkeleton } from '@/components/ui/VoterAvatarsList';
 import WinnerBadge from '@/components/ui/WinnerBadge';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProductType } from '@/type';
@@ -144,10 +144,9 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
         ))}
       </dl>
 
-      {owner && (
-        <div className="mt-6">
-          <VoterAvatarsList productId={tool.id} owner={owner} />
-        </div>
+      {/* owner undefined = still loading (preview modal): keep the row's space with a skeleton. */}
+      {owner !== null && (
+        <div className="mt-6">{owner ? <VoterAvatarsList productId={tool.id} owner={owner} /> : <VotersSkeleton />}</div>
       )}
     </div>
   );
@@ -155,7 +154,20 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
 
 // "The maker" card near the bottom of a tool page.
 export function ToolMaker({ tool, owner }: { tool: ProductType; owner?: Profile | null }) {
-  if (!owner) return null;
+  if (owner === null) return null;
+  if (!owner)
+    return (
+      <div id="details" aria-busy="true">
+        <SectionLabel title="The maker" />
+        <div className="mt-4 flex items-center gap-x-4 rounded-2xl border border-slate-800 p-4">
+          <span className="h-12 w-12 flex-none animate-pulse rounded-full bg-slate-800" />
+          <span className="flex-1 space-y-2">
+            <span className="block h-4 w-40 animate-pulse rounded bg-slate-800" />
+            <span className="block h-3.5 w-64 max-w-full animate-pulse rounded bg-slate-800" />
+          </span>
+        </div>
+      </div>
+    );
   const phase = launchPhase(tool);
   return (
     <div id="details">

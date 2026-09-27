@@ -1,8 +1,10 @@
 import dynamic from 'next/dynamic';
+import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import { Gallery, GalleryImage } from '@/components/ui/Gallery';
 import { Tabs } from '@/components/ui/TabsLink';
 
-const TabLink = dynamic(() => import('@/components/ui/TabsLink/TabLink'), { ssr: false });
+// Rendered on the server so the tab bar has its height from the first paint.
+import TabLink from '@/components/ui/TabsLink/TabLink';
 import ProductsService from '@/utils/supabase/services/products';
 import CommentService from '@/utils/supabase/services/comments';
 import CommentSection from '@/components/ui/Client/CommentSection';
@@ -16,7 +18,10 @@ import Link from 'next/link';
 import ProfileService from '@/utils/supabase/services/profile';
 import { notFound } from 'next/navigation';
 
-const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
+const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), {
+  ssr: false,
+  loading: () => <RowsSkeleton rows={8} className="mt-2" />,
+});
 import { Profile } from '@/utils/supabase/types';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import ToolHero, { ToolMaker } from '@/components/ui/ToolHero';
