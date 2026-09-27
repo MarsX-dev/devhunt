@@ -10,7 +10,7 @@ const PLACEHOLDER_NAME = /^(user|test|admin|null|undefined|anonymous|guest)\d*$/
 export default async function Home() {
   const activity = await getRecentActivity();
   return (
-    <HomeFeed votesToday={activity?.votes_today ?? {}} bottom={<CategoryGrid />}>
+    <HomeFeed votesToday={activity?.votes_today ?? {}} latestComments={activity?.latest_comments ?? {}} bottom={<CategoryGrid />}>
       <SiteStats />
       <LiveActivity events={(activity?.events ?? []).filter(e => e.name?.length > 1 && !PLACEHOLDER_NAME.test(e.name))} />
     </HomeFeed>

@@ -13,6 +13,7 @@ test('home page lists this week\'s tools without errors', async ({ page }) => {
 test('external-link icon opens the tool website, not the card', async ({ page, context }) => {
   // The newsletter banner slides in over the cards for new visitors; start as one who closed it.
   await page.addInitScript(() => localStorage.setItem('isNewsletterActive', 'true'));
+  await page.emulateMedia({ reducedMotion: 'reduce' }); // no smooth scrolling or card animations while hovering
   await page.goto('/');
   const card = page.locator('li', { has: page.locator('[aria-label="Open website in a new tab"]') }).first();
   await card.hover();
@@ -144,10 +145,20 @@ test('home page feels live: activity strip, top 3 as full cards, the rest compac
   const first = await live.innerText();
   await expect.poll(async () => live.innerText(), { timeout: 12_000 }).not.toBe(first); // cycles to the next event
 
-  const cards = page.locator('ul.divide-y > li');
-  await expect(cards.first()).toBeVisible();
-  const heights = await cards.evaluateAll(items => items.map(li => li.getBoundingClientRect().height));
-  if (heights.length > 3) expect(Math.max(...heights.slice(3))).toBeLessThan(Math.min(...heights.slice(0, 3)));
+  // Top 3 in the podium panel, the rest compact, and every tool name starts at the same x.
+  const podium = page.locator('#podium > li');
+  await expect(podium.first()).toBeVisible();
+  expect(await podium.count()).toBeLessThanOrEqual(3);
+  const rest = page.locator('#more-launches > li');
+  if ((await rest.count()) > 0) {
+    await expect(rest.first()).toBeVisible();
+    const nameX = (items: Element[]) => items.map(li => Math.round(li.querySelector('h3')!.getBoundingClientRect().left));
+    const rowHeight = (items: Element[]) => items.map(li => li.firstElementChild!.getBoundingClientRect().height); // card row, without comment
+    expect(new Set([...(await podium.evaluateAll(nameX)), ...(await rest.evaluateAll(nameX))]).size).toBe(1);
+    const bigHeights = await podium.evaluateAll(rowHeight);
+    const smallHeights = await rest.evaluateAll(rowHeight);
+    expect(Math.max(...smallHeights)).toBeLessThan(Math.min(...bigHeights));
+  }
   await settle(page);
   expect(errors).toEqual([]);
 });

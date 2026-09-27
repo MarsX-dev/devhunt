@@ -20,8 +20,10 @@ export default ({
   launchEnd,
   productId = null,
   className = '',
+  pending = 0,
 }: {
   count?: number;
+  pending?: number; // a real vote from today not shown yet; the live replay counts it up (home page)
   launchDate: string | number;
   launchEnd: string | number;
   productId?: number | null;
@@ -38,6 +40,8 @@ export default ({
   const [isUpvoted, setUpvoted] = useState(false);
   const [isModalActive, setModalActive] = useState(false);
   const [modalInfo, setMoadlInfo] = useState({ title: '', desc: '' });
+  const [touched, setTouched] = useState(false); // once the visitor votes, always show the real count
+  const shownCount = (votesCount ?? 0) - (touched ? 0 : pending);
 
   const toggleVote = async () => {
     const profile = session && session.user ? await profileService.getByIdWithNoCache(session.user?.id) : null;
@@ -51,6 +55,7 @@ export default ({
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
         router.refresh();
         setUpvoted(!isUpvoted);
+        setTouched(true);
         setVotesCount(newVotesCount);
       } else setModalActive(true);
     } else if (!session) router.push('/login');
@@ -73,7 +78,9 @@ export default ({
         )}
       >
         <IconVote className="mt-1 w-4 h-4 mx-auto pointer-events-none" />
-        <span className="block font-mono text-sm tabular-nums pointer-events-none">{votesCount}</span>
+        <span key={shownCount} className="block font-mono text-sm tabular-nums pointer-events-none motion-safe:animate-tick">
+          {shownCount}
+        </span>
       </button>
       <Modal
         isActive={isModalActive}

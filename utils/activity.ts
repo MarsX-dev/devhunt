@@ -9,9 +9,17 @@ export interface ActivityEvent {
   slug: string | null;
 }
 
+export interface LatestComment {
+  name: string;
+  avatar: string;
+  content: string; // plain text, max 140 characters
+  at: string;
+}
+
 export interface RecentActivity {
   events: ActivityEvent[];
   votes_today: Record<string, number>; // product id -> votes in the last 24 hours
+  latest_comments: Record<string, LatestComment>; // product id -> newest top-level comment
 }
 
 export const activityVerb = { joined: 'joined DevHunt', upvoted: 'upvoted', commented: 'commented on' } as const;

@@ -7,11 +7,12 @@ import { ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import CountdownPanel from '@/components/ui/CountdownPanel';
 
-import React, { Fragment, type ReactNode, useEffect, useState } from 'react';
+import React, { type ReactNode, useEffect, useState } from 'react';
 import SkeletonToolCard from '@/components/ui/Skeletons/SkeletonToolCard';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import WinnerRow from '@/components/ui/WinnerRow';
 import SectionLabel from '@/components/ui/SectionLabel';
+import { type LatestComment } from '@/utils/activity';
 
 const PAST_WINNERS = 30; // shown at first, and loaded per "Show more"
 
@@ -36,10 +37,12 @@ export default function HomeFeed({
   children,
   bottom,
   votesToday = {},
+  latestComments = {},
 }: {
   children?: ReactNode;
   bottom?: ReactNode;
   votesToday?: Record<string, number>;
+  latestComments?: Record<string, LatestComment>;
 }) {
   const weekStartDay = 2;
   const today = getDate(weekStartDay);
@@ -72,17 +75,40 @@ export default function HomeFeed({
 
   function weekTools(group: { products: ProductType[] }) {
     const contestants = group.products.filter(product => product.week == currentWeek && product.launch_start);
+    const card = (product: ProductType, idx: number) => (
+      <ToolCardEffect
+        key={product.id ?? idx}
+        tool={product}
+        rank={idx + 1}
+        compact={idx >= 3}
+        votesToday={votesToday[product.id]}
+        latestComment={latestComments[product.id]}
+        revealIndex={idx}
+      />
+    );
     return (
       <>
         <SectionLabel title="This week's launches" hint="Vote for your favorite 👇" />
-        <ul className="mt-2 divide-y divide-slate-800/70">
-          {contestants.map((product: ProductType, idx: number) => (
-            <Fragment key={product.id ?? idx}>
-              {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              <ToolCardEffect tool={product as ProductType} rank={idx + 1} compact={idx >= 3} votesToday={votesToday[product.id]} />
-            </Fragment>
-          ))}
-        </ul>
+        {/* The current top 3 get their own panel; the rest follow as compact rows on the same columns. */}
+        <ol
+          id="podium"
+          className="mt-4 divide-y divide-slate-800/70 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-800/40 to-slate-900/0 px-3 sm:px-4"
+        >
+          {contestants.slice(0, 3).map(card)}
+        </ol>
+        <div id="TA_AD_CONTAINER"></div>
+        {contestants.length > 3 && (
+          <>
+            <div className="mt-8 flex items-center gap-x-3 border-x border-transparent px-3 sm:px-4">
+              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">Also launching this week</span>
+              <span className="h-px flex-1 bg-slate-800" />
+            </div>
+            {/* Transparent border: same 1px inset as the podium panel so the columns line up exactly. */}
+            <ol id="more-launches" start={4} className="mt-2 divide-y divide-slate-800/70 border-x border-transparent px-3 sm:px-4">
+              {contestants.slice(3).map((product, idx) => card(product, idx + 3))}
+            </ol>
+          </>
+        )}
       </>
     );
   }
