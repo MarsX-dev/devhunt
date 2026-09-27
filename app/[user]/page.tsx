@@ -15,12 +15,9 @@ import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProductType } from '@/type';
 import { profileCacheTag } from '@/utils/routeExists';
 
-// Profiles are cached after their first visit (CDN) and rebuilt at most once a minute. Nothing is built ahead (empty
-// generateStaticParams); Next 14 caches a not-found page with its 404 status.
-export const revalidate = 60;
-export async function generateStaticParams() {
-  return [];
-}
+// Rendered per request, not cached as a page (the data is cached: getProfilePageData). Next 14.2 puts the
+// page path into the x-next-cache-tags header when it caches a page, and Node rejects non-ASCII header
+// values, so usernames like "@PawełMioduszewski" returned 500 (1,472 profiles).
 
 const UPVOTED_SHOWN = 20;
 
