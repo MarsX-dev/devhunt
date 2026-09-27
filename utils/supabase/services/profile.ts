@@ -60,7 +60,8 @@ export default class ProfileService extends BaseDbService {
 
     if (error !== null) throw new Error(error.message);
 
-    return (data || []).filter(i => !i.products.deleted);
+    // products is null for tools hidden from visitors (website dead or hijacked).
+    return (data || []).filter(i => i.products && !i.products.deleted);
   }
 
   async getUserVoteTools(userId: string): Promise<IProduct[] | any> {
