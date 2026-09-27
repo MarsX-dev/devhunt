@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { clientIp, tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 
 const SAASEMAILER_CONTACTS_CREATE = 'https://xuqkmyeuqfvucdo6gupjh7x6df8ohj6b.saasemailer.com/api/v1/devhunt.org/contacts/create/';
 
 export async function POST(req: Request) {
+  if (!(await withinLimit(`newsletter:ip:${clientIp(req)}`, 5, 3600))) return tooManyRequests();
   try {
     const body = await req.json().catch(() => null);
     const personalEMail = typeof body?.personalEMail === 'string' ? body.personalEMail.trim() : '';

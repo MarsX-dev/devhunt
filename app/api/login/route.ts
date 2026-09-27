@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { type Database } from '@/utils/supabase/types';
+import { withinLimit } from '@/utils/server/rateLimit';
 
 // Only accounts created this recently count as a fresh sign-up (the client calls this on first sign-in).
 const NEW_SIGNUP_WINDOW_MS = 30 * 60 * 1000;
@@ -14,6 +15,7 @@ export async function POST() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await withinLimit(`welcome:${user.id}`, 2, 3600))) return NextResponse.json({ data: 'skipped' });
 
   if (Date.now() - new Date(user.created_at).getTime() > NEW_SIGNUP_WINDOW_MS) {
     return NextResponse.json({ data: 'skipped' });

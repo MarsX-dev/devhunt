@@ -4,6 +4,7 @@ import { claimToolProfile, generateToolProfile, profilesEnabled } from '@/utils/
 import { getRouteUser } from '@/utils/server/auth';
 import { isBot } from '@/utils/analytics';
 import { applyOwnerEdit, type ToolProfileData } from '@/utils/toolProfile';
+import { clientIp, withinLimit } from '@/utils/server/rateLimit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -51,6 +52,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   if (isBot(req.headers.get('user-agent'))) return NextResponse.json({ status: 'skipped' }, { status: 202 });
+  // Anyone can trigger this (it fills in missing fact sheets as pages are viewed): cap it per visitor and overall.
+  if (!(await withinLimit(`profile-gen:ip:${clientIp(req)}`, 10, 3600)) || !(await withinLimit('profile-gen:all', 150, 3600))) {
+    return NextResponse.json({ status: 'skipped' }, { status: 202 });
+  }
   const tool = await loadTool(id);
   if (!tool || tool.deleted || tool.moderation === 'blocked') return NextResponse.json({ status: 'not_found' }, { status: 404 });
   if (!(await claimToolProfile(id))) return NextResponse.json({ status: 'exists' }, { status: 202 });

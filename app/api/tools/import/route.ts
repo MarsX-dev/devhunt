@@ -3,6 +3,7 @@ import { getRouteUser } from '@/utils/server/auth';
 import { aiEnabled, classifyWithJev, importEnabled, rehostImage, scrapeWithFirecrawl } from '@/utils/server/toolImport';
 import { draftFromPage, mergeClassification, type CategoryOption } from '@/utils/toolImport';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
+import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 45;
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
   if (!importEnabled()) return NextResponse.json({ error: 'Import is not configured.' }, { status: 503 });
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await withinLimit(`import:${user.id}`, 20, 3600))) return tooManyRequests('Too many imports, please try again in an hour.');
 
   const { url: raw } = (await req.json().catch(() => ({}))) as { url?: string };
   let url: URL;

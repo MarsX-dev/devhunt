@@ -8,6 +8,7 @@ import { trackFunnel } from '@/utils/server/funnel';
 import { moderateSubmission } from '@/utils/server/jev';
 import { moderationDecision } from '@/utils/moderation';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
+import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,7 @@ const isHttpUrl = (value?: string) => {
 export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await withinLimit(`submit:${user.id}`, 10, 86400))) return tooManyRequests('Too many submissions today, please try again tomorrow.');
 
   const body = (await req.json().catch(() => ({}))) as SubmitBody;
   const name = body.name?.trim();

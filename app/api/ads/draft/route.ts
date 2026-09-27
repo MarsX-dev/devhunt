@@ -3,6 +3,7 @@ import { getRouteUser } from '@/utils/server/auth';
 import { draftAds, notifyAdDiscord } from '@/utils/server/ads';
 import { importEnabled } from '@/utils/server/toolImport';
 import { isAdKind } from '@/utils/ads';
+import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 45;
@@ -11,6 +12,7 @@ export const maxDuration = 45;
 export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!(await withinLimit(`ad-draft:${user.id}`, 10, 3600))) return tooManyRequests('Too many ad drafts, please try again in an hour.');
   if (!importEnabled()) return NextResponse.json({ error: 'Ad setup is not configured.' }, { status: 503 });
 
   const { url: raw, kinds: picked } = (await req.json().catch(() => ({}))) as { url?: string; kinds?: unknown[] };
