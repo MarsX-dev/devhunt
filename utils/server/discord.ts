@@ -83,3 +83,15 @@ export async function reportShadowComment(info: { username: string; toolName: st
     body: JSON.stringify({ content: text.slice(0, 1900), allowed_mentions: { parse: [] } }),
   }).catch((err: Error) => console.error('Discord comment webhook failed:', err.message));
 }
+
+// An owner's edit that moderation rejected (the tool keeps its approved text). Lets us spot false positives.
+export async function reportBlockedEdit(info: { kind: 'tool' | 'comment'; username: string | null; toolName: string; toolSlug: string; reason: string; content: string }) {
+  const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
+  if (!webhook) return;
+  const text = `✋ Rejected ${info.kind} edit (${info.reason}) by @${info.username ?? 'unknown'} on **${info.toolName}** <https://devhunt.org/tool/${info.toolSlug}>:\n> ${info.content.slice(0, 900).replace(/\n/g, '\n> ')}`;
+  await fetch(webhook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: text.slice(0, 1900), allowed_mentions: { parse: [] } }),
+  }).catch((err: Error) => console.error('Discord edit webhook failed:', err.message));
+}

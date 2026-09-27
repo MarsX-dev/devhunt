@@ -41,7 +41,10 @@ export default ({ comment, productId }: Props) => {
     if (!content.trim() || isLoad) return;
     setLoad(true);
     const text = content.trim();
-    const res = await commentService.update(newComment.id as number, { content: text }).catch(() => null);
+    // Saved (and spam-checked) on the server; a comment only this browser knows about just updates locally.
+    const res = await fetch(`/api/comments/${newComment.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: text }) })
+      .then(async r => (r.ok ? ((await r.json()).comment as { content: string }) : null))
+      .catch(() => null);
     updateRememberedComment(newComment.id as number, { content: text });
     setNewComment(c => ({ ...c, ...(res ?? {}), content: text, profiles: c.profiles }));
     setLoad(false);

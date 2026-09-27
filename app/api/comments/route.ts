@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
-import { moderateComment } from '@/utils/server/jev';
 import { reportShadowComment } from '@/utils/server/discord';
-import { commentDecision, isLinkDrop, templateRepeats } from '@/utils/moderation';
+import { judgeComment } from '@/utils/server/commentModeration';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
+import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +15,7 @@ const MAX_LENGTH = 5000;
 export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 });
+  if (!(await withinLimit(`comment:${user.id}`, 20, 3600))) return tooManyRequests('You are commenting too fast, please try again later.');
 
   const body = (await req.json().catch(() => ({}))) as { slug?: string; content?: string };
   const content = typeof body.content === 'string' ? body.content.trim() : '';
@@ -29,30 +30,7 @@ export async function POST(req: Request) {
   if (!profile || profile.deleted_at) return NextResponse.json({ error: 'Please sign in.' }, { status: 401 });
   const author = { full_name: profile.full_name, avatar_url: profile.avatar_url, username: profile.username };
 
-  const isOwner = product.owner_id === user.id;
-  let decision = commentDecision({ isOwner, repeats: 0, linkDrop: false, spamProbability: null, choice: null });
-  let score: number | null = null;
-  if (!isOwner) {
-    const [{ data: previous }, jev] = await Promise.all([
-      serviceClient
-        .from('comment')
-        .select('content, products (name)')
-        .eq('user_id', user.id)
-        .neq('product_id', product.id)
-        .order('created_at', { ascending: false })
-        .limit(30),
-      moderateComment({ toolName: product.name, toolSlogan: product.slogan, content }),
-    ]);
-    const others = (previous ?? []).map((c: any) => ({ content: c.content as string, toolName: (c.products?.name as string) ?? '' }));
-    score = jev.spamProbability;
-    decision = commentDecision({
-      isOwner,
-      repeats: templateRepeats(content, product.name, others),
-      linkDrop: isLinkDrop(content),
-      spamProbability: jev.spamProbability,
-      choice: jev.choice,
-    });
-  }
+  const { decision, score } = await judgeComment({ userId: user.id, product, content });
 
   if (decision.status === 'shadow') {
     // A plausible id (just past the newest real one) so the response is indistinguishable.

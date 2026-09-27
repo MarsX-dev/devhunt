@@ -160,21 +160,19 @@ export default () => {
       const weekChanged = canChangeWeek && week && week !== originalWeekKey;
 
       try {
-        await productService.update(
-          +id,
-          {
-            asset_urls: imagePreviews,
-            name: tool_name,
-            demo_url: tool_website,
-            github_url: github_repo,
-            pricing_type,
-            slogan,
-            description: tool_description,
-            logo_url: logoPreview,
-            demo_video_url: demo_video || null,
-          },
+        // Saved (and re-moderated) on the server: the browser can't write tool rows directly.
+        await axios.patch(`/api/tools/${id}`, {
+          assetUrls: imagePreviews,
+          name: tool_name,
+          website: tool_website,
+          githubUrl: github_repo || null,
+          pricingType: Number(pricing_type),
+          slogan,
+          description: tool_description,
+          logoUrl: logoPreview,
+          demoVideoUrl: demo_video || null,
           categoryIds,
-        );
+        });
         // Launch dates can only be changed server-side (paid launches that haven't started).
         if (weekChanged) {
           const { data: res } = await axios.post(`/api/tools/${id}/reschedule`, { week });
