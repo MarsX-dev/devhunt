@@ -19,7 +19,7 @@ test('submit starts with just the website, then the form; the launch date comes 
   await page.getByRole('button', { name: 'Fill it in manually' }).click();
   await expect(page.getByRole('button', { name: 'Submit and pick a launch date' })).toBeVisible();
   await expect(page.locator('select[name=week]')).toHaveCount(0);
-  await expect(page.getByText(/\$49/)).toHaveCount(0);
+  await expect(page.getByText(/\$49(?!\d)/)).toHaveCount(0); // the $49 launch price, not the $499/mo sponsor strip
   await expectNoHorizontalScroll(page);
   expect(errors).toEqual([]);
 });
@@ -70,9 +70,10 @@ test('owners cannot mark tools paid, move launches, change counters or insert to
   // Users can't mark their own profile deleted (that bans the account, server-side only).
   const profilePatch = await fetch(`${result.base}/profiles?id=eq.${result.userId}`, { method: 'PATCH', headers, body: JSON.stringify({ deleted_at: new Date().toISOString() }) });
   expect(profilePatch.status).toBe(403);
-  // Normal content edits still work.
-  const ok = await patch({ slogan: own[0].slogan });
-  expect(ok.status).toBe(200);
+  // Content edits too: they go through PATCH /api/tools/[id] (validated and re-moderated), never straight to the table.
+  expect((await patch({ slogan: own[0].slogan })).status).toBe(403);
+  const viaApi = await page.evaluate(async toolId => (await fetch(`/api/tools/${toolId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: '{}' })).status, id);
+  expect([400, 404]).toContain(viaApi); // signed in: reaches the route (empty edit refused, or a deleted tool)
   // Direct inserts are refused (tools are created through /api/tools).
   const insert = await fetch(`${result.base}/products`, {
     method: 'POST',
