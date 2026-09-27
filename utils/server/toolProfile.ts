@@ -85,7 +85,7 @@ export async function generateToolProfile(tool: Tool): Promise<{ status: 'ready'
   try {
     if (!tool.demo_url) throw new Error('no website');
     const site = addHttps(tool.demo_url.trim());
-    const home = await scrape(site, true);
+    const home = await scrape(site, true).catch(e => (/408|timed out/i.test(String(e)) ? scrape(site, true) : Promise.reject(e)));
     const picked = pickPages(home.links, site);
     const hasPricing = picked.some(u => /pric|plan/i.test(u));
     // Pricing links often sit in the (stripped) navigation: try /pricing when none was found.
@@ -99,10 +99,17 @@ export async function generateToolProfile(tool: Tool): Promise<{ status: 'ready'
     const categoryIds = ((cats ?? []) as any[]).filter(c => c.product_categories?.name !== OTHER_CATEGORY).map(c => c.category_id);
     const [candidates, github] = await Promise.all([candidatesFor(tool.id, categoryIds), githubStats(githubRepo([tool.github_url, ...home.links]))]);
 
-    const raw = await groqJson(PROFILE_PROMPT, profileInput(tool, pages, candidates), 4000);
     const sourceText = [tool.name, tool.slogan, tool.description, ...pages.map(p => p.text)].join('\n');
     const pricingText = pricingPage && /pric|plan/i.test(pricingPage.url) ? pricingPage.text : '';
-    const data = validateProfile(raw, sourceText, candidates, github, pricingText);
+    // The model occasionally returns a thin answer; one retry fixes most of those.
+    let data = null;
+    for (let attempt = 0; attempt < 2 && !data; attempt++) {
+      const raw = await groqJson(PROFILE_PROMPT, profileInput(tool, pages, candidates), 4000).catch(e => {
+        if (/\b429\b/.test(String(e))) throw e; // rate limited: let the caller retry later
+        return null;
+      });
+      data = validateProfile(raw, sourceText, candidates, github, pricingText);
+    }
     if (!data) throw new Error('not enough verifiable content');
 
     await save({ status: 'ready', data, sources: pages.map(p => p.url), error: null, generated_at: new Date().toISOString() });
