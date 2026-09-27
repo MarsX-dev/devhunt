@@ -83,14 +83,14 @@ interface Props {
 // Header of a tool (page and preview modal): status, identity, actions, live stats and voters.
 export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commentsCount = 0 }: Props) {
   const phase = launchPhase(tool);
-  const stats = [
-    { label: 'Upvotes', value: formatStat(tool.votes_count ?? 0), delta: votesToday > 0 ? `+${votesToday} today` : '' },
-    { label: 'Impressions', value: formatStat(tool.views_count ?? 0), delta: '' },
-    phase === 'upcoming'
-      ? { label: 'Launch week', value: moment.utc(tool.launch_start).format('MMM D'), delta: '' }
-      : { label: phase === 'live' ? 'Rank this week' : 'Final rank', value: weekRank ? `#${weekRank}` : '–', delta: '' },
-    { label: 'Comments', value: formatStat(commentsCount), delta: '' },
-  ];
+  // Meta line in the same style as the home page cards: pricing · categories · impressions · +today · rank · comments.
+  const meta = [
+    tool.product_pricing_types?.title,
+    ...(tool.product_categories ?? []).slice(0, 3).map(c => c.name),
+    `${formatStat(tool.views_count ?? 0)} impressions`,
+    phase === 'upcoming' ? `launches ${moment.utc(tool.launch_start).format('MMM D')}` : weekRank ? `#${weekRank} ${phase === 'live' ? 'this week' : 'of its week'}` : null,
+    commentsCount ? `${formatStat(commentsCount)} ${commentsCount === 1 ? 'comment' : 'comments'}` : null,
+  ].filter(Boolean) as string[];
 
   return (
     <div id="about">
@@ -132,21 +132,19 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
         />
       </div>
 
-      <dl className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 sm:grid-cols-4">
-        {stats.map(stat => (
-          <div key={stat.label} className="bg-slate-900 px-4 py-3.5 sm:px-5">
-            <dd className="flex flex-wrap items-baseline gap-x-2">
-              <span className="text-xl font-semibold tracking-tight text-slate-50 tabular-nums">{stat.value}</span>
-              {stat.delta && <span className="whitespace-nowrap font-mono text-[11px] text-green-400">{stat.delta}</span>}
-            </dd>
-            <dt className="mt-0.5 text-xs text-slate-500">{stat.label}</dt>
-          </div>
+      <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+        {meta.map((item, idx) => (
+          <span key={item} className="flex items-center gap-x-2">
+            {idx > 0 && <span aria-hidden className="text-slate-700">·</span>}
+            {item}
+          </span>
         ))}
-      </dl>
+        {votesToday > 0 && <span className="font-mono text-xs text-green-400">+{votesToday} today</span>}
+      </p>
 
       {/* owner undefined = still loading (preview modal): keep the row's space with a skeleton. */}
       {owner !== null && (
-        <div className="mt-6">{owner ? <VoterAvatarsList productId={tool.id} owner={owner} /> : <VotersSkeleton />}</div>
+        <div className="mt-4">{owner ? <VoterAvatarsList productId={tool.id} owner={owner} small /> : <VotersSkeleton small />}</div>
       )}
     </div>
   );

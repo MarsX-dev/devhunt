@@ -100,17 +100,17 @@ export const getComparison = unstable_cache(
 // Canonical pairs for the sitemap: every (tool, alternative) from visible profiles.
 export async function comparisonPairs(): Promise<[string, string][]> {
   const client = createBrowserClient();
-  const rows: { product_id: number; data: any }[] = [];
+  const rows: { product_id: number; alternatives: { id: number }[] | null; hidden: string[] | null }[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data } = await client.from('tool_profiles' as never).select('product_id, data').range(from, from + 999);
+    const { data } = await client.from('tool_profiles' as never).select('product_id, alternatives:data->alternatives, hidden:data->hidden').range(from, from + 999);
     rows.push(...((data ?? []) as any[]));
     if (!data || data.length < 1000) break;
   }
   const ids = new Set<number>();
   const pairs: [number, number][] = [];
   for (const row of rows) {
-    if (row.data?.hidden?.includes('compare')) continue;
-    for (const alt of row.data?.alternatives ?? []) {
+    if (row.hidden?.includes('compare')) continue;
+    for (const alt of row.alternatives ?? []) {
       pairs.push([row.product_id, alt.id]);
       ids.add(row.product_id).add(alt.id);
     }

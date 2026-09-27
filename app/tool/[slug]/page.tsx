@@ -158,7 +158,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         />
         <ToolAwards extras={extras} />
       </div>
-      <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-[3.75rem] z-10 bg-slate-900/85 backdrop-blur-md">
+      <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-12 z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map((item, idx) => (
           <TabLink hash={item.hash} key={idx}>
             {item.name}

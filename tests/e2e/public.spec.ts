@@ -224,3 +224,18 @@ for (const path of ['/', '/tool/knecht-works', '/upcoming', '/tools/api', 'modal
     expect(await page.evaluate(() => (window as any).__cls)).toBeLessThan(0.005);
   });
 }
+
+test('the tool preview steps to the next and previous tool without closing', async ({ page }) => {
+  await page.goto('/');
+  const first = page.locator('#podium li').first();
+  const firstName = (await first.locator('h3').first().innerText()).trim();
+  await first.click({ position: { x: 300, y: 20 } });
+  await expect(page.getByRole('heading', { level: 1, name: firstName })).toBeVisible();
+  const firstUrl = page.url();
+  await page.getByRole('button', { name: 'Next tool' }).click();
+  await expect(page).not.toHaveURL(firstUrl);
+  await expect(page.getByRole('heading', { level: 1, name: firstName })).toHaveCount(0);
+  await page.keyboard.press('ArrowLeft');
+  await expect(page).toHaveURL(firstUrl);
+  await expect(page.getByRole('heading', { level: 1, name: firstName })).toBeVisible();
+});

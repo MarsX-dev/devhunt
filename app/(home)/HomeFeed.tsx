@@ -75,9 +75,8 @@ export default function HomeFeed({
         <div id="TA_AD_CONTAINER"></div>
         {contestants.length > 3 && (
           <>
-            <div className="mt-8 flex items-center gap-x-3 border-x border-transparent px-3 sm:px-4">
-              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">Also launching this week</span>
-              <span className="h-px flex-1 bg-slate-800" />
+            <div className="mt-8 border-x border-transparent px-3 sm:px-4">
+              <SectionLabel title="Also launching this week" />
             </div>
             {/* Transparent border: same 1px inset as the podium panel so the columns line up exactly. */}
             <ol id="more-launches" start={4} className="mt-2 divide-y divide-slate-800/70 border-x border-transparent px-3 sm:px-4">

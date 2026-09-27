@@ -39,12 +39,12 @@ export default ({ onLogout, session }: Props) => {
         onClick={() => setState(!state)}
       >
         {user.avatar_url ? (
-          <Avatar src={user.avatar_url} />
+          <Avatar src={user.avatar_url} className="h-8 w-8" />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-l from-sky-500 via-indigo-500 to-indigo-500"></div>
         )}
       </button>
-      <ul className={`bg-slate-800 top-14 right-0 absolute rounded-lg w-52 shadow-md space-y-0 overflow-hidden ${state ? '' : 'hidden'}`}>
+      <ul className={`bg-slate-800 top-10 right-0 absolute rounded-lg w-52 shadow-md mt-1 space-y-0 overflow-hidden ${state ? '' : 'hidden'}`}>
         {navigation.map((item, idx) => (
           <li key={idx}>
             <LinkItem

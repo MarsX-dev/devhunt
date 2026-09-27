@@ -6,6 +6,7 @@ import ToolViewModal from '../ToolViewModal';
 import { type ProductType } from '@/type';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { registerToolCard } from '@/utils/toolCardRegistry';
 
 export default ({
   href,
@@ -44,6 +45,8 @@ export default ({
     }
   };
 
+  useEffect(() => (tool ? registerToolCard(tool, votesToday) : undefined), [tool, votesToday]);
+
   useEffect(() => {
     window.addEventListener('popstate', e => {
       setToolViewActive(false);
@@ -58,7 +61,7 @@ export default ({
 
   return (
     <>
-      <div className="relative group group/card">
+      <div className="relative group group/card" data-tool-card-id={tool?.id}>
         <div onClick={handleClick} className={mergeTW(`flex items-start gap-x-4 relative py-4 rounded-2xl cursor-pointer ${className}`)}>
           {children}
         </div>

@@ -3,6 +3,7 @@
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
+import CountUp from '@/components/ui/CountUp';
 import { isFinalHours, votingDeadline } from '@/utils/votingDeadline';
 
 const SponsorSkeleton = () => (
@@ -213,13 +214,13 @@ export default ({ uniqueVisitors }: { uniqueVisitors?: number }) => (
       The best new dev tools, <br className="hidden sm:block" />
       <span className="text-slate-500">voted by developers.</span>
     </h1>
-    <p className="mt-5 mx-auto max-w-lg text-slate-400">
-      New launches every Tuesday. The community votes all week, and the top tool is crowned the winner.
-    </p>
     <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-400">
       <People />
       <span>
-        {(uniqueVisitors ?? 452356).toLocaleString('en-US')} unique visitors since launch ·{' '}
+        <span className="font-mono text-slate-200">
+          <CountUp value={uniqueVisitors ?? 452356} />
+        </span>{' '}
+        unique visitors since launch ·{' '}
         <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641">
           how it started
         </a>

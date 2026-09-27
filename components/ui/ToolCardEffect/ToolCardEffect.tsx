@@ -57,10 +57,10 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   return (
     <li
       ref={cardRef}
-      className={`${compact ? 'py-0' : 'py-3'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
+      className={`${compact ? 'py-0' : 'py-1'} ${revealIndex === undefined ? '' : 'motion-safe:animate-slide-up'}`}
       style={reveal}
     >
-      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-1.5' : ''} votesToday={votesToday}>
+      <ToolCard tool={tool} href={'/tool/' + tool.slug} className={compact ? 'py-1.5' : 'py-3'} votesToday={votesToday}>
         {/* Same columns in both sizes (rank 24px, logo 56px, text, votes 56px) so the whole list lines up. */}
         <div className="flex w-full min-w-0 items-center gap-x-4">
           {rank && (
@@ -89,7 +89,7 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
               <>
                 <Name href={tool.demo_url as string}>{tool.name}</Name>
                 <Link onClick={preventDefault} href={'/tool/' + tool.slug}>
-                  <Title className="line-clamp-2">{tool.slogan}</Title>
+                  <Title className="line-clamp-1 sm:text-[15px]">{tool.slogan}</Title>
                 </Link>
                 <ToolFooter>
                   <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
@@ -115,7 +115,7 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
       </ToolCard>
       {latestComment && (
         // Indented to start exactly under the tool name: [rank 24px + gap 16px] + logo 56px + gap 16px.
-        <div className={`${compact ? '-mt-1 pb-1.5' : '-mt-2.5'} pl-[72px] ${rank ? 'sm:pl-[112px]' : ''}`}>
+        <div className={`${compact ? '-mt-1 pb-1.5' : '-mt-1.5 pb-2'} pl-[72px] ${rank ? 'sm:pl-[112px]' : ''}`}>
           <ArrivingComment comment={latestComment} active={isInView} />
         </div>
       )}
