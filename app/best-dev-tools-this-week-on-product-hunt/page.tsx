@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Fragment } from 'react';
 import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
 import { sponsorBefore } from '@/utils/ads';
+import { relFor } from '@/utils/links';
 
 // Served from the CDN and refreshed hourly.
 export const revalidate = 3600;
@@ -53,7 +54,7 @@ export default async () => {
               <a
                 href={tool.node.website}
                 target="_blank"
-                rel="nofollow noopener"
+                rel={relFor(tool.node.website)}
                 className="-mx-2 flex items-center gap-x-3 rounded-lg px-2 py-2.5 duration-150 hover:bg-slate-800/50"
               >
                 <span className={`w-[2ch] flex-none text-left font-mono text-xs tabular-nums ${idx < 3 ? 'text-orange-500' : 'text-slate-600'}`}>{idx + 1}</span>

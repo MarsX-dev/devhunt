@@ -15,6 +15,7 @@ import { formatStat } from '@/utils/statFormat';
 import { votingDeadline } from '@/utils/votingDeadline';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import handleURLQuery from '@/utils/handleURLQuery';
+import { relFor } from '@/utils/links';
 
 type Phase = 'upcoming' | 'live' | 'ended';
 
@@ -135,6 +136,7 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
         <a
           href={handleURLQuery(addHttpsToUrl(tool.demo_url as string))}
           target="_blank"
+          rel={relFor(addHttpsToUrl(tool.demo_url as string), { paid: !!tool.isPaid })} // followed only for paid launches and John's products
           className="inline-flex items-center gap-x-1.5 rounded-full bg-slate-50 px-4 py-2 font-medium text-slate-900 duration-150 hover:bg-white"
         >
           Visit website

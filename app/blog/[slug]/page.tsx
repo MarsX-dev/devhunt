@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { followOwnProducts } from '@/utils/links';
 import { getArticle } from '@/utils/blog';
 
 // Blog posts are cached after their first visit (CDN) and refreshed hourly. Nothing is built ahead (empty
@@ -88,7 +89,7 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       }
       <div
         className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8 text-[15px] leading-7"
-        dangerouslySetInnerHTML={{ __html: post.html }}
+        dangerouslySetInnerHTML={{ __html: followOwnProducts(post.html ?? '') }} // John's products followed; other links as SEObot wrote them
       ></div>
       <div className="flex flex-wrap gap-2 justify-start w-full">
         {(post.tags || []).map((t: any, ix: number) => (

@@ -12,6 +12,7 @@ export function toToolCardProps(product: any): ProductType {
     description: product.description,
     logo_url: product.logo_url,
     demo_url: product.demo_url,
+    isPaid: !!product.isPaid, // outbound links are followed only for paid launches (utils/links.ts)
     demo_video_url: product.demo_video_url,
     asset_urls: product.asset_urls,
     owner_id: product.owner_id,

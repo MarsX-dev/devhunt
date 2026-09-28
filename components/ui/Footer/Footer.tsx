@@ -78,6 +78,7 @@ export default () => {
             ))}
           </ul>
         </div>
+        {/* Footer links are all followed (John's products, the team), unlike tool links (utils/links.ts). */}
         <div className="mt-8 items-center justify-between sm:flex">
           <div className="mt-4 sm:mt-0">
             &copy; {new Date().getFullYear()} Dev Hunt. Member of{' '}
@@ -88,7 +89,7 @@ export default () => {
             <div className="text-xs pt-2">
               Uses & Sponsored by{' '}
               {usedTools.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="nofollow noopener noreferrer" target="_blank">
+                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="noopener" target="_blank">
                   {t.title}
                   {usedTools.length - 1 === i ? '' : ', '}
                 </a>
@@ -98,7 +99,7 @@ export default () => {
             <div className="text-xs pt-2">
               Built by{' '}
               {builtBy.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="nofollow noopener noreferrer" target="_blank">
+                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="noopener" target="_blank">
                   {t.title}
                   {builtBy.length - 1 === i ? '' : ', '}
                 </a>

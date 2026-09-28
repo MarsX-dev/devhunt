@@ -23,9 +23,13 @@ describe('toToolCardProps', () => {
   });
 
   it('drops fields that only bloat the page', () => {
-    for (const key of ['created_at', 'updated_at', 'github_url', 'paid_launch_date', 'isPaid', 'comments_count', 'deleted']) {
+    for (const key of ['created_at', 'updated_at', 'github_url', 'paid_launch_date', 'comments_count', 'deleted']) {
       expect(props).not.toHaveProperty(key);
     }
+  });
+
+  it('keeps isPaid: outbound links are followed only for paid launches', () => {
+    expect(typeof props.isPaid).toBe('boolean');
   });
 
   it('handles missing pricing and categories', () => {

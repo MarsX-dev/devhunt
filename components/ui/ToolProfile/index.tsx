@@ -6,6 +6,7 @@ import SectionLabel from '@/components/ui/SectionLabel';
 import { type CompareTool, type ToolProfileView } from '@/utils/toolProfileData';
 import { sectionShown } from '@/utils/toolProfile';
 import { comparePath } from '@/utils/compare';
+import { relFor } from '@/utils/links';
 
 type Self = { name: string; logo_url: string | null; votes_count: number; launch_start: string | null; pricing: string | null; slug: string };
 
@@ -22,7 +23,8 @@ const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0
 const logo = (url: string | null) => (url ?? '').replace(/w=\d+/g, 'w=64');
 
 // "At a glance": who it's for, pricing model, open source stats and integrations.
-export function ToolGlance({ profile }: { profile: ToolProfileView }) {
+// paid: the tool's own links (repo, releases) are followed only for paid launches (see utils/links.ts).
+export function ToolGlance({ profile, paid = false }: { profile: ToolProfileView; paid?: boolean }) {
   const { data } = profile;
   if (!sectionShown(data, 'glance')) return null;
   const facts = [
@@ -47,7 +49,7 @@ export function ToolGlance({ profile }: { profile: ToolProfileView }) {
         <a
           href={`https://github.com/${data.github.repo}`}
           target="_blank"
-          rel="nofollow noopener"
+          rel={relFor(`https://github.com/${data.github.repo}`, { paid })}
           className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-800 px-4 py-2.5 font-mono text-xs text-slate-400 hover:text-slate-200"
         >
           <span className="text-slate-300">{data.github.repo}</span>
@@ -65,7 +67,7 @@ export function ToolGlance({ profile }: { profile: ToolProfileView }) {
         <ul className="border-t border-slate-800 px-4 py-2.5 font-mono text-xs" aria-label="Latest releases">
           {data.github.releases.map(rel => (
             <li key={rel.tag} className="flex items-center gap-x-3 py-0.5">
-              <a href={rel.url} target="_blank" rel="nofollow noopener" className="text-slate-300 hover:text-white">
+              <a href={rel.url} target="_blank" rel={relFor(rel.url, { paid })} className="text-slate-300 hover:text-white">
                 {rel.tag}
               </a>
               {rel.name && rel.name !== rel.tag && <span className="truncate text-slate-500">{rel.name}</span>}
@@ -139,7 +141,7 @@ export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name
 }
 
 // Plans as rows: name, price, billing, highlights.
-export function ToolPricing({ profile, name }: { profile: ToolProfileView; name: string }) {
+export function ToolPricing({ profile, name, paid = false }: { profile: ToolProfileView; name: string; paid?: boolean }) {
   const plans = profile.data.pricing?.plans ?? [];
   if (plans.length < 2 || !sectionShown(profile.data, 'pricing')) return null;
   const source = profile.sources.find(s => /pric|plan/i.test(s));
@@ -149,7 +151,7 @@ export function ToolPricing({ profile, name }: { profile: ToolProfileView; name:
         title={`${name} pricing`}
         hint={
           source ? (
-            <a href={source} target="_blank" rel="nofollow noopener" className="hover:text-slate-300">
+            <a href={source} target="_blank" rel={relFor(source, { paid })} className="hover:text-slate-300">
               from {hostOf(source)} ↗
             </a>
           ) : undefined

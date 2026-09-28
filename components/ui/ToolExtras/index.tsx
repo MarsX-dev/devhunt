@@ -1,6 +1,7 @@
 import { Award } from 'lucide-react';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ToolExtra } from '@/utils/toolExtras';
+import { relFor } from '@/utils/links';
 
 const hostIcon = (url: string | null) => {
   try {
@@ -21,7 +22,7 @@ export function ToolAwards({ extras }: { extras: ToolExtra[] }) {
           <a
             href={award.url ?? undefined}
             target="_blank"
-            rel="nofollow noopener"
+            rel={relFor(award.url)}
             className="inline-flex items-center gap-x-2 rounded-full border border-orange-500/30 bg-orange-500/[0.06] px-3 py-1.5 text-xs text-orange-200 duration-150 hover:border-orange-500/60"
           >
             <Award className="h-3.5 w-3.5 text-orange-400" />
@@ -64,7 +65,7 @@ export function ToolReviews({ extras }: { extras: ToolExtra[] }) {
             <a
               href={review.url ?? undefined}
               target="_blank"
-              rel="nofollow noopener"
+              rel={relFor(review.url)}
               className="mt-2 flex items-center gap-x-2 text-xs text-slate-500 hover:text-slate-300"
             >
               {hostIcon(review.url) && <img src={hostIcon(review.url)!} alt="" className="h-4 w-4 rounded" loading="lazy" />}
@@ -89,7 +90,7 @@ export function ToolMentions({ extras }: { extras: ToolExtra[] }) {
             <a
               href={m.url ?? undefined}
               target="_blank"
-              rel="nofollow noopener"
+              rel={relFor(m.url)}
               className="-mx-2 flex items-center gap-x-3 rounded-lg px-2 py-2.5 duration-150 hover:bg-slate-800/50"
             >
               {hostIcon(m.url) ? (

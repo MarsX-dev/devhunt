@@ -2,6 +2,7 @@ import { type Profile } from '@/utils/supabase/types';
 import { formatStat } from '@/utils/statFormat';
 import { linkLabel, normalizeUrl, platformName, profileLinks, type SocialLink } from '@/utils/socialLinks';
 import SocialIcon from '@/components/ui/SocialIcon';
+import { relFor } from '@/utils/links';
 
 export interface ProfileStats {
   launches: number;
@@ -55,7 +56,7 @@ export default ({ profile, stats }: { profile: Profile; stats?: ProfileStats }) 
               key={link.url}
               href={link.url}
               target="_blank"
-              rel="nofollow ugc noopener"
+              rel={relFor(link.url, { ugc: true })}
               title={platformName(link.platform)}
               className="inline-flex max-w-full items-center gap-x-1.5 rounded-full border border-slate-800 px-3 py-1 text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
             >
