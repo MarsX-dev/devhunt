@@ -26,7 +26,8 @@ export type TypedSupabaseClient = SupabaseClient<Database>;
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
   description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
-  ogImage: 'https://devhunt.org/devhuntog.png?v=2',
+  // Generated with live numbers (app/api/og/home); pages with their own image override it.
+  ogImage: { url: 'https://devhunt.org/api/og/home', width: 1200, height: 630, alt: 'DevHunt: the best new dev tools, voted by developers' },
 };
 
 export const metadata = {
