@@ -17,11 +17,11 @@ export const AD_DESCRIPTION_MAX = 220; // newsletter body
 
 // Ads we don't run. Same banned topics as tool submissions, plus a "fine" option JEV can pick.
 const AD_TOPICS = {
-  ok: 'A normal legitimate product or business of any kind (software, SaaS, services, agencies, education, developer tooling for blockchains, payments or security)',
+  ok: 'A normal legitimate product or business of any kind (software, SaaS, services, agencies, education, security, anti-fraud, anti-scam and anti-spam tools, developer tooling for blockchains, payments or security)',
   crypto: 'Cryptocurrency trading, tokens, coins, NFT or airdrop promotion, crypto investing or yield schemes',
   gambling: 'Gambling, betting, casinos, lotteries or sweepstakes',
   adult: 'Adult or sexual content, dating for sex, NSFW generators',
-  fraud: 'Scams, fake reviews or followers, spam, phishing, account or document selling, get-rich-quick, deceptive or illegal products',
+  fraud: 'Scams, fake reviews or followers, spam, phishing, account or document selling, get-rich-quick, deceptive or illegal products (tools that fight these are ok)',
 };
 // Two questions, both must pass: what the linked website is about, and what the ad text itself
 // promotes. With the site as context JEV judges the site and misses a casino headline on a normal

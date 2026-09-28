@@ -39,13 +39,15 @@ const DEV_TOOL_QUESTION = {
 
 const TOPIC_QUESTION = {
   type: 'choice',
-  instructions: 'Which of these best describes what the product is mainly about?',
+  // "Is", not "about": an anti-scam tool talks about scammers all the time (NumBan was blocked as fraud 0.85).
+  instructions:
+    'Which of these best describes what the product itself does? Judge what the product is, not the topics it deals with: a tool that detects, blocks or reports scams, fraud, spam or abuse is a normal product.',
   criteria: {
-    none: 'A normal legitimate product (including developer tooling for blockchains, payments or security)',
+    none: 'A normal legitimate product, including security, anti-fraud, anti-scam, anti-spam and trust & safety tools, and developer tooling for blockchains, payments or security',
     crypto: 'Cryptocurrency trading, tokens, coins, NFT or airdrop promotion, crypto investing or yield schemes',
     gambling: 'Gambling, betting, casinos, lotteries or sweepstakes',
     adult: 'Adult or sexual content, dating for sex, NSFW generators',
-    fraud: 'Scams, fake reviews or followers, spam, phishing, account selling, get-rich-quick or deceptive products',
+    fraud: 'The product itself deceives or harms people: scams, selling fake reviews or followers, spam services, phishing, account or document selling, get-rich-quick schemes',
   },
 };
 
