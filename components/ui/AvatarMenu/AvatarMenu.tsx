@@ -36,6 +36,15 @@ export default ({ onLogout, session }: Props) => {
       .limit(1)
       .then(({ data }) => setHasPaid(!!data?.length));
   }, [state, hasPaid, session?.user.id]);
+  // Internal pages (site analytics) for the DevHunt team, also checked once on first open.
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!state || isAdmin !== null || !session?.user.id) return;
+    fetch('/api/account/admin')
+      .then(r => (r.ok ? r.json() : { admin: false }))
+      .then(d => setIsAdmin(!!d.admin))
+      .catch(() => setIsAdmin(false));
+  }, [state, isAdmin, session?.user.id]);
   // The menu's links are hidden until it opens, so Next never prefetched them: do it on hover/focus,
   // and on open for touch screens (no hover).
   const prefetchMenu = () => navigation.forEach(item => item.path && prefetchRoute(router, item.path));
@@ -45,6 +54,7 @@ export default ({ onLogout, session }: Props) => {
     { title: 'My tools', path: '/account/tools' },
     { title: 'Edit profile', path: '/account/details' },
     { title: 'My ads', path: '/account/advertise' },
+    ...(isAdmin ? [{ title: 'Analytics', path: '/account/analytics' }] : []),
   ];
 
   useEffect(() => {
