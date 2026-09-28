@@ -49,12 +49,26 @@ const TOPIC_QUESTION = {
   },
 };
 
+// Genuine listing, or a test/placeholder, or a fake (calibrated 2026-09-29 on real and junk listings).
+const LISTING_QUESTION = {
+  type: 'choice',
+  instructions: 'Someone submitted this product to DevHunt, a directory where makers list their own tools. Is it a genuine, complete listing?',
+  criteria: {
+    real: 'A genuine listing of a real product by its maker: a real name, a real website, and a description that says what the product does (short or plain is fine)',
+    placeholder:
+      'A test or unfinished submission: placeholder or template text (e.g. "Tool name", "Quick Description", "Catchy slogan"), lorem ipsum, keyboard mashing or gibberish, or no real description of what the product is',
+    fake: 'Not a genuine listing: impersonates a well-known company or product the submitter clearly does not own (e.g. listing Shopify, Google or DevHunt itself), a fake or non-existent product, or a website unrelated to the described product',
+  },
+};
+
 const toolState = (tool: { name: string; slogan?: string | null; description?: string | null; website?: string | null }) =>
   [`Name: ${tool.name}`, `Tagline: ${tool.slogan ?? ''}`, `Website: ${tool.website ?? ''}`, `Description: ${(tool.description ?? '').slice(0, 1500)}`].join('\n');
 
 // One JEV call per submission: is it a dev tool (0..1) and is it about a banned topic.
 export async function moderateSubmission(tool: { name: string; slogan?: string | null; description?: string | null; website?: string | null }) {
-  const answers = await jevAsk(toolState(tool), { dev_tool: DEV_TOOL_QUESTION, topic: TOPIC_QUESTION }, 6000);
+  const answers = await jevAsk(toolState(tool), { dev_tool: DEV_TOOL_QUESTION, topic: TOPIC_QUESTION, listing: LISTING_QUESTION }, 6000);
+  const listing = typeof answers?.listing?.choice === 'string' ? (answers.listing.choice as string) : null;
+  const listingProbability = listing ? Number(answers?.listing?.probabilities?.[listing] ?? answers?.listing?.confidence) : NaN;
   const devToolScore = Number(answers?.dev_tool?.noul);
   const topic = typeof answers?.topic?.choice === 'string' ? (answers.topic.choice as string) : null;
   const topicProbability = topic ? Number(answers?.topic?.probabilities?.[topic] ?? answers?.topic?.confidence) : NaN;
@@ -62,6 +76,8 @@ export async function moderateSubmission(tool: { name: string; slogan?: string |
     devToolScore: Number.isFinite(devToolScore) ? devToolScore : null,
     topic,
     topicProbability: Number.isFinite(topicProbability) ? topicProbability : null,
+    listing,
+    listingProbability: Number.isFinite(listingProbability) ? listingProbability : null,
   };
 }
 

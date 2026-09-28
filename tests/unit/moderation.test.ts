@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commentDecision, isLinkDrop, moderationDecision, templateRepeats } from '@/utils/moderation';
+import { commentDecision, incompleteReason, isLinkDrop, moderationDecision, templateRepeats } from '@/utils/moderation';
 
 describe('moderationDecision', () => {
   it('blocks banned topics only when JEV is confident', () => {
@@ -12,6 +12,26 @@ describe('moderationDecision', () => {
   it('lets dev tools through, and everything through when JEV is unavailable', () => {
     expect(moderationDecision({ devToolScore: 0.8, topic: 'none', topicProbability: 0.95 }).status).toBe('ok');
     expect(moderationDecision({ devToolScore: null, topic: null, topicProbability: null }).status).toBe('ok');
+  });
+});
+
+describe('listing quality', () => {
+  const ok = { name: 'corsproxy', slogan: 'Self-hosted CORS proxy in Go', description: 'One binary, zero dependencies. Put it in front of any API.', website: 'https://corsproxy.dev' };
+  it('refuses the form placeholders, our own site and empty descriptions', () => {
+    expect(incompleteReason(ok)).toBeNull();
+    expect(incompleteReason({ ...ok, name: 'Tool name Tool name' })).toMatch(/example text/);
+    expect(incompleteReason({ ...ok, name: 'Tool name LLM Scout' })).toMatch(/example text/);
+    expect(incompleteReason({ ...ok, slogan: 'Catchy slogan 😎Catchy slogan 😎' })).toMatch(/example text/);
+    expect(incompleteReason({ ...ok, slogan: 'Supercharge Your Development Workflow!' })).toMatch(/example text/);
+    expect(incompleteReason({ ...ok, website: 'https://devhunt.org/account/tools/new' })).toMatch(/own website/);
+    expect(incompleteReason({ ...ok, description: '<p>.</p>' })).toMatch(/describe/);
+  });
+  it('JEV: sure placeholders are refused, sure fakes blocked, unsure ones pass', () => {
+    const base = { devToolScore: 0.9, topic: 'none', topicProbability: 0.9 };
+    expect(moderationDecision({ ...base, listing: 'placeholder', listingProbability: 0.97 }).status).toBe('incomplete');
+    expect(moderationDecision({ ...base, listing: 'fake', listingProbability: 0.96 })).toEqual({ status: 'blocked', reason: 'fake' });
+    expect(moderationDecision({ ...base, listing: 'fake', listingProbability: 0.66 }).status).toBe('ok');
+    expect(moderationDecision({ ...base, listing: 'real', listingProbability: 0.7 }).status).toBe('ok');
   });
 });
 

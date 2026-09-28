@@ -6,7 +6,7 @@ import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { announceNewTool } from '@/utils/server/discord';
 import { trackFunnel } from '@/utils/server/funnel';
 import { moderateSubmission } from '@/utils/server/jev';
-import { moderationDecision } from '@/utils/moderation';
+import { incompleteReason, moderationDecision } from '@/utils/moderation';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 
@@ -53,8 +53,25 @@ export async function POST(req: Request) {
   }
   const submitType: SubmitType = ['free', 'normal', 'paid'].includes(body.submitType as string) ? (body.submitType as SubmitType) : 'free';
 
+  // Placeholder/test submissions are refused before anything is saved, so the maker can fix and resubmit.
+  const incomplete = incompleteReason({ name, slogan: body.slogan!.trim(), description: body.description!, website: body.website! });
+  if (incomplete) return NextResponse.json({ error: incomplete }, { status: 400 });
+
   const { data: existing } = await serviceClient.from('products').select('id').eq('slug', slug).maybeSingle();
   if (existing) return NextResponse.json({ error: 'A tool with this name already exists, please use another name.' }, { status: 409 });
+
+  // Moderation (JEV), before saving: an obvious placeholder is refused here; banned topics and fake
+  // listings are saved blocked and hidden until reviewed; non-dev tools stay out of the weekly
+  // competition (and the free queue) and can pay for a listing in "Other".
+  const answers = await moderateSubmission({ name, slogan: body.slogan, description: body.description, website: body.website });
+  const decision = moderationDecision(answers);
+  if (decision.status === 'incomplete') {
+    console.log(JSON.stringify({ event: 'tool_refused', reason: 'incomplete', name, url: body.website, p: answers.listingProbability }));
+    return NextResponse.json(
+      { error: "This looks like a test or an unfinished submission. Please enter your tool's real name, website and a description of what it does." },
+      { status: 400 },
+    );
+  }
 
   const plan = planLaunch(await getUpcomingWeeks(), body.week, submitType);
   if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: 400 });
@@ -95,13 +112,7 @@ export async function POST(req: Request) {
     await serviceClient.from('product_category_product').insert(categoryIds.map(category_id => ({ product_id: product.id, category_id })));
   }
 
-  // Moderation (JEV): banned topics are blocked and hidden until reviewed; non-dev tools stay out of
-  // the weekly competition (and the free queue) and can pay for a listing in "Other".
-  const [answers, { data: profile }] = await Promise.all([
-    moderateSubmission({ name, slogan: body.slogan, description: body.description, website: body.website }),
-    serviceClient.from('profiles').select('full_name').eq('id', user.id).single(),
-  ]);
-  const decision = moderationDecision(answers);
+  const { data: profile } = await serviceClient.from('profiles').select('full_name').eq('id', user.id).single();
   await serviceClient
     .from('products')
     .update({
@@ -116,7 +127,13 @@ export async function POST(req: Request) {
     await serviceClient.from('product_category_product').delete().eq('product_id', product.id);
     if (other) await serviceClient.from('product_category_product').insert({ product_id: product.id, category_id: other.id });
   }
-  await announceNewTool(product, profile?.full_name ?? null, { ...decision, devToolScore: answers.devToolScore, topicProbability: answers.topicProbability });
+  const status = decision.status as Exclude<typeof decision.status, 'incomplete'>; // incomplete returned above
+  await announceNewTool(product, profile?.full_name ?? null, {
+    ...decision,
+    status,
+    devToolScore: answers.devToolScore,
+    topicProbability: decision.reason === 'fake' ? answers.listingProbability : answers.topicProbability,
+  });
   await trackFunnel({
     step: 'tool_created',
     userId: user.id,

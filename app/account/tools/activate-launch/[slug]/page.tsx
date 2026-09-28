@@ -152,8 +152,14 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Held for review</p>
           <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-50">We&apos;re taking a closer look</h1>
           <p className="mt-3 text-sm leading-relaxed text-slate-400">
-            Your submission looks like it may be about <b className="text-slate-200">{heldReason}</b>, which DevHunt doesn&apos;t list
-            (crypto trading, gambling, adult content or anything deceptive). It&apos;s hidden for now and our team has been notified. If
+            {heldReason === 'fake' ? (
+              <>Your submission doesn&apos;t look like a genuine listing (for example a product you don&apos;t own, or a website that doesn&apos;t match).</>
+            ) : (
+              <>
+                Your submission looks like it may be about <b className="text-slate-200">{heldReason}</b>, which DevHunt doesn&apos;t list
+                (crypto trading, gambling, adult content or anything deceptive).
+              </>
+            )} It&apos;s hidden for now and our team has been notified. If
             we got it wrong, we&apos;ll unblock it after review - no need to resubmit.
           </p>
           <Link href="/account/tools" className="mt-6 inline-block rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:border-slate-500">
