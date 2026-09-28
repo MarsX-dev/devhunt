@@ -8,14 +8,16 @@ import { supabase as serviceClient } from '@/utils/supabase/services/supabaseCli
 
 export const dynamic = 'force-dynamic';
 
+type Counts = { pageviews: number; visitors: number; new_visitors: number };
 interface Analytics {
-  daily: { day: string; pageviews: number; visitors: number; new_visitors: number }[];
+  daily?: ({ day: string } & Counts)[];
+  hourly?: ({ hour: string } & Counts)[]; // 24h view (get_analytics_hourly)
   countries: { country: string; pageviews: number; visitors: number }[];
   pages: { path: string; pageviews: number }[];
   unique_visitors_all_time: number;
 }
 
-const RANGES = [7, 30, 90];
+const RANGES = [1, 7, 30, 90]; // days; 1 = last 24 hours, hour by hour
 const fmt = (n: number) => Number(n).toLocaleString('en-US');
 const countryName = (code: string) => {
   if (code === 'XX') return 'Unknown';
@@ -31,22 +33,39 @@ const flag = (code: string) => (code === 'XX' ? '🌐' : String.fromCodePoint(0x
 export default async function AnalyticsPage({ searchParams }: { searchParams: { days?: string } }) {
   if (!(await isAdmin())) notFound();
   const days = RANGES.includes(Number(searchParams?.days)) ? Number(searchParams.days) : 30;
-  const { data } = await serviceClient.rpc('get_analytics' as never, { _days: days } as never);
+  const hourly = days === 1;
+  const { data } = hourly
+    ? await serviceClient.rpc('get_analytics_hourly' as never)
+    : await serviceClient.rpc('get_analytics' as never, { _days: days } as never);
   const a = data as unknown as Analytics | null;
   if (!a) return <p className="mt-20 text-center text-slate-400">Couldn&apos;t load analytics.</p>;
 
-  const total = (key: 'pageviews' | 'visitors' | 'new_visitors') => a.daily.reduce((sum, d) => sum + Number(d[key]), 0);
-  // One slot per day of the range, so the bars keep their width while data is sparse.
-  const byDay = new Map(a.daily.map(d => [d.day, d]));
-  const slots = Array.from({ length: days }, (_, i) => {
-    const day = new Date(Date.now() - (days - 1 - i) * 86400000).toISOString().slice(0, 10);
-    return byDay.get(day) ?? { day, pageviews: 0, visitors: 0, new_visitors: 0 };
-  });
+  // One slot per day (or per hour in the 24h view), so the bars keep their width while data is sparse.
+  const empty: Counts = { pageviews: 0, visitors: 0, new_visitors: 0 };
+  let slots: (Counts & { key: string; label: string })[];
+  if (hourly) {
+    const byHour = new Map((a.hourly ?? []).map(h => [new Date(h.hour).toISOString().slice(0, 13), h]));
+    const now = new Date();
+    now.setUTCMinutes(0, 0, 0);
+    slots = Array.from({ length: 24 }, (_, i) => {
+      const at = new Date(now.getTime() - (23 - i) * 3600000).toISOString();
+      const key = at.slice(0, 13);
+      return { ...(byHour.get(key) ?? empty), key, label: `${at.slice(0, 10)} ${at.slice(11, 13)}:00 UTC` };
+    });
+  } else {
+    const byDay = new Map((a.daily ?? []).map(d => [d.day, d]));
+    slots = Array.from({ length: days }, (_, i) => {
+      const day = new Date(Date.now() - (days - 1 - i) * 86400000).toISOString().slice(0, 10);
+      return { ...(byDay.get(day) ?? empty), key: day, label: day };
+    });
+  }
+  const hasData = slots.some(d => Number(d.pageviews));
+  const total = (key: keyof Counts) => slots.reduce((sum, d) => sum + Number(d[key]), 0);
   const maxDay = Math.max(1, ...slots.map(d => Number(d.visitors)));
   const maxCountry = Math.max(1, ...a.countries.map(c => Number(c.visitors)));
   const maxPage = Math.max(1, ...a.pages.map(p => Number(p.pageviews)));
   const tiles = [
-    { label: 'unique_visitors', value: total('visitors'), hint: 'sum of daily uniques' },
+    { label: 'unique_visitors', value: total('visitors'), hint: `sum of ${hourly ? 'hourly' : 'daily'} uniques` },
     { label: 'new_visitors', value: total('new_visitors'), hint: 'first visit ever' },
     { label: 'page_views', value: total('pageviews'), hint: `${(total('pageviews') / Math.max(1, total('visitors'))).toFixed(1)} per visitor` },
     { label: 'all_time_visitors', value: a.unique_visitors_all_time, hint: 'since launch' },
@@ -65,7 +84,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
             href={`?days=${r}`}
             className={`rounded-full border px-3 py-1 ${r === days ? 'border-slate-500 text-slate-100' : 'border-slate-800 text-slate-500 hover:text-slate-300'}`}
           >
-            {r}d
+            {r === 1 ? '24h' : `${r}d`}
           </a>
         ))}
       </nav>
@@ -81,21 +100,21 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
       </dl>
 
       <div className="mt-12">
-        <SectionLabel title="Unique visitors per day" hint={`last ${days} days, UTC`} />
-        {a.daily.length ? (
-          <div className="mt-4 flex h-40 items-end gap-[2px]" role="img" aria-label="Unique visitors per day">
+        <SectionLabel title={`Unique visitors per ${hourly ? 'hour' : 'day'}`} hint={hourly ? 'last 24 hours, UTC' : `last ${days} days, UTC`} />
+        {hasData ? (
+          <div className="mt-4 flex h-40 items-end gap-[2px]" role="img" aria-label={`Unique visitors per ${hourly ? 'hour' : 'day'}`}>
             {slots.map(d => (
-              <div key={d.day} className="group relative flex h-full flex-1 items-end">
+              <div key={d.key} className="group relative flex h-full flex-1 items-end">
                 <div className={`w-full rounded-t-[4px] ${Number(d.visitors) ? 'bg-orange-400/80 group-hover:bg-orange-300' : 'bg-slate-800'}`} style={{ height: `${Math.max(1, (Number(d.visitors) / maxDay) * 100)}%` }} />
                 <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-mono text-[11px] text-slate-300 group-hover:block">
-                  <div className="text-slate-500">{d.day}</div>
+                  <div className="text-slate-500">{d.label}</div>
                   {fmt(d.visitors)} visitors · {fmt(d.pageviews)} views · {fmt(d.new_visitors)} new
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-slate-500">No data yet. Visits are counted from now on.</p>
+          <p className="mt-4 text-sm text-slate-500">No data yet. Visits are counted from now on{hourly ? ' (hourly counts started on Sep 29, 2026)' : ''}.</p>
         )}
       </div>
 
@@ -115,7 +134,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
           </ul>
         </div>
         <div>
-          <SectionLabel title="Top pages" hint="by page views" />
+          <SectionLabel title="Top pages" hint={hourly ? 'by page views, today and yesterday' : 'by page views'} />
           <ul className="mt-4 space-y-1 text-sm">
             {a.pages.map(p => (
               <li key={p.path} className="relative -mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-1.5">

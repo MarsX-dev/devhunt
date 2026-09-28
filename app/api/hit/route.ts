@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!path || !url || !key) return done;
 
-  await fetch(`${url}/rest/v1/rpc/track_pageview`, {
+  await fetch(`${url}/rest/v1/rpc/track_hit`, {
     method: 'POST',
     headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
       _country: countryCode(req.geo?.country ?? req.headers.get('x-vercel-ip-country')),
       _new_today: body?.d === true,
       _new_visitor: body?.n === true,
+      // Beacons from pages loaded before this field existed: count their first view of the day as the hour's.
+      _new_hour: typeof body?.h === 'boolean' ? body.h : body?.d === true,
     }),
   }).catch(() => null);
   return done;

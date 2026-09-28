@@ -2,6 +2,7 @@
 // app/api/hit. No cookies and no personal data: the browser keeps only the first/last visit day.
 
 export const VISIT_KEY = 'dh_visit';
+export const VISIT_HOUR_KEY = 'dh_visit_h'; // last visit hour (YYYY-MM-DDTHH, UTC), for hourly uniques
 
 // Signs that this browser visited DevHunt before first-party tracking existed, so it isn't counted
 // as a new unique visitor: the Clarity cookie (1 year) or keys the site has long stored.

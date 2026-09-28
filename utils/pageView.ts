@@ -1,6 +1,6 @@
 'use client';
 
-import { VISIT_KEY, seenBefore, visitState } from '@/utils/analytics';
+import { VISIT_HOUR_KEY, VISIT_KEY, seenBefore, visitState } from '@/utils/analytics';
 
 // Page view beacons (components/Analytics). Next 14 syncs history.pushState/replaceState with the router,
 // so the tool preview modal - which puts /tool/... in the URL when it opens and on every ←/→ step - also
@@ -22,17 +22,21 @@ export function trackPageView(path: string, { force = false }: { force?: boolean
   const send = () => {
     pending = null;
     let stored: string | null = null;
+    let lastHour: string | null = null;
     let keys: string[] = [];
     try {
       stored = localStorage.getItem(VISIT_KEY);
+      lastHour = localStorage.getItem(VISIT_HOUR_KEY);
       keys = Object.keys(localStorage);
     } catch {}
     const today = new Date().toISOString().slice(0, 10);
+    const hour = new Date().toISOString().slice(0, 13);
     const { newVisitor, newToday, next } = visitState(stored, today, seenBefore(document.cookie, keys));
     try {
       localStorage.setItem(VISIT_KEY, next);
+      localStorage.setItem(VISIT_HOUR_KEY, hour);
     } catch {}
-    const body = JSON.stringify({ p: path, n: newVisitor, d: newToday });
+    const body = JSON.stringify({ p: path, n: newVisitor, d: newToday, h: lastHour !== hour });
     if (!navigator.sendBeacon?.('/api/hit', new Blob([body], { type: 'text/plain' }))) {
       fetch('/api/hit', { method: 'POST', body, keepalive: true, headers: { 'Content-Type': 'application/json' } }).catch(() => {});
     }

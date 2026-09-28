@@ -49,7 +49,7 @@ export default async function FunnelReport({ days }: { days: number }) {
   return (
     <div className="mt-14 space-y-12">
       <div>
-        <SectionLabel title="Submit funnel" hint={`last ${days} days · unique visitors per step · ${f.revenue ? `$${fmt(f.revenue)} revenue` : 'no revenue yet'}`} />
+        <SectionLabel title="Submit funnel" hint={`last ${days === 1 ? '24 hours' : `${days} days`} · unique visitors per step · ${f.revenue ? `$${fmt(f.revenue)} revenue` : 'no revenue yet'}`} />
         <ol className="mt-2 font-mono text-xs">
           {MAIN_PATH.map((step, i) => {
             const n = f.steps[step] ?? 0;
