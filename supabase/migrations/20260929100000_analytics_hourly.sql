@@ -61,3 +61,28 @@ AS $function$
 $function$;
 REVOKE EXECUTE ON FUNCTION public.get_analytics_hourly() FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_analytics_hourly() TO service_role;
+
+-- (applied separately as analytics_hourly_since) The report also says when hourly counting started, so
+-- the page can show earlier hours as "no data" instead of zero.
+CREATE OR REPLACE FUNCTION public.get_analytics_hourly()
+ RETURNS json
+ LANGUAGE sql
+ STABLE
+ SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  WITH since AS (SELECT date_trunc('hour', now()) - interval '23 hours' AS h)
+  SELECT json_build_object(
+    'tracking_since', (SELECT min(hour) FROM analytics_hourly),
+    'hourly', (SELECT coalesce(json_agg(t ORDER BY t.hour), '[]') FROM (
+      SELECT hour, sum(pageviews) AS pageviews, sum(visitors) AS visitors, sum(new_visitors) AS new_visitors
+      FROM analytics_hourly WHERE hour >= (SELECT h FROM since) GROUP BY hour) t),
+    'countries', (SELECT coalesce(json_agg(t), '[]') FROM (
+      SELECT country, sum(pageviews) AS pageviews, sum(visitors) AS visitors
+      FROM analytics_hourly WHERE hour >= (SELECT h FROM since) GROUP BY country ORDER BY sum(visitors) DESC, sum(pageviews) DESC LIMIT 25) t),
+    'pages', (SELECT coalesce(json_agg(t), '[]') FROM (
+      SELECT path, sum(pageviews) AS pageviews
+      FROM analytics_pages WHERE day >= (now() AT TIME ZONE 'utc')::date - 1 GROUP BY path ORDER BY sum(pageviews) DESC LIMIT 25) t),
+    'unique_visitors_all_time', 452356 + (SELECT coalesce(sum(new_visitors), 0) FROM analytics_daily)
+  )
+$function$;

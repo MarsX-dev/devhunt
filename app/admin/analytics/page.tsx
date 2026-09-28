@@ -14,6 +14,7 @@ type Counts = { pageviews: number; visitors: number; new_visitors: number };
 interface Analytics {
   daily?: ({ day: string } & Counts)[];
   hourly?: ({ hour: string } & Counts)[]; // 24h view (get_analytics_hourly)
+  tracking_since?: string | null; // first hour with hourly counts
   countries: { country: string; pageviews: number; visitors: number }[];
   pages: { path: string; pageviews: number }[];
   unique_visitors_all_time: number;
@@ -44,30 +45,35 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
 
   // One slot per day (or per hour in the 24h view), so the bars keep their width while data is sparse.
   const empty: Counts = { pageviews: 0, visitors: 0, new_visitors: 0 };
-  let slots: (Counts & { key: string; label: string })[];
+  let slots: (Counts & { key: string; label: string; tick: string; noData?: boolean })[];
   if (hourly) {
     const byHour = new Map((a.hourly ?? []).map(h => [new Date(h.hour).toISOString().slice(0, 13), h]));
     const now = new Date();
     now.setUTCMinutes(0, 0, 0);
+    // Hourly counting started on deploy (2026-09-28): earlier hours have no data, not zero visits.
+    const since = a.tracking_since ? Date.parse(a.tracking_since) : now.getTime();
     slots = Array.from({ length: 24 }, (_, i) => {
-      const at = new Date(now.getTime() - (23 - i) * 3600000).toISOString();
+      const t = now.getTime() - (23 - i) * 3600000;
+      const at = new Date(t).toISOString();
       const key = at.slice(0, 13);
-      return { ...(byHour.get(key) ?? empty), key, label: `${at.slice(0, 10)} ${at.slice(11, 13)}:00 UTC` };
+      return { ...(byHour.get(key) ?? empty), key, label: `${at.slice(0, 10)} ${at.slice(11, 13)}:00 UTC`, tick: `${at.slice(11, 13)}:00`, noData: t < since };
     });
   } else {
     const byDay = new Map((a.daily ?? []).map(d => [d.day, d]));
     slots = Array.from({ length: days }, (_, i) => {
       const day = new Date(Date.now() - (days - 1 - i) * 86400000).toISOString().slice(0, 10);
-      return { ...(byDay.get(day) ?? empty), key: day, label: day };
+      return { ...(byDay.get(day) ?? empty), key: day, label: day, tick: day.slice(5) };
     });
   }
   const hasData = slots.some(d => Number(d.pageviews));
+  const missing = slots.filter(d => d.noData).length;
+  const partial = hourly && missing > 0 && a.tracking_since ? `since ${new Date(a.tracking_since).toISOString().slice(11, 16)} UTC` : null;
   const total = (key: keyof Counts) => slots.reduce((sum, d) => sum + Number(d[key]), 0);
   const maxDay = Math.max(1, ...slots.map(d => Number(d.visitors)));
   const maxCountry = Math.max(1, ...a.countries.map(c => Number(c.visitors)));
   const maxPage = Math.max(1, ...a.pages.map(p => Number(p.pageviews)));
   const tiles = [
-    { label: 'unique_visitors', value: total('visitors'), hint: `sum of ${hourly ? 'hourly' : 'daily'} uniques` },
+    { label: 'unique_visitors', value: total('visitors'), hint: partial ? `sum of hourly uniques, ${partial}` : `sum of ${hourly ? 'hourly' : 'daily'} uniques` },
     { label: 'new_visitors', value: total('new_visitors'), hint: 'first visit ever' },
     { label: 'page_views', value: total('pageviews'), hint: `${(total('pageviews') / Math.max(1, total('visitors'))).toFixed(1)} per visitor` },
     { label: 'all_time_visitors', value: a.unique_visitors_all_time, hint: 'since launch' },
@@ -104,17 +110,38 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
       <div className="mt-12">
         <SectionLabel title={`Unique visitors per ${hourly ? 'hour' : 'day'}`} hint={hourly ? 'last 24 hours, UTC' : `last ${days} days, UTC`} />
         {hasData ? (
+          <>
           <div className="mt-4 flex h-40 items-end gap-[2px]" role="img" aria-label={`Unique visitors per ${hourly ? 'hour' : 'day'}`}>
             {slots.map(d => (
               <div key={d.key} className="group relative flex h-full flex-1 items-end">
-                <div className={`w-full rounded-t-[4px] ${Number(d.visitors) ? 'bg-orange-400/80 group-hover:bg-orange-300' : 'bg-slate-800'}`} style={{ height: `${Math.max(1, (Number(d.visitors) / maxDay) * 100)}%` }} />
+                {d.noData ? (
+                  <div className="h-full w-full rounded-t-[4px] border border-dashed border-slate-800/80" />
+                ) : (
+                  <div
+                    className={`w-full rounded-t-[4px] ${Number(d.visitors) ? 'bg-orange-400/80 group-hover:bg-orange-300' : 'bg-slate-800'}`}
+                    style={{ height: `${Math.max(1, (Number(d.visitors) / maxDay) * 100)}%` }}
+                  />
+                )}
                 <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-mono text-[11px] text-slate-300 group-hover:block">
                   <div className="text-slate-500">{d.label}</div>
-                  {fmt(d.visitors)} visitors · {fmt(d.pageviews)} views · {fmt(d.new_visitors)} new
+                  {d.noData ? 'no data: hourly counting started later' : `${fmt(d.visitors)} visitors · ${fmt(d.pageviews)} views · ${fmt(d.new_visitors)} new`}
                 </div>
               </div>
             ))}
           </div>
+          {/* Axis: a few labels so it's clear what one bar is. */}
+          <div className="mt-1.5 flex justify-between font-mono text-[10px] text-slate-600">
+            {[0, Math.floor(slots.length / 4), Math.floor(slots.length / 2), Math.floor((slots.length * 3) / 4), slots.length - 1].map(i => (
+              <span key={i}>{slots[i]?.tick}</span>
+            ))}
+          </div>
+          {partial && (
+            <p className="mt-2 font-mono text-[11px] text-slate-500">
+              Hourly counting started {new Date(a.tracking_since!).toISOString().slice(0, 16).replace('T', ' ')} UTC; the dashed hours before that have no data. The
+              24h numbers above only cover the time {partial}.
+            </p>
+          )}
+          </>
         ) : (
           <p className="mt-4 text-sm text-slate-500">No data yet. Visits are counted from now on{hourly ? ' (hourly counts started on Sep 29, 2026)' : ''}.</p>
         )}
