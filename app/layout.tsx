@@ -112,12 +112,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </SupabaseProvider>
         </main>
 
+        {/* TinyAdz disabled (2026-09-28). To bring it back, uncomment this script and the
+            #TA_AD_CONTAINER div in app/(home)/HomeFeed.tsx.
         <Script
           src="https://tiny.devhunt.org/scripts/v2.0/main.js?v1"
           data-site-id="67d9308722e24b2f06e9986b"
           strategy="afterInteractive"
           async
-        />
+        /> */}
       </body>
     </html>
   );

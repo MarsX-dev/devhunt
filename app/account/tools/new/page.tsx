@@ -37,6 +37,8 @@ interface Inputs {
   demo_video: string;
 }
 
+const MAX_SCREENSHOTS = 3; // the tool page shows at most 3 media tiles
+
 // One section of the submit form: "01  The basics".
 function FormStep({ n, title, children }: { n: string; title: string; children: ReactNode }) {
   return (
@@ -126,7 +128,7 @@ export default () => {
   const handleUploadImages = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
-    if (file && file.type.includes('image') && imagePreviews.length < 5) {
+    if (file && file.type.includes('image') && imagePreviews.length < MAX_SCREENSHOTS) {
       setImageFile([...(imageFiles as any), file]);
       setImagesLoad(true);
       setImageError('');
@@ -272,8 +274,8 @@ export default () => {
         setLogoFile(draft.logoUrl);
       }
       if (draft.screenshotUrls?.length) {
-        setImagePreview(draft.screenshotUrls);
-        setImageFile(draft.screenshotUrls);
+        setImagePreview(draft.screenshotUrls.slice(0, MAX_SCREENSHOTS));
+        setImageFile(draft.screenshotUrls.slice(0, MAX_SCREENSHOTS));
       }
       setImportState('done');
       trackStep('import_done', { url, ok: true, ms: Date.now() - started, name: draft.name, categories: (data.categories ?? []).map((c: any) => c.name) });
@@ -309,8 +311,8 @@ export default () => {
         setValue('tool_description', product.description);
         setLogoPreview(product.thumbnail.url);
         setLogoFile(product.thumbnail.url);
-        setImagePreview(product.media.map((item: { url: string }) => item.url));
-        setImageFile(product.media.map((item: { url: string }) => item.url));
+        setImagePreview(product.media.map((item: { url: string }) => item.url).slice(0, MAX_SCREENSHOTS));
+        setImageFile(product.media.map((item: { url: string }) => item.url).slice(0, MAX_SCREENSHOTS));
         // Close modal and show success message
         setIsPhModalOpen(false);
         setPhSlug('');
@@ -361,7 +363,7 @@ export default () => {
                 Continue →
               </button>
             </form>
-            <p className="mt-4 font-mono text-xs text-slate-600">free · about a minute</p>
+            <p className="mt-4 font-mono text-xs text-slate-600">AI will do the job, you gonna review and publish</p>
             <div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-sm">
               <button
                 type="button"
@@ -499,10 +501,10 @@ export default () => {
               <div id="tool-screenshots-container">
                 <Label>Tool screenshots</Label>
                 <p className="text-sm text-slate-400">
-                  Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
+                  Up to {MAX_SCREENSHOTS} screenshots showcasing different aspects of functionality. Note that the first image will be used as
                   social preview, so choose wisely!
                 </p>
-                <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={5} onChange={handleUploadImages}>
+                <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imageFiles as []} max={MAX_SCREENSHOTS} onChange={handleUploadImages}>
                   {imagePreviews.map((src, idx) => (
                     <ImageUploaderItem
                       src={src}

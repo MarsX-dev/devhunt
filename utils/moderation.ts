@@ -4,7 +4,7 @@ export const BANNED_TOPICS = ['crypto', 'gambling', 'adult', 'fraud'] as const;
 export type BannedTopic = (typeof BANNED_TOPICS)[number];
 
 export const BLOCK_THRESHOLD = 0.6; // probability of a banned topic
-export const NOT_A_FIT_THRESHOLD = 0.35; // "is a developer tool" score below this
+export const NOT_A_FIT_THRESHOLD = 0.35; // "useful to a developer or builder" score below this
 
 export function moderationDecision(input: { devToolScore: number | null; topic: string | null; topicProbability: number | null }): {
   status: Moderation;

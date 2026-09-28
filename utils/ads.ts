@@ -26,7 +26,13 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     price: 299,
     slots: 4,
     pitch: 'A row inside the tool lists developers browse to find new tools, styled like the launches around it and marked "Sponsored".',
-    where: ['Home page, right after the top 3 launches of the week', 'Every category list, after the 5th tool', 'Logo, name and headline, links to your site', 'Only 4 sponsors share the spot'],
+    where: [
+      'Home page, right after the top 3 launches of the week',
+      'Tool pages, categories, upcoming launches, all tools and more',
+      'Repeated in long lists (every 8 tools)',
+      'Logo, name and headline, links to your site',
+      'Only 4 sponsors share the spots',
+    ],
   },
   newsletter: {
     kind: 'newsletter',
@@ -61,6 +67,18 @@ export const isAdKind = (k: unknown): k is AdKind => typeof k === 'string' && k 
 
 // Refund the latest payment (and stop the ad) within this many days of the charge.
 export const REFUND_DAYS = 7;
+
+// Where inline sponsor rows go in a tool list (components/ui/Sponsors/InlineSponsor): before the
+// 4th item, then every 8 items. Lists shorter than 4 items get none. Tune placement here.
+export const INLINE_FIRST = 3; // index of the item the first sponsor row goes before
+export const INLINE_EVERY = 8;
+export const INLINE_MIN_LIST = 4;
+export const INLINE_MAX_OPEN = 2; // unsold: at most this many "open spot" rows per list
+// The sponsor row's ordinal in the list (0, 1, ...) if one goes right before item `idx`, else -1.
+export function sponsorBefore(idx: number, length: number) {
+  if (length < INLINE_MIN_LIST || idx < INLINE_FIRST || (idx - INLINE_FIRST) % INLINE_EVERY) return -1;
+  return (idx - INLINE_FIRST) / INLINE_EVERY;
+}
 
 // Kept for the rails.
 export const AD_SLOTS = AD_PRODUCTS.rail.slots;

@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
-import { Gallery, GalleryImage } from '@/components/ui/Gallery';
+import { MediaGrid } from '@/components/ui/Gallery';
 import { Tabs } from '@/components/ui/TabsLink';
 
 // Rendered on the server so the tab bar has its height from the first paint.
@@ -29,6 +29,7 @@ import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 import TrackToolView from '@/components/ui/TrackToolView';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { type ProductType } from '@/type';
+import { usableVideoUrl } from '@/utils/demoVideo';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -169,16 +170,11 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <ToolHighlights extras={extras} />
             {profile && <ToolGlance profile={profile} />}
           </div>
-          {product?.asset_urls?.length && (
-            <div className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
-              <Gallery assets={product?.asset_urls} alt={product.name} src={product.demo_video_url as string}>
-                {product?.asset_urls &&
-                  product?.asset_urls.map((item: string, idx: number) => (
-                    <GalleryImage key={idx} src={item.replaceAll('&fit=max&w=750', '')} alt={product.name} />
-                  ))}
-              </Gallery>
+          {product?.asset_urls?.length || usableVideoUrl(product?.demo_video_url) ? (
+            <div className="container-custom-screen mt-10">
+              <MediaGrid images={product?.asset_urls ?? []} video={product?.demo_video_url} alt={product.name} />
             </div>
-          )}
+          ) : null}
         </div>
         {profile && (
           <div className="container-custom-screen space-y-14">

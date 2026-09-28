@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import { type ToolRowData } from '@/utils/toolRow';
 
@@ -35,9 +37,10 @@ export default function TrendingToolsList({ excludeId }: { excludeId?: number })
   if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" ranked />;
   return (
     <ol className="mt-2">
-      {tools.map(({ tool, rank }, idx) => (
-        <ToolRow key={tool.id} tool={tool} rank={rank} revealIndex={idx} />
-      ))}
+      {tools.map(({ tool, rank }, idx) => [
+        sponsorBefore(idx, tools.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, tools.length)} />,
+        <ToolRow key={tool.id} tool={tool} rank={rank} revealIndex={idx} />,
+      ])}
     </ol>
   );
 }

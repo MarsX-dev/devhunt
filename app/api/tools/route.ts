@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       github_url: body.githubUrl || null,
       pricing_type: body.pricingType,
       logo_url: body.logoUrl,
-      asset_urls: body.assetUrls,
+      asset_urls: body.assetUrls.slice(0, 3), // the tool page shows at most 3 media
       demo_video_url: body.demoVideoUrl?.trim() || null,
       owner_id: user.id,
       is_draft: false,

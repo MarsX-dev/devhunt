@@ -107,15 +107,17 @@ function InlineSketch() {
         </Browser>
       </div>
       <div>
-        <p className="mb-1.5 font-mono text-[10px] text-slate-500">Every category list (&quot;Best AI tools&quot;, ...)</p>
+        <p className="mb-1.5 font-mono text-[10px] text-slate-500">Tool pages, categories, upcoming, all tools</p>
         <Browser>
           <Nav />
           <div className="space-y-1 p-2">
             <Bar w="w-2/3" className="h-3" />
-            {Array.from({ length: 5 }, (_, i) => (
+            {Array.from({ length: 3 }, (_, i) => (
               <Row key={i} />
             ))}
             <Row hi label="sponsored" />
+            <Row />
+            <Row />
           </div>
         </Browser>
       </div>
@@ -158,8 +160,9 @@ export const PLACEMENT_DETAILS: Record<AdKind, string[]> = {
   inline: [
     'A row inside the tool lists, styled like the launches around it and marked "Sponsored".',
     'On the home page it sits right after this week\'s top 3 launches, the most-read spot on the site.',
-    'On every category page ("Best AI tools", "Best DevOps tools", ...) it appears after the 5th tool.',
-    'Only 4 sponsors share the inline spots; each page view shows one of them.',
+    'It also runs in the other tool lists: trending launches on every tool page, category pages ("Best AI tools", ...), upcoming launches, all tools, alternatives and more.',
+    'Long lists repeat it: after the 3rd tool, then every 8 tools.',
+    'Only 4 sponsors share the inline spots; they rotate between the rows on a page.',
   ],
   newsletter: [
     'The weekly DevHunt email goes to 40,000 developers. You sponsor 4 editions: one every week for the month.',

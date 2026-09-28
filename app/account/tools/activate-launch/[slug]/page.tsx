@@ -11,7 +11,7 @@ import { IconLoading } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
-import { weekKey } from '@/utils/launchWeeks';
+import { OFFER_FREE_LAUNCH, weekKey } from '@/utils/launchWeeks';
 import mergeTW from '@/utils/mergeTW';
 import { prefetchRoute } from '@/utils/prefetch';
 
@@ -71,6 +71,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
         if (result.status === 'activated' || result.status === 'already-activated') {
           setTool({ ...product, isPaid: true, launch_start: result.launchStart });
           setStatus('activated');
+          router.replace(`/account/tools/highlights/${product.id}?paid=1`);
           return;
         }
         setError('We could not confirm the payment yet. If you completed it, refresh this page in a minute.');
@@ -83,6 +84,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
 
     if (product.isPaid) {
       setStatus('activated');
+      router.replace(`/account/tools/highlights/${product.id}?paid=1`);
       return;
     }
 
@@ -100,11 +102,17 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
     setStatus('ready');
     trackStep(
       'launch_view',
-      { moderation: (product as any).moderation ?? 'ok', is_new: isNew, free_date: product.launch_start ?? undefined, weeks_open: upcoming.length },
+      {
+        moderation: (product as any).moderation ?? 'ok',
+        is_new: isNew,
+        free_date: product.launch_start ?? undefined,
+        weeks_open: upcoming.length,
+        free_offered: OFFER_FREE_LAUNCH,
+      },
       product.id,
     );
     if (canceled) trackStep('checkout_canceled', {}, product.id);
-  }, [slug, session, sessionId, isNew, canceled]);
+  }, [slug, session, sessionId, isNew, canceled, router]);
 
   useEffect(() => {
     if (session) void load();
@@ -133,7 +141,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
     router.push(keepFreePath);
   };
 
-  const freeDate = tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
+  const freeDate = OFFER_FREE_LAUNCH && tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
 
   if (heldReason) {
@@ -180,24 +188,19 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
         </div>
       )}
 
+      {/* Paid: we go straight on to the enrich step (highlights page); this shows for a moment meanwhile. */}
       {status === 'activated' && tool && (
         <div className="text-center max-w-sm mx-auto py-24 mt-8">
           <div className="mb-4 inline-block rounded-full p-3 bg-gradient-to-br from-green-400 to-green-600">
             <Check className="h-12 w-12 text-white" strokeWidth={3} />
           </div>
           <h2 className="mb-3 text-2xl font-bold text-white">Launch activated!</h2>
-          <p className="mb-8 text-slate-300">
+          <p className="text-slate-300">
             {tool.name} launches on <b className="text-slate-100">{moment.utc(tool.launch_start).format('LL')}</b>.
           </p>
-          <Link
-            href={`/account/tools/highlights/${tool.id}`}
-            className="block w-full rounded-full bg-slate-50 px-6 py-3 font-semibold text-slate-900 hover:bg-white transition-colors"
-          >
-            ✨ Add your awards &amp; reviews
-          </Link>
-          <Link href="/account/tools" className="mt-3 block text-sm text-slate-400 hover:text-slate-200">
-            Go to dashboard
-          </Link>
+          <p className="mt-6 inline-flex items-center gap-x-2 text-sm text-slate-400">
+            <IconLoading className="h-4 w-4 text-orange-500" /> One more step…
+          </p>
         </div>
       )}
 
@@ -243,7 +246,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
       )}
 
       {(status === 'ready' || status === 'redirecting') && tool && tool.moderation !== 'not_a_fit' && (
-        <div className="max-w-3xl mx-auto py-12 mt-4 space-y-8">
+        <div className={mergeTW('mx-auto mt-4 space-y-8 py-12', freeDate ? 'max-w-3xl' : 'max-w-lg')}>
           <div>
             {isNew && (
               <p className="inline-flex items-center gap-x-1.5 text-sm text-green-400 font-medium">
@@ -258,7 +261,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
           {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you're ready.</p>}
           {error && <p className="text-sm text-red-400">{error}</p>}
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className={mergeTW('grid gap-4', freeDate ? 'md:grid-cols-2' : '')}>
             {freeDate && (
               <div className="flex flex-col rounded-xl border border-slate-700 bg-slate-800/30 p-5">
                 <div className="flex items-center justify-between gap-x-2">
@@ -319,6 +322,11 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
               <p className="mt-2 text-xs text-slate-500">Payments are processed securely by Stripe.</p>
             </div>
           </div>
+          {!freeDate && (
+            <Link href="/account/tools" className="block text-center text-sm text-slate-500 hover:text-slate-300">
+              Not now
+            </Link>
+          )}
         </div>
       )}
     </section>

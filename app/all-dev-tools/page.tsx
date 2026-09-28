@@ -2,6 +2,8 @@ import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import ListPagination from '@/components/ui/ListPagination';
 import { getLeaderboardPage, LIST_PAGE_SIZE, pageFromParam } from '@/utils/toolLists';
 
@@ -33,7 +35,8 @@ export default async function Page({ searchParams }: { searchParams: { page?: st
         {total.toLocaleString('en-US')} tools, ranked by upvotes from the community.
       </PageHeader>
       <ol className="mt-10 mb-4">
-        {rows.map((tool, idx) => (
+        {rows.map((tool, idx) => [
+          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} />,
           <ToolRow
             key={tool.id}
             tool={tool}
@@ -41,8 +44,8 @@ export default async function Page({ searchParams }: { searchParams: { page?: st
             rankDigits={String(page * LIST_PAGE_SIZE).length}
             showDate
             revealIndex={idx}
-          />
-        ))}
+          />,
+        ])}
       </ol>
       <ListPagination basePath="/all-dev-tools" page={page} totalPages={totalPages} />
       <div className="mb-16" />

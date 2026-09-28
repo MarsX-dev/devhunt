@@ -55,7 +55,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const githubUrl = web(body.githubUrl);
   const demoVideoUrl = web(body.demoVideoUrl);
   // Images come from our uploader (https); older tools may keep what they already have.
-  const assetUrls = Array.isArray(body.assetUrls) ? body.assetUrls : [];
+  // The tool page shows up to 3 screenshots, so extra ones are dropped.
+  const assetUrls = (Array.isArray(body.assetUrls) ? body.assetUrls : []).slice(0, 3);
   const kept = (url: string) => isHttpUrl(url) || (tool.asset_urls ?? []).includes(url);
   if (!name || name.length > 200 || !slogan || slogan.length > 500 || !description.trim() || description.length > 20000) {
     return NextResponse.json({ error: 'Please fill in the name, tagline and description.' }, { status: 400 });
@@ -65,7 +66,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if ((githubUrl && !isHttpUrl(githubUrl)) || (demoVideoUrl && !isHttpUrl(demoVideoUrl))) {
     return NextResponse.json({ error: 'Please use valid GitHub and video URLs.' }, { status: 400 });
   }
-  if (!assetUrls.length || assetUrls.length > 20 || !assetUrls.every(kept)) {
+  if (!assetUrls.length || !assetUrls.every(kept)) {
     return NextResponse.json({ error: 'Please add at least one screenshot.' }, { status: 400 });
   }
   if (!Number.isInteger(body.pricingType)) return NextResponse.json({ error: 'Please pick a pricing type.' }, { status: 400 });

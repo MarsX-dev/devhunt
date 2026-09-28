@@ -24,12 +24,16 @@ export async function jevAsk(state: string, questions: Record<string, unknown>, 
   }
 }
 
+// Loose on purpose: anything a developer or a builder (e.g. a solo founder) would use at work is in,
+// startup SaaS (billing, SEO, marketing, sales) included. Only consumer products score low.
 const DEV_TOOL_QUESTION = {
   type: 'noul',
-  instructions: 'Is this a product for software developers or technical builders (developer tools, APIs, SDKs, infrastructure, AI/devops/data tooling, no-code builders)?',
+  instructions:
+    'Could a software developer or a builder (for example a solo founder or indie hacker building a startup or SaaS) use this product in their work: to build, ship, launch, market, sell or run their software product or business?',
   criteria: {
-    true: 'A tool, library, service or platform that developers or technical builders use to build, ship or run software',
-    false: 'A consumer app, local business, service company, content site, marketplace or anything not aimed at building software',
+    true: 'Useful to developers or builders at work: developer tools, APIs, SDKs, infrastructure, AI and no-code builders, design/UI resources, and SaaS tools a startup founder would use for marketing, SEO, sales, analytics, payments, billing, support, content or operations',
+    false:
+      'Not for building or running a software business: consumer apps and games, personal finance or everyday calculators, dating, fortune telling, school homework help, local businesses and service companies, news or content sites, shops and marketplaces for consumers',
   },
 };
 

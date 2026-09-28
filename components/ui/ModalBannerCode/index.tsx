@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
+import { bannerPreviewDoc, bannerScript } from './bannerScript';
 
 export default ({
   toolSlug = '',
@@ -49,7 +50,8 @@ export default ({
   useEffect(() => {
     let getToolFromLocalStorage = localStorage.getItem('last-tool');
 
-    if (getToolFromLocalStorage && !pathname?.includes('/activate-launch')) {
+    const inLaunchFlow = pathname?.includes('/activate-launch') || pathname?.includes('/account/tools/highlights');
+    if (getToolFromLocalStorage && !inLaunchFlow) {
       const parsedTool = JSON.parse(getToolFromLocalStorage) as { toolSlug: string; launchEnd: string; launchDate: string };
       if (new Date(parsedTool.launchEnd).getTime() >= Date.now()) {
         setToolSlug(parsedTool.toolSlug);
@@ -84,19 +86,7 @@ export default ({
     }, 200);
   }, [pathname, isModalOpen]);
 
-  const srcDoc = `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Document</title>
-      <script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://devhunt.org/banner/index.js"></script>
-      <link rel="stylesheet" href="/normalize.css">
-  </head>
-  <body>
-      
-  </body>
-  </html>`;
+  const srcDoc = bannerPreviewDoc(toolSlug);
 
   return (
     <Modal variant="custom" isActive={isModalOpen} className="max-w-4xl">
@@ -109,7 +99,7 @@ export default ({
       </div>
       <div className="mt-2">
         <CodeBlock onCopy={copyDone}>
-          {`<script defer data-url="https://devhunt.org/tool/${toolSlug}" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>`}
+          {bannerScript(toolSlug)}
         </CodeBlock>
       </div>
       <div className="mt-3 flex gap-x-3">

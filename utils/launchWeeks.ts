@@ -3,6 +3,11 @@ import moment from 'moment';
 // Free launches per week; a week with this many tools (or more) is paid-only.
 export const FREE_WEEK_CAPACITY = 15;
 
+// Conversion test (2026-09-28): false hides the free launch option on the launch-date picker, so new
+// tools only see the paid weeks. Tools still keep their free queue date, nothing else changes.
+// Set back to true to offer the free launch again.
+export const OFFER_FREE_LAUNCH = false;
+
 // Week numbers repeat every year and the list spans years, so weeks are keyed by their start date (UTC).
 export const weekKey = (date: Date | string) => moment.utc(date).format('YYYY-MM-DD');
 

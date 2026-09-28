@@ -6,6 +6,7 @@ import { useSupabase } from '@/components/supabase/provider';
 import { GithubProvider, GoogleProvider } from '@/components/ui/AuthProviderButtons';
 import AdPlacement from '@/components/ui/Sponsors/AdPlacement';
 import { PENDING_KEY, type PendingAd } from '@/components/ui/Sponsors/AdResume';
+import fileUploader from '@/utils/supabase/fileUploader';
 import { AD_KINDS, AD_PRODUCTS, NEWSLETTER_SINGLE_PRICE, REFUND_DAYS, isAdKind, isRecurring, planLabel, planPrice, spotsLeft, type AdKind, type AdPlan } from '@/utils/ads';
 
 // The ad builder at the top of /advertise: switch on ad types, enter a URL, get the ads written,
@@ -61,6 +62,37 @@ function Preview({ ad }: { ad: Draft }) {
 }
 
 
+// Current image with a button to upload a new one.
+function ImagePick({ label, hint, src, busy, onPick, onRemove, square }: { label: string; hint: string; src: string | null; busy: boolean; onPick: (f?: File) => void; onRemove?: () => void; square?: boolean }) {
+  return (
+    <div className="text-sm text-slate-400">
+      {label} <span className="font-mono text-xs text-slate-600">{hint}</span>
+      <div className="mt-1 flex items-center gap-3">
+        <div className={`flex flex-none items-center justify-center overflow-hidden rounded-lg border border-slate-700 bg-slate-800 ${square ? 'h-12 w-12' : 'h-12 w-24'}`}>
+          {src ? <img src={src} alt="" className="h-full w-full object-cover" /> : <span className="font-mono text-[10px] text-slate-500">none</span>}
+        </div>
+        <label className={`cursor-pointer rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500 ${busy ? 'pointer-events-none opacity-60' : ''}`}>
+          {busy ? 'Uploading…' : src ? 'Change' : 'Upload'}
+          <input
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={e => {
+              onPick(e.target.files?.[0]);
+              e.target.value = '';
+            }}
+          />
+        </label>
+        {src && onRemove && (
+          <button type="button" onClick={onRemove} className="text-xs text-slate-500 hover:text-slate-300">
+            Remove
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SignIn({ onClose }: { onClose: () => void }) {
   const { supabase } = useSupabase();
   const [load, setLoad] = useState<'' | 'github' | 'google'>('');
@@ -89,7 +121,9 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
   const [url, setUrl] = useState('');
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const draft = drafts[0] ?? null; // the copy is shared by every ad type picked
-  const setDraft = (d: Draft) => setDrafts(all => all.map(a => ({ ...a, name: d.name, tagline: d.tagline, description: d.description })));
+  const setDraft = (d: Draft) =>
+    setDrafts(all => all.map(a => ({ ...a, name: d.name, tagline: d.tagline, description: d.description, url: d.url, logo_url: d.logo_url, image_url: d.image_url })));
+  const [uploading, setUploading] = useState<'' | 'logo_url' | 'image_url'>('');
   const [blocked, setBlocked] = useState(false);
   const [busy, setBusy] = useState<'' | 'draft' | 'pay'>('');
   const [error, setError] = useState('');
@@ -139,7 +173,16 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
     setError('');
     if (!picked.length) return setError('Switch on at least one ad type.');
     setBusy('pay');
-    const d = await post('/api/ads/checkout', { adIds: picked.map(a => a.id), name: draft.name, tagline: draft.tagline, description: draft.description ?? '', plans: { newsletter: newsletterPlan } });
+    const d = await post('/api/ads/checkout', {
+      adIds: picked.map(a => a.id),
+      name: draft.name,
+      tagline: draft.tagline,
+      description: draft.description ?? '',
+      url: draft.url,
+      logoUrl: draft.logo_url,
+      imageUrl: draft.image_url,
+      plans: { newsletter: newsletterPlan },
+    });
     if (d.url) return (window.location.href = d.url);
     setBusy('');
     if (d.blocked) {
@@ -147,6 +190,17 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
       return setDrafts([]);
     }
     setError(d.error ?? 'Could not start the payment.');
+  }
+
+  async function upload(field: 'logo_url' | 'image_url', file?: File) {
+    if (!draft || !file) return;
+    if (!file.type.startsWith('image/')) return setError('Please pick an image file.');
+    setError('');
+    setUploading(field);
+    const res = await fileUploader({ files: file as any, options: field === 'logo_url' ? 'w=128' : 'w=600' });
+    setUploading('');
+    if (!res?.file) return setError('Upload failed, please try again.');
+    setDraft({ ...draft, [field]: res.file });
   }
 
   const soldOut = (k: AdKind) => free?.[k] === 0;
@@ -266,6 +320,30 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
               <input value={draft.tagline} maxLength={TAGLINE_MAX} onChange={e => setDraft({ ...draft, tagline: e.target.value })} className={input} />
             </label>
           </div>
+          <label className="block text-sm text-slate-400">
+            Link
+            <input value={draft.url} onChange={e => setDraft({ ...draft, url: e.target.value })} placeholder="https://yourproduct.com" className={input} />
+          </label>
+          <div className="flex flex-wrap gap-6">
+            <ImagePick
+              label="Logo"
+              hint="square, shown on the cards"
+              src={draft.logo_url}
+              busy={uploading === 'logo_url'}
+              onPick={f => void upload('logo_url', f)}
+              square
+            />
+            {picked.some(d => d.kind === 'newsletter') && (
+              <ImagePick
+                label="Newsletter image"
+                hint="wide, 2:1 works best"
+                src={draft.image_url}
+                busy={uploading === 'image_url'}
+                onPick={f => void upload('image_url', f)}
+                onRemove={() => setDraft({ ...draft, image_url: null })}
+              />
+            )}
+          </div>
           {picked.some(d => d.kind === 'newsletter') && (
             <label className="block text-sm text-slate-400">
               Newsletter description <span className="font-mono text-xs text-slate-600">{(draft.description ?? '').length}/{DESCRIPTION_MAX}</span>
@@ -273,10 +351,9 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
             </label>
           )}
           <div className="flex flex-wrap items-center gap-3 pt-1">
-            <button onClick={pay} disabled={busy === 'pay' || !picked.length} className="rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60">
+            <button onClick={pay} disabled={busy === 'pay' || !picked.length || !!uploading} className="rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60">
               {busy === 'pay' ? 'Opening checkout…' : monthly ? `Pay $${dueToday} and go live` : `Pay $${dueToday} once and go live`}
             </button>
-            <span className="font-mono text-xs text-slate-500">links to {draft.url}</span>
           </div>
           <p className="text-xs text-slate-400">
             {monthly ? (

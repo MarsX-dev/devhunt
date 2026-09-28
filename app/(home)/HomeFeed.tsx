@@ -13,6 +13,7 @@ import SectionLabel from '@/components/ui/SectionLabel';
 import { type LatestComment } from '@/utils/activity';
 import { type HomeData } from '@/utils/homeData';
 import { PAST_WINNERS, toToolRow } from '@/utils/toolRow';
+import { sponsorBefore } from '@/utils/ads';
 
 // Client part of the home page, rendered from server data: this week's contestants (one list, top 3 as
 // taller rows), then `featured`, past winners as rows ("Show more" loads further pages), then `bottom`.
@@ -67,17 +68,25 @@ export default function HomeFeed({
       <div className="mt-12 mb-12">
         <SectionLabel title="This week's launches" hint="Vote for your favorite 👇" />
         {/* One list on the same columns: the top 3 are taller rows (meta line), the rest compact rows.
-            Split in two only so the ad slot can sit after the top 3. */}
+            Split in two only so the first ad slot can sit after the top 3. */}
         <ol id="podium" className="mt-2 divide-y divide-slate-800/70">
           {contestants.slice(0, 3).map(card)}
         </ol>
-        <div id="TA_AD_CONTAINER"></div>
-        <ul className="border-t border-slate-800/70 py-1">
-          <InlineSponsor />
-        </ul>
+        {/* TinyAdz disabled (2026-09-28). To bring it back, restore this container and the script in app/layout.tsx.
+        <div id="TA_AD_CONTAINER"></div> */}
+        {sponsorBefore(3, contestants.length) >= 0 && (
+          <ul className="border-t border-slate-800/70 py-1">
+            <InlineSponsor />
+          </ul>
+        )}
         {contestants.length > 3 && (
           <ol id="more-launches" start={4} className="divide-y divide-slate-800/70 border-t border-slate-800/70">
-            {contestants.slice(3).map((product, idx) => card(product, idx + 3))}
+            {/* More sponsor rows further down (the first one, before #4, sits above this list). */}
+            {contestants.slice(3).map((product, i) => {
+              const idx = i + 3;
+              const n = idx > 3 ? sponsorBefore(idx, contestants.length) : -1;
+              return [n >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={n} className="py-1" />, card(product, idx)];
+            })}
           </ol>
         )}
 
@@ -86,9 +95,10 @@ export default function HomeFeed({
         <div id="past-winners" className="mt-14">
           <SectionLabel title="Past winners" hint={`Top tool of each of the last ${winners.length} weeks`} />
           <ul className="mt-2">
-            {winners.map(tool => (
-              <ToolRow key={tool.id} tool={tool} showDate />
-            ))}
+            {winners.map((tool, idx) => [
+              sponsorBefore(idx, winners.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, winners.length)} list={1} />,
+              <ToolRow key={tool.id} tool={tool} showDate />,
+            ])}
           </ul>
           {remaining > 0 && (
             <button

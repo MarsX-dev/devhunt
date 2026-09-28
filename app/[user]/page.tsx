@@ -11,6 +11,8 @@ import dynamic from 'next/dynamic';
 import { unstable_cache } from 'next/cache';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { type ProductType } from '@/type';
 import { profileCacheTag } from '@/utils/routeExists';
@@ -113,9 +115,10 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
           <div>
             <SectionLabel title="Launches" hint={`${launches.length} ${launches.length === 1 ? 'tool' : 'tools'}`} />
             <ol className="mt-2">
-              {launches.map((tool, idx) => (
-                <ToolRow key={tool.id} tool={tool as any} showDate revealIndex={idx} />
-              ))}
+              {launches.map((tool, idx) => [
+                sponsorBefore(idx, launches.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, launches.length)} />,
+                <ToolRow key={tool.id} tool={tool as any} showDate revealIndex={idx} />,
+              ])}
             </ol>
           </div>
         )}
@@ -123,9 +126,10 @@ export default async ({ params: { user } }: { params: { user: string } }) => {
           <div>
             <SectionLabel title="Upvoted" hint={upvoted.length > UPVOTED_SHOWN ? `${UPVOTED_SHOWN} of ${upvoted.length} tools` : `${upvoted.length} ${upvoted.length === 1 ? 'tool' : 'tools'}`} />
             <ol className="mt-2">
-              {upvoted.slice(0, UPVOTED_SHOWN).map((tool, idx) => (
-                <ToolRow key={tool.id} tool={tool as any} revealIndex={idx} />
-              ))}
+              {upvoted.slice(0, UPVOTED_SHOWN).map((tool, idx, shown) => [
+                sponsorBefore(idx, shown.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, shown.length)} list={1} />,
+                <ToolRow key={tool.id} tool={tool as any} revealIndex={idx} />,
+              ])}
             </ol>
           </div>
         )}

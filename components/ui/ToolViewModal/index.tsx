@@ -1,7 +1,7 @@
 'use client';
 
 import { IconArrowLongLeft } from '@/components/Icons';
-import { Gallery, GalleryImage } from '@/components/ui/Gallery';
+import { MediaGrid } from '@/components/ui/Gallery';
 import { Tabs } from '@/components/ui/TabsLink';
 import TabLink from '@/components/ui/TabsLink/TabLink';
 import CommentSection from '@/components/ui/Client/CommentSection';
@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Modal from '../Modal';
 import { type ProductType } from '@/type';
+import { usableVideoUrl } from '@/utils/demoVideo';
 import { Profile } from '@/utils/supabase/types';
 import { useRouter } from 'next/navigation';
 import TrendingToolsList from '../TrendingToolsList';
@@ -183,13 +184,9 @@ export default ({ href, tool, close, votesToday = 0 }: { href: string; tool: Pro
               </div>
             ) : null}
           </div>
-          {t?.asset_urls?.length ? (
-            <div className={`max-w-screen-2xl ${t.asset_urls.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}>
-              <Gallery assets={t.asset_urls} src={t.demo_video_url as string} alt={t.name}>
-                {t.asset_urls.map((item: string, idx: number) => (
-                  <GalleryImage key={idx} src={item} alt={t.name} />
-                ))}
-              </Gallery>
+          {t?.asset_urls?.length || usableVideoUrl(t?.demo_video_url) ? (
+            <div className="container-custom-screen mt-10">
+              <MediaGrid images={t.asset_urls ?? []} video={t.demo_video_url} alt={t.name} />
             </div>
           ) : null}
         </div>

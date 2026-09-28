@@ -1,6 +1,9 @@
 import axios from 'axios';
 import PageHeader from '@/components/ui/PageHeader';
 import Image from 'next/image';
+import { Fragment } from 'react';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 
 // Served from the CDN and refreshed hourly.
 export const revalidate = 3600;
@@ -44,22 +47,25 @@ export default async () => {
       </PageHeader>
       <ol className="mt-10">
         {posts?.map((tool: Product, idx: number) => (
-          <li key={idx}>
-            <a
-              href={tool.node.website}
-              target="_blank"
-              rel="nofollow noopener"
-              className="-mx-2 flex items-center gap-x-3 rounded-lg px-2 py-2.5 duration-150 hover:bg-slate-800/50"
-            >
-              <span className={`w-[2ch] flex-none text-left font-mono text-xs tabular-nums ${idx < 3 ? 'text-orange-500' : 'text-slate-600'}`}>{idx + 1}</span>
-              <Image src={tool.node.thumbnail.url} alt={tool.node.name} width={32} height={32} className="h-8 w-8 flex-none rounded-lg object-cover ring-1 ring-slate-800" />
-              <span className="min-w-0 flex-1 truncate text-sm">
-                <span className="font-medium text-slate-100">{tool.node.name}</span>
-                <span className="text-slate-500"> · {tool.node.tagline}</span>
-              </span>
-              <span className="flex-none text-xs text-slate-500">Visit ↗</span>
-            </a>
-          </li>
+          <Fragment key={idx}>
+            {sponsorBefore(idx, posts.length) >= 0 && <InlineSponsor n={sponsorBefore(idx, posts.length)} />}
+            <li>
+              <a
+                href={tool.node.website}
+                target="_blank"
+                rel="nofollow noopener"
+                className="-mx-2 flex items-center gap-x-3 rounded-lg px-2 py-2.5 duration-150 hover:bg-slate-800/50"
+              >
+                <span className={`w-[2ch] flex-none text-left font-mono text-xs tabular-nums ${idx < 3 ? 'text-orange-500' : 'text-slate-600'}`}>{idx + 1}</span>
+                <Image src={tool.node.thumbnail.url} alt={tool.node.name} width={32} height={32} className="h-8 w-8 flex-none rounded-lg object-cover ring-1 ring-slate-800" />
+                <span className="min-w-0 flex-1 truncate text-sm">
+                  <span className="font-medium text-slate-100">{tool.node.name}</span>
+                  <span className="text-slate-500"> · {tool.node.tagline}</span>
+                </span>
+                <span className="flex-none text-xs text-slate-500">Visit ↗</span>
+              </a>
+            </li>
+          </Fragment>
         ))}
       </ol>
     </section>

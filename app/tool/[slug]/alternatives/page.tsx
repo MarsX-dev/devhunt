@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import { cleanName } from '@/components/ui/ToolProfile';
 import { getAlternatives } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
@@ -99,9 +101,10 @@ export default async function AlternativesPage({ params: { slug } }: Params) {
         <div className="mt-14">
           <SectionLabel title={`More ${tool.categories[0]?.name ?? 'similar'} tools`} hint="most upvoted on DevHunt" />
           <ol className="mt-2">
-            {more.map((row, idx) => (
-              <ToolRow key={row.id} tool={row} rank={idx + 1} showDate revealIndex={idx} />
-            ))}
+            {more.map((row, idx) => [
+              sponsorBefore(idx, more.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, more.length)} />,
+              <ToolRow key={row.id} tool={row} rank={idx + 1} showDate revealIndex={idx} />,
+            ])}
           </ol>
         </div>
       )}

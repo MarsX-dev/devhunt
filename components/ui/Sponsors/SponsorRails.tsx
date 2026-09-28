@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useImpression } from './track';
 import { AD_PRICE_USD, AD_SLOTS, spotsLeft, type PublicAd } from '@/utils/ads';
 
@@ -52,7 +52,7 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
   const { ad } = card;
   if (!ad)
     return (
-      <Link href="/advertise" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center duration-150 hover:border-orange-500/60">
+      <Link href="/advertise" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center opacity-40 duration-150 hover:border-orange-500/60 hover:opacity-100">
         <span className="font-mono text-[10px] tracking-[0.25em] text-slate-500">OPEN SLOT</span>
         <span className="mt-2 text-lg font-bold text-slate-100">
           ${AD_PRICE_USD}
@@ -89,12 +89,53 @@ function PaidCard({ ad, freeFrom }: { ad: PublicAd; freeFrom?: string | null }) 
   );
 }
 
+// The rails wait for the page to finish loading (plus a beat), then slide in, so they never compete with
+// the content for the first paint. Once per full page load: the rails live in the root layout, so on
+// client navigation (or coming back from a page without ads) they're simply there.
+const REVEAL_DELAY_MS = 800;
+let revealed = false;
+type RevealState = 'hidden' | 'animate' | 'static';
+function useReveal(): RevealState {
+  const [state, setState] = useState<RevealState>(revealed ? 'static' : 'hidden');
+  useEffect(() => {
+    if (revealed) return;
+    let timer: number | undefined;
+    const go = () => {
+      timer = window.setTimeout(() => {
+        revealed = true;
+        setState('animate');
+      }, REVEAL_DELAY_MS);
+    };
+    if (document.readyState === 'complete') go();
+    else window.addEventListener('load', go, { once: true });
+    return () => {
+      window.removeEventListener('load', go);
+      window.clearTimeout(timer);
+    };
+  }, []);
+  return state;
+}
+
+// Slides in from its side and fades in, staggered per card; no motion with prefers-reduced-motion.
+const slideIn = { l: 'motion-safe:animate-[railin-l_600ms_cubic-bezier(0.16,1,0.3,1)_both]', r: 'motion-safe:animate-[railin-r_600ms_cubic-bezier(0.16,1,0.3,1)_both]' };
+const REVEAL_KEYFRAMES =
+  '@keyframes railin-l{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}@keyframes railin-r{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}';
+function Reveal({ state, side, order, children }: { state: RevealState; side: 'l' | 'r'; order: number; children: ReactNode }) {
+  if (state !== 'animate') return <>{children}</>;
+  return (
+    <div className={slideIn[side]} style={{ animationDelay: `${order * 120}ms` }}>
+      {children}
+    </div>
+  );
+}
+
 // Side gutters: 3 cards each from 1000px (below that, a scrolling pill strip on top: SponsorStrip).
 // From 1000 to 1179px the page content is narrowed to make room (see the wrapper in app/layout.tsx) and
 // the cards are 112px wide; from 1180px they grow into the natural gutters.
 export default function SponsorRails() {
   const { cards, left } = useSponsors();
-  if (useHidden()) return null;
+  const reveal = useReveal();
+  if (useHidden() || reveal === 'hidden') return null;
   // Absolute columns the height of the page content; the inner stack is sticky, so it follows the
   // scroll but never runs into the footer.
   const rail =
@@ -104,19 +145,28 @@ export default function SponsorRails() {
     <>
       <div className={`${rail} left-3 min-[1180px]:left-4`}>
         <div className={stack}>
-          {[0, 2, 4].map(i => (
-            <RailCard key={i} card={cards[i]} side="l" />
+          {[0, 2, 4].map((i, order) => (
+            <Reveal key={i} state={reveal} side="l" order={order}>
+              <RailCard card={cards[i]} side="l" />
+            </Reveal>
           ))}
         </div>
       </div>
       <div className={`${rail} right-3 min-[1180px]:right-4`}>
         <div className={stack}>
-          {[1, 3, 5].map(i => (
-            <RailCard key={i} card={cards[i]} side="r" />
+          {[1, 3, 5].map((i, order) => (
+            <Reveal key={i} state={reveal} side="r" order={order}>
+              <RailCard card={cards[i]} side="r" />
+            </Reveal>
           ))}
-          {left > 0 && <p className="text-center font-mono text-[10px] text-slate-500">{spotsLeft('rail', left)}</p>}
+          {left > 0 && (
+            <Reveal state={reveal} side="r" order={3}>
+              <p className="text-center font-mono text-[10px] text-slate-500">{spotsLeft('rail', left)}</p>
+            </Reveal>
+          )}
         </div>
       </div>
+      {reveal === 'animate' && <style>{REVEAL_KEYFRAMES}</style>}
     </>
   );
 }
@@ -143,7 +193,7 @@ export function SponsorStrip() {
           ad ? (
             <Pill key={i} ad={ad} />
           ) : (
-            <Link key={i} href="/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400">
+            <Link key={i} href="/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400 opacity-50 hover:opacity-100">
               your tool here · ${AD_PRICE_USD}/mo
             </Link>
           ),

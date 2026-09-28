@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import AdStats from '@/components/ui/Sponsors/AdStats';
+import { ListPageSkeleton, RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import { AD_PRODUCTS, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 
 const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
@@ -36,7 +37,7 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 
 export default function Page() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ListPageSkeleton />}>
       <AdvertisePage />
     </Suspense>
   );
@@ -47,6 +48,7 @@ function AdvertisePage() {
   const [busy, setBusy] = useState<'' | number>('');
   const [notice, setNotice] = useState('');
   const [justPaid, setJustPaid] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [mine, setMine] = useState<{ ads: MyAd[]; payments: Payment[]; free?: Record<AdKind, number> } | null>(null);
 
   const load = useCallback(() => {
@@ -60,10 +62,14 @@ function AdvertisePage() {
     const sessionId = params?.get('session_id');
     if (params?.get('canceled')) setNotice('Payment canceled. Your ad was not started.');
     if (!sessionId) return load();
+    setConfirming(true);
     fetch(`/api/ads/confirm?session_id=${encodeURIComponent(sessionId)}`)
       .then(r => r.json())
       .then(d => (d.status === 'no-slot' ? setNotice('Paid, but a slot was just taken by someone else. We were notified and will sort it out or refund you.') : setJustPaid(true)))
-      .finally(load);
+      .finally(() => {
+        setConfirming(false);
+        load();
+      });
   }, [params, load]);
 
   async function manage(ad: MyAd, action: 'cancel' | 'resume' | 'refund') {
@@ -96,6 +102,14 @@ function AdvertisePage() {
           New ad
         </Link>
       </div>
+
+      {confirming && (
+        <p className="mt-6 flex items-center gap-x-3 rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-slate-200" aria-live="polite">
+          <span className="h-2 w-2 flex-none rounded-full bg-orange-500 motion-safe:animate-ping" />
+          Confirming your payment and starting your ads…
+        </p>
+      )}
+      {!mine && <RowsSkeleton rows={4} className="mt-14" />}
 
       {notice && <p className="mt-6 rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-slate-200">{notice}</p>}
       {justPaid && latest && (

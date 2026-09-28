@@ -111,7 +111,7 @@ export default () => {
   const handleUploadImages = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
-    if (file && file.type.includes('image') && imagePreviews.length < 5) {
+    if (file && file.type.includes('image') && imagePreviews.length < 3) {
       setImageFile([...(imageFiles as any), file]);
       setImagesLoad(true);
       fileUploader({ files: file as Blob, options: 'w=750' }).then(data => {
@@ -315,10 +315,10 @@ export default () => {
             <div>
               <Label>Tool screenshots</Label>
               <p className="text-sm text-slate-400">
-                Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
+                Up to 3 screenshots showcasing different aspects of functionality. Note that the first image will be used as
                 social preview, so choose wisely!
               </p>
-              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5} onChange={handleUploadImages}>
+              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={3} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
                   <ImageUploaderItem
                     src={src}

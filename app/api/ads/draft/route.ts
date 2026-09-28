@@ -35,7 +35,11 @@ export async function POST(req: Request) {
       );
       return NextResponse.json({ blocked: true });
     }
-    if (!moderation.jev) await notifyAdDiscord(`❔ Sponsor ad drafted without a JEV check (JEV unavailable): ${ad.name} · ${ad.url}`);
+    await notifyAdDiscord(
+      `✍️ Sponsor ad generated (${kinds.join(' + ')}): **${ad.name}** · "${ad.tagline}" · <${ad.url}> by ${user.email}${
+        moderation.jev ? '' : ' · ❔ no JEV check (JEV unavailable)'
+      }`,
+    );
     return NextResponse.json({ ads });
   } catch (err) {
     console.error('ad draft failed:', url.hostname, (err as Error).message);

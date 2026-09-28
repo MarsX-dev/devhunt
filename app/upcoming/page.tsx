@@ -3,6 +3,8 @@ import { unstable_cache } from 'next/cache';
 import { Fragment } from 'react';
 import ProductsService from '@/utils/supabase/services/products';
 import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { toToolRow } from '@/utils/toolRow';
@@ -108,9 +110,12 @@ export default async function Home({ searchParams }: { searchParams: { weeks?: s
               />
             </div>
             <ol className="mt-2">
-              {group.products.map((product, idx) => (
-                <ToolRow key={product.id ?? idx} tool={product} revealIndex={idx} />
-              ))}
+              {group.products.map((product, idx) => [
+                sponsorBefore(idx, group.products.length) >= 0 && (
+                  <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, group.products.length)} list={weekIdx} />
+                ),
+                <ToolRow key={product.id ?? idx} tool={product} revealIndex={idx} />,
+              ])}
             </ol>
           </Fragment>
         ))}

@@ -1,4 +1,5 @@
 import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import categories from '@/utils/categories';
@@ -52,7 +53,7 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
       <MonitizorAdCards />
       <ol className="mt-10 mb-4">
         {rows.map((tool, idx) => [
-          idx === 5 && <InlineSponsor key="sponsor" />,
+          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} />,
           <ToolRow
             key={tool.id}
             tool={tool}
