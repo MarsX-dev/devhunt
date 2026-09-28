@@ -27,9 +27,11 @@ import { sectionShown } from '@/utils/toolProfile';
 import { ProfileSource, cleanName, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 import TrackToolView from '@/components/ui/TrackToolView';
+import { OwnerDofollowUpsell } from '@/components/ui/DofollowUpsell';
 import { getRecentActivity } from '@/utils/recentActivity';
 import { type ProductType } from '@/type';
 import { usableVideoUrl } from '@/utils/demoVideo';
+import { withLinkRels } from '@/utils/links';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -133,6 +135,9 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
           votesToday={votesToday}
           commentsCount={product.comments_count ?? 0} // kept by a trigger; excludes deleted comments
         />
+        <OwnerDofollowUpsell
+          tool={{ id: product.id, slug: product.slug, isPaid: product.isPaid, launch_start: product.launch_start, moderation: (product as any).moderation, owner_id: product.owner_id }}
+        />
         <ToolAwards extras={extras} />
       </div>
       <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-12 z-10 bg-slate-900/85 backdrop-blur-md">
@@ -150,7 +155,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
             <div
               className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
               // Use DOMPurify method for XSS sanitizeration
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
+              dangerouslySetInnerHTML={{ __html: withLinkRels(DOMPurify.sanitize(product?.description as string), { paid: !!product.isPaid }) }}
             ></div>
             {product?.product_categories.length ? (
               <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -168,7 +173,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
               ''
             )}
             <ToolHighlights extras={extras} />
-            {profile && <ToolGlance profile={profile} />}
+            {profile && <ToolGlance profile={profile} paid={!!product.isPaid} />}
           </div>
           {product?.asset_urls?.length || usableVideoUrl(product?.demo_video_url) ? (
             <div className="container-custom-screen mt-10">
@@ -179,7 +184,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
         {profile && (
           <div className="container-custom-screen space-y-14">
             <ToolFeatures profile={profile} name={cleanName(product.name)} />
-            <ToolPricing profile={profile} name={cleanName(product.name)} />
+            <ToolPricing profile={profile} name={cleanName(product.name)} paid={!!product.isPaid} />
             <ToolCompare
               profile={profile}
               self={{ name: product.name, slug: product.slug, logo_url: product.logo_url, votes_count: product.votes_count, launch_start: product.launch_start, pricing: pricingTitle }}

@@ -19,6 +19,7 @@ import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
 import { trackStep } from '@/utils/funnelClient';
 import ConfirmDelete from '@/components/ui/ConfirmDelete';
+import DofollowUpsell from '@/components/ui/DofollowUpsell';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -181,15 +182,8 @@ export default () => {
                         ]}
                       />
                     </Link>
+                    <DofollowUpsell tool={tool as any} from="dashboard" compact />
                     <div className="mt-2.5 flex items-center gap-x-4">
-                      {!tool.isPaid && !(new Date(tool.launch_end as any).getTime() <= Date.now()) && (
-                        <Link
-                          href={`/account/tools/activate-launch/${tool.slug}`}
-                          className="text-sm inline-block bg-orange-500 px-2 py-1 rounded-md text-white font-medium hover:bg-orange-600 duration-150"
-                        >
-                          Skip the queue
-                        </Link>
-                      )}
                       <Link
                         href={`/account/tools/edit/${tool.id}`}
                         className="inline-flex items-center gap-x-2 text-orange-500 hover:text-orange-600 duration-150 font-medium"

@@ -1,6 +1,7 @@
 'use client';
 
 import PageHeader from '@/components/ui/PageHeader';
+import DofollowUpsell, { type UpsellTool } from '@/components/ui/DofollowUpsell';
 import axios from 'axios';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
@@ -75,6 +76,7 @@ export default () => {
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isUpdate, setUpdate] = useState<boolean>(false);
   const [isPaid, setPaid] = useState<boolean>(false);
+  const [upsellTool, setUpsellTool] = useState<UpsellTool | null>(null);
   const [slug, setSlug] = useState<string>('');
 
   const [weekValue, setWeekValue] = useState<string | number>('');
@@ -103,6 +105,7 @@ export default () => {
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
       setPaid(data?.isPaid as boolean);
+      if (data) setUpsellTool(data as unknown as UpsellTool);
       setLaunchDate(data?.launch_end as string);
       setLaunchStart(data?.launch_start as string);
     });
@@ -190,6 +193,11 @@ export default () => {
   return (
     <section className="container-custom-screen mt-10 mb-24">
       <PageHeader eyebrow="Dashboard" title="Edit your launch" />
+      {upsellTool && (
+        <div className="mt-8">
+          <DofollowUpsell tool={upsellTool} from="edit_page" />
+        </div>
+      )}
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection
@@ -356,9 +364,9 @@ export default () => {
                 </div>
                 {!isPaid && (
                   <div className="mt-3 text-sm text-slate-100 font-medium">
-                    *To edit your launch date you need to pay{' '}
-                    <a target="_blank" href={`/account/tools/activate-launch/${slug}`} className="underline text-orange-500">
-                      Pay to edit
+                    *To pick your launch week (and get a dofollow backlink) you need to pay{' '}
+                    <a href={`/account/tools/activate-launch/${slug}?from=edit_week`} className="underline text-orange-500">
+                      Upgrade for $49
                     </a>
                   </div>
                 )}

@@ -12,6 +12,7 @@ export const FUNNEL_STEPS = [
   { step: 'launch_view', label: 'saw launch options', side: 'client' },
   { step: 'week_picked', label: 'picked a paid week', side: 'client' },
   { step: 'free_chosen', label: 'kept free launch', side: 'client' },
+  { step: 'upsell_click', label: 'clicked dofollow upsell', side: 'client' },
   { step: 'checkout_started', label: 'opened checkout', side: 'server' },
   { step: 'checkout_canceled', label: 'came back unpaid', side: 'client' },
   { step: 'payment_failed', label: 'payment failed', side: 'server' },

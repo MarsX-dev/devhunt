@@ -108,6 +108,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
         free_date: product.launch_start ?? undefined,
         weeks_open: upcoming.length,
         free_offered: OFFER_FREE_LAUNCH,
+        from: searchParams?.get('from') ?? searchParams?.get('utm_campaign') ?? undefined,
       },
       product.id,
     );
@@ -255,7 +256,7 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
             )}
             <h1 className="mt-2 text-2xl font-semibold text-slate-50">Pick your launch date</h1>
             <p className="mt-2 text-slate-400">
-              Every launch gets a home page spotlight, a spot in our morning newsletter and a dofollow backlink (DR 65).
+              Paid launches get a dofollow backlink (DR 65), a home page spotlight and a spot in our morning newsletter. Free listings link with nofollow.
             </p>
           </div>
           {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you're ready.</p>}
@@ -289,7 +290,9 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
                 <h2 className="text-lg font-semibold text-slate-50">Launch in the next 4 weeks</h2>
                 <span className="flex-none rounded-full bg-orange-500 px-2.5 py-0.5 text-sm font-semibold text-white">$49</span>
               </div>
-              <p className="mt-1 text-sm text-slate-400">Skip the queue, choose your week, and get a rich launch page with your awards, reviews and press.</p>
+              <p className="mt-1 text-sm text-slate-400">
+                A dofollow backlink from DevHunt (DR 65), your pick of launch week, and a rich launch page with your awards, reviews and press.
+              </p>
               <fieldset className="mt-4 grid grid-cols-2 gap-2" aria-label="Launch week">
                 {weeks.map((w, idx) => {
                   const key = weekKey(w.startDate);
