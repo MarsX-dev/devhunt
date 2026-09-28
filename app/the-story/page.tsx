@@ -9,10 +9,31 @@ export const metadata = {
   alternates: { canonical: '/the-story' },
 };
 
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  url: 'https://devhunt.org/the-story',
+  name: 'About DevHunt',
+  about: {
+    '@type': 'Organization',
+    name: 'DevHunt',
+    url: 'https://devhunt.org',
+    sameAs: ['https://github.com/MarsX-dev/devhunt', 'https://x.com/johnrush'],
+    founder: {
+      '@type': 'Person',
+      name: 'John Rush',
+      url: 'https://johnrush.me',
+      jobTitle: 'Founder',
+      sameAs: ['https://x.com/johnrush', 'https://johnrush.me'],
+    },
+  },
+};
+
 // this way of writing static pages with content is not professional, we gonna use MDX later.
 export default () => {
   return (
     <div className="">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
       <div className="container-custom-screen mt-10">
         <PageHeader eyebrow="About" title="About DevHunt" />
       </div>

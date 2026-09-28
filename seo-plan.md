@@ -42,22 +42,22 @@ Re-measure monthly in the **Progress log** (section 8).
 
 - [ ] **Fix `www.devhunt.org`.** HTTPS www returns nothing, and `http://www` 308s to that dead URL. Add www in Vercel with a 308 redirect to the root domain, and check backlinks that point at www.
 - [ ] **Remove the extra redirect on mobile** (630ms per Ubersuggest). Find which hop fires (trailing slash? locale?) and make sure every internal link uses the final URL. Per *@regalstreak*: use 301/308, never 307, so Google keeps the right canonical.
-- [ ] **Sync the johnrushx fork.** As of 2026-09-28, the live site doesn't have anything from `0010fbc` onward on main: the robots.txt `/account/` and `/api/` disallows, the homepage canonical and all JSON-LD are missing on devhunt.org.
-- [ ] **Add JSON-LD** (in code on main, not live yet):
-  - [x] `SoftwareApplication` on `app/tool/[slug]/page.tsx` (2026-09-27, not live)
+- [x] **Sync the johnrushx fork.** Done by 2026-09-29: robots, the homepage canonical and tool JSON-LD are live. As of 2026-09-28, the live site doesn't have anything from `0010fbc` onward on main: the robots.txt `/account/` and `/api/` disallows, the homepage canonical and all JSON-LD are missing on devhunt.org.
+- [ ] **Add JSON-LD**:
+  - [x] `SoftwareApplication` on `app/tool/[slug]/page.tsx` (live 2026-09-29)
   - [ ] `AggregateRating` from votes/comments where legitimate
-  - [ ] `Article` (+ `dateModified`, author) on `app/blog/[slug]/page.tsx`
-  - [ ] `BreadcrumbList` on tool, category and blog pages
+  - [x] `BlogPosting` (+ `dateModified`) and `BreadcrumbList` on `app/blog/[slug]/page.tsx` (2026-09-29). The author is DevHunt the Organization; switch to a Person if posts get real bylines.
+  - [ ] `BreadcrumbList` on tool and category pages (blog done)
   - [ ] `Organization` + `WebSite` (with `SearchAction`) in the root layout. Organization + WebSite are on the homepage only (`app/(home)/page.tsx`); `SearchAction` is still missing.
   - [ ] `FAQPage` where an FAQ block exists (done on tool pages with a profile; still needed on `/faq` and category pages)
   - [ ] `ItemList` on category pages (`app/tools/[slug]`); no schema on compare or alternatives pages yet
-  - [ ] `Person` (John Rush, credentials) on the about page
+  - [x] `AboutPage` + Organization + founder `Person` on `/the-story` (2026-09-29)
   - [ ] Validate with the Rich Results Test
-- [ ] **Add `/llms.txt`** (404 today): a short summary of DevHunt plus links to key pages, top categories, `/faq` and `/about`. It's cheap to add, though no major AI engine has confirmed it reads the file.
+- [x] **Add `/llms.txt`** (`public/llms.txt`, 2026-09-29; keep the category list in sync): a short summary of DevHunt plus links to key pages, top categories, `/faq` and `/about`. It's cheap to add, though no major AI engine has confirmed it reads the file.
 - [ ] **robots.txt: name the AI crawlers explicitly** (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended). They're already allowed via `*`; this is optional. Also confirm Vercel/firewall bot protection doesn't block them.
-- [ ] **Self-referencing canonicals.** Every page type has one except the homepage, which is in code but not live yet (see the fork sync above). Recheck after the sync.
-- [ ] **Site-level `/faq` page** (404 today) with `FAQPage` schema, in the sitemap. Questions: what is DevHunt, how to launch a dev tool, is it free, how voting and winners work, DevHunt vs Product Hunt.
-- [ ] **About page with credentials.** `/about` is 404; `/the-story` exists but isn't in the sitemap and has no `Person` schema. Add `/about` (or a 308 to `/the-story`) with John's background and links (X, GitHub, MarsX), and add it to the sitemap.
+- [x] **Self-referencing canonicals.** Every page type has one, including the homepage (live since 2026-09-29).
+- [x] **Site-level `/faq` page** (`app/faq/page.tsx`, 2026-09-29; in the sitemap and footer) with `FAQPage` schema, in the sitemap. Questions: what is DevHunt, how to launch a dev tool, is it free, how voting and winners work, DevHunt vs Product Hunt.
+- [ ] **About page with credentials.** 2026-09-29: `/about` now 308s to `/the-story`, and `/the-story` is in the sitemap with founder schema. Still to do: rewrite the dated "cool, young developers" copy and add John's concrete credentials (companies, products, audience size). Before: `/the-story` exists but isn't in the sitemap and has no `Person` schema. Add `/about` (or a 308 to `/the-story`) with John's background and links (X, GitHub, MarsX), and add it to the sitemap.
 - [ ] **Tool page title and meta template** (`app/tool/[slug]/page.tsx:47`). Today it is `{name} - {slogan}` and the description is only the slogan. Change to `{Name}: {short value prop} – Features, Pricing & Alternatives | DevHunt` (~50–60 chars where possible), plus a unique 140–160 char description built from the tool's description.
 - [ ] **Category pages** (`app/tools/[slug]`) have a title but no description and no intro copy. Add a meta description, ~300 words of intro above the grid, an FAQ, and "updated {month year}".
 - [x] **Hide NSFW and "undress" listings.** 2026-09-27: soft-deleted 48 listings (porn, NSFW, undress/nudify, AI girlfriend). They now return 404 and drop from lists and the sitemap. To undo: set `deleted=false` on those rows.
@@ -199,7 +199,8 @@ Adapted from *@regalstreak*'s daily GSC check and *@jakezward*'s refresh loop. R
 | Date | Clicks/day (7d avg) | Avg pos | Ubersuggest KW (US) | DA | Ref domains | AI visibility | Notes |
 |---|---|---|---|---|---|---|---|
 | 2026-09-26 | ~405 | ~9 | 5,360 | 31 | 1,681 | 0% | Baseline |
-| | | | | 2026-09-28 | Plan: added llms.txt, /faq, /about with credentials, fork sync and schema gaps (from an external SEO checklist) | — | AI-citation basics |
+| | | | | 2026-09-29 | llms.txt, /faq (FAQPage), /about → /the-story (AboutPage + Person), BlogPosting + BreadcrumbList on blog posts | pending | AI citations, rich results |
+| 2026-09-28 | Plan: added llms.txt, /faq, /about with credentials, fork sync and schema gaps (from an external SEO checklist) | — | AI-citation basics |
 | | | | |
 
 ## 9. Changelog

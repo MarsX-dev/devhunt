@@ -1,0 +1,53 @@
+# DevHunt
+
+> DevHunt (https://devhunt.org) is a launchpad for developer tools, built by developers. Makers submit dev tools, each week's launches are voted on by signed-in developers (GitHub or Google login), and the top tools become weekly winners. It is an open-source alternative to Product Hunt focused only on developer tools.
+
+- Free listing: every tool gets a permanent page at /tool/{slug}; free launches wait in a queue.
+- Paid launch ($49, one time): pick any launch week, get a home page spotlight and a dofollow link.
+- Sponsor ads: home page and weekly newsletter placements (see /advertise).
+- Source code: https://github.com/MarsX-dev/devhunt
+- Founder: John Rush (https://johnrush.me, https://x.com/johnrush)
+
+## Key pages
+
+- [Home: this week's launches](https://devhunt.org/): tools launching this week, ranked by votes
+- [Upcoming launches](https://devhunt.org/upcoming): tools scheduled for future weeks
+- [All dev tools](https://devhunt.org/all-dev-tools): every listed tool
+- [FAQ](https://devhunt.org/faq): how launching, voting and pricing work
+- [About DevHunt](https://devhunt.org/the-story): who builds DevHunt and what can launch here
+- [Advertise](https://devhunt.org/advertise): sponsor placements
+- [Blog](https://devhunt.org/blog): guides and roundups of developer tools
+
+## Tool pages
+
+- Tool profile: https://devhunt.org/tool/{slug}
+- Alternatives to a tool: https://devhunt.org/tool/{slug}/alternatives
+- Head-to-head comparison: https://devhunt.org/compare/{a}-vs-{b}
+
+## Categories
+
+- [AI](https://devhunt.org/tools/ai)
+- [AI Agents](https://devhunt.org/tools/ai-agents)
+- [MCP](https://devhunt.org/tools/mcp)
+- [Open Source](https://devhunt.org/tools/open-source)
+- [DevOps](https://devhunt.org/tools/devops)
+- [Code](https://devhunt.org/tools/code)
+- [API](https://devhunt.org/tools/api)
+- [DB](https://devhunt.org/tools/db)
+- [Testing](https://devhunt.org/tools/testing)
+- [Security](https://devhunt.org/tools/security)
+- [Monitoring](https://devhunt.org/tools/monitoring)
+- [CLI](https://devhunt.org/tools/cli)
+- [IDE](https://devhunt.org/tools/ide)
+- [Hosting](https://devhunt.org/tools/hosting)
+- [Auth](https://devhunt.org/tools/auth)
+- [Payments](https://devhunt.org/tools/payments)
+- [UI Library](https://devhunt.org/tools/ui-library)
+- [Boilerplate](https://devhunt.org/tools/boilerplate)
+- [NoCode](https://devhunt.org/tools/nocode)
+- [Analytics](https://devhunt.org/tools/analytics)
+
+## Optional
+
+- [Sitemap](https://devhunt.org/sitemap.xml)
+- [OSS Friends](https://devhunt.org/oss-friends)

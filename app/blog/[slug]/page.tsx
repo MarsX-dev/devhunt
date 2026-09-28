@@ -52,8 +52,38 @@ export default async function Article({ params: { slug } }: { params: { slug: st
   const post = await getPost(slug);
   if (!post) notFound();
 
+  const url = `https://devhunt.org/blog/${slug}`;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BlogPosting',
+        headline: post.headline,
+        description: post.metaDescription,
+        image: post.image ? [post.image] : undefined,
+        datePublished: post.publishedAt || post.createdAt,
+        dateModified: post.updatedAt || post.publishedAt || post.createdAt,
+        mainEntityOfPage: url,
+        author: { '@type': 'Organization', name: 'DevHunt', url: 'https://devhunt.org' },
+        publisher: { '@type': 'Organization', name: 'DevHunt', url: 'https://devhunt.org', logo: { '@type': 'ImageObject', url: 'https://devhunt.org/devhuntog.png?v=2' } },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://devhunt.org/' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://devhunt.org/blog' },
+          ...(post.category
+            ? [{ '@type': 'ListItem', position: 3, name: post.category.title, item: `https://devhunt.org/blog/category/${post.category.slug}` }]
+            : []),
+          { '@type': 'ListItem', position: post.category ? 4 : 3, name: post.headline, item: url },
+        ],
+      },
+    ],
+  };
+
   return (
     <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       {post.category
         ? (
         <div className="flex flex-wrap items-center gap-2 mb-1 w-full text-sm">

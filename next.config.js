@@ -15,7 +15,10 @@ const nextConfig = {
   },
   // The analytics page moved out of /account (it's DevHunt's analytics, admins only).
   async redirects() {
-    return [{ source: '/account/analytics', destination: '/admin/analytics', permanent: true }];
+    return [
+      { source: '/account/analytics', destination: '/admin/analytics', permanent: true },
+      { source: '/about', destination: '/the-story', permanent: true },
+    ];
   },
   // No `env` block: Next inlines those values into every bundle that references them, including
   // browser code. Server code reads process.env at runtime; browser values must be NEXT_PUBLIC_*.
