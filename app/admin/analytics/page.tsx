@@ -33,7 +33,7 @@ const countryName = (code: string) => {
 const flag = (code: string) => (code === 'XX' ? '🌐' : String.fromCodePoint(0x1f1a5 + code.charCodeAt(0), 0x1f1a5 + code.charCodeAt(1)));
 
 // Internal: first-party page views, unique visitors and countries (DevHunt team only).
-export default async function AnalyticsPage({ searchParams }: { searchParams: { days?: string } }) {
+export default async function AnalyticsPage({ searchParams }: { searchParams: { days?: string; step?: string } }) {
   if (!(await isAdmin())) notFound();
   const days = RANGES.includes(Number(searchParams?.days)) ? Number(searchParams.days) : 30;
   const hourly = days === 1;
@@ -177,7 +177,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
           </ul>
         </div>
       </div>
-      <FunnelReport days={days} />
+      <FunnelReport days={days} step={searchParams?.step} />
       <AdsReport days={days} />
       <ModerationReport days={days} />
     </section>
