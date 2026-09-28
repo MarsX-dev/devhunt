@@ -140,7 +140,9 @@ export async function ogImage(element: ReactNode, maxAge = 3600) {
     ...OG,
     fonts: fonts.length ? fonts : undefined,
     emoji: 'twemoji',
-    headers: { 'Cache-Control': `public, max-age=${maxAge}, s-maxage=${maxAge}, stale-while-revalidate=86400` },
+    // Lowercase on purpose: ImageResponse sets its own 'cache-control' (1 year, immutable) and a
+    // differently-cased key gets merged into it instead of replacing it.
+    headers: { 'cache-control': `public, max-age=${maxAge}, s-maxage=${maxAge}, stale-while-revalidate=86400` },
   });
 }
 
