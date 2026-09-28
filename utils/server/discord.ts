@@ -95,3 +95,16 @@ export async function reportBlockedEdit(info: { kind: 'tool' | 'comment'; userna
     body: JSON.stringify({ content: text.slice(0, 1900), allowed_mentions: { parse: [] } }),
   }).catch((err: Error) => console.error('Discord edit webhook failed:', err.message));
 }
+
+// A submission refused before saving (placeholder/test text, our own site as the website, gibberish).
+export async function reportRefusedSubmission(info: { name: string; website: string; reason: string; email: string | null; score?: number | null }) {
+  const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
+  if (!webhook) return;
+  const score = info.score != null ? ` ${Math.round(info.score * 100)}%` : '';
+  const text = `⛔ Refused submission (${info.reason}${score}): **${info.name}** <${info.website}> by ${info.email ?? 'unknown'}. Nothing was saved; they were asked to fix it.`;
+  await fetch(webhook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: text.slice(0, 1900), allowed_mentions: { parse: [] } }),
+  }).catch((err: Error) => console.error('Discord refused-submission webhook failed:', err.message));
+}

@@ -3,7 +3,8 @@ import createSlug from '@/utils/createSlug';
 import { planLaunch, type SubmitType } from '@/utils/launchPlanning';
 import { getRouteUser } from '@/utils/server/auth';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
-import { announceNewTool } from '@/utils/server/discord';
+import { announceNewTool, reportRefusedSubmission } from '@/utils/server/discord';
+import { logModeration } from '@/utils/server/moderationLog';
 import { trackFunnel } from '@/utils/server/funnel';
 import { moderateSubmission } from '@/utils/server/jev';
 import { incompleteReason, moderationDecision } from '@/utils/moderation';
@@ -51,11 +52,21 @@ export async function POST(req: Request) {
   if (!Array.isArray(body.assetUrls) || body.assetUrls.length === 0) {
     return NextResponse.json({ error: 'Please add at least one screenshot.' }, { status: 400 });
   }
+  // Refused before saving: logged for /admin/analytics and posted to Discord.
+  const refused = async (reason: string, score: number | null) => {
+    await Promise.all([
+      logModeration({ kind: 'tool_submission', action: 'refused', reason, subject: name, url: body.website, userId: user.id, score, details: { slogan: body.slogan?.slice(0, 200) } }),
+      reportRefusedSubmission({ name, website: body.website!, reason, email: user.email ?? null, score }),
+    ]);
+  };
   const submitType: SubmitType = ['free', 'normal', 'paid'].includes(body.submitType as string) ? (body.submitType as SubmitType) : 'free';
 
   // Placeholder/test submissions are refused before anything is saved, so the maker can fix and resubmit.
   const incomplete = incompleteReason({ name, slogan: body.slogan!.trim(), description: body.description!, website: body.website! });
-  if (incomplete) return NextResponse.json({ error: incomplete }, { status: 400 });
+  if (incomplete) {
+    await refused('placeholder text', null);
+    return NextResponse.json({ error: incomplete }, { status: 400 });
+  }
 
   const { data: existing } = await serviceClient.from('products').select('id').eq('slug', slug).maybeSingle();
   if (existing) return NextResponse.json({ error: 'A tool with this name already exists, please use another name.' }, { status: 409 });
@@ -67,6 +78,7 @@ export async function POST(req: Request) {
   const decision = moderationDecision(answers);
   if (decision.status === 'incomplete') {
     console.log(JSON.stringify({ event: 'tool_refused', reason: 'incomplete', name, url: body.website, p: answers.listingProbability }));
+    await refused('test or unfinished (JEV)', answers.listingProbability);
     return NextResponse.json(
       { error: "This looks like a test or an unfinished submission. Please enter your tool's real name, website and a description of what it does." },
       { status: 400 },
@@ -128,6 +140,18 @@ export async function POST(req: Request) {
     if (other) await serviceClient.from('product_category_product').insert({ product_id: product.id, category_id: other.id });
   }
   const status = decision.status as Exclude<typeof decision.status, 'incomplete'>; // incomplete returned above
+  if (status !== 'ok') {
+    await logModeration({
+      kind: 'tool_submission',
+      action: status,
+      reason: decision.reason,
+      subject: product.name,
+      url: body.website,
+      userId: user.id,
+      productId: product.id,
+      score: decision.reason === 'fake' ? answers.listingProbability : status === 'blocked' ? answers.topicProbability : answers.devToolScore,
+    });
+  }
   await announceNewTool(product, profile?.full_name ?? null, {
     ...decision,
     status,

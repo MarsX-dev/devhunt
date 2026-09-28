@@ -3,6 +3,7 @@ import { getRouteUser } from '@/utils/server/auth';
 import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, adImage, adUrl, createAdCheckout, freeSlot, moderateAdEdit, notifyAdDiscord } from '@/utils/server/ads';
 import { AD_PRODUCTS, isAdPlan, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
+import { logModeration } from '@/utils/server/moderationLog';
 import { trackFunnel } from '@/utils/server/funnel';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
     }
     await serviceClient.from('ad_slots' as any).update({ name, tagline, description, url, moderation, ...(moderation.ok ? {} : { status: 'blocked' }) }).in('id', ids);
     if (!moderation.ok) {
+      await logModeration({ kind: 'ad', action: 'refused', reason: `${moderation.topic} (${moderation.on === 'site' ? 'website' : 'ad text'}, at checkout)`, subject: name, url, userId: user.id, score: moderation.probability, details: { tagline } });
       await notifyAdDiscord(`🚫 **Sponsor ad refused at checkout** (${moderation.topic} in the ${moderation.on === 'site' ? 'website' : 'ad text'}): ${name} · "${tagline}" · <${url}> by ${user.email}`);
       return NextResponse.json({ blocked: true }, { status: 409 });
     }

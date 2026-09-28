@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { reportShadowComment } from '@/utils/server/discord';
+import { logModeration } from '@/utils/server/moderationLog';
 import { judgeComment } from '@/utils/server/commentModeration';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
@@ -49,6 +50,7 @@ export async function POST(req: Request) {
     };
     console.log(JSON.stringify({ event: 'comment_shadow_blocked', user: user.id, tool: product.id, reason: decision.reason, score }));
     await reportShadowComment({ username: profile.username, toolName: product.name, toolSlug: product.slug, reason: decision.reason ?? 'spam', score, content });
+    await logModeration({ kind: 'comment', action: 'shadow', reason: decision.reason ?? 'spam', subject: product.name, userId: user.id, productId: product.id, score, details: { content: content.slice(0, 500), username: profile.username } });
     return NextResponse.json({ comment: fake });
   }
 

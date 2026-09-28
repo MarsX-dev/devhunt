@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { draftAds, notifyAdDiscord } from '@/utils/server/ads';
+import { logModeration } from '@/utils/server/moderationLog';
 import { trackFunnel } from '@/utils/server/funnel';
 import { importEnabled } from '@/utils/server/toolImport';
 import { isAdKind } from '@/utils/ads';
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
     const props = { url: ad.url, name: ad.name, kinds };
     if (!moderation.ok) {
       await trackFunnel({ step: 'ad_blocked', userId: user.id, props: { ...props, topic: moderation.topic ?? 'unknown' } });
+      await logModeration({ kind: 'ad', action: 'refused', reason: `${moderation.topic} (${moderation.on === 'site' ? 'website' : 'ad text'})`, subject: ad.name, url: ad.url, userId: user.id, score: moderation.probability, details: { tagline: ad.tagline, kinds } });
       await notifyAdDiscord(
         `🚫 **Sponsor ad refused** (${moderation.topic} in the ${moderation.on === 'site' ? 'website' : 'ad text'}, ${Math.round((moderation.probability ?? 0) * 100)}%): ${ad.name} · "${ad.tagline}" · ${ad.url} by ${user.email}. Wrong call? Flip ad_slots ${ads.map(a => `#${a.id}`).join(', ')} to 'draft'.`,
       );

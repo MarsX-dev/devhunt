@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, adImage, adUrl, moderateAdEdit, notifyAdDiscord, refreshAdPages } from '@/utils/server/ads';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
+import { logModeration } from '@/utils/server/moderationLog';
 import { trackFunnel } from '@/utils/server/funnel';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
           ? 'JEV unavailable, could not check it'
           : `${moderation.topic} in the ${moderation.on === 'site' ? 'website' : 'ad text'}, ${Math.round((moderation.probability ?? 0) * 100)}%`;
     await notifyAdDiscord(`🚫 **Live sponsor ad edit refused** (${why}) by ${user.email}, ad #${ids.join(', #')} keeps its old copy.\nBefore: ${before}\nAttempted: ${after}`);
+    await logModeration({ kind: 'ad_edit', action: 'refused', reason: why, subject: ad.name, url, userId: user.id, score: moderation.probability, details: { before, attempted: after } });
     await trackFunnel({ step: 'ad_edit_refused', userId: user.id, props: { name, url, topic: moderation.topic ?? 'unchecked' } });
     console.log(JSON.stringify({ event: 'ad_edit_refused', ads: ids, user: user.id, topic: moderation.topic, probability: moderation.probability, url }));
     const error =

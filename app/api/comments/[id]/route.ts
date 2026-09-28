@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { judgeComment } from '@/utils/server/commentModeration';
 import { reportBlockedEdit } from '@/utils/server/discord';
+import { logModeration } from '@/utils/server/moderationLog';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -36,6 +37,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const { data: profile } = await serviceClient.from('profiles').select('username').eq('id', user.id).maybeSingle();
     console.log(JSON.stringify({ event: 'comment_edit_shadow_blocked', user: user.id, comment: comment.id, reason: decision.reason }));
     await reportBlockedEdit({ kind: 'comment', username: profile?.username ?? null, toolName: product.name, toolSlug: product.slug, reason: decision.reason ?? 'spam', content });
+    await logModeration({ kind: 'comment_edit', action: 'refused', reason: decision.reason ?? 'spam', subject: product.name, userId: user.id, productId: product.id, details: { content: content.slice(0, 500) } });
     return NextResponse.json({ comment: { id: comment.id, content } });
   }
 

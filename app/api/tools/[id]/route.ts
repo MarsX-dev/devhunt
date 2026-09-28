@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { moderateSubmission } from '@/utils/server/jev';
 import { reportBlockedEdit } from '@/utils/server/discord';
-import { moderationDecision } from '@/utils/moderation';
+import { logModeration } from '@/utils/server/moderationLog';
+import { moderationDecision, incompleteReason } from '@/utils/moderation';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import addHttpsToUrl from '@/utils/addHttpsToUrl';
@@ -74,12 +75,21 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   // Only re-check what visitors read about the tool, and only when it changed.
   const textChanged = name !== tool.name || slogan !== tool.slogan || description !== tool.description || website !== web(tool.demo_url);
   if (textChanged) {
-    const decision = moderationDecision(await moderateSubmission({ name, slogan, description, website }));
-    if (decision.status === 'blocked') {
+    const placeholder = incompleteReason({ name, slogan, description, website: website ?? '' });
+    const decision = placeholder ? { status: 'incomplete' as const, reason: 'placeholder text' } : moderationDecision(await moderateSubmission({ name, slogan, description, website }));
+    if (decision.status === 'blocked' || decision.status === 'incomplete') {
       const { data: profile } = await serviceClient.from('profiles').select('username').eq('id', user.id).maybeSingle();
-      console.log(JSON.stringify({ event: 'tool_edit_blocked', tool: tool.id, user: user.id, reason: decision.reason }));
-      await reportBlockedEdit({ kind: 'tool', username: profile?.username ?? null, toolName: tool.name, toolSlug: tool.slug, reason: decision.reason ?? 'banned topic', content: `${name} - ${slogan}\n${description}` });
-      return NextResponse.json({ error: `This edit can't be saved: it looks like ${decision.reason}. Your tool keeps its current text.` }, { status: 422 });
+      const reason = decision.reason ?? 'banned topic';
+      console.log(JSON.stringify({ event: 'tool_edit_blocked', tool: tool.id, user: user.id, reason }));
+      await Promise.all([
+        reportBlockedEdit({ kind: 'tool', username: profile?.username ?? null, toolName: tool.name, toolSlug: tool.slug, reason, content: `${name} - ${slogan}\n${description}` }),
+        logModeration({ kind: 'tool_edit', action: 'refused', reason, subject: tool.name, url: website, userId: user.id, productId: tool.id, details: { name, slogan } }),
+      ]);
+      const error =
+        decision.status === 'incomplete'
+          ? placeholder ?? "This edit looks unfinished. Please keep your tool's real name, website and description."
+          : `This edit can't be saved: it looks like ${reason}. Your tool keeps its current text.`;
+      return NextResponse.json({ error }, { status: 422 });
     }
   }
 
