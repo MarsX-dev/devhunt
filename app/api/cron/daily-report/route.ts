@@ -72,8 +72,17 @@ export async function GET(req: Request) {
     if (last !== undefined && last.length + line.length + 1 < 1880) parts[parts.length - 1] = `${last}\n${line}`;
     else parts.push(line);
   }
+  // Discord's answer is checked: a wrong or deleted webhook fails the run (visible in Vercel's cron log)
+  // instead of reporting success.
   for (const part of parts) {
-    await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `\`\`\`\n${part}\n\`\`\``, allowed_mentions: { parse: [] } }) });
+    const res = await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `\`\`\`\n${part}\n\`\`\``, allowed_mentions: { parse: [] } }) });
+    if (!res.ok) {
+      const detail = (await res.text().catch(() => '')).slice(0, 300);
+      console.error(`[cron] daily-report: Discord answered ${res.status}: ${detail}`);
+      return NextResponse.json({ error: `Discord answered ${res.status}`, detail }, { status: 502 });
+    }
   }
-  return NextResponse.json({ sent: parts.length, steps: FUNNEL_STEPS.length });
+  const channel = process.env.DISCORD_REPORT_WEBHOOK ? 'report channel' : 'new-tool channel';
+  console.log(`[cron] daily-report posted ${parts.length} message(s) to the ${channel}`);
+  return NextResponse.json({ sent: parts.length, channel, steps: FUNNEL_STEPS.length });
 }
