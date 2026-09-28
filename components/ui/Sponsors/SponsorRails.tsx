@@ -25,8 +25,10 @@ export function useLiveAds() {
   return ads;
 }
 
-// The advertise pages already show every slot and price; rails there are just noise.
-const useHidden = () => /^\/(account\/)?advertise(\/|$)/.test(usePathname() ?? '');
+// No ads where they're noise or don't belong: /advertise (it already shows every slot), everything
+// under /account (a signed-in user's own pages, admin pages included), internal tools and login.
+const NO_ADS = /^\/(advertise|account|email-sponsor-ad|login|auth)(\/|$)/;
+const useHidden = () => NO_ADS.test(usePathname() ?? '');
 
 function useSponsors() {
   const ads = useLiveAds().filter(a => a.kind === 'rail');
