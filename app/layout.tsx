@@ -100,8 +100,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <ModalBannerCodeClient />
             </Suspense>
             {/* Rails sit in the side gutters and stick while scrolling, but stop at the footer; the min height
-                keeps all 3 cards clear of it on short pages. */}
-            <div className="relative min-[1180px]:min-h-[660px]">
+                keeps all 3 cards clear of it on short pages. From 1000 to 1179px the padding narrows the page
+                content so 112px cards fit beside it. */}
+            <div className="relative min-[1000px]:min-h-[660px] min-[1000px]:max-[1179px]:px-32">
               <SponsorRails />
               {children}
             </div>

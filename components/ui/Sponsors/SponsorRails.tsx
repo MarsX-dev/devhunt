@@ -87,24 +87,27 @@ function PaidCard({ ad, freeFrom }: { ad: PublicAd; freeFrom?: string | null }) 
   );
 }
 
-// Desktop: 3 cards in each side gutter (from 1180px). Below that, a scrolling pill strip on top.
+// Side gutters: 3 cards each from 1000px (below that, a scrolling pill strip on top: SponsorStrip).
+// From 1000 to 1179px the page content is narrowed to make room (see the wrapper in app/layout.tsx) and
+// the cards are 112px wide; from 1180px they grow into the natural gutters.
 export default function SponsorRails() {
   const { cards, left } = useSponsors();
   if (useHidden()) return null;
   // Absolute columns the height of the page content; the inner stack is sticky, so it follows the
   // scroll but never runs into the footer.
-  const rail = 'pointer-events-none absolute inset-y-0 z-20 hidden w-[min(220px,calc((100vw-56rem)/2-2rem))] pt-6 min-[1180px]:block';
+  const rail =
+    'pointer-events-none absolute inset-y-0 z-20 hidden w-28 pt-6 min-[1000px]:block min-[1180px]:w-[min(220px,calc((100vw-56rem)/2-2rem))]';
   const stack = 'pointer-events-auto sticky top-20 flex flex-col gap-3';
   return (
     <>
-      <div className={`${rail} left-4`}>
+      <div className={`${rail} left-3 min-[1180px]:left-4`}>
         <div className={stack}>
           {[0, 2, 4].map(i => (
             <RailCard key={i} card={cards[i]} side="l" />
           ))}
         </div>
       </div>
-      <div className={`${rail} right-4`}>
+      <div className={`${rail} right-3 min-[1180px]:right-4`}>
         <div className={stack}>
           {[1, 3, 5].map(i => (
             <RailCard key={i} card={cards[i]} side="r" />
@@ -132,7 +135,7 @@ export function SponsorStrip() {
   if (useHidden()) return null;
   const pills = [...cards, ...cards]; // doubled for a seamless loop
   return (
-    <div className="overflow-hidden border-b border-slate-800 bg-slate-950 py-2 min-[1180px]:hidden">
+    <div className="overflow-hidden border-b border-slate-800 bg-slate-950 py-2 min-[1000px]:hidden">
       <div className="flex w-max gap-2 px-2 motion-safe:animate-[sponsorstrip_45s_linear_infinite] hover:[animation-play-state:paused]">
         {pills.map(({ ad }, i) =>
           ad ? (
