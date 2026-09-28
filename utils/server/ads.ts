@@ -1,4 +1,5 @@
 import type Stripe from 'stripe';
+import { revalidatePath } from 'next/cache';
 import { AD_PRODUCTS, AUDIENCE, LIVE_STATUSES, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 import { type EmailSponsorAdConfig } from '@/utils/email-templates/email-sponsor-ad';
 import { groqJson } from '@/utils/server/enrich';
@@ -85,6 +86,17 @@ export async function draftAds(userId: string, url: string, kinds: AdKind[]) {
     .select('id, kind, url, name, tagline, description, logo_url, image_url, status');
   if (error) throw new Error(error.message);
   return { ads: (data ?? []) as any[], moderation };
+}
+
+// The rails read /api/ads/slots from the CDN (60s) and /advertise shows spots left: refresh both as
+// soon as an ad starts or stops, so a buyer sees their ad right away.
+export function refreshAdPages() {
+  try {
+    revalidatePath('/api/ads/slots');
+    revalidatePath('/advertise');
+  } catch (err) {
+    console.error('[ads] revalidate failed:', (err as Error).message);
+  }
 }
 
 export async function liveSlots(kind: AdKind): Promise<number[]> {
@@ -203,6 +215,7 @@ export async function activateAd(session: Stripe.Checkout.Session, source: 'webh
       await notifyAdDiscord(`⚠️ **Sponsor paid but the ${row.kind} slots are taken**: [${row.name}](${row.url}), session ${session.id}. Refund that item or add a slot.`);
     }
   }
+  if (activated) refreshAdPages();
   if (noSlot) return { status: 'no-slot' as const };
   return { status: activated ? ('activated' as const) : ('already-active' as const) };
 }
@@ -219,6 +232,7 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
     .eq('plan', 'monthly') // a single edition bought alongside runs until it's sent (see newsletterSent)
     .in('status', ['active', 'canceling'])
     .select('name, slot, kind');
+  if (data?.length) refreshAdPages();
   if (data?.length && status === 'ended') {
     await notifyAdDiscord(`🔚 Sponsor ended: ${(data as any[]).map(r => `${r.name} (${r.kind} slot ${r.slot})`).join(', ')}; slots are free again`);
   }
@@ -256,6 +270,7 @@ export async function refundSingle(ad: { id: number; name: string; stripe_sessio
   if (!intentId) throw new Error('no payment to refund');
   const refund = await stripe().refunds.create({ payment_intent: intentId, metadata: { ad_id: String(ad.id) } });
   await serviceClient.from('ad_slots' as any).update({ status: 'ended', refunded_at: new Date().toISOString(), canceled_at: new Date().toISOString() }).eq('id', ad.id);
+  refreshAdPages();
   await notifyAdDiscord(`↩️ Sponsor refunded $${(refund.amount / 100).toFixed(2)} (single newsletter edition, not sent): ${ad.name}`);
   return { refunded: refund.amount };
 }
@@ -301,6 +316,7 @@ export async function newsletterSent(adId: number) {
   if (!ad || ad.plan !== 'single') return;
   const left = Math.max(0, (ad.editions_left ?? 1) - 1);
   await serviceClient.from('ad_slots' as any).update({ editions_left: left, ...(left === 0 ? { status: 'ended' } : {}) }).eq('id', adId);
+  if (left === 0) refreshAdPages();
   if (left === 0) await notifyAdDiscord(`📬 Single newsletter edition sent for ${ad.name}; the newsletter slot is free again`);
 }
 
