@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, adImage, adUrl, createAdCheckout, freeSlot, moderateAdEdit, notifyAdDiscord } from '@/utils/server/ads';
-import { AD_PRODUCTS, isAdPlan, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_PRODUCTS, isAdPlan, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
+import { trackFunnel } from '@/utils/server/funnel';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
@@ -75,6 +76,11 @@ export async function POST(req: Request) {
   try {
     const session = await createAdCheckout(ads.map(a => ({ id: a.id, kind: a.kind, plan: a.plan, name })), user, new URL(req.url).origin);
     await logPaymentEvent({ event: 'ad_checkout_created', stripeSessionId: session.id, userId: user.id, details: { ad_ids: ids, kinds: ads.map(a => `${a.kind}:${a.plan}`) } });
+    await trackFunnel({
+      step: 'ad_checkout_started',
+      userId: user.id,
+      props: { name, kinds: ads.map(a => a.kind), amount: ads.reduce((sum, a) => sum + planPrice(a.kind, a.plan), 0) },
+    });
     return NextResponse.json({ url: session.url });
   } catch (err) {
     await logPaymentEvent({ event: 'ad_checkout_error', level: 'error', userId: user.id, details: { ad_ids: ids, message: (err as Error).message } });

@@ -1,6 +1,6 @@
 import { createServerClient } from '@/utils/supabase/server';
 
-// DevHunt team accounts (ADMIN_EMAILS, comma-separated) can see internal pages like /account/analytics.
+// DevHunt team accounts (ADMIN_EMAILS, comma-separated) can see internal pages under /admin.
 const ADMIN_EMAILS = () =>
   (process.env.ADMIN_EMAILS ?? 'john@marsx.dev,johnrush@filmgrail.com')
     .split(',')

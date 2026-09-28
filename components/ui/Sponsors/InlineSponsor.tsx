@@ -50,7 +50,7 @@ export default function InlineSponsor({
         <Sponsored ad={ad} />
       ) : (
         <Link
-          href="/advertise?product=inline"
+          href="/advertise?product=inline&ref=open-inline"
           className={`${row} border border-dashed border-slate-700 opacity-60 hover:border-orange-500/60 hover:opacity-100`}
         >
           <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg border border-dashed border-slate-600 text-slate-500">

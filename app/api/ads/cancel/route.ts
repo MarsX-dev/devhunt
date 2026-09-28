@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { refundSingle, refundSubscription, syncAdSubscription } from '@/utils/server/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
+import { trackFunnel } from '@/utils/server/funnel';
 import { stripe } from '@/utils/server/stripe';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
     if (single === undefined) return NextResponse.json({ error: 'The refund failed. Please email john@marsx.dev.' }, { status: 502 });
     if (single === null) return NextResponse.json({ error: 'This edition was already sent or the refund window has passed.' }, { status: 409 });
     await logPaymentEvent({ event: 'ad_refunded', userId: user.id, amountTotal: single.refunded, details: { ad_id: ad.id, plan: 'single' } });
+    await trackFunnel({ step: 'ad_refunded', userId: user.id, props: { name: ad.name, amount: single.refunded / 100 } });
     return NextResponse.json({ ok: true, refunded: single.refunded });
   }
   if (!['active', 'canceling'].includes(ad.status)) return NextResponse.json({ error: 'This ad is not running.' }, { status: 409 });
@@ -38,11 +40,13 @@ export async function POST(req: Request) {
     if (result === undefined) return NextResponse.json({ error: 'The refund failed. Please email john@marsx.dev.' }, { status: 502 });
     if (result === null) return NextResponse.json({ error: 'The refund window for your last payment has passed. You can still cancel.' }, { status: 409 });
     await logPaymentEvent({ event: 'ad_refunded', userId: user.id, amountTotal: result.refunded, details: { ad_id: ad.id } });
+    await trackFunnel({ step: 'ad_refunded', userId: user.id, props: { name: ad.name, amount: result.refunded / 100 } });
     return NextResponse.json({ ok: true, refunded: result.refunded });
   }
 
   const sub = await stripe().subscriptions.update(ad.stripe_subscription_id, { cancel_at_period_end: !resume });
   await syncAdSubscription(sub);
   await logPaymentEvent({ event: resume ? 'ad_resumed' : 'ad_canceled', userId: user.id, details: { ad_id: ad.id } });
+  if (!resume) await trackFunnel({ step: 'ad_canceled', userId: user.id, props: { name: ad.name } });
   return NextResponse.json({ ok: true });
 }

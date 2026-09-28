@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { draftAds, notifyAdDiscord } from '@/utils/server/ads';
+import { trackFunnel } from '@/utils/server/funnel';
 import { importEnabled } from '@/utils/server/toolImport';
 import { isAdKind } from '@/utils/ads';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
@@ -29,7 +30,9 @@ export async function POST(req: Request) {
   try {
     const { ads, moderation } = await draftAds(user.id, url.toString(), kinds);
     const ad = ads[0];
+    const props = { url: ad.url, name: ad.name, kinds };
     if (!moderation.ok) {
+      await trackFunnel({ step: 'ad_blocked', userId: user.id, props: { ...props, topic: moderation.topic ?? 'unknown' } });
       await notifyAdDiscord(
         `🚫 **Sponsor ad refused** (${moderation.topic} in the ${moderation.on === 'site' ? 'website' : 'ad text'}, ${Math.round((moderation.probability ?? 0) * 100)}%): ${ad.name} · "${ad.tagline}" · ${ad.url} by ${user.email}. Wrong call? Flip ad_slots ${ads.map(a => `#${a.id}`).join(', ')} to 'draft'.`,
       );
@@ -40,6 +43,7 @@ export async function POST(req: Request) {
         moderation.jev ? '' : ' · ❔ no JEV check (JEV unavailable)'
       }`,
     );
+    await trackFunnel({ step: 'ad_generated', userId: user.id, props });
     return NextResponse.json({ ads });
   } catch (err) {
     console.error('ad draft failed:', url.hostname, (err as Error).message);

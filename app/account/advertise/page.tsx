@@ -8,6 +8,7 @@ import AdStats from '@/components/ui/Sponsors/AdStats';
 import { ListPageSkeleton, RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import { ImagePick } from '@/components/ui/Sponsors/AdBuilder';
 import fileUploader from '@/utils/supabase/fileUploader';
+import { trackStep } from '@/utils/funnelClient';
 import { AD_PRODUCTS, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 
 const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
@@ -63,7 +64,10 @@ function AdvertisePage() {
 
   useEffect(() => {
     const sessionId = params?.get('session_id');
-    if (params?.get('canceled')) setNotice('Payment canceled. Your ad was not started.');
+    if (params?.get('canceled')) {
+      setNotice('Payment canceled. Your ad was not started.');
+      trackStep('ad_checkout_canceled');
+    }
     if (!sessionId) return load();
     setConfirming(true);
     fetch(`/api/ads/confirm?session_id=${encodeURIComponent(sessionId)}`)

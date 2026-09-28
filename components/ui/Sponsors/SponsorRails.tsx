@@ -26,8 +26,8 @@ export function useLiveAds() {
 }
 
 // No ads where they're noise or don't belong: /advertise (it already shows every slot), everything
-// under /account (a signed-in user's own pages, admin pages included), internal tools and login.
-const NO_ADS = /^\/(advertise|account|email-sponsor-ad|login|auth)(\/|$)/;
+// under /account (a signed-in user's own pages), /admin, internal tools and login.
+const NO_ADS = /^\/(advertise|account|admin|email-sponsor-ad|login|auth)(\/|$)/;
 const useHidden = () => NO_ADS.test(usePathname() ?? '');
 
 function useSponsors() {
@@ -52,7 +52,7 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
   const { ad } = card;
   if (!ad)
     return (
-      <Link href="/advertise" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center opacity-40 duration-150 hover:border-orange-500/60 hover:opacity-100">
+      <Link href="/advertise?ref=open-rail" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center opacity-40 duration-150 hover:border-orange-500/60 hover:opacity-100">
         <span className="font-mono text-[10px] tracking-[0.25em] text-slate-500">OPEN SLOT</span>
         <span className="mt-2 text-lg font-bold text-slate-100">
           ${AD_PRICE_USD}
@@ -81,7 +81,7 @@ function PaidCard({ ad, freeFrom }: { ad: PublicAd; freeFrom?: string | null }) 
       <span className="mt-1 line-clamp-3 font-mono text-[11px] leading-snug text-slate-400">{ad.tagline}</span>
     </a>
     {freeFrom && (
-      <Link href="/advertise" className="absolute inset-x-0 bottom-1.5 text-center font-mono text-[10px] text-slate-500 hover:text-orange-400">
+      <Link href="/advertise?ref=free-from" className="absolute inset-x-0 bottom-1.5 text-center font-mono text-[10px] text-slate-500 hover:text-orange-400">
         free from {shortDate(freeFrom)}
       </Link>
     )}
@@ -193,7 +193,7 @@ export function SponsorStrip() {
           ad ? (
             <Pill key={i} ad={ad} />
           ) : (
-            <Link key={i} href="/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400 opacity-50 hover:opacity-100">
+            <Link key={i} href="/advertise?ref=open-strip" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400 opacity-50 hover:opacity-100">
               your ad here · ${AD_PRICE_USD}/mo
             </Link>
           ),

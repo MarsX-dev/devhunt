@@ -54,7 +54,7 @@ export default ({ onLogout, session }: Props) => {
     { title: 'My tools', path: '/account/tools' },
     { title: 'Edit profile', path: '/account/details' },
     { title: 'My ads', path: '/account/advertise' },
-    ...(isAdmin ? [{ title: 'Analytics', path: '/account/analytics' }] : []),
+    ...(isAdmin ? [{ title: 'Analytics', path: '/admin/analytics' }] : []),
   ];
 
   useEffect(() => {

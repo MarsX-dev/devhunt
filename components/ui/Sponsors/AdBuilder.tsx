@@ -7,6 +7,7 @@ import { GithubProvider, GoogleProvider } from '@/components/ui/AuthProviderButt
 import AdPlacement from '@/components/ui/Sponsors/AdPlacement';
 import { PENDING_KEY, type PendingAd } from '@/components/ui/Sponsors/AdResume';
 import fileUploader from '@/utils/supabase/fileUploader';
+import { trackStep } from '@/utils/funnelClient';
 import { AD_KINDS, AD_PRODUCTS, NEWSLETTER_SINGLE_PRICE, REFUND_DAYS, isAdKind, isRecurring, planLabel, planPrice, spotsLeft, type AdKind, type AdPlan } from '@/utils/ads';
 
 // The ad builder at the top of /advertise: switch on ad types, enter a URL, get the ads written,
@@ -131,12 +132,25 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
   const [signIn, setSignIn] = useState(false);
   const resumed = useRef(false);
 
+  // Opened /advertise (where from: ?ref= on our own "your ad here" links, else the previous page).
+  useEffect(() => {
+    let from: string | undefined;
+    try {
+      const ref = document.referrer ? new URL(document.referrer) : null;
+      if (ref && ref.host === location.host) from = ref.pathname;
+    } catch {}
+    trackStep('ad_view', { product: params?.get('product') ?? undefined, from });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function generate(e?: React.FormEvent, state = { url, kinds }) {
     e?.preventDefault();
     setError('');
     setBlocked(false);
     if (!state.kinds.length) return setError('Pick at least one ad type.');
+    if (e) trackStep('ad_generate_click', { url: state.url, kinds: state.kinds, signed_in: !!session?.user });
     if (!session?.user) {
+      trackStep('ad_signin_prompt', { url: state.url, kinds: state.kinds });
       try {
         localStorage.setItem(PENDING_KEY, JSON.stringify({ url: state.url, kinds: state.kinds, newsletterPlan, at: Date.now() } satisfies PendingAd));
       } catch {}

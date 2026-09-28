@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import FunnelReport from './FunnelReport';
+import AdsReport from './AdsReport';
 import { isAdmin } from '@/utils/server/admin';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -74,7 +75,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
   return (
     <section className="container-custom-screen mt-10 mb-20">
       <PageHeader eyebrow="Internal" title="Analytics">
-        First-party page views, visitors, countries and the submit funnel. Counted without cookies; bots and automated browsers are skipped.
+        First-party page views, visitors, countries, the submit funnel and sponsor ads. Counted without cookies; bots and automated browsers are skipped.
       </PageHeader>
 
       <nav className="mt-6 flex gap-2 font-mono text-xs">
@@ -149,6 +150,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
         </div>
       </div>
       <FunnelReport days={days} />
+      <AdsReport days={days} />
     </section>
   );
 }

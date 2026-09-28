@@ -16,12 +16,27 @@ export const FUNNEL_STEPS = [
   { step: 'checkout_canceled', label: 'came back unpaid', side: 'client' },
   { step: 'payment_failed', label: 'payment failed', side: 'server' },
   { step: 'paid', label: 'paid', side: 'server' },
+  // Sponsor ads (reported separately: the submit funnel report skips 'ad_*' steps)
+  { step: 'ad_view', label: 'opened /advertise', side: 'client' },
+  { step: 'ad_generate_click', label: 'clicked Generate', side: 'client' },
+  { step: 'ad_signin_prompt', label: 'asked to sign in', side: 'client' },
+  { step: 'ad_generated', label: 'ad generated', side: 'server' },
+  { step: 'ad_blocked', label: 'ad refused (JEV)', side: 'server' },
+  { step: 'ad_checkout_started', label: 'opened checkout', side: 'server' },
+  { step: 'ad_checkout_canceled', label: 'came back unpaid', side: 'client' },
+  { step: 'ad_paid', label: 'paid', side: 'server' },
+  { step: 'ad_edited', label: 'edited a live ad', side: 'server' },
+  { step: 'ad_edit_refused', label: 'edit refused (JEV)', side: 'server' },
+  { step: 'ad_canceled', label: 'canceled future months', side: 'server' },
+  { step: 'ad_refunded', label: 'refunded', side: 'server' },
 ] as const;
 export type FunnelStep = (typeof FUNNEL_STEPS)[number]['step'];
 export const CLIENT_STEPS = new Set<string>(FUNNEL_STEPS.filter(s => s.side === 'client').map(s => s.step));
 
 // The main path for conversion rates (alternatives like manual_form/free_chosen are shown beside it).
 export const MAIN_PATH: FunnelStep[] = ['submit_click', 'submit_view', 'url_entered', 'form_submitted', 'tool_created', 'launch_view', 'checkout_started', 'paid'];
+
+export const AD_PATH: FunnelStep[] = ['ad_view', 'ad_generate_click', 'ad_generated', 'ad_checkout_started', 'ad_paid'];
 
 export const VISITOR_COOKIE = 'dh_vid';
 export const SESSION_COOKIE = 'dh_sid';

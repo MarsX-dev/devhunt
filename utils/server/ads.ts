@@ -5,6 +5,7 @@ import { type EmailSponsorAdConfig } from '@/utils/email-templates/email-sponsor
 import { groqJson } from '@/utils/server/enrich';
 import { jevAsk } from '@/utils/server/jev';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
+import { trackFunnel } from '@/utils/server/funnel';
 import { stripe } from '@/utils/server/stripe';
 import { rehostImage, scrapeWithFirecrawl } from '@/utils/server/toolImport';
 import { splitTitle, tagline as cutTagline, type ScrapedPage } from '@/utils/toolImport';
@@ -276,7 +277,14 @@ export async function activateAd(session: Stripe.Checkout.Session, source: 'webh
       await notifyAdDiscord(`⚠️ **Sponsor paid but the ${row.kind} slots are taken**: [${row.name}](${row.url}), session ${session.id}. Refund that item or add a slot.`);
     }
   }
-  if (activated) refreshAdPages();
+  if (activated) {
+    refreshAdPages();
+    await trackFunnel({
+      step: 'ad_paid',
+      userId: rows[0].user_id,
+      props: { amount: (session.amount_total ?? 0) / 100, kinds: rows.map(r => r.kind), name: rows[0].name, source },
+    });
+  }
   if (noSlot) return { status: 'no-slot' as const };
   return { status: activated ? ('activated' as const) : ('already-active' as const) };
 }
