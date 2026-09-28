@@ -56,7 +56,7 @@ export default function InlineSponsor({
           <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg border border-dashed border-slate-600 text-slate-500">
             +
           </span>
-          <span className="min-w-0 flex-1 truncate font-mono text-xs text-slate-400">your tool here · ${AD_PRODUCTS.inline.price}/mo</span>
+          <span className="min-w-0 flex-1 truncate font-mono text-xs text-slate-400">your ad here · ${AD_PRODUCTS.inline.price}/mo</span>
           <span className="flex-none font-mono text-[10px] uppercase tracking-wider text-slate-500">open spot</span>
         </Link>
       )}

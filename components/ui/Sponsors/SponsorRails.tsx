@@ -58,7 +58,7 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
           ${AD_PRICE_USD}
           <span className="font-mono text-[11px] font-normal text-slate-500">/mo</span>
         </span>
-        <span className="mt-2 font-mono text-[11px] text-slate-400 group-hover:text-orange-400">your tool here {side === 'l' ? '←' : '→'}</span>
+        <span className="mt-2 font-mono text-[11px] text-slate-400 group-hover:text-orange-400">your ad here {side === 'l' ? '←' : '→'}</span>
       </Link>
     );
   return <PaidCard ad={ad} freeFrom={card.freeFrom} />;
@@ -194,7 +194,7 @@ export function SponsorStrip() {
             <Pill key={i} ad={ad} />
           ) : (
             <Link key={i} href="/advertise" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400 opacity-50 hover:opacity-100">
-              your tool here · ${AD_PRICE_USD}/mo
+              your ad here · ${AD_PRICE_USD}/mo
             </Link>
           ),
         )}
