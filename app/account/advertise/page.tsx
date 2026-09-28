@@ -6,6 +6,8 @@ import { useSearchParams } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import AdStats from '@/components/ui/Sponsors/AdStats';
 import { ListPageSkeleton, RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
+import { ImagePick } from '@/components/ui/Sponsors/AdBuilder';
+import fileUploader from '@/utils/supabase/fileUploader';
 import { AD_PRODUCTS, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 
 const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
@@ -46,6 +48,7 @@ export default function Page() {
 function AdvertisePage() {
   const params = useSearchParams();
   const [busy, setBusy] = useState<'' | number>('');
+  const [editing, setEditing] = useState<number | null>(null);
   const [notice, setNotice] = useState('');
   const [justPaid, setJustPaid] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -168,6 +171,14 @@ function AdvertisePage() {
                     {ad.refunded_at ? ` · refunded ${fmt(ad.refunded_at)}` : ''}
                   </p>
                 </div>
+                {lead && ['active', 'canceling'].includes(ad.status) && (
+                  <button
+                    onClick={() => setEditing(editing === ad.id ? null : ad.id)}
+                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:border-slate-500"
+                  >
+                    {editing === ad.id ? 'Close' : 'Edit'}
+                  </button>
+                )}
                 {lead && ad.status === 'active' && ad.plan !== 'single' && (
                   <button onClick={() => manage(ad, 'cancel')} disabled={busy === ad.id} className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:border-slate-500">
                     Cancel future months
@@ -187,6 +198,19 @@ function AdvertisePage() {
                   >
                     Cancel and refund
                   </button>
+                )}
+                {editing === ad.id && (
+                  <EditAd
+                    ad={ad}
+                    newsletter={mine.ads.some(a => (ad.group ? a.group === ad.group : a.id === ad.id) && a.kind === 'newsletter')}
+                    onDone={saved => {
+                      setEditing(null);
+                      if (saved) {
+                        setNotice('Saved. Your ad is updated everywhere within a minute.');
+                        load();
+                      }
+                    }}
+                  />
                 )}
               </li>
               );
@@ -220,5 +244,81 @@ function AdvertisePage() {
         </div>
       )}
     </section>
+  );
+}
+
+// Edit a running ad (all ads bought with it share the copy). The server checks every change with JEV
+// and refuses anything that looks like a banned topic; the ad keeps running as it was.
+function EditAd({ ad, newsletter, onDone }: { ad: MyAd; newsletter: boolean; onDone: (saved: boolean) => void }) {
+  const [draft, setDraft] = useState({ name: ad.name, tagline: ad.tagline, description: ad.description ?? '', url: ad.url, logo_url: ad.logo_url, image_url: ad.image_url });
+  const [state, setState] = useState<'' | 'saving' | 'logo_url' | 'image_url'>('');
+  const [error, setError] = useState('');
+  const input = 'mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500';
+
+  async function upload(field: 'logo_url' | 'image_url', file?: File) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return setError('Please pick an image file.');
+    setError('');
+    setState(field);
+    const res = await fileUploader({ files: file as any, options: field === 'logo_url' ? 'w=128' : 'w=600' });
+    setState('');
+    if (!res?.file) return setError('Upload failed, please try again.');
+    setDraft(d => ({ ...d, [field]: res.file }));
+  }
+
+  async function save() {
+    setError('');
+    setState('saving');
+    const d = await post('/api/ads/edit', { adId: ad.id, ...draft, logoUrl: draft.logo_url, imageUrl: draft.image_url });
+    setState('');
+    if (!d.ok) return setError(d.error ?? 'Something went wrong.');
+    onDone(!d.unchanged);
+  }
+
+  return (
+    <div className="w-full space-y-3 rounded-2xl border border-slate-800 p-4">
+      <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
+        <label className="block text-sm text-slate-400">
+          Name
+          <input value={draft.name} maxLength={24} onChange={e => setDraft({ ...draft, name: e.target.value })} className={input} />
+        </label>
+        <label className="block text-sm text-slate-400">
+          Headline <span className="font-mono text-xs text-slate-600">{draft.tagline.length}/70</span>
+          <input value={draft.tagline} maxLength={70} onChange={e => setDraft({ ...draft, tagline: e.target.value })} className={input} />
+        </label>
+      </div>
+      <label className="block text-sm text-slate-400">
+        Link
+        <input value={draft.url} onChange={e => setDraft({ ...draft, url: e.target.value })} className={input} />
+      </label>
+      <div className="flex flex-wrap gap-6">
+        <ImagePick label="Logo" hint="square" src={draft.logo_url} busy={state === 'logo_url'} onPick={f => void upload('logo_url', f)} square />
+        {newsletter && (
+          <ImagePick
+            label="Newsletter image"
+            hint="wide, 2:1"
+            src={draft.image_url}
+            busy={state === 'image_url'}
+            onPick={f => void upload('image_url', f)}
+            onRemove={() => setDraft({ ...draft, image_url: null })}
+          />
+        )}
+      </div>
+      {newsletter && (
+        <label className="block text-sm text-slate-400">
+          Newsletter description <span className="font-mono text-xs text-slate-600">{draft.description.length}/220</span>
+          <textarea value={draft.description} maxLength={220} rows={2} onChange={e => setDraft({ ...draft, description: e.target.value })} className={input} />
+        </label>
+      )}
+      {error && <p className="text-sm text-red-400">{error}</p>}
+      <div className="flex items-center gap-3">
+        <button onClick={() => void save()} disabled={!!state} className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60">
+          {state === 'saving' ? 'Checking and saving…' : 'Save changes'}
+        </button>
+        <button onClick={() => onDone(false)} className="text-sm text-slate-500 hover:text-slate-300">
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }

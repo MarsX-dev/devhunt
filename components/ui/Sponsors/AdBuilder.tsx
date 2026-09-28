@@ -63,7 +63,7 @@ function Preview({ ad }: { ad: Draft }) {
 
 
 // Current image with a button to upload a new one.
-function ImagePick({ label, hint, src, busy, onPick, onRemove, square }: { label: string; hint: string; src: string | null; busy: boolean; onPick: (f?: File) => void; onRemove?: () => void; square?: boolean }) {
+export function ImagePick({ label, hint, src, busy, onPick, onRemove, square }: { label: string; hint: string; src: string | null; busy: boolean; onPick: (f?: File) => void; onRemove?: () => void; square?: boolean }) {
   return (
     <div className="text-sm text-slate-400">
       {label} <span className="font-mono text-xs text-slate-600">{hint}</span>

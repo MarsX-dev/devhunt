@@ -1,35 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
-import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, createAdCheckout, freeSlot, moderateAd, notifyAdDiscord } from '@/utils/server/ads';
+import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, adImage, adUrl, createAdCheckout, freeSlot, moderateAdEdit, notifyAdDiscord } from '@/utils/server/ads';
 import { AD_PRODUCTS, isAdPlan, type AdKind, type AdPlan } from '@/utils/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
-
-const IMAGE_HOSTS = ['mars-images.imgix.net', 'marscode.s3.eu-north-1.amazonaws.com'];
-
-// http(s) link with a real hostname, or null.
-function adUrl(raw: string): string | null {
-  try {
-    const u = new URL(/^https?:\/\//i.test(raw.trim()) ? raw.trim() : `https://${raw.trim()}`);
-    return ['http:', 'https:'].includes(u.protocol) && u.hostname.includes('.') ? u.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
-// The stored image, null (removed), or a new upload on our image host; false for anything else.
-function adImage(value: string | null, stored: string | null): string | null | false {
-  if (!value) return null;
-  if (value === stored) return stored;
-  try {
-    const u = new URL(value);
-    return u.protocol === 'https:' && IMAGE_HOSTS.includes(u.hostname) ? value : false;
-  } catch {
-    return false;
-  }
-}
 
 // Saves the advertiser's edits to their drafts (one per ad type picked), re-checks edited copy, and
 // starts one monthly subscription covering all of them.
@@ -68,11 +44,19 @@ export async function POST(req: Request) {
   if (logo_url === false || image_url === false) return NextResponse.json({ error: 'Please upload the image again.' }, { status: 400 });
   if (logo_url !== first.logo_url || image_url !== first.image_url) await serviceClient.from('ad_slots' as any).update({ logo_url, image_url }).in('id', ids);
 
-  if (name !== first.name || tagline !== first.tagline || description !== (first.description ?? '') || url !== first.url) {
-    const moderation = await moderateAd({ url, name, tagline, about: description });
-    await serviceClient.from('ad_slots' as any).update({ name, tagline, description, url, ...(moderation.ok ? {} : { status: 'blocked', moderation }) }).in('id', ids);
+  // Checked again when the copy or link changed, or when JEV couldn't check it at generation: nothing
+  // goes live without a JEV check.
+  const changed = name !== first.name || tagline !== first.tagline || description !== (first.description ?? '') || url !== first.url;
+  if (changed || !first.moderation?.jev) {
+    const moderation = await moderateAdEdit({ url, name, tagline, description }, changed ? first.url : url);
+    if (moderation.topic === 'unreadable') return NextResponse.json({ error: "We couldn't open that link. Check it and try again." }, { status: 400 });
+    if (!moderation.jev) {
+      await notifyAdDiscord(`❔ Sponsor ad checkout paused, JEV unavailable: ${name} · <${url}> by ${user.email}`);
+      return NextResponse.json({ error: "We couldn't check your ad right now. Please try again in a few minutes." }, { status: 503 });
+    }
+    await serviceClient.from('ad_slots' as any).update({ name, tagline, description, url, moderation, ...(moderation.ok ? {} : { status: 'blocked' }) }).in('id', ids);
     if (!moderation.ok) {
-      await notifyAdDiscord(`🚫 **Sponsor ad refused after edit** (${moderation.topic}): ${name} · "${tagline}" · ${url} by ${user.email}`);
+      await notifyAdDiscord(`🚫 **Sponsor ad refused at checkout** (${moderation.topic} in the ${moderation.on === 'site' ? 'website' : 'ad text'}): ${name} · "${tagline}" · <${url}> by ${user.email}`);
       return NextResponse.json({ blocked: true }, { status: 409 });
     }
   }

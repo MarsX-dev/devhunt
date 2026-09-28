@@ -15,29 +15,90 @@ export const AD_TAGLINE_MAX = 70;
 export const AD_DESCRIPTION_MAX = 220; // newsletter body
 
 // Ads we don't run. Same banned topics as tool submissions, plus a "fine" option JEV can pick.
-const AD_TOPIC_QUESTION = {
+const AD_TOPICS = {
+  ok: 'A normal legitimate product or business of any kind (software, SaaS, services, agencies, education, developer tooling for blockchains, payments or security)',
+  crypto: 'Cryptocurrency trading, tokens, coins, NFT or airdrop promotion, crypto investing or yield schemes',
+  gambling: 'Gambling, betting, casinos, lotteries or sweepstakes',
+  adult: 'Adult or sexual content, dating for sex, NSFW generators',
+  fraud: 'Scams, fake reviews or followers, spam, phishing, account or document selling, get-rich-quick, deceptive or illegal products',
+};
+// Two questions, both must pass: what the linked website is about, and what the ad text itself
+// promotes. With the site as context JEV judges the site and misses a casino headline on a normal
+// site; the ad text alone reads as spam too easily, so it's judged with the site as background.
+const AD_SITE_QUESTION = {
   type: 'choice',
-  instructions: 'A company wants to buy a sponsor ad on DevHunt, a site for developer tools. Classify what the advertised product is mainly about.',
-  criteria: {
-    ok: 'A normal legitimate product or business of any kind (software, SaaS, services, agencies, education, developer tooling for blockchains, payments or security)',
-    crypto: 'Cryptocurrency trading, tokens, coins, NFT or airdrop promotion, crypto investing or yield schemes',
-    gambling: 'Gambling, betting, casinos, lotteries or sweepstakes',
-    adult: 'Adult or sexual content, dating for sex, NSFW generators',
-    fraud: 'Scams, fake reviews or followers, spam, phishing, account or document selling, get-rich-quick, deceptive or illegal products',
-  },
+  instructions: 'A company wants to buy a sponsor ad on DevHunt, a site for developer tools. Classify what the advertised website and product are mainly about.',
+  criteria: AD_TOPICS,
+};
+const AD_COPY_QUESTION = {
+  type: 'choice',
+  instructions:
+    'A company wants to buy a sponsor ad on DevHunt, a site for developer tools. Classify what the AD TEXT (name, headline, description) itself promotes. The website text is background only: if the ad text promotes something different from the website, judge the ad text.',
+  criteria: AD_TOPICS,
 };
 const BLOCK_PROBABILITY = 0.6;
 
-export type AdModeration = { ok: boolean; topic: string | null; probability: number | null; jev: boolean };
+export type AdModeration = { ok: boolean; topic: string | null; probability: number | null; jev: boolean; on?: 'site' | 'copy' };
 
-export async function moderateAd(ad: { url: string; name: string; tagline: string; about?: string }): Promise<AdModeration> {
-  const state = [`Website: ${ad.url}`, `Name: ${ad.name}`, `Ad headline: ${ad.tagline}`, `About: ${(ad.about ?? '').slice(0, 2000)}`].join('\n');
-  const answers = await jevAsk(state, { topic: AD_TOPIC_QUESTION }, 10000);
-  if (!answers) return { ok: true, topic: null, probability: null, jev: false }; // JEV down: allow, it's flagged in Discord
-  const topic = typeof answers.topic?.choice === 'string' ? (answers.topic.choice as string) : null;
-  const probability = topic ? Number(answers.topic?.probabilities?.[topic] ?? answers.topic?.confidence) : NaN;
-  const p = Number.isFinite(probability) ? probability : null;
-  return { ok: !topic || topic === 'ok' || (p ?? 0) < BLOCK_PROBABILITY, topic, probability: p, jev: true };
+// `website`: the linked page's text (title, description, content) when we have it.
+export async function moderateAd(ad: { url: string; name: string; tagline: string; description?: string | null; website?: string | null }): Promise<AdModeration> {
+  const state = [
+    `Ad name: ${ad.name}`,
+    `Ad headline: ${ad.tagline}`,
+    `Ad description: ${ad.description ?? ''}`,
+    `Links to: ${ad.url}`,
+    `Website text: ${(ad.website ?? '').slice(0, 2000)}`,
+  ].join('\n');
+  const answers = await jevAsk(state, { site: AD_SITE_QUESTION, copy: AD_COPY_QUESTION }, 10000);
+  if (!answers) return { ok: true, topic: null, probability: null, jev: false }; // JEV down: callers decide (flagged in Discord)
+  const verdicts = (['copy', 'site'] as const).map(on => {
+    const topic = typeof answers[on]?.choice === 'string' ? (answers[on].choice as string) : null;
+    const probability = topic ? Number(answers[on]?.probabilities?.[topic] ?? answers[on]?.confidence) : NaN;
+    const p = Number.isFinite(probability) ? probability : null;
+    return { on, topic, probability: p, flagged: !!topic && topic !== 'ok' && (p ?? 0) >= BLOCK_PROBABILITY };
+  });
+  const bad = verdicts.find(v => v.flagged);
+  const shown = bad ?? verdicts[1];
+  return { ok: !bad, topic: shown.topic, probability: shown.probability, jev: true, on: shown.on };
+}
+
+// Re-check after the advertiser changes an ad (before paying, or while it's live). JEV always gets the
+// linked page as context: short ad copy on its own reads as spam too easily, and a swapped-in website
+// is judged on what it says, not just its address. A new link that can't be read is refused (topic
+// 'unreadable'); an unchanged one is judged on the copy alone.
+export async function moderateAdEdit(next: { url: string; name: string; tagline: string; description: string }, previousUrl: string): Promise<AdModeration> {
+  let website: string | null = null;
+  try {
+    const page = await scrapeWithFirecrawl(next.url);
+    website = [page.title, page.description, page.markdown].filter(Boolean).join('\n');
+  } catch {
+    if (next.url !== previousUrl) return { ok: false, topic: 'unreadable', probability: null, jev: false };
+  }
+  return moderateAd({ ...next, website });
+}
+
+const IMAGE_HOSTS = ['mars-images.imgix.net', 'marscode.s3.eu-north-1.amazonaws.com'];
+
+// http(s) link with a real hostname, or null.
+export function adUrl(raw: string): string | null {
+  try {
+    const u = new URL(/^https?:\/\//i.test(raw.trim()) ? raw.trim() : `https://${raw.trim()}`);
+    return ['http:', 'https:'].includes(u.protocol) && u.hostname.includes('.') ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+// The stored image, null (removed), or a new upload on our image host; false for anything else.
+export function adImage(value: string | null, stored: string | null): string | null | false {
+  if (!value) return null;
+  if (value === stored) return stored;
+  try {
+    const u = new URL(value);
+    return u.protocol === 'https:' && IMAGE_HOSTS.includes(u.hostname) ? value : false;
+  } catch {
+    return false;
+  }
 }
 
 // Name + headline for the ad, written by the LLM from the scraped page (falls back to the page title).
@@ -77,7 +138,7 @@ export async function draftAds(userId: string, url: string, kinds: AdKind[]) {
   const [logo, image, moderation] = await Promise.all([
     rehostImage(page.favicon || `https://www.google.com/s2/favicons?domain=${host}&sz=128`, 'w=128').catch(() => null),
     kinds.includes('newsletter') && page.ogImage ? rehostImage(page.ogImage, 'w=600').catch(() => null) : Promise.resolve(null),
-    moderateAd({ url: page.url, ...copy, about: `${page.description ?? ''}\n${page.markdown ?? ''}` }),
+    moderateAd({ url: page.url, ...copy, website: [page.title, page.description, page.markdown].filter(Boolean).join('\n') }),
   ]);
   const status = moderation.ok ? 'draft' : 'blocked';
   const { data, error } = await serviceClient

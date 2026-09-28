@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const ad = ads[0];
     if (!moderation.ok) {
       await notifyAdDiscord(
-        `🚫 **Sponsor ad refused** (${moderation.topic}, ${Math.round((moderation.probability ?? 0) * 100)}%): ${ad.name} · "${ad.tagline}" · ${ad.url} by ${user.email}. Wrong call? Flip ad_slots ${ads.map(a => `#${a.id}`).join(', ')} to 'draft'.`,
+        `🚫 **Sponsor ad refused** (${moderation.topic} in the ${moderation.on === 'site' ? 'website' : 'ad text'}, ${Math.round((moderation.probability ?? 0) * 100)}%): ${ad.name} · "${ad.tagline}" · ${ad.url} by ${user.email}. Wrong call? Flip ad_slots ${ads.map(a => `#${a.id}`).join(', ')} to 'draft'.`,
       );
       return NextResponse.json({ blocked: true });
     }
