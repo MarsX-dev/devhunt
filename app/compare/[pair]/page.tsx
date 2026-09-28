@@ -28,13 +28,15 @@ export async function generateMetadata({ params: { pair } }: Params): Promise<Me
   if (!c) return { title: 'Page not found - Dev Hunt' };
   const [a, b] = [cleanName(c.a.name), cleanName(c.b.name)];
   const title = `${a} vs ${b}: features, pricing and differences | DevHunt`;
+  const shareImage = { url: `https://devhunt.org/api/og/compare${comparePath(c.a.slug, c.b.slug).slice('/compare'.length)}`, width: 1200, height: 630, alt: title };
   const description = (c.difference ?? `Compare ${a} and ${b} side by side: what each does, pricing and what developers pick them for.`).slice(0, 160);
   return {
     title,
     description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: { canonical: comparePath(c.a.slug, c.b.slug) },
-    openGraph: { title, description, url: `https://devhunt.org${comparePath(c.a.slug, c.b.slug)}`, images: ['https://devhunt.org/devhuntog.png?v=2'] },
+    openGraph: { title, description, url: `https://devhunt.org${comparePath(c.a.slug, c.b.slug)}`, images: [shareImage] },
+    twitter: { card: 'summary_large_image', title, description, images: [shareImage] },
   };
 }
 

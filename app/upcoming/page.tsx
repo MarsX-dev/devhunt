@@ -16,7 +16,7 @@ import ScrollToHash from '@/components/ui/ScrollToHash';
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
   description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
-  ogImage: 'https://devhunt.org/devhuntog.png?v=2',
+  ogImage: 'https://devhunt.org/api/og/home',
 };
 
 export const metadata = {

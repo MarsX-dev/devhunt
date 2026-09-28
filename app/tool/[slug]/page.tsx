@@ -60,6 +60,8 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
   if (!tool) return { title: 'Page not found - Dev Hunt' };
 
   const description = metaDescription(tool.slogan, tool.description);
+  // Branded card with the first screenshot (app/api/og/tool).
+  const shareImage = { url: `https://devhunt.org/api/og/tool/${encodeURIComponent(slug)}`, width: 1200, height: 630, alt: `${tool.name} on DevHunt` };
   return {
     title: `${tool?.name} - ${tool?.slogan}`,
     description,
@@ -71,14 +73,14 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
       type: 'article',
       title: `${tool?.name} - ${tool?.slogan}`,
       description,
-      images: tool?.asset_urls ?? [],
+      images: [shareImage],
       url: `https://devhunt.org/tool/${slug}`,
     },
     twitter: {
       title: `${tool?.name} - ${tool?.slogan}`,
       description,
       card: 'summary_large_image',
-      images: tool?.asset_urls ?? [],
+      images: [shareImage],
     },
   };
 }

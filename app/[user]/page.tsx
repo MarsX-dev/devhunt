@@ -61,6 +61,7 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
 
   const name = profile?.full_name || `@${username}`;
   const title = `${name} on DevHunt`;
+  const shareImage = { url: `https://devhunt.org/api/og/user/${encodeURIComponent(username)}`, width: 1200, height: 630, alt: title };
   const description = profile?.headline
     ? `${name} - ${profile.headline}. Dev tools they launched and upvoted on DevHunt.`
     : `Dev tools ${name} launched and upvoted on DevHunt.`;
@@ -75,14 +76,14 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
       type: 'article',
       title,
       description,
-      images: [(profile?.avatar_url as string) || ''],
+      images: [shareImage],
       url: `https://devhunt.org/${decodeURIComponent(user)}`,
     },
     twitter: {
       title,
       description,
       card: 'summary_large_image',
-      images: [profile?.avatar_url ?? ''],
+      images: [shareImage],
     },
   };
 }

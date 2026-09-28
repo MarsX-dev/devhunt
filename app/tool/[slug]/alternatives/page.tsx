@@ -27,6 +27,7 @@ export async function generateMetadata({ params: { slug } }: Params): Promise<Me
   const name = cleanName(data.tool.name);
   const count = (data.profile?.compare.length ?? 0) + data.more.length;
   const title = `Best ${name} Alternatives in ${year()} | DevHunt`;
+  const shareImage = { url: `https://devhunt.org/api/og/alternatives/${encodeURIComponent(data.tool.slug)}`, width: 1200, height: 630, alt: title };
   const description = `${count} ${name} alternatives developers use, with how each one compares${data.tool.slogan ? ` to ${name}: ${data.tool.slogan}` : ''}.`.slice(0, 160);
   return {
     title,
@@ -35,7 +36,8 @@ export async function generateMetadata({ params: { slug } }: Params): Promise<Me
     alternates: { canonical: `/tool/${data.tool.slug}/alternatives` },
     // Thin pages (no picked alternatives and few category peers) stay out of the index.
     robots: (data.profile?.compare.length ?? 0) >= 2 || data.more.length >= 5 ? undefined : { index: false, follow: true },
-    openGraph: { title, description, url: `https://devhunt.org/tool/${data.tool.slug}/alternatives`, images: ['https://devhunt.org/devhuntog.png?v=2'] },
+    openGraph: { title, description, url: `https://devhunt.org/tool/${data.tool.slug}/alternatives`, images: [shareImage] },
+    twitter: { card: 'summary_large_image', title, description, images: [shareImage] },
   };
 }
 

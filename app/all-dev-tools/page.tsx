@@ -8,7 +8,7 @@ import ListPagination from '@/components/ui/ListPagination';
 import { getLeaderboardPage, LIST_PAGE_SIZE, pageFromParam } from '@/utils/toolLists';
 
 const description = 'A launchpad for dev tools, built by developers for developers, open source, and fair.';
-const ogImage = 'https://devhunt.org/devhuntog.png?v=2';
+const ogImage = 'https://devhunt.org/api/og/home';
 
 export async function generateMetadata({ searchParams }: { searchParams: { page?: string } }): Promise<Metadata> {
   const page = pageFromParam(searchParams?.page);

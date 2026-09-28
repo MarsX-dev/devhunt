@@ -21,14 +21,15 @@ export async function generateMetadata({ params: { slug }, searchParams }: Param
   if (!name) return { title: '404: This page could not be found.', description: '' };
   const page = pageFromParam(searchParams?.page);
   const title = `Best ${name} Tools${page > 1 ? ` - Page ${page}` : ''} | DevHunt`;
+  const shareImage = { url: `https://devhunt.org/api/og/category/${slug}`, width: 1200, height: 630, alt: title };
   const description = `${categoryDescription(name)} The best ${name} dev tools launched on DevHunt, ranked by developer upvotes.`;
   return {
     title,
     description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: { canonical: page > 1 ? `/tools/${slug}?page=${page}` : `/tools/${slug}` },
-    openGraph: { title, description, images: ['https://devhunt.org/devhuntog.png?v=2'], url: `https://devhunt.org/tools/${slug}` },
-    twitter: { card: 'summary_large_image', title, description, images: ['https://devhunt.org/devhuntog.png?v=2'] },
+    openGraph: { title, description, images: [shareImage], url: `https://devhunt.org/tools/${slug}` },
+    twitter: { card: 'summary_large_image', title, description, images: [shareImage] },
   };
 }
 
