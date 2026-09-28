@@ -157,7 +157,16 @@ export async function activateAd(session: Stripe.Checkout.Session, source: 'webh
   if (!rows.length) return { status: 'invalid' as const };
 
   const subId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
-  const sub = subId ? await stripe().subscriptions.retrieve(subId) : null;
+  // Only for the renewal date: the ad goes live even if this lookup fails (the date then arrives with
+  // the next customer.subscription.updated event).
+  const sub = subId
+    ? await stripe()
+        .subscriptions.retrieve(subId)
+        .catch(async err => {
+          await logPaymentEvent({ event: 'ad_subscription_lookup_failed', level: 'warn', stripeSessionId: session.id, details: { message: (err as Error).message } });
+          return null;
+        })
+    : null;
   const email = session.customer_details?.email;
   let activated = 0;
   let noSlot = 0;
