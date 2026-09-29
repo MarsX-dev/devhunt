@@ -41,6 +41,7 @@ interface PublicStats {
   unique_visitors_all_time: number;
   tool_impressions_all_time: number;
   tools_launched: number;
+  tools_total: number;
   users: number;
   launch_impressions_median: number;
   first_launch: string;
@@ -52,7 +53,7 @@ const getPublicStats = unstable_cache(
     if (error) throw new Error(error.message); // thrown, so a failure isn't cached for 10 minutes
     return data as unknown as PublicStats;
   },
-  ['public-stats-v3'],
+  ['public-stats-v4'],
   { revalidate: 600 },
 );
 
@@ -151,7 +152,7 @@ function DayBars({
                       )}
               <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-mono text-[11px] text-slate-300 group-hover:block">
                 <div className="text-slate-500">{dayLabel(d.day)}</div>
-                {off ? (estimate && est(d) ? `${estimate.tip(d)} (estimate)` : 'not tracked yet') : tip(d)}
+                {off ? (estimate && est(d) ? estimate.tip(d) : 'not tracked yet') : tip(d)}
               </div>
             </div>
           );
@@ -225,9 +226,14 @@ export default async function StatsPage() {
   const visitors = series(daily, s.visitors_since, d => d.visitors, d => d.visitors_est);
   const pageviews = series(daily, s.visitors_since, d => d.pageviews, d => d.pageviews_est);
   const toolImpr = series(daily, s.impressions_since, d => d.tool_impressions, d => d.tool_impressions_est);
-  const adImpr = series(daily, s.ads_since, d => Number(d.ad_impressions_web) + Number(d.ad_impressions_email));
+  // Ads went live on ads_since, so earlier days have no ad impressions. They're projected (and shown
+  // as projected): site ad impressions per page view, the lowest daily ratio seen since then (the
+  // first, partial ad day included) to stay on the safe side, times that day's page views.
+  const adBasis = daily.filter(d => s.ads_since && d.day >= s.ads_since);
+  const adPerView = Math.min(...adBasis.filter(d => Number(d.pageviews)).map(d => Number(d.ad_impressions_web) / Number(d.pageviews)), Infinity);
+  const adProjected = (d: Day) => (Number.isFinite(adPerView) ? Math.round(adPerView * Number(Number(d.pageviews) || d.pageviews_est)) : 0);
+  const adImpr = series(daily, s.ads_since, d => Number(d.ad_impressions_web) + Number(d.ad_impressions_email), adProjected);
   const signups = daily.reduce((sum, d) => sum + Number(d.signups), 0);
-  const launches = daily.reduce((sum, d) => sum + Number(d.launches), 0);
   const submissions = daily.reduce((sum, d) => sum + Number(d.submissions), 0);
   const countryTotal = Math.max(1, visitors.total);
   const maxCountry = Math.max(1, ...s.countries.map(c => Number(c.visitors)));
@@ -236,9 +242,9 @@ export default async function StatsPage() {
     { label: 'visitors', value: short(visitors.withEstimates), total: short(s.unique_visitors_all_time) },
     { label: 'tool_impressions', value: short(toolImpr.withEstimates), total: short(s.tool_impressions_all_time) },
     { label: 'new_developers', value: `+${fmt(signups)}`, total: short(s.users) },
-    { label: 'tools_launched', value: fmt(launches), total: fmt(s.tools_launched), hint: `${fmt(submissions)} submitted` },
+    { label: 'tools_launched', value: fmt(submissions), total: fmt(s.tools_total) }, // every tool submitted, paid or free
     { label: 'page_views', value: short(pageviews.withEstimates), hint: `${(pageviews.total / Math.max(1, visitors.total)).toFixed(1)} per visit` },
-    { label: 'ad_impressions', value: short(adImpr.total), hint: s.ads_since ? `ads started ${dayLabel(s.ads_since)}` : undefined },
+    { label: 'ad_impressions', value: short(adImpr.withEstimates), hint: s.ads_since && adImpr.estimated ? `projected before ${dayLabel(s.ads_since)}` : undefined },
     // The newsletter goes to every registered account.
     { label: 'newsletter', value: short(s.users), hint: 'subscribers, weekly' },
     { label: 'domain_rating', value: DOMAIN_RATING, hint: 'ahrefs' },
@@ -289,7 +295,7 @@ export default async function StatsPage() {
           label="Unique visitors per day"
           parts={[{ value: d => d.visitors, className: 'bg-orange-400/80 group-hover:bg-orange-300' }]}
           tip={d => `${fmt(d.visitors)} visitors · ${fmt(d.pageviews)} page views`}
-          estimate={{ value: d => d.visitors_est, tip: d => `≈${fmt(d.visitors_est)} visitors · ≈${fmt(d.pageviews_est)} page views` }}
+          estimate={{ value: d => d.visitors_est, tip: d => `≈${fmt(d.visitors_est)} visitors · ≈${fmt(d.pageviews_est)} page views (estimate)` }}
         />
       </div>
 
@@ -310,7 +316,7 @@ export default async function StatsPage() {
             height="h-32"
             parts={[{ value: d => d.tool_impressions, className: 'bg-orange-400/80 group-hover:bg-orange-300' }]}
             tip={d => `${fmt(d.tool_impressions)} tool impressions`}
-            estimate={{ value: d => d.tool_impressions_est, tip: d => `≈${fmt(d.tool_impressions_est)} tool impressions` }}
+            estimate={{ value: d => d.tool_impressions_est, tip: d => `≈${fmt(d.tool_impressions_est)} tool impressions (estimate)` }}
           />
         </div>
         <div>
@@ -323,6 +329,9 @@ export default async function StatsPage() {
                 </span>
                 <span className="flex items-center gap-1">
                   <i className="h-2 w-2 rounded-sm bg-amber-200/80" /> newsletter
+                </span>
+                <span className="flex items-center gap-1">
+                  <i className="h-2 w-2 rounded-sm bg-slate-600" /> projected
                 </span>
               </span>
             }
@@ -337,6 +346,7 @@ export default async function StatsPage() {
               { value: d => d.ad_impressions_email, className: 'bg-amber-200/80' },
             ]}
             tip={d => `${fmt(d.ad_impressions_web)} on the site · ${fmt(d.ad_impressions_email)} in the newsletter`}
+            estimate={{ value: adProjected, tip: d => `≈${fmt(adProjected(d))} projected: ads started ${s.ads_since ? dayLabel(s.ads_since) : 'later'}` }}
           />
         </div>
       </div>
@@ -401,7 +411,7 @@ export default async function StatsPage() {
       <p className="mt-12 font-mono text-[11px] text-slate-500">
         Grey bars are estimates for the days before our own counters started: each weekly launch batch collects about 50–60K impressions, almost
         all in its launch week, spread over the days by daily sign-ups; visitors follow from the visitor-to-impression ratio we now measure. Dashed days:
-        that counter didn&apos;t exist yet (sponsor ads started Sep 28). Visitors before first-party tracking started (Sep 2026) come from our previous analytics.
+        that counter didn&apos;t exist yet. Sponsor ads started Sep 28; grey ad bars before that are projected from the lowest daily ad-impressions-per-page-view ratio measured since then. Visitors before first-party tracking started (Sep 2026) come from our previous analytics.
       </p>
     </section>
   );
