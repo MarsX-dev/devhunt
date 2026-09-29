@@ -86,7 +86,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
         First-party page views, visitors, countries, the submit funnel, sponsor ads and moderation. Counted without cookies; bots and automated browsers are skipped.
       </PageHeader>
 
-      <nav className="mt-6 flex gap-2 font-mono text-xs">
+      <nav className="sticky top-[49px] z-20 -mx-4 mt-6 flex gap-2 border-b border-slate-800/70 bg-slate-900/80 px-4 py-2.5 font-mono text-xs backdrop-blur-md">
         {RANGES.map(r => (
           <a
             key={r}
@@ -178,7 +178,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
           </ul>
         </div>
       </div>
-      <RevenueReport />
+      <RevenueReport days={days} />
       <FunnelReport days={days} step={searchParams?.step} />
       <AdsReport days={days} />
       <ModerationReport days={days} />
