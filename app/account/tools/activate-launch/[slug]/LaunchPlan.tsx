@@ -29,6 +29,8 @@ interface Week { startDate: Date; endDate: Date }
 
 const PAID_WEEKS = 4;
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-US');
+// Rounded for ranges: 5,137 -> 5K, 1,035 -> 1K, 22,979 -> 23K.
+const approx = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}K` : fmtNum(Math.round(n / 100) * 100));
 const short = (n: number) => (n >= 100_000 ? new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n) : fmtNum(n));
 
 // Fallback numbers for the pitch when the live showcase is unavailable (from the database on
@@ -73,18 +75,25 @@ function Examples({ tools, label }: { tools: ShowcaseTool[]; label: string }) {
 // The newsletter as subscribers get it (this week's issue), loaded only when opened.
 function EmailPreview() {
   const [open, setOpen] = useState(false);
+  // The email is 600px wide: render it at that width and scale it down to fit the column.
+  const [scale, setScale] = useState(1);
+  const frameBox = useCallback((el: HTMLDivElement | null) => {
+    if (el) setScale(Math.min(1, el.clientWidth / 600));
+  }, []);
   return (
     <div className="mt-3">
       <button onClick={() => setOpen(v => !v)} className="text-sm text-orange-400 hover:text-orange-300" aria-expanded={open}>
         {open ? 'Hide the email ↑' : 'Preview the email ↓'}
       </button>
       {open && (
-        <iframe
-          src="/api/newsletter/preview"
-          title="DevHunt launch-week newsletter"
-          className="mt-3 h-[520px] w-full rounded-xl border border-slate-800 bg-white"
-          loading="lazy"
-        />
+        <div ref={frameBox} className="mt-3 overflow-hidden rounded-xl border border-slate-800" style={{ height: 560 }}>
+          <iframe
+            src="/api/newsletter/preview"
+            title="DevHunt launch-week newsletter"
+            className="bg-[#11172c]"
+            style={{ width: 600, height: 560 / scale, transform: `scale(${scale})`, transformOrigin: 'top left', border: 0 }}
+          />
+        </div>
       )}
     </div>
   );
@@ -138,14 +147,14 @@ function buildPerks({ showcase, users, other }: { showcase: LaunchShowcase | nul
   return [
     {
       icon: Trophy,
-      stat: `${short(winners.low)}–${short(winners.high)} impressions`,
+      stat: `${approx(winners.low)}–${approx(winners.high)} impressions`,
       title: 'if you finish top 3',
       body: 'That is the typical range for a weekly top-3 tool, and the winner badge stays on your page for good. The best ones keep growing for years:',
       extra: <Examples tools={winners.best} label="Top-3 tools, impressions so far" />,
     },
     {
       icon: Home,
-      stat: `${short(paid.low)}–${short(paid.high)} impressions`,
+      stat: `${approx(paid.low)}–${approx(paid.high)} impressions`,
       title: 'from a week on the home page',
       body: 'The typical range for a paid launch, featured where every visitor lands. The best recent ones went far beyond:',
       extra: <Examples tools={paid.best} label="Best paid launches, last 12 months" />,
@@ -371,13 +380,13 @@ export default function LaunchPlan({
           {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
           <div className="mt-10 grid gap-10 md:grid-cols-[1fr_360px] md:gap-12">
-            <ul className="space-y-6">
+            <ul className="min-w-0 space-y-6">
               {perks.map(({ icon: Icon, stat, title, body, extra }) => (
                 <li key={title} className="flex gap-x-4">
                   <span className="flex h-10 w-10 flex-none items-center justify-center rounded-lg border border-slate-800 bg-slate-800/50 text-orange-400">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-slate-100">
                       <span className="font-semibold text-slate-50">{stat}</span> {title}
                     </p>
