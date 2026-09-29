@@ -6,6 +6,7 @@ import FunnelReport from './FunnelReport';
 import AdsReport from './AdsReport';
 import ModerationReport from './ModerationReport';
 import RevenueReport from './RevenueReport';
+import SectionMenu from './SectionMenu';
 import { isAdmin } from '@/utils/server/admin';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -21,6 +22,16 @@ interface Analytics {
   unique_visitors_all_time: number;
 }
 
+const SECTIONS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'visitors', label: 'Visitors' },
+  { id: 'countries', label: 'Countries & pages' },
+  { id: 'revenue', label: 'Revenue' },
+  { id: 'revenue-all-time', label: 'All-time revenue' },
+  { id: 'funnel', label: 'Submit funnel' },
+  { id: 'ads', label: 'Sponsor ads' },
+  { id: 'moderation', label: 'Moderation' },
+];
 const RANGES = [1, 7, 30, 90]; // days; 1 = last 24 hours, hour by hour
 const fmt = (n: number) => Number(n).toLocaleString('en-US');
 const countryName = (code: string) => {
@@ -81,7 +92,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
   ];
 
   return (
-    <section className="container-custom-screen mt-10 mb-20">
+    <section id="overview" className="container-custom-screen mt-10 mb-20 scroll-mt-28">
+      <SectionMenu items={SECTIONS} />
       <PageHeader eyebrow="Internal" title="Analytics">
         First-party page views, visitors, countries, the submit funnel, sponsor ads and moderation. Counted without cookies; bots and automated browsers are skipped.
       </PageHeader>
@@ -108,7 +120,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
         ))}
       </dl>
 
-      <div className="mt-12">
+      <div id="visitors" className="mt-12 scroll-mt-28">
         <SectionLabel title={`Unique visitors per ${hourly ? 'hour' : 'day'}`} hint={hourly ? 'last 24 hours, UTC' : `last ${days} days, UTC`} />
         {hasData ? (
           <>
@@ -148,7 +160,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
         )}
       </div>
 
-      <div className="mt-12 grid gap-12 md:grid-cols-2">
+      <div id="countries" className="mt-12 grid scroll-mt-28 gap-12 md:grid-cols-2">
         <div>
           <SectionLabel title="Countries" hint="by unique visitors" />
           <ul className="mt-4 space-y-1 text-sm">
@@ -179,9 +191,15 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
         </div>
       </div>
       <RevenueReport days={days} />
-      <FunnelReport days={days} step={searchParams?.step} />
-      <AdsReport days={days} />
-      <ModerationReport days={days} />
+      <div id="funnel" className="scroll-mt-28">
+        <FunnelReport days={days} step={searchParams?.step} />
+      </div>
+      <div id="ads" className="scroll-mt-28">
+        <AdsReport days={days} />
+      </div>
+      <div id="moderation" className="scroll-mt-28">
+        <ModerationReport days={days} />
+      </div>
     </section>
   );
 }
