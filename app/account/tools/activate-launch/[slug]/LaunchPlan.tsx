@@ -137,13 +137,13 @@ interface Perk {
 // What a paid launch gets. Dev tools compete for the weekly top 3 (listed first); "other" tools don't
 // compete and are listed on the home page for free, so their pitch is the newsletter, X and the link.
 function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase | null; users: string; other: boolean; tool: Tool }): Perk[] {
-  const audience = other ? 'users' : 'developers'; // non-dev makers want users, not developers
+  const audience = other ? 'users' : 'startup builders and developers'; // non-dev makers want users, not developers
   const paid = showcase?.paid ?? { low: PERKS.paidLow, high: PERKS.paidHigh, best: [] };
   const winners = showcase?.winners ?? { low: PERKS.winnerLow, high: PERKS.winnerHigh, best: [] };
   const newsletter: Perk = {
     icon: Mail,
     stat: users,
-    title: other ? 'inboxes' : 'developer inboxes',
+    title: 'inboxes',
     body: `Your launch goes out in the DevHunt newsletter to all ${users} registered ${audience} at the start of your launch week.`,
     extra: <EmailPreview tool={tool} />,
   };
@@ -321,7 +321,7 @@ export default function LaunchPlan({
   const other = tool?.moderation === 'not_a_fit';
   const freeDate = (OFFER_FREE_LAUNCH || other) && tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
   const perks = tool ? buildPerks({ showcase, users, other, tool }) : [];
-  const audience = other ? 'users' : 'developers';
+  const audience = other ? 'users' : 'startup builders and developers';
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
 
   if (heldReason) {
