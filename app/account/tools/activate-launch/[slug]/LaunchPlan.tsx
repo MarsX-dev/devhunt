@@ -19,6 +19,8 @@ import { type LaunchShowcase, type ShowcaseTool } from '@/utils/launchShowcase';
 interface Tool {
   id: number;
   name: string;
+  slogan: string | null;
+  logo_url: string | null;
   owner_id: string;
   isPaid: boolean;
   launch_start: string;
@@ -72,27 +74,52 @@ function Examples({ tools, label }: { tools: ShowcaseTool[]; label: string }) {
   );
 }
 
-// The newsletter as subscribers get it (this week's issue), loaded only when opened.
-function EmailPreview() {
+// A mock of the launch-week newsletter with the maker's own tool in the list and the others blurred.
+function EmailPreview({ tool }: { tool: { name: string; slogan: string | null; logo_url: string | null } }) {
   const [open, setOpen] = useState(false);
-  // The email is 600px wide: render it at that width and scale it down to fit the column.
-  const [scale, setScale] = useState(1);
-  const frameBox = useCallback((el: HTMLDivElement | null) => {
-    if (el) setScale(Math.min(1, el.clientWidth / 600));
-  }, []);
+  const blurred = (idx: number) => (
+    <div key={idx} className="flex items-center gap-x-3 px-4 py-3">
+      <span className="h-10 w-10 flex-none rounded-lg bg-slate-600/60 blur-[2px]" />
+      <div className="flex-1 space-y-1.5 blur-[3px]">
+        <span className="block h-3 rounded bg-slate-400/60" style={{ width: `${40 + ((idx * 17) % 30)}%` }} />
+        <span className="block h-2.5 rounded bg-slate-600/60" style={{ width: `${65 + ((idx * 11) % 25)}%` }} />
+      </div>
+    </div>
+  );
   return (
     <div className="mt-3">
       <button onClick={() => setOpen(v => !v)} className="text-sm text-orange-400 hover:text-orange-300" aria-expanded={open}>
-        {open ? 'Hide the email ↑' : 'Preview the email ↓'}
+        {open ? 'Hide the email ↑' : 'See your tool in the email ↓'}
       </button>
       {open && (
-        <div ref={frameBox} className="mt-3 overflow-hidden rounded-xl border border-slate-800" style={{ height: 560 }}>
-          <iframe
-            src="/api/newsletter/preview"
-            title="DevHunt launch-week newsletter"
-            className="bg-[#11172c]"
-            style={{ width: 600, height: 560 / scale, transform: `scale(${scale})`, transformOrigin: 'top left', border: 0 }}
-          />
+        <div className="mt-3 overflow-hidden rounded-xl border border-slate-800 bg-[#11172c]">
+          <div className="border-b border-slate-700/60 px-4 py-2.5 text-xs text-slate-400">
+            <span className="font-medium text-slate-200">DevHunt</span> · 🏆 Who will be tool of the week?
+          </div>
+          <div className="px-4 pt-4 text-center">
+            <p className="font-semibold text-slate-50">
+              DevHunt<span className="text-orange-500">_</span>
+            </p>
+            <p className="mt-1 text-sm text-slate-400">This week&apos;s launches</p>
+          </div>
+          <div className="mt-2 divide-y divide-slate-700/40">
+            {blurred(1)}
+            <div className="flex items-center gap-x-3 bg-orange-500/[0.08] px-4 py-3 ring-1 ring-inset ring-orange-500/50">
+              {tool.logo_url ? (
+                <img src={tool.logo_url.replace(/w=\d+/g, 'w=80')} alt="" className="h-10 w-10 flex-none rounded-lg bg-slate-800 object-cover" />
+              ) : (
+                <span className="h-10 w-10 flex-none rounded-lg bg-orange-500/30" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold text-slate-50">{tool.name}</p>
+                {tool.slogan && <p className="truncate text-sm text-slate-400">{tool.slogan}</p>}
+              </div>
+              <span className="flex-none rounded-full bg-orange-500 px-2 py-0.5 text-[11px] font-semibold text-white">You</span>
+            </div>
+            {blurred(2)}
+            {blurred(3)}
+            {blurred(4)}
+          </div>
         </div>
       )}
     </div>
@@ -109,15 +136,16 @@ interface Perk {
 
 // What a paid launch gets. Dev tools compete for the weekly top 3 (listed first); "other" tools don't
 // compete and are listed on the home page for free, so their pitch is the newsletter, X and the link.
-function buildPerks({ showcase, users, other }: { showcase: LaunchShowcase | null; users: string; other: boolean }): Perk[] {
+function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase | null; users: string; other: boolean; tool: Tool }): Perk[] {
+  const audience = other ? 'users' : 'developers'; // non-dev makers want users, not developers
   const paid = showcase?.paid ?? { low: PERKS.paidLow, high: PERKS.paidHigh, best: [] };
   const winners = showcase?.winners ?? { low: PERKS.winnerLow, high: PERKS.winnerHigh, best: [] };
   const newsletter: Perk = {
     icon: Mail,
     stat: users,
-    title: 'developer inboxes',
-    body: 'Your launch goes out in the DevHunt newsletter to every registered developer at the start of your launch week.',
-    extra: <EmailPreview />,
+    title: other ? 'inboxes' : 'developer inboxes',
+    body: `Your launch goes out in the DevHunt newsletter to all ${users} registered ${audience} at the start of your launch week.`,
+    extra: <EmailPreview tool={tool} />,
   };
   const x: Perk = {
     icon: Twitter,
@@ -147,9 +175,9 @@ function buildPerks({ showcase, users, other }: { showcase: LaunchShowcase | nul
   return [
     {
       icon: Trophy,
-      stat: `${approx(winners.low)}–${approx(winners.high)} impressions`,
+      stat: `${approx(winners.low)}–${approx(winners.best[0]?.views ?? 216000)} impressions`,
       title: 'if you finish top 3',
-      body: 'That is the typical range for a weekly top-3 tool, and the winner badge stays on your page for good. The best ones keep growing for years:',
+      body: "Top-3 tools stay on the home page under Past winners for a year, and the #1 of the week stays there for good, so the impressions keep coming long after launch week. Here's where the best ones are now:",
       extra: <Examples tools={winners.best} label="Top-3 tools, impressions so far" />,
     },
     {
@@ -199,7 +227,7 @@ export default function LaunchPlan({
     const browserClient = createBrowserClient();
     const { data } = await browserClient
       .from('products')
-      .select('id, name, owner_id, isPaid, launch_start, paid_launch_date, moderation')
+      .select('id, name, slogan, logo_url, owner_id, isPaid, launch_start, paid_launch_date, moderation')
       .eq('slug', slug)
       .eq('deleted', false)
       .single();
@@ -292,7 +320,8 @@ export default function LaunchPlan({
   // "Other" tools (not for developers) don't compete: they launch free in their own queue, and pay for reach.
   const other = tool?.moderation === 'not_a_fit';
   const freeDate = (OFFER_FREE_LAUNCH || other) && tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
-  const perks = buildPerks({ showcase, users, other });
+  const perks = tool ? buildPerks({ showcase, users, other, tool }) : [];
+  const audience = other ? 'users' : 'developers';
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
 
   if (heldReason) {
@@ -368,11 +397,11 @@ export default function LaunchPlan({
           <div className="max-w-2xl">
             <p className="truncate font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Launch plan · {tool.name}</p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-50 md:text-4xl">
-              Put it in front of {users} developers
+              Put it in front of {users} {audience}
             </h1>
             <p className="mt-3 text-slate-400">
               {other && freeDate
-                ? `${tool.name} gets a free line in "Also launching this week" on the home page on ${freeDate.format('MMM D')}. Upgrade to reach every developer's inbox and our X followers, with a backlink that keeps working after the week is over.`
+                ? `${tool.name} gets a free line in "Also launching this week" on the home page on ${freeDate.format('MMM D')}. Upgrade to reach every user's inbox and our X followers, with a backlink that keeps working after the week is over.`
                 : 'A paid launch is a full week of promotion across everything DevHunt has, plus a backlink that keeps working after the week is over.'}
             </p>
           </div>
@@ -461,7 +490,7 @@ export default function LaunchPlan({
                 <ul className="mt-4 space-y-1.5 text-xs text-slate-400">
                   {[
                     other ? 'A launch week you pick' : 'Home page for the whole week',
-                    `Newsletter to ${users} developers`,
+                    `Newsletter to ${users} ${audience}`,
                     `Post on X to ${PERKS.xFollowers} followers`,
                     `Dofollow backlink, DR ${DOMAIN_RATING}`,
                   ].map(

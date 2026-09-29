@@ -33,6 +33,8 @@ function group(rows: Row[], bestCount = 4): ShowcaseGroup {
   };
 }
 
+const WINNER_EXAMPLES = ['daytona', 'marsxdev', 'pulsetic', 'clerk'];
+
 export const getLaunchShowcase = unstable_cache(
   async (): Promise<LaunchShowcase | null> => {
     const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
@@ -46,8 +48,10 @@ export const getLaunchShowcase = unstable_cache(
     if (!ids.length || !paid?.length) return null;
     const { data: winners } = await serviceClient.from('products').select(columns).in('id', ids).eq('deleted', false).lte('launch_start', weekAgo);
     if (!winners?.length) return null;
-    return { paid: group(paid as Row[]), winners: group(winners as Row[]) };
+    // Hand-picked winner examples (independent, well-known tools), shown by impressions.
+    const featured = group((winners as Row[]).filter(r => WINNER_EXAMPLES.includes(r.slug)));
+    return { paid: group(paid as Row[]), winners: { ...group(winners as Row[]), best: featured.best } };
   },
-  ['launch-showcase-v1'],
+  ['launch-showcase-v2'],
   { revalidate: 86400 },
 );
