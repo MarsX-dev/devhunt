@@ -14,6 +14,7 @@ export interface LatestComment {
   avatar: string;
   content: string; // plain text, max 140 characters
   at: string;
+  maker?: boolean; // not a comment: the tool's maker (content is empty), for tools with no comments yet
 }
 
 export interface RecentActivity {

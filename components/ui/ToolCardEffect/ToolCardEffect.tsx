@@ -48,8 +48,8 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
   function preventDefault(e: MouseEvent) {
     e.preventDefault();
   }
-  // Upvotes in the last 24 hours. The ▲ (same icon as the vote button) keeps it from reading as more
-  // impressions, which it sits next to.
+  // Upvotes in the last 24 hours, with the ▲ of the vote button. On the top 3 it follows the categories,
+  // not the impressions, so it doesn't read as more impressions.
   const todayLabel = `${votesToday} ${votesToday === 1 ? 'upvote' : 'upvotes'} today`;
   const todayBadge = votesToday > 0 && (
     <span
@@ -119,12 +119,12 @@ export default ({ tool, rank, compact = false, votesToday = 0, latestComment, re
                 <Link onClick={preventDefault} href={'/tool/' + tool.slug}>
                   <Title className="line-clamp-1 sm:text-[15px]">{tool.slogan}</Title>
                 </Link>
-                {/* One quiet mono line: pricing · categories · impressions · upvotes today. */}
+                {/* One quiet mono line: impressions · pricing · categories · upvotes today. */}
                 <div className="flex flex-wrap items-center gap-x-2 pt-0.5 font-mono text-xs leading-5 text-slate-500">
                   {[
+                    `${(tool.views_count ?? 0).toLocaleString('en-US')} impressions`,
                     tool.product_pricing_types?.title ?? 'Free',
                     ...(tool.product_categories || []).slice(0, 2).map(c => c.name),
-                    `${(tool.views_count ?? 0).toLocaleString('en-US')} impressions`,
                   ].map((item, idx) => (
                     <Fragment key={idx}>
                       {idx > 0 && <span className="text-slate-700">·</span>}

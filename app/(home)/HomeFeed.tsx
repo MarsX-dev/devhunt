@@ -39,6 +39,13 @@ export default function HomeFeed({
   const [paging, setPaging] = useState({ offset: data.winnersOffset, total: data.winnersTotal, loadingMore: false });
   const contestants = data.contestants;
 
+  // A top-3 tool with no comments yet shows who made it instead: "by [avatar] name".
+  const makerLine = (product: ProductType, idx: number): LatestComment | undefined => {
+    const maker = data.makers?.[product.id];
+    if (idx >= 3 || !maker) return undefined;
+    return { name: maker.name, avatar: maker.avatar, content: '', at: String(product.launch_start), maker: true };
+  };
+
   const card = (product: ProductType, idx: number) => (
     <ToolCardEffect
       key={product.id ?? idx}
@@ -46,7 +53,7 @@ export default function HomeFeed({
       rank={idx + 1}
       compact={idx >= 3}
       votesToday={votesToday[product.id]}
-      latestComment={latestComments[product.id]}
+      latestComment={latestComments[product.id] ?? makerLine(product, idx)}
       revealIndex={idx}
     />
   );

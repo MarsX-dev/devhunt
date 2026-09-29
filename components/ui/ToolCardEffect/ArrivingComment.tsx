@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { type LatestComment, timeAgo } from '@/utils/activity';
 
-// The tool's latest real comment, "arriving" once the card is on screen: a typing bubble first,
+// The tool's latest real comment (or, with `maker`, just "by [avatar] name", shown without typing), "arriving" once the card is on screen: a typing bubble first,
 // then the message. Its space is reserved from the start and it only fades in, so nothing moves.
 export default function ArrivingComment({ comment, active }: { comment: LatestComment; active: boolean }) {
   const [stage, setStage] = useState<'hidden' | 'typing' | 'shown'>('hidden');
 
   useEffect(() => {
     if (!active || stage !== 'hidden') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return setStage('shown');
+    if (comment.maker || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return setStage('shown');
     const typing = setTimeout(() => setStage('typing'), 600 + Math.random() * 1400);
     return () => clearTimeout(typing);
   }, [active, stage]);
@@ -28,9 +28,13 @@ export default function ArrivingComment({ comment, active }: { comment: LatestCo
     >
       {/* A terminal-style reply line under the tool: "↳ name  comment · 2h ago". */}
       <div className="flex min-w-0 items-center gap-x-2 text-[13px] leading-5">
-        <span className="flex-none font-mono text-slate-600" aria-hidden>
-          ↳
-        </span>
+        {comment.maker ? (
+          <span className="flex-none text-slate-500">by</span>
+        ) : (
+          <span className="flex-none font-mono text-slate-600" aria-hidden>
+            ↳
+          </span>
+        )}
         <img
           src={comment.avatar}
           alt=""
@@ -41,8 +45,12 @@ export default function ArrivingComment({ comment, active }: { comment: LatestCo
         {stage === 'shown' ? (
           <>
             <span className="flex-none font-medium text-slate-300">{comment.name}</span>
-            <span className="truncate text-slate-400">{comment.content}</span>
-            <span className="flex-none font-mono text-xs text-slate-600">· {timeAgo(comment.at)}</span>
+            {comment.maker ? null : (
+              <>
+                <span className="truncate text-slate-400">{comment.content}</span>
+                <span className="flex-none font-mono text-xs text-slate-600">· {timeAgo(comment.at)}</span>
+              </>
+            )}
           </>
         ) : (
           <span className="flex h-5 items-center gap-x-1" aria-label="typing">
