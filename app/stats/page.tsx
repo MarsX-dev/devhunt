@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
+import { AUDIENCE } from '@/utils/ads';
 import { DOMAIN_RATING } from '@/utils/siteStats';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -42,6 +43,7 @@ interface PublicStats {
   tool_impressions_all_time: number;
   tools_launched: number;
   tools_total: number;
+  pageviews_tracked: number;
   users: number;
   launch_impressions_median: number;
   first_launch: string;
@@ -53,7 +55,7 @@ const getPublicStats = unstable_cache(
     if (error) throw new Error(error.message); // thrown, so a failure isn't cached for 10 minutes
     return data as unknown as PublicStats;
   },
-  ['public-stats-v4'],
+  ['public-stats-v5'],
   { revalidate: 600 },
 );
 
@@ -78,7 +80,7 @@ function series(daily: Day[], since: string | null, value: (d: Day) => number, e
   return { total, withEstimates: total + estimated, estimated: estimated > 0 };
 }
 
-// Compact stat grid: the last-30-days number big, the since-launch one next to it.
+// Compact stat grid: the last-30-days number big, the since-launch one under it.
 interface Tile {
   label: string;
   value: string;
@@ -91,10 +93,12 @@ function Tiles({ tiles }: { tiles: Tile[] }) {
       {tiles.map(t => (
         <div key={t.label} className="bg-slate-900 px-4 py-3">
           <dt className="text-[11px] text-slate-500">{t.label}</dt>
-          <dd className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
-            <span className="text-xl font-semibold text-slate-50">{t.value}</span>
-            {t.total && <span className="text-xs text-slate-400">{t.total} <span className="text-slate-600">all time</span></span>}
-          </dd>
+          <dd className="mt-0.5 text-xl font-semibold text-slate-50">{t.value}</dd>
+          {t.total && (
+            <dd className="text-[11px] text-slate-400">
+              {t.total} <span className="text-slate-500">all time</span>
+            </dd>
+          )}
           {t.hint && <dd className="text-[11px] text-slate-500">{t.hint}</dd>}
         </div>
       ))}
@@ -238,12 +242,18 @@ export default async function StatsPage() {
   const countryTotal = Math.max(1, visitors.total);
   const maxCountry = Math.max(1, ...s.countries.map(c => Number(c.visitors)));
 
+  // All-time page views: counted since tracking started, plus the old dashboard's monthly figure
+  // (AUDIENCE.pageViewsPerMonth) for every month from the first launch until then. An estimate (~).
+  const trackedFrom = s.visitors_since ? Date.parse(s.visitors_since) : Date.now();
+  const monthsBefore = Math.max(0, (trackedFrom - Date.parse(s.first_launch)) / (30.44 * 86400000));
+  const pageviewsAllTime = Number(s.pageviews_tracked) + monthsBefore * AUDIENCE.pageViewsPerMonth;
+
   const tiles: Tile[] = [
     { label: 'visitors', value: short(visitors.withEstimates), total: short(s.unique_visitors_all_time) },
     { label: 'tool_impressions', value: short(toolImpr.withEstimates), total: short(s.tool_impressions_all_time) },
     { label: 'new_developers', value: `+${fmt(signups)}`, total: short(s.users) },
     { label: 'tools_launched', value: fmt(submissions), total: fmt(s.tools_total) }, // every tool submitted, paid or free
-    { label: 'page_views', value: short(pageviews.withEstimates), hint: `${(pageviews.total / Math.max(1, visitors.total)).toFixed(1)} per visit` },
+    { label: 'page_views', value: short(pageviews.withEstimates), total: `~${short(pageviewsAllTime)}` },
     { label: 'ad_impressions', value: short(adImpr.withEstimates), hint: s.ads_since && adImpr.estimated ? `projected before ${dayLabel(s.ads_since)}` : undefined },
     // The newsletter goes to every registered account.
     { label: 'newsletter', value: short(s.users), hint: 'subscribers, weekly' },
@@ -409,7 +419,7 @@ export default async function StatsPage() {
       </div>
 
       <p className="mt-12 font-mono text-[11px] text-slate-500">
-        Grey bars are estimates for the days before our own counters started: each weekly launch batch collects about 50–60K impressions, almost
+        All-time page views (~) are counted since Sep 27 plus 150K a month before that, from our previous analytics. Grey bars are estimates for the days before our own counters started: each weekly launch batch collects about 50–60K impressions, almost
         all in its launch week, spread over the days by daily sign-ups; visitors follow from the visitor-to-impression ratio we now measure. Dashed days:
         that counter didn&apos;t exist yet. Sponsor ads started Sep 28; grey ad bars before that are projected from the lowest daily ad-impressions-per-page-view ratio measured since then. Visitors before first-party tracking started (Sep 2026) come from our previous analytics.
       </p>
