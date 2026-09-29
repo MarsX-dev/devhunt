@@ -23,6 +23,9 @@ interface Day {
   pageviews: number;
   new_visitors: number;
   tool_impressions: number;
+  visitors_est: number; // estimates for days before a counter existed (stats_estimates), 0 if none
+  pageviews_est: number;
+  tool_impressions_est: number;
   ad_impressions_web: number;
   ad_impressions_email: number;
   launches: number;
@@ -50,7 +53,7 @@ const getPublicStats = unstable_cache(
     if (error) throw new Error(error.message); // thrown, so a failure isn't cached for 10 minutes
     return data as unknown as PublicStats;
   },
-  ['public-stats-v2'],
+  ['public-stats-v3'],
   { revalidate: 600 },
 );
 
@@ -97,6 +100,7 @@ function DayBars({
   since,
   parts,
   tip,
+  estimate,
   label,
   height = 'h-40',
 }: {
@@ -104,11 +108,13 @@ function DayBars({
   since: string | null;
   parts: { value: (d: Day) => number; className: string }[];
   tip: (d: Day) => string;
+  estimate?: { value: (d: Day) => number; tip: (d: Day) => string };
   label: string;
   height?: string;
 }) {
   const total = (d: Day) => parts.reduce((sum, p) => sum + Number(p.value(d)), 0);
-  const max = Math.max(1, ...daily.map(total));
+  const est = (d: Day) => (estimate && (!since || d.day < since) ? Number(estimate.value(d)) : 0);
+  const max = Math.max(1, ...daily.map(total), ...daily.map(est));
   const ticks = [0, 7, 14, 21, daily.length - 1];
   return (
     <>
@@ -117,7 +123,9 @@ function DayBars({
           const off = !since || d.day < since;
           return (
             <div key={d.day} className="group relative flex h-full flex-1 items-end">
-              {off ? (
+              {off && est(d) ? (
+                <div className="w-full rounded-t-[4px] bg-slate-600/60 group-hover:bg-slate-500" style={{ height: `${Math.max(1, (est(d) / max) * 100)}%` }} />
+              ) : off ? (
                 <div className="h-full w-full rounded-t-[4px] border border-dashed border-slate-800/80" />
               ) : total(d) ? (
                 <div className="flex w-full flex-col-reverse overflow-hidden rounded-t-[4px]" style={{ height: `${Math.max(1, (total(d) / max) * 100)}%` }}>
@@ -130,7 +138,7 @@ function DayBars({
               )}
               <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-mono text-[11px] text-slate-300 group-hover:block">
                 <div className="text-slate-500">{dayLabel(d.day)}</div>
-                {off ? 'not tracked yet' : tip(d)}
+                {off ? (est(d) ? `${estimate!.tip(d)} (estimate)` : 'not tracked yet') : tip(d)}
               </div>
             </div>
           );
@@ -254,19 +262,39 @@ export default async function StatsPage() {
       </div>
 
       <div className="mt-12">
-        <SectionLabel title="Unique visitors per day" hint="last 30 days, UTC" />
+        <SectionLabel
+          title="Unique visitors per day"
+          hint={
+            <span className="flex items-center gap-3">
+              <span className="flex items-center gap-1">
+                <i className="h-2 w-2 rounded-sm bg-orange-400/80" /> counted
+              </span>
+              <span className="flex items-center gap-1">
+                <i className="h-2 w-2 rounded-sm bg-slate-600" /> estimate, before tracking
+              </span>
+            </span>
+          }
+        />
         <DayBars
           daily={daily}
           since={s.visitors_since}
           label="Unique visitors per day"
           parts={[{ value: d => d.visitors, className: 'bg-orange-400/80 group-hover:bg-orange-300' }]}
           tip={d => `${fmt(d.visitors)} visitors · ${fmt(d.pageviews)} page views`}
+          estimate={{ value: d => d.visitors_est, tip: d => `≈${fmt(d.visitors_est)} visitors · ≈${fmt(d.pageviews_est)} page views` }}
         />
       </div>
 
       <div className="mt-12 grid gap-12 md:grid-cols-2">
         <div>
-          <SectionLabel title="Tool impressions per day" hint="all tools" />
+          <SectionLabel
+            title="Tool impressions per day"
+            hint={
+              <span className="flex items-center gap-1">
+                <i className="h-2 w-2 rounded-sm bg-slate-600" /> estimate
+              </span>
+            }
+          />
           <DayBars
             daily={daily}
             since={s.impressions_since}
@@ -274,6 +302,7 @@ export default async function StatsPage() {
             height="h-32"
             parts={[{ value: d => d.tool_impressions, className: 'bg-orange-400/80 group-hover:bg-orange-300' }]}
             tip={d => `${fmt(d.tool_impressions)} tool impressions`}
+            estimate={{ value: d => d.tool_impressions_est, tip: d => `≈${fmt(d.tool_impressions_est)} tool impressions` }}
           />
         </div>
         <div>
@@ -369,7 +398,9 @@ export default async function StatsPage() {
       </div>
 
       <p className="mt-12 font-mono text-[11px] text-slate-500">
-        Dashed days: that counter didn&apos;t exist yet. Visitors before first-party tracking started (Sep 2026) come from our previous analytics.
+        Grey bars are estimates for the days before our own counters started: each weekly launch batch collects about 50–60K impressions, almost
+        all in its launch week, spread over the days by daily sign-ups; visitors follow from the visitor-to-impression ratio we now measure. Dashed days:
+        that counter didn&apos;t exist yet (sponsor ads started Sep 28). Visitors before first-party tracking started (Sep 2026) come from our previous analytics.
       </p>
     </section>
   );
