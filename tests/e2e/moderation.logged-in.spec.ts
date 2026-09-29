@@ -46,7 +46,9 @@ test('non-dev submission is kept out of the competition and offered an Other lis
   const { data } = await serviceDb().from('products').select('deleted, moderation, product_categories(name)').eq('id', body.product.id).single();
   expect(data).toMatchObject({ deleted: false, moderation: 'not_a_fit', product_categories: [{ name: 'Other' }] });
   await page.goto(`/account/tools/activate-launch/${body.product.slug}?new=1`);
-  await expect(page.getByRole('heading', { name: 'Not quite a dev tool' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Get listed for $49' })).toBeVisible();
+  // "Other" tools launch free in their own queue (no votes) and are pitched the paid reach.
+  await expect(page.getByRole('heading', { name: /in front of .* developers/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Keep the free listing on / })).toBeVisible();
+  await expect(page.getByText('if you finish top 3')).toHaveCount(0);
   await expect(page.getByText('Free launch')).toHaveCount(0);
 });

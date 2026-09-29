@@ -13,11 +13,12 @@ describe('dofollow upsell email', () => {
     expect(m.text).toContain('rel="nofollow"');
     expect(m.html).toContain('one more reminder');
   });
-  it('day 7 is the last one; a tool listed in Other gets no launch perks', () => {
+  it('day 7 is the last one; an "other" tool gets the newsletter and X perks, not the home page spotlight', () => {
     const m = renderUpsellEmail({ ...base, stage: 'day7', launchStart: null, notAFit: true });
     expect(m.subject).toBe('Last reminder: a dofollow backlink for Acme <CLI>');
     expect(m.html).toContain('This is the last one.');
     expect(m.html).not.toContain('home page spotlight');
-    expect(m.html).toContain('Get the dofollow link for $49');
+    expect(m.html).toContain('newsletter to 40,000+ developers');
+    expect(m.html).toContain('Upgrade for $49');
   });
 });

@@ -2,7 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { toToolCardProps } from '@/utils/toolCard';
-import { PAST_WINNERS, toToolRow, type ToolRowData } from '@/utils/toolRow';
+import { PAST_WINNERS, TOOL_ROW_COLUMNS, toToolRow, type ToolRowData } from '@/utils/toolRow';
 import { type ProductType } from '@/type';
 
 // The date used to find the running launch week (weeks start on Tuesday; early January still
@@ -19,6 +19,7 @@ export interface HomeData {
   year: number;
   contestants: ProductType[];
   makers: Record<string, { name: string; avatar: string }>; // product id -> maker, for the top 3
+  others: ToolRowData[]; // "other" tools (not for developers) launching now: listed, no votes
   winners: ToolRowData[];
   winnersOffset: number; // raw rows consumed (for "Show more")
   winnersTotal: number;
@@ -32,9 +33,20 @@ export const getHomeData = unstable_cache(
     const today = launchWeekDate();
     const year = today.getFullYear();
     const week = await products.getWeekNumber(today, 2);
-    const [weeks, winnersPage] = await Promise.all([
+    const nowIso = new Date().toISOString();
+    const [weeks, winnersPage, othersResult] = await Promise.all([
       products.getPrevLaunchWeeks(year, 2, week, 1),
       products.getWeeklyWinnersPage(0, PAST_WINNERS + 1), // +1: the running week is left out
+      createBrowserClient()
+        .from('products')
+        .select(TOOL_ROW_COLUMNS)
+        .eq('moderation', 'not_a_fit')
+        .eq('deleted', false)
+        .lte('launch_start', nowIso)
+        .gte('launch_end', nowIso)
+        .order('isPaid', { ascending: false })
+        .order('created_at', { ascending: true })
+        .limit(60),
     ]);
     const isRunningWeek = (row: { week: number; year: number }) => row.week === week && row.year === year;
     const shown = winnersPage.rows.filter(row => !isRunningWeek(row)).slice(0, PAST_WINNERS);
@@ -55,11 +67,12 @@ export const getHomeData = unstable_cache(
       year,
       contestants,
       makers,
+      others: (othersResult.data ?? []).map(toToolRow),
       winners: shown.map(row => toToolRow(row.product)),
       winnersOffset: shown.length + (winnersPage.rows.some(isRunningWeek) ? 1 : 0),
       winnersTotal: winnersPage.total,
     };
   },
-  ['home-data'],
+  ['home-data-v2'],
   { revalidate: 30 },
 );

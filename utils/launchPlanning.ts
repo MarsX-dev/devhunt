@@ -18,21 +18,28 @@ const toPlanned = (w: WeekCount): PlannedWeek => ({
   endDate: new Date(w.endDate).toISOString(),
 });
 
-// Decides where a newly submitted tool launches. `weeks` are upcoming weeks with their tool counts.
+// Decides where a newly submitted tool launches. `weeks` are upcoming weeks with their tool counts
+// (counted per queue: dev tools and "other" tools each have their own `capacity`).
 // - normal: the chosen week if it still has a free slot, otherwise falls back to the free queue.
 // - free:   the nearest week with a free slot.
 // - paid:   parked in the nearest free slot until payment; the chosen week is kept as paidWeek and
 //           applied by the payment activation.
-export function planLaunch(weeks: WeekCount[], selectedWeekKey: string | undefined, submitType: SubmitType, now = new Date()): LaunchPlan {
+export function planLaunch(
+  weeks: WeekCount[],
+  selectedWeekKey: string | undefined,
+  submitType: SubmitType,
+  now = new Date(),
+  capacity = FREE_WEEK_CAPACITY,
+): LaunchPlan {
   const selected = selectedWeekKey ? weeks.find(w => weekKey(w.startDate) === selectedWeekKey) : undefined;
-  const nearestFree = findNearestAvailableDate(weeks.filter(w => new Date(w.startDate) > now), now);
+  const nearestFree = findNearestAvailableDate(weeks.filter(w => new Date(w.startDate) > now), now, capacity);
 
   if (submitType === 'paid') {
     if (!selected || new Date(selected.startDate) <= now) return { ok: false, error: 'Please pick an upcoming launch week.' };
     return { ok: true, launch: toPlanned(nearestFree ?? selected), paidWeek: toPlanned(selected) };
   }
 
-  if (submitType === 'normal' && selected && selected.count < FREE_WEEK_CAPACITY && new Date(selected.startDate) > now) {
+  if (submitType === 'normal' && selected && selected.count < capacity && new Date(selected.startDate) > now) {
     return { ok: true, launch: toPlanned(selected), paidWeek: null };
   }
 

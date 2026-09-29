@@ -159,18 +159,18 @@ export default class ProductsService extends BaseDbService {
     startWeek: number,
     endWeek: number,
     year: number,
+    moderation: 'ok' | 'not_a_fit' = 'ok', // which queue to count; 'not_a_fit' is server-only (get_launch_week_counts)
   ): Promise<{ week: number; startDate: Date; endDate: Date; count: number }[]> {
     const queryProductsCount = async (startWeek: number, endWeek: number, year: number) => {
-      const { data, error } = await this.supabase.rpc('get_products_count_by_week', {
-        start_week: startWeek,
-        end_week: endWeek,
-        year_in: year,
-        start_day: 2, // Tuesday
-      });
+      const args = { start_week: startWeek, end_week: endWeek, year_in: year, start_day: 2 }; // weeks start on Tuesday
+      const { data, error } =
+        moderation === 'ok'
+          ? await this.supabase.rpc('get_products_count_by_week', args)
+          : await this.supabase.rpc('get_launch_week_counts' as never, { ...args, _moderation: moderation } as never);
 
-      if (error !== null) throw new Error(error.message);
+      if (error !== null) throw new Error((error as { message: string }).message);
 
-      return data.map(i => ({
+      return (data as Array<{ week_number: number; start_date: string; end_date: string; product_count: number }>).map(i => ({
         week: i.week_number,
         startDate: new Date(i.start_date),
         endDate: new Date(i.end_date),

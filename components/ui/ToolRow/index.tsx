@@ -10,6 +10,7 @@ interface Props {
   rankDigits?: number; // widest rank in the list, so every row's logo sits at the same x
   showDate?: boolean; // launch date on the right (desktop)
   revealIndex?: number;
+  noVotes?: boolean; // "other" tools don't compete: no vote button or count
 }
 
 const isLive = (tool: ToolRowData, now = Date.now()) =>
@@ -17,7 +18,7 @@ const isLive = (tool: ToolRowData, now = Date.now()) =>
 
 // One line per tool: [rank] logo · name · tagline · [date] · votes. Tools in their launch week get
 // a small upvote button; the rest show their final count. The whole row links to the tool page.
-export default function ToolRow({ tool, rank, rankDigits = 2, showDate = false, revealIndex }: Props) {
+export default function ToolRow({ tool, rank, rankDigits = 2, showDate = false, revealIndex, noVotes = false }: Props) {
   const live = isLive(tool);
   return (
     <li
@@ -44,11 +45,11 @@ export default function ToolRow({ tool, rank, rankDigits = 2, showDate = false, 
           <span className="font-medium text-slate-100">{tool.name}</span>
           {tool.slogan && <span className="text-slate-500"> · {tool.slogan}</span>}
         </Link>
-        {live && <span className="hidden flex-none font-mono text-[11px] text-green-400 sm:block">live</span>}
+        {live && !noVotes && <span className="hidden flex-none font-mono text-[11px] text-green-400 sm:block">live</span>}
         {showDate && tool.launch_start && (
           <span className="hidden flex-none font-mono text-xs text-slate-600 sm:block">{moment.utc(tool.launch_start).format('MMM D, YY')}</span>
         )}
-        {live ? (
+        {noVotes ? null : live ? (
           <span className="relative z-10 flex-none">
             <Votes variant="inline" className="w-14 justify-center" count={tool.votes_count} productId={tool.id} launchDate={tool.launch_date ?? ''} launchEnd={tool.launch_end ?? ''} />
           </span>

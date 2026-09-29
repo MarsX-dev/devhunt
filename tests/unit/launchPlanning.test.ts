@@ -61,3 +61,16 @@ describe('isCheckoutPaid', () => {
     expect(isCheckoutPaid({ status: 'expired', payment_status: 'no_payment_required' })).toBe(false);
   });
 });
+
+describe('planLaunch for "other" tools', () => {
+  it('uses their own weekly capacity', async () => {
+    const { OTHER_WEEK_CAPACITY } = await import('@/utils/launchWeeks');
+    const now = new Date('2026-09-29T12:00:00Z');
+    const weeks = [
+      { week: 40, startDate: '2026-10-06T00:00:00Z', endDate: '2026-10-12T23:59:59Z', count: OTHER_WEEK_CAPACITY },
+      { week: 41, startDate: '2026-10-13T00:00:00Z', endDate: '2026-10-19T23:59:59Z', count: 3 },
+    ];
+    const plan = planLaunch(weeks, undefined, 'free', now, OTHER_WEEK_CAPACITY);
+    expect(plan.ok && plan.launch.week).toBe(41);
+  });
+});

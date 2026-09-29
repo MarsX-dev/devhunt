@@ -16,7 +16,7 @@ import { PAST_WINNERS, toToolRow } from '@/utils/toolRow';
 import { sponsorBefore } from '@/utils/ads';
 
 // Client part of the home page, rendered from server data: this week's contestants (one list, top 3 as
-// taller rows), then `featured`, past winners as rows ("Show more" loads further pages), then `bottom`.
+// taller rows), then this week's "other" tools (compact, no votes), then `featured`, past winners as rows ("Show more" loads further pages), then `bottom`.
 // `children` render under the hero.
 export default function HomeFeed({
   data,
@@ -95,6 +95,17 @@ export default function HomeFeed({
               return [n >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={n} className="py-1" />, card(product, idx)];
             })}
           </ol>
+        )}
+
+        {data.others.length > 0 && (
+          <div id="also-launching" className="mt-14">
+            <SectionLabel title="Also launching this week" hint="Not for developers, so not in the vote" />
+            <ul className="mt-2 grid sm:grid-cols-2 sm:gap-x-6">
+              {data.others.map(tool => (
+                <ToolRow key={tool.id} tool={tool} noVotes />
+              ))}
+            </ul>
+          </div>
         )}
 
         {featured}

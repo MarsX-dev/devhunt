@@ -37,6 +37,15 @@ function useMinuteClock() {
 function StatusPill({ tool, phase, weekRank }: { tool: ProductType; phase: Phase; weekRank?: number }) {
   const now = useMinuteClock();
   const base = 'inline-flex items-center gap-x-2 rounded-full border px-3 py-1 text-xs';
+  // "Other" tools (not for developers) launch without competing: no countdown, votes or rank.
+  if (phase === 'live' && (tool as { moderation?: string }).moderation === 'not_a_fit') {
+    return (
+      <span className={`${base} border-green-500/30 bg-green-500/[0.06] text-slate-300`}>
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
+        <span className="font-medium text-green-300">Launching this week</span>
+      </span>
+    );
+  }
   if (phase === 'live') {
     const left = now ? moment.duration(votingDeadline(moment(now)).diff(moment(now))) : null;
     return (
@@ -142,13 +151,15 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
           Visit website
           <ArrowUpRight className="h-4 w-4" />
         </a>
-        <ButtonUpvote
-          productId={tool.id}
-          count={tool.votes_count}
-          launchDate={tool.launch_date}
-          launchEnd={tool.launch_end as string}
-          votesToday={votesToday}
-        />
+        {(tool as { moderation?: string }).moderation !== 'not_a_fit' && (
+          <ButtonUpvote
+            productId={tool.id}
+            count={tool.votes_count}
+            launchDate={tool.launch_date}
+            launchEnd={tool.launch_end as string}
+            votesToday={votesToday}
+          />
+        )}
       </div>
 
       <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">

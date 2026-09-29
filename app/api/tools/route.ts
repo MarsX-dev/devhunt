@@ -3,6 +3,7 @@ import createSlug from '@/utils/createSlug';
 import { planLaunch, type SubmitType } from '@/utils/launchPlanning';
 import { getRouteUser } from '@/utils/server/auth';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
+import { OTHER_WEEK_CAPACITY } from '@/utils/launchWeeks';
 import { announceNewTool, reportRefusedSubmission } from '@/utils/server/discord';
 import { logModeration } from '@/utils/server/moderationLog';
 import { trackFunnel } from '@/utils/server/funnel';
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
 
   // Moderation (JEV), before saving: an obvious placeholder is refused here; banned topics and fake
   // listings are saved blocked and hidden until reviewed; non-dev tools stay out of the weekly
-  // competition (and the free queue) and can pay for a listing in "Other".
+  // competition: they launch in their own queue, listed under "Also launching this week" without votes.
   const answers = await moderateSubmission({ name, slogan: body.slogan, description: body.description, website: body.website });
   const decision = moderationDecision(answers);
   if (decision.status === 'incomplete') {
@@ -87,7 +88,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const plan = planLaunch(await getUpcomingWeeks(), body.week, submitType);
+  const other = decision.status === 'not_a_fit';
+  const plan = other
+    ? planLaunch(await getUpcomingWeeks(52, 'not_a_fit'), undefined, 'free', new Date(), OTHER_WEEK_CAPACITY)
+    : planLaunch(await getUpcomingWeeks(), body.week, submitType);
   if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: 400 });
 
   const { data: product, error } = await serviceClient

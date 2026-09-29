@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { trackStep } from '@/utils/funnelClient';
@@ -14,6 +14,7 @@ import ProductsService from '@/utils/supabase/services/products';
 import { OFFER_FREE_LAUNCH, weekKey } from '@/utils/launchWeeks';
 import { prefetchRoute } from '@/utils/prefetch';
 import { type StatsSummary } from '@/utils/publicStats';
+import { type LaunchShowcase, type ShowcaseTool } from '@/utils/launchShowcase';
 
 interface Tool {
   id: number;
@@ -30,54 +31,143 @@ const PAID_WEEKS = 4;
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-US');
 const short = (n: number) => (n >= 100_000 ? new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n) : fmtNum(n));
 
-// Numbers behind the paid launch pitch, from the database on 2026-09-29 (avg impressions of tools
-// launched in the last 12 months; top 3 = weekly top-3 finishers). Refresh them now and then.
+// Fallback numbers for the pitch when the live showcase is unavailable (from the database on
+// 2026-09-29: middle half of paid launches of the last 12 months and of weekly top-3 finishers).
 const DOMAIN_RATING = 65;
 const PERKS = {
   users: '40,000+',
   xFollowers: '3,600+',
-  paidImpressions: '3,000',
-  freeImpressions: '700',
-  winnerImpressions: '11,000+',
-  daytonaImpressions: '216,000',
+  paidLow: 1000,
+  paidHigh: 2800,
+  winnerLow: 5100,
+  winnerHigh: 23100,
 };
-const PERK_LIST = [
-  {
-    icon: Home,
-    stat: `~${PERKS.paidImpressions} impressions`,
-    title: 'from a week on the home page',
-    body: `Paid launches average ${PERKS.paidImpressions} impressions, 4x more than free listings (${PERKS.freeImpressions}), because they're featured where every visitor lands.`,
-  },
-  {
+// A few @devhunt_ launch posts to show as examples (x.com/devhunt_/status/... links). Empty: only the profile link shows.
+const X_POSTS: string[] = [];
+
+function Examples({ tools, label }: { tools: ShowcaseTool[]; label: string }) {
+  if (!tools.length) return null;
+  return (
+    <div className="mt-3">
+      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+        {tools.map(t => (
+          <li key={t.slug}>
+            <a
+              href={`/tool/${t.slug}`}
+              target="_blank"
+              rel="noopener"
+              className="flex items-center gap-x-2.5 rounded-lg border border-slate-800 px-2.5 py-2 duration-150 hover:border-slate-600"
+            >
+              <img src={(t.logo_url || '').replace(/w=\d+/g, 'w=64')} alt="" className="h-7 w-7 flex-none rounded-md bg-slate-800 object-cover" loading="lazy" />
+              <span className="min-w-0 flex-1 truncate text-sm text-slate-200">{t.name}</span>
+              <span className="flex-none font-mono text-xs text-orange-300">{short(t.views)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// The newsletter as subscribers get it (this week's issue), loaded only when opened.
+function EmailPreview() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3">
+      <button onClick={() => setOpen(v => !v)} className="text-sm text-orange-400 hover:text-orange-300" aria-expanded={open}>
+        {open ? 'Hide the email ↑' : 'Preview the email ↓'}
+      </button>
+      {open && (
+        <iframe
+          src="/api/newsletter/preview"
+          title="DevHunt launch-week newsletter"
+          className="mt-3 h-[520px] w-full rounded-xl border border-slate-800 bg-white"
+          loading="lazy"
+        />
+      )}
+    </div>
+  );
+}
+
+interface Perk {
+  icon: typeof Home;
+  stat: string;
+  title: string;
+  body: string;
+  extra?: ReactNode;
+}
+
+// What a paid launch gets. Dev tools compete for the weekly top 3 (listed first); "other" tools don't
+// compete and are listed on the home page for free, so their pitch is the newsletter, X and the link.
+function buildPerks({ showcase, users, other }: { showcase: LaunchShowcase | null; users: string; other: boolean }): Perk[] {
+  const paid = showcase?.paid ?? { low: PERKS.paidLow, high: PERKS.paidHigh, best: [] };
+  const winners = showcase?.winners ?? { low: PERKS.winnerLow, high: PERKS.winnerHigh, best: [] };
+  const newsletter: Perk = {
     icon: Mail,
-    stat: PERKS.users,
+    stat: users,
     title: 'developer inboxes',
-    body: 'Your launch goes out in the DevHunt newsletter to every registered developer, on your launch day.',
-  },
-  {
+    body: 'Your launch goes out in the DevHunt newsletter to every registered developer at the start of your launch week.',
+    extra: <EmailPreview />,
+  };
+  const x: Perk = {
     icon: Twitter,
     stat: PERKS.xFollowers,
     title: 'followers on X',
     body: 'We post your launch on @devhunt_ to a following of founders, devs and investors.',
-  },
-  {
+    extra: (
+      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        {X_POSTS.map((url, idx) => (
+          <a key={url} href={url} target="_blank" rel="noopener" className="text-orange-400 hover:text-orange-300">
+            Example post {idx + 1} ↗
+          </a>
+        ))}
+        <a href="https://x.com/devhunt_" target="_blank" rel="noopener" className="text-orange-400 hover:text-orange-300">
+          See @devhunt_ on X ↗
+        </a>
+      </p>
+    ),
+  };
+  const backlink: Perk = {
     icon: Link2,
     stat: `DR ${DOMAIN_RATING}`,
     title: 'dofollow backlink, for good',
-    body: 'Helps you rank in Google and get cited by ChatGPT, Perplexity and other AI answers. Free listings get nofollow, which passes nothing.',
-  },
-  {
-    icon: Trophy,
-    stat: PERKS.winnerImpressions,
-    title: 'impressions if you win',
-    body: `Weekly top-3 tools average ${PERKS.winnerImpressions} impressions and keep the winner badge. Daytona won its week and has ${PERKS.daytonaImpressions} so far.`,
-  },
-];
+    body: `A dofollow link from a DR ${DOMAIN_RATING} site usually costs $150+ on its own. It helps you rank in Google and get cited by ChatGPT, Perplexity and other AI answers. Free listings get nofollow, which passes nothing.`,
+  };
+  if (other) return [newsletter, x, backlink];
+  return [
+    {
+      icon: Trophy,
+      stat: `${short(winners.low)}–${short(winners.high)} impressions`,
+      title: 'if you finish top 3',
+      body: 'That is the typical range for a weekly top-3 tool, and the winner badge stays on your page for good. The best ones keep growing for years:',
+      extra: <Examples tools={winners.best} label="Top-3 tools, impressions so far" />,
+    },
+    {
+      icon: Home,
+      stat: `${short(paid.low)}–${short(paid.high)} impressions`,
+      title: 'from a week on the home page',
+      body: 'The typical range for a paid launch, featured where every visitor lands. The best recent ones went far beyond:',
+      extra: <Examples tools={paid.best} label="Best paid launches, last 12 months" />,
+    },
+    newsletter,
+    x,
+    backlink,
+  ];
+}
 
 // Next step after submitting a tool (and the "Skip the queue" page): keep the free launch date, or
 // pay $49 to launch in one of the next 4 weeks. The launch is only marked as paid by the server
 // after Stripe confirms the payment.
-export default function LaunchPlan({ params: { slug }, stats }: { params: { slug: string }; stats: StatsSummary | null }) {
+export default function LaunchPlan({
+  params: { slug },
+  stats,
+  showcase,
+}: {
+  params: { slug: string };
+  stats: StatsSummary | null;
+  showcase: LaunchShowcase | null;
+}) {
   // Live registered-developer count (they all get the newsletter); the hard-coded figure if stats are down.
   const users = stats ? fmtNum(stats.users) : PERKS.users;
   const router = useRouter();
@@ -190,7 +280,10 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
     router.push(keepFreePath);
   };
 
-  const freeDate = OFFER_FREE_LAUNCH && tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
+  // "Other" tools (not for developers) don't compete: they launch free in their own queue, and pay for reach.
+  const other = tool?.moderation === 'not_a_fit';
+  const freeDate = (OFFER_FREE_LAUNCH || other) && tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
+  const perks = buildPerks({ showcase, users, other });
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
 
   if (heldReason) {
@@ -261,48 +354,7 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
         </div>
       )}
 
-      {(status === 'ready' || status === 'redirecting') && tool && tool.moderation === 'not_a_fit' && (
-        <div className="mx-auto mt-4 max-w-lg space-y-6 py-12">
-          <div>
-            {isNew && (
-              <p className="inline-flex items-center gap-x-1.5 text-sm font-medium text-green-400">
-                <Check className="h-4 w-4" strokeWidth={3} /> {tool.name} is submitted
-              </p>
-            )}
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-50">Not quite a dev tool</h1>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              DevHunt&apos;s weekly launches are for developer tools, so {tool.name} won&apos;t compete this time. You can still get a
-              permanent listing in our <b className="text-slate-200">Other</b> category with a dofollow backlink from DevHunt (DR 65).
-            </p>
-          </div>
-          {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you&apos;re ready.</p>}
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          <div className="rounded-2xl border border-orange-500/60 bg-slate-800/40 p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-50">Listing + dofollow backlink</h2>
-              <span className="rounded-full bg-orange-500 px-2.5 py-0.5 text-sm font-semibold text-white">$49</span>
-            </div>
-            <ul className="mt-3 space-y-1.5 text-sm text-slate-400">
-              <li>✓ A dofollow backlink from DevHunt, domain rating 65 (Ahrefs)</li>
-              <li>✓ Listed in the Other category and the all-tools directory</li>
-              <li>✓ One-time payment, no subscription</li>
-            </ul>
-            <button
-              onClick={() => void pay()}
-              disabled={status === 'redirecting'}
-              className="mt-5 w-full rounded-lg bg-orange-500 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-orange-400 disabled:opacity-50"
-            >
-              {status === 'redirecting' ? 'Opening secure checkout...' : 'Get listed for $49'}
-            </button>
-            <p className="mt-2 text-xs text-slate-500">Payments are processed securely by Stripe.</p>
-          </div>
-          <Link href="/account/tools" className="block text-center text-sm text-slate-500 hover:text-slate-300">
-            Not now
-          </Link>
-        </div>
-      )}
-
-      {(status === 'ready' || status === 'redirecting') && tool && tool.moderation !== 'not_a_fit' && (
+      {(status === 'ready' || status === 'redirecting') && tool && (
         <div className="mx-auto max-w-5xl py-10 md:py-14">
           <div className="max-w-2xl">
             <p className="truncate font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Launch plan · {tool.name}</p>
@@ -310,7 +362,9 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
               Put it in front of {users} developers
             </h1>
             <p className="mt-3 text-slate-400">
-              A paid launch is a full week of promotion across everything DevHunt has, plus a backlink that keeps working after the week is over.
+              {other && freeDate
+                ? `${tool.name} gets a free line in "Also launching this week" on the home page on ${freeDate.format('MMM D')}. Upgrade to reach every developer's inbox and our X followers, with a backlink that keeps working after the week is over.`
+                : 'A paid launch is a full week of promotion across everything DevHunt has, plus a backlink that keeps working after the week is over.'}
             </p>
           </div>
           {canceled && <p className="mt-6 text-sm text-orange-300">The payment was canceled. You can try again whenever you&apos;re ready.</p>}
@@ -318,16 +372,17 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
 
           <div className="mt-10 grid gap-10 md:grid-cols-[1fr_360px] md:gap-12">
             <ul className="space-y-6">
-              {PERK_LIST.map(({ icon: Icon, stat, title, body }) => (
+              {perks.map(({ icon: Icon, stat, title, body, extra }) => (
                 <li key={title} className="flex gap-x-4">
                   <span className="flex h-10 w-10 flex-none items-center justify-center rounded-lg border border-slate-800 bg-slate-800/50 text-orange-400">
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
                     <p className="text-slate-100">
-                      <span className="font-semibold text-slate-50">{title === 'developer inboxes' ? users : stat}</span> {title}
+                      <span className="font-semibold text-slate-50">{stat}</span> {title}
                     </p>
                     <p className="mt-1 text-sm leading-relaxed text-slate-400">{body}</p>
+                    {extra}
                   </div>
                 </li>
               ))}
@@ -395,7 +450,12 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
                   {status === 'redirecting' ? 'Opening secure checkout...' : `Launch on ${paidDate ?? 'your week'} for $49`}
                 </button>
                 <ul className="mt-4 space-y-1.5 text-xs text-slate-400">
-                  {['Home page for the whole week', `Newsletter to ${users} developers`, `Post on X to ${PERKS.xFollowers} followers`, `Dofollow backlink, DR ${DOMAIN_RATING}`].map(
+                  {[
+                    other ? 'A launch week you pick' : 'Home page for the whole week',
+                    `Newsletter to ${users} developers`,
+                    `Post on X to ${PERKS.xFollowers} followers`,
+                    `Dofollow backlink, DR ${DOMAIN_RATING}`,
+                  ].map(
                     item => (
                       <li key={item} className="flex items-center gap-x-2">
                         <Check className="h-3.5 w-3.5 flex-none text-orange-400" strokeWidth={3} /> {item}
@@ -414,7 +474,7 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
                     disabled={status === 'redirecting'}
                     className="text-sm text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline disabled:opacity-50"
                   >
-                    Launch for free on {freeDate.format('LL')}
+                    {other ? `Keep the free listing on ${freeDate.format('LL')}` : `Launch for free on ${freeDate.format('LL')}`}
                   </button>
                     )
                   : (
@@ -422,7 +482,11 @@ export default function LaunchPlan({ params: { slug }, stats }: { params: { slug
                     Not now
                   </Link>
                     )}
-                <p className="mt-1 text-xs text-slate-600">Free listings get a nofollow link and no newsletter or X post.</p>
+                <p className="mt-1 text-xs text-slate-600">
+                  {other
+                    ? 'Free: one line on the home page for that week, a nofollow link, no newsletter or X post.'
+                    : 'Free listings get a nofollow link and no newsletter or X post.'}
+                </p>
               </div>
             </div>
           </div>

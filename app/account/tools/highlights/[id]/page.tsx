@@ -349,7 +349,7 @@ function LaunchGuide({ tool, shown }: { tool: Tool; shown: number }) {
         <Check className="h-4 w-4" strokeWidth={3} /> {shown ? `${shown} ${shown === 1 ? 'item' : 'items'} added to your page` : 'All set'}
       </p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl">
-        {competes && start ? `${tool.name} launches on ${start.format('MMMM D')}` : `${tool.name} is all set`}
+        {start ? `${tool.name} launches on ${start.format('MMMM D')}` : `${tool.name} is all set`}
       </h1>
       <p className="mt-2 text-slate-400">Here&apos;s how to get the most out of it.</p>
 

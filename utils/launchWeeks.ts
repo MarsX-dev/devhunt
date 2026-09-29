@@ -2,6 +2,8 @@ import moment from 'moment';
 
 // Free launches per week; a week with this many tools (or more) is paid-only.
 export const FREE_WEEK_CAPACITY = 15;
+// Free launches per week for "other" tools (moderation 'not_a_fit'): their own queue, no competition.
+export const OTHER_WEEK_CAPACITY = 10;
 
 // Conversion test (2026-09-28): false hides the free launch option on the launch-date picker, so new
 // tools only see the paid weeks. Tools still keep their free queue date, nothing else changes.
@@ -19,11 +21,11 @@ export interface WeekCount {
 }
 
 // The week with a free slot whose start is closest to `currentDate`, or null if every week is full.
-export function findNearestAvailableDate<T extends WeekCount>(dates: T[], currentDate = new Date()): (T & { timestamp: number }) | null {
+export function findNearestAvailableDate<T extends WeekCount>(dates: T[], currentDate = new Date(), capacity = FREE_WEEK_CAPACITY): (T & { timestamp: number }) | null {
   const currentTimestamp = currentDate.getTime();
 
   const availableDates = dates
-    .filter(date => date.count < FREE_WEEK_CAPACITY)
+    .filter(date => date.count < capacity)
     .map(date => ({
       ...date,
       timestamp: new Date(date.startDate).getTime(),

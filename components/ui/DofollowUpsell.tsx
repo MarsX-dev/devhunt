@@ -24,7 +24,7 @@ export default function DofollowUpsell({ tool, from, compact = false }: { tool: 
   const track = () => trackStep('upsell_click', { from, queued }, tool.id);
 
   const pitch = listedOnly
-    ? 'Get a permanent dofollow backlink from DevHunt (DR 65) for $49.'
+    ? 'Get a dofollow backlink from DevHunt (DR 65), a spot in our newsletter and a post on X for $49, one time.'
     : queued
       ? `Get a dofollow backlink from DevHunt (DR 65) and launch in a week you pick instead of ${moment.utc(tool.launch_start).format('MMM D, YYYY')}. $49, one time.`
       : 'Get a dofollow backlink from DevHunt (DR 65) and a new launch week with a home page spotlight. $49, one time.';

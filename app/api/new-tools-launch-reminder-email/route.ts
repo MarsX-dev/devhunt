@@ -3,6 +3,7 @@ import { renderNewToolsLaunchReminderEmail } from '@/utils/email-templates/rende
 import { sendMarsxCampaign } from '@/utils/server/marsxMailer';
 import { cronPeriod, cronRoute, sendOnce } from '@/utils/server/cronJob';
 import { newsletterSent, newsletterSponsor } from '@/utils/server/ads';
+import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 // Cron-triggered (vercel.json, Wednesdays): never prerender at build time.
 export const dynamic = 'force-dynamic';
@@ -16,8 +17,18 @@ export const GET = cronRoute('new-tools-launch-reminder-email', async () => {
   const weeks = await apiService.getPrevLaunchWeeks(year, 2, currentWeek, 1);
   if (!weeks?.length) return { week: currentWeek, year, sent: 'nothing to send' };
 
-  const { products, week } = weeks[0];
+  const { products, week, startDate, endDate } = weeks[0];
   const sponsor = await newsletterSponsor();
+  // Paid "other" tools launching this week get a line too (free ones are on the home page only).
+  const { data: others } = await serviceClient
+    .from('products')
+    .select('slug, name, description, logo_url')
+    .eq('moderation' as never, 'not_a_fit')
+    .eq('isPaid', true)
+    .eq('deleted', false)
+    .gte('launch_start', startDate.toISOString())
+    .lte('launch_start', endDate.toISOString())
+    .order('created_at', { ascending: true });
   const html = renderNewToolsLaunchReminderEmail(
     products.map(p => ({
       slug: p.slug,
@@ -26,6 +37,7 @@ export const GET = cronRoute('new-tools-launch-reminder-email', async () => {
       logo_url: p.logo_url,
     })),
     sponsor ?? undefined,
+    others ?? [],
   );
 
   const sent = await sendOnce('new-tools-launch-reminder-email', cronPeriod(), '', () =>

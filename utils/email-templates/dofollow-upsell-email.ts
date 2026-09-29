@@ -10,7 +10,7 @@ export interface UpsellInput {
   toolName: string;
   slug: string;
   launchStart: string | null; // free queue date
-  notAFit: boolean; // listed in "Other", not in the weekly launches
+  notAFit: boolean; // an "other" tool: launches in "Also launching this week", doesn't compete
 }
 
 const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -23,14 +23,19 @@ export function renderUpsellEmail(input: UpsellInput): { subject: string; html: 
   const launched = input.launchStart && !upcoming ? date(input.launchStart) : null;
 
   const where = input.notAFit
-    ? `${tool} is listed in the Other category on DevHunt.`
+    ? upcoming
+      ? `${tool} launches on DevHunt on <b>${upcoming}</b>, in the "Also launching this week" list on the home page.`
+      : `${tool} is listed on DevHunt${launched ? ` (launched ${launched})` : ''}.`
     : upcoming
       ? `${tool} is in the free launch queue on DevHunt, launching on <b>${upcoming}</b>.`
       : `${tool} is listed on DevHunt${launched ? ` (launched ${launched})` : ''}.`;
   const perks = [
     '<b>A dofollow backlink</b> from DevHunt (domain rating 65), permanent',
     ...(input.notAFit
-      ? []
+      ? [
+          'A spot in the DevHunt newsletter to 40,000+ developers and a post on our X account',
+          upcoming ? `<b>Launch in a week you pick</b> in the next 4 weeks` : '<b>A new launch week</b> of your choice',
+        ]
       : [
           upcoming ? `<b>Launch in the next few weeks</b>, you pick the week, instead of ${upcoming}` : '<b>A new launch week</b> of your choice, with a fresh shot at tool of the week',
           'A home page spotlight and a spot in our morning newsletter',
@@ -45,7 +50,7 @@ export function renderUpsellEmail(input: UpsellInput): { subject: string; html: 
     input.stage === 'day1'
       ? `${where} One thing you should know: free listings link to your site with <code>rel="nofollow"</code>, so search engines don't count them as a backlink.`
       : `Quick last note about ${tool}: its DevHunt link is still nofollow, so it passes no SEO value to your site. Here's what $49 changes:`;
-  const cta = input.notAFit ? 'Get the dofollow link for $49' : 'Upgrade for $49';
+  const cta = 'Upgrade for $49';
 
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${escape(subject)}</title></head>
