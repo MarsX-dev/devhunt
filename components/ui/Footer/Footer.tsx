@@ -11,6 +11,7 @@ export default () => {
       name: 'About',
     },
     { href: '/faq', name: 'FAQ' },
+    { href: '/stats', name: 'Open stats' },
     {
       href: 'https://github.com/MarsX-dev/devhunt',
       name: 'GitHub Repository',

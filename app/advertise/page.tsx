@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Suspense } from 'react';
 import PageHeader from '@/components/ui/PageHeader';
 import AdBuilder from '@/components/ui/Sponsors/AdBuilder';
@@ -90,6 +91,12 @@ export default async function AdvertisePitch() {
         <Bars title="Country" rows={AUDIENCE.countries} />
         <Bars title="Device" rows={AUDIENCE.devices} />
       </div>
+      <p className="mt-3 font-mono text-xs text-slate-500">
+        Live day-by-day numbers, including ad impressions:{' '}
+        <Link href="/stats" className="text-orange-400 hover:text-orange-300">
+          open stats →
+        </Link>
+      </p>
 
       <div className="mt-16 grid gap-6 text-sm text-slate-400 sm:grid-cols-3">
         <div>
