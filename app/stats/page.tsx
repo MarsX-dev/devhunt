@@ -26,6 +26,7 @@ interface Day {
   ad_impressions_web: number;
   ad_impressions_email: number;
   launches: number;
+  submissions: number;
   signups: number;
   users: number;
 }
@@ -49,7 +50,7 @@ const getPublicStats = unstable_cache(
     if (error) throw new Error(error.message); // thrown, so a failure isn't cached for 10 minutes
     return data as unknown as PublicStats;
   },
-  ['public-stats-v1'],
+  ['public-stats-v2'],
   { revalidate: 600 },
 );
 
@@ -206,6 +207,7 @@ export default async function StatsPage() {
   const adImpr = series(daily, s.ads_since, d => Number(d.ad_impressions_web) + Number(d.ad_impressions_email));
   const signups = daily.reduce((sum, d) => sum + Number(d.signups), 0);
   const launches = daily.reduce((sum, d) => sum + Number(d.launches), 0);
+  const submissions = daily.reduce((sum, d) => sum + Number(d.submissions), 0);
   const sinceNote = (since: string | null, t: { allTracked: boolean; total: number }) =>
     t.allTracked ? `${short(t.total)} in 30 days` : `${short(t.total)} since ${since ? dayLabel(since) : 'now'}, when counting started`;
   const countryTotal = Math.max(1, visitors.total);
@@ -221,7 +223,7 @@ export default async function StatsPage() {
   const allTime = [
     { label: 'all_time_visitors', value: short(s.unique_visitors_all_time), hint: `unique, since launch in ${firstYear}` },
     { label: 'tool_impressions', value: short(s.tool_impressions_all_time), hint: 'all time, on tool cards and pages' },
-    { label: 'tools_launched', value: fmt(s.tools_launched), hint: `${fmt(launches)} in the last 30 days` },
+    { label: 'tools_launched', value: fmt(s.tools_launched), hint: `${fmt(launches)} launched, ${fmt(submissions)} submitted in 30 days` },
     { label: 'developers', value: short(s.users), hint: 'registered accounts' },
     { label: 'impressions_per_launch', value: fmt(s.launch_impressions_median), hint: 'median, launches of the last 90 days' },
     { label: 'domain_rating', value: DOMAIN_RATING, hint: 'ahrefs' },
@@ -308,13 +310,13 @@ export default async function StatsPage() {
           <UsersChart daily={daily} />
         </div>
         <div>
-          <SectionLabel title="Tools launched per day" hint="launches go live weekly" />
+          <SectionLabel title="Tools submitted per day" hint={`+${fmt(submissions)} in 30 days`} />
           <DayBars
             daily={daily}
             since={daily[0].day}
-            label="Tools launched per day"
-            parts={[{ value: d => d.launches, className: 'bg-orange-400/80 group-hover:bg-orange-300' }]}
-            tip={d => `${fmt(d.launches)} tools launched`}
+            label="Tools submitted per day"
+            parts={[{ value: d => d.submissions, className: 'bg-orange-400/80 group-hover:bg-orange-300' }]}
+            tip={d => `${fmt(d.submissions)} tools submitted${Number(d.launches) ? ` · ${fmt(d.launches)} launched` : ''}`}
           />
         </div>
       </div>
