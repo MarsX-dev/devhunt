@@ -15,7 +15,7 @@ import { IconSearch } from '@/components/Icons';
 import categories from '@/utils/categories';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import NewsletterInbox from '../Newsletter/NewsletterInbox';
-import { LayoutGrid, Search } from 'lucide-react';
+import { ChartNoAxesColumn, LayoutGrid, Search } from 'lucide-react';
 import useOnclickOutside from 'react-cool-onclickoutside';
 import { prefetchRoute } from '@/utils/prefetch';
 
@@ -61,7 +61,6 @@ export default () => {
   };
 
   const navigation = [
-    { title: 'Stats', path: '/stats' },
     { title: 'Advertise', path: '/advertise', className: 'text-orange-400 hover:text-orange-300' },
     {
       title: 'Submit',
@@ -190,6 +189,17 @@ export default () => {
                       </div>
                     </div>
                   </div>
+                </li>
+                <li>
+                  <Link
+                    href="/stats"
+                    title="Stats"
+                    aria-label="Stats"
+                    className="flex items-center gap-x-2 hover:text-slate-200 lg:rounded-full lg:p-1.5 lg:hover:bg-slate-800"
+                  >
+                    <ChartNoAxesColumn className="h-[18px] w-[18px]" />
+                    <span className="lg:sr-only">Stats</span>
+                  </Link>
                 </li>
                 {navigation.map((item, idx) => {
                   return (
