@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
-import { AUDIENCE } from '@/utils/ads';
 import { DOMAIN_RATING } from '@/utils/siteStats';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -78,14 +77,24 @@ function series(daily: Day[], since: string | null, value: (d: Day) => number, e
   return { total, withEstimates: total + estimated, estimated: estimated > 0 };
 }
 
-function Tiles({ tiles, cols = 4 }: { tiles: { label: string; value: string; hint: string }[]; cols?: 3 | 4 }) {
+// Compact stat grid: the last-30-days number big, the since-launch one next to it.
+interface Tile {
+  label: string;
+  value: string;
+  total?: string; // since launch
+  hint?: string;
+}
+function Tiles({ tiles }: { tiles: Tile[] }) {
   return (
-    <dl className={`grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800 font-mono ${cols === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-4'}`}>
+    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800 font-mono sm:grid-cols-4">
       {tiles.map(t => (
-        <div key={t.label} className="bg-slate-900 px-4 py-4">
+        <div key={t.label} className="bg-slate-900 px-4 py-3">
           <dt className="text-[11px] text-slate-500">{t.label}</dt>
-          <dd className="mt-1 text-xl font-semibold text-slate-50">{t.value}</dd>
-          <dd className="mt-1 text-[11px] text-slate-500">{t.hint}</dd>
+          <dd className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-xl font-semibold text-slate-50">{t.value}</span>
+            {t.total && <span className="text-xs text-slate-400">{t.total} <span className="text-slate-600">all time</span></span>}
+          </dd>
+          {t.hint && <dd className="text-[11px] text-slate-500">{t.hint}</dd>}
         </div>
       ))}
     </dl>
@@ -121,22 +130,28 @@ function DayBars({
           const off = !since || d.day < since;
           return (
             <div key={d.day} className="group relative flex h-full flex-1 items-end">
-              {off && est(d) ? (
+              {off && est(d)
+                ? (
                 <div className="w-full rounded-t-[4px] bg-slate-600/60 group-hover:bg-slate-500" style={{ height: `${Math.max(1, (est(d) / max) * 100)}%` }} />
-              ) : off ? (
+                  )
+                : off
+                  ? (
                 <div className="h-full w-full rounded-t-[4px] border border-dashed border-slate-800/80" />
-              ) : total(d) ? (
+                    )
+                  : total(d)
+                    ? (
                 <div className="flex w-full flex-col-reverse overflow-hidden rounded-t-[4px]" style={{ height: `${Math.max(1, (total(d) / max) * 100)}%` }}>
                   {parts.map((p, i) => (
                     <div key={i} className={p.className} style={{ height: `${(Number(p.value(d)) / total(d)) * 100}%` }} />
                   ))}
                 </div>
-              ) : (
+                      )
+                    : (
                 <div className="h-[1%] w-full rounded-t-[4px] bg-slate-800" />
-              )}
+                      )}
               <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 font-mono text-[11px] text-slate-300 group-hover:block">
                 <div className="text-slate-500">{dayLabel(d.day)}</div>
-                {off ? (est(d) ? `${estimate!.tip(d)} (estimate)` : 'not tracked yet') : tip(d)}
+                {off ? (estimate && est(d) ? `${estimate.tip(d)} (estimate)` : 'not tracked yet') : tip(d)}
               </div>
             </div>
           );
@@ -214,29 +229,19 @@ export default async function StatsPage() {
   const signups = daily.reduce((sum, d) => sum + Number(d.signups), 0);
   const launches = daily.reduce((sum, d) => sum + Number(d.launches), 0);
   const submissions = daily.reduce((sum, d) => sum + Number(d.submissions), 0);
-  const perDay = (n: number) => `${fmt(n / daily.length)} a day`;
-  const estNote = (since: string | null, t: ReturnType<typeof series>) => (t.estimated && since ? `, estimated before ${dayLabel(since)}` : '');
   const countryTotal = Math.max(1, visitors.total);
   const maxCountry = Math.max(1, ...s.countries.map(c => Number(c.visitors)));
-  const firstYear = new Date(s.first_launch).getUTCFullYear();
 
-  const recent = [
-    { label: 'unique_visitors', value: fmt(visitors.withEstimates), hint: `${perDay(visitors.withEstimates)}${estNote(s.visitors_since, visitors)}` },
-    { label: 'page_views', value: fmt(pageviews.withEstimates), hint: `${perDay(pageviews.withEstimates)}${estNote(s.visitors_since, pageviews)}` },
-    { label: 'tool_impressions', value: fmt(toolImpr.withEstimates), hint: `on all tools, ${perDay(toolImpr.withEstimates)}${estNote(s.impressions_since, toolImpr)}` },
-    { label: 'ad_impressions', value: fmt(adImpr.total), hint: s.ads_since ? `since ads started ${dayLabel(s.ads_since)}` : 'ads just started' },
-    { label: 'new_developers', value: `+${fmt(signups)}`, hint: `signed up, ${perDay(signups)}` },
-    { label: 'tools_submitted', value: fmt(submissions), hint: `${fmt(launches)} launched` },
-  ];
-  const allTime = [
-    { label: 'all_time_visitors', value: short(s.unique_visitors_all_time), hint: `unique, since launch in ${firstYear}` },
-    { label: 'all_time_impressions', value: short(s.tool_impressions_all_time), hint: 'all time, on tool cards and pages' },
-    { label: 'tools_launched', value: fmt(s.tools_launched), hint: `${fmt(launches)} in the last 30 days` },
-    { label: 'developers', value: short(s.users), hint: 'registered accounts' },
-    { label: 'impressions_per_launch', value: fmt(s.launch_impressions_median), hint: 'median, launches of the last 90 days' },
+  const tiles: Tile[] = [
+    { label: 'visitors', value: short(visitors.withEstimates), total: short(s.unique_visitors_all_time) },
+    { label: 'tool_impressions', value: short(toolImpr.withEstimates), total: short(s.tool_impressions_all_time) },
+    { label: 'new_developers', value: `+${fmt(signups)}`, total: short(s.users) },
+    { label: 'tools_launched', value: fmt(launches), total: fmt(s.tools_launched), hint: `${fmt(submissions)} submitted` },
+    { label: 'page_views', value: short(pageviews.withEstimates), hint: `${(pageviews.total / Math.max(1, visitors.total)).toFixed(1)} per visit` },
+    { label: 'ad_impressions', value: short(adImpr.total), hint: s.ads_since ? `ads started ${dayLabel(s.ads_since)}` : undefined },
+    // The newsletter goes to every registered account.
+    { label: 'newsletter', value: short(s.users), hint: 'subscribers, weekly' },
     { label: 'domain_rating', value: DOMAIN_RATING, hint: 'ahrefs' },
-    { label: 'newsletter', value: short(AUDIENCE.newsletterSubscribers), hint: 'subscribers, weekly' },
-    { label: 'pages_per_visit', value: (pageviews.total / Math.max(1, visitors.total)).toFixed(1), hint: `avg. visit ${AUDIENCE.avgVisitMinutes} min` },
   ];
 
   return (
@@ -255,9 +260,12 @@ export default async function StatsPage() {
       </div>
 
       <div className="mt-10">
-        <SectionLabel title="Last 30 days" hint="totals, UTC" />
+        <SectionLabel
+          title="Last 30 days · all time"
+          hint={visitors.estimated && s.visitors_since ? `30-day visits estimated before ${dayLabel(s.visitors_since)}` : 'UTC'}
+        />
         <div className="mt-4">
-          <Tiles tiles={recent} cols={3} />
+          <Tiles tiles={tiles} />
         </div>
       </div>
 
@@ -350,13 +358,6 @@ export default async function StatsPage() {
         </div>
       </div>
 
-      <div className="mt-12">
-        <SectionLabel title="Since launch" hint={`${firstYear} to today`} />
-        <div className="mt-4">
-          <Tiles tiles={allTime} />
-        </div>
-      </div>
-
       <div className="mt-12 grid gap-12 md:grid-cols-2">
         <div>
           <SectionLabel title="Countries" hint="share of unique visitors, 30 days" />
@@ -387,8 +388,8 @@ export default async function StatsPage() {
           <div className="rounded-xl border border-slate-800 p-5 text-sm text-slate-400">
             <h3 className="font-medium text-slate-100">Advertise</h3>
             <p className="mt-1.5">
-              Sidebar, in-list and newsletter spots in front of {short(s.users)} registered developers and {short(AUDIENCE.newsletterSubscribers)} newsletter
-              readers. We write the ads from your URL. Monthly, cancel anytime.
+              Sidebar, in-list and newsletter spots in front of {short(s.users)} registered developers, who
+              also get the weekly newsletter. We write the ads from your URL. Monthly, cancel anytime.
             </p>
             <Link href="/advertise" className="mt-3 inline-block text-orange-400 hover:text-orange-300">
               See ad spots →
