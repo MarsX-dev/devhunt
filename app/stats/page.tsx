@@ -249,8 +249,8 @@ export default async function StatsPage() {
   const pageviewsAllTime = Number(s.pageviews_tracked) + monthsBefore * AUDIENCE.pageViewsPerMonth;
 
   const tiles: Tile[] = [
-    { label: 'visitors', value: short(visitors.withEstimates), total: short(s.unique_visitors_all_time) },
     { label: 'tool_impressions', value: short(toolImpr.withEstimates), total: short(s.tool_impressions_all_time) },
+    { label: 'visitors', value: short(visitors.withEstimates), total: short(s.unique_visitors_all_time) },
     { label: 'new_developers', value: `+${fmt(signups)}`, total: short(s.users) },
     { label: 'tools_launched', value: fmt(submissions), total: fmt(s.tools_total) }, // every tool submitted, paid or free
     { label: 'page_views', value: short(pageviews.withEstimates), total: `~${short(pageviewsAllTime)}` },
