@@ -47,7 +47,12 @@ export default function DofollowUpsell({ tool, from, compact = false }: { tool: 
         <p className="text-sm font-medium text-slate-100">
           Your link on DevHunt is <span className="font-mono text-orange-300">nofollow</span>
         </p>
-        <p className="mt-1 text-sm text-slate-400">Free listings don&apos;t pass SEO value to your site. {pitch}</p>
+        <p className="mt-1 text-sm text-slate-400">
+          Free listings don&apos;t pass SEO value to your site. {pitch}{' '}
+          <Link href="/stats" className="whitespace-nowrap text-slate-300 underline decoration-slate-600 underline-offset-2 hover:text-white">
+            See our traffic
+          </Link>
+        </p>
       </div>
       <Link
         href={href}

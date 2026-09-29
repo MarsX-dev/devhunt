@@ -61,6 +61,7 @@ export default () => {
   };
 
   const navigation = [
+    { title: 'Stats', path: '/stats' },
     { title: 'Advertise', path: '/advertise', className: 'text-orange-400 hover:text-orange-300' },
     {
       title: 'Submit',

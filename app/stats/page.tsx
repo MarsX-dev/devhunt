@@ -69,20 +69,18 @@ const countryName = (code: string) => {
 };
 const flag = (code: string) => String.fromCodePoint(0x1f1a5 + code.charCodeAt(0), 0x1f1a5 + code.charCodeAt(1));
 
-// Days before a counter existed are "not tracked yet", not zero. The first tracked day and today are
-// partial, so averages use the full days in between when there are any.
-function series(daily: Day[], since: string | null, value: (d: Day) => number) {
-  const today = daily[daily.length - 1]?.day;
+// 30-day totals. Days before a counter existed count their estimate (stats_estimates) when there
+// is one; `total` is the counted part only.
+function series(daily: Day[], since: string | null, value: (d: Day) => number, estimate?: (d: Day) => number) {
   const tracked = since ? daily.filter(d => d.day >= since) : [];
-  const full = tracked.filter(d => d.day > since! && d.day < today);
-  const basis = full.length ? full : tracked;
   const total = tracked.reduce((sum, d) => sum + Number(value(d)), 0);
-  return { total, avg: basis.length ? basis.reduce((sum, d) => sum + Number(value(d)), 0) / basis.length : 0, allTracked: tracked.length === daily.length };
+  const estimated = estimate ? daily.filter(d => !since || d.day < since).reduce((sum, d) => sum + Number(estimate(d)), 0) : 0;
+  return { total, withEstimates: total + estimated, estimated: estimated > 0 };
 }
 
-function Tiles({ tiles }: { tiles: { label: string; value: string; hint: string }[] }) {
+function Tiles({ tiles, cols = 4 }: { tiles: { label: string; value: string; hint: string }[]; cols?: 3 | 4 }) {
   return (
-    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800 font-mono sm:grid-cols-4">
+    <dl className={`grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-800 bg-slate-800 font-mono ${cols === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-4'}`}>
       {tiles.map(t => (
         <div key={t.label} className="bg-slate-900 px-4 py-4">
           <dt className="text-[11px] text-slate-500">{t.label}</dt>
@@ -209,29 +207,31 @@ export default async function StatsPage() {
   if (!s?.daily?.length) return <p className="mt-20 text-center text-slate-400">Couldn&apos;t load the stats right now. Try again in a minute.</p>;
   const daily = s.daily;
 
-  const visitors = series(daily, s.visitors_since, d => d.visitors);
-  const pageviews = series(daily, s.visitors_since, d => d.pageviews);
-  const toolImpr = series(daily, s.impressions_since, d => d.tool_impressions);
+  const visitors = series(daily, s.visitors_since, d => d.visitors, d => d.visitors_est);
+  const pageviews = series(daily, s.visitors_since, d => d.pageviews, d => d.pageviews_est);
+  const toolImpr = series(daily, s.impressions_since, d => d.tool_impressions, d => d.tool_impressions_est);
   const adImpr = series(daily, s.ads_since, d => Number(d.ad_impressions_web) + Number(d.ad_impressions_email));
   const signups = daily.reduce((sum, d) => sum + Number(d.signups), 0);
   const launches = daily.reduce((sum, d) => sum + Number(d.launches), 0);
   const submissions = daily.reduce((sum, d) => sum + Number(d.submissions), 0);
-  const sinceNote = (since: string | null, t: { allTracked: boolean; total: number }) =>
-    t.allTracked ? `${short(t.total)} in 30 days` : `${short(t.total)} since ${since ? dayLabel(since) : 'now'}, when counting started`;
+  const perDay = (n: number) => `${fmt(n / daily.length)} a day`;
+  const estNote = (since: string | null, t: ReturnType<typeof series>) => (t.estimated && since ? `, estimated before ${dayLabel(since)}` : '');
   const countryTotal = Math.max(1, visitors.total);
   const maxCountry = Math.max(1, ...s.countries.map(c => Number(c.visitors)));
   const firstYear = new Date(s.first_launch).getUTCFullYear();
 
   const recent = [
-    { label: 'daily_visitors', value: fmt(visitors.avg), hint: sinceNote(s.visitors_since, visitors) },
-    { label: 'daily_tool_impressions', value: fmt(toolImpr.avg), hint: sinceNote(s.impressions_since, toolImpr) },
-    { label: 'daily_ad_impressions', value: fmt(adImpr.avg), hint: sinceNote(s.ads_since, adImpr) },
-    { label: 'new_developers', value: `+${fmt(signups)}`, hint: `signed up in 30 days, ${fmt(signups / daily.length)} a day` },
+    { label: 'unique_visitors', value: fmt(visitors.withEstimates), hint: `${perDay(visitors.withEstimates)}${estNote(s.visitors_since, visitors)}` },
+    { label: 'page_views', value: fmt(pageviews.withEstimates), hint: `${perDay(pageviews.withEstimates)}${estNote(s.visitors_since, pageviews)}` },
+    { label: 'tool_impressions', value: fmt(toolImpr.withEstimates), hint: `on all tools, ${perDay(toolImpr.withEstimates)}${estNote(s.impressions_since, toolImpr)}` },
+    { label: 'ad_impressions', value: fmt(adImpr.total), hint: s.ads_since ? `since ads started ${dayLabel(s.ads_since)}` : 'ads just started' },
+    { label: 'new_developers', value: `+${fmt(signups)}`, hint: `signed up, ${perDay(signups)}` },
+    { label: 'tools_submitted', value: fmt(submissions), hint: `${fmt(launches)} launched` },
   ];
   const allTime = [
     { label: 'all_time_visitors', value: short(s.unique_visitors_all_time), hint: `unique, since launch in ${firstYear}` },
-    { label: 'tool_impressions', value: short(s.tool_impressions_all_time), hint: 'all time, on tool cards and pages' },
-    { label: 'tools_launched', value: fmt(s.tools_launched), hint: `${fmt(launches)} launched, ${fmt(submissions)} submitted in 30 days` },
+    { label: 'all_time_impressions', value: short(s.tool_impressions_all_time), hint: 'all time, on tool cards and pages' },
+    { label: 'tools_launched', value: fmt(s.tools_launched), hint: `${fmt(launches)} in the last 30 days` },
     { label: 'developers', value: short(s.users), hint: 'registered accounts' },
     { label: 'impressions_per_launch', value: fmt(s.launch_impressions_median), hint: 'median, launches of the last 90 days' },
     { label: 'domain_rating', value: DOMAIN_RATING, hint: 'ahrefs' },
@@ -243,7 +243,7 @@ export default async function StatsPage() {
     <section className="container-custom-screen mt-10 mb-20">
       <PageHeader eyebrow="Open stats" title="DevHunt in numbers">
         Live numbers from our own first-party analytics for the last 30 days, updated every 10 minutes. Counted without cookies; bots and automated browsers are
-        skipped.
+        skipped. Days before our counters started (late Sep 2026) are estimated from per-tool impression totals.
       </PageHeader>
       <div className="mt-6 flex flex-wrap gap-3 text-sm">
         <Link href="/account/tools/new" className="rounded-lg bg-orange-500 px-4 py-2 font-semibold text-white transition-colors hover:bg-orange-400">
@@ -255,9 +255,9 @@ export default async function StatsPage() {
       </div>
 
       <div className="mt-10">
-        <SectionLabel title="Last 30 days" hint="daily averages, UTC" />
+        <SectionLabel title="Last 30 days" hint="totals, UTC" />
         <div className="mt-4">
-          <Tiles tiles={recent} />
+          <Tiles tiles={recent} cols={3} />
         </div>
       </div>
 

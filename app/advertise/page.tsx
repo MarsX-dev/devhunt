@@ -67,6 +67,9 @@ export default async function AdvertisePitch() {
         <a href="#audience" className="text-orange-400 hover:text-orange-300">
           full audience ↓
         </a>
+        <Link href="/stats" className="text-orange-400 hover:text-orange-300">
+          live stats →
+        </Link>
       </p>
 
       <div className="mt-8">
