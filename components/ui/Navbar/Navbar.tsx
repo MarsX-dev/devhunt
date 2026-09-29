@@ -15,7 +15,7 @@ import { IconSearch } from '@/components/Icons';
 import categories from '@/utils/categories';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import NewsletterInbox from '../Newsletter/NewsletterInbox';
-import { ChartNoAxesColumn, LayoutGrid, Search } from 'lucide-react';
+import { ChartNoAxesColumn, LayoutGrid, Menu, Search } from 'lucide-react';
 import useOnclickOutside from 'react-cool-onclickoutside';
 import { prefetchRoute } from '@/utils/prefetch';
 
@@ -153,7 +153,8 @@ export default () => {
                       title="Browse tools"
                       className={`group flex items-center gap-x-2 hover:text-slate-200 lg:rounded-full lg:p-1.5 lg:hover:bg-slate-800 ${isNavMenuActive ? 'lg:bg-slate-800 lg:text-slate-200' : ''}`}
                     >
-                      <LayoutGrid className="h-[18px] w-[18px]" />
+                      <Menu className="hidden h-[18px] w-[18px] lg:block" />
+                      <LayoutGrid className="h-[18px] w-[18px] lg:hidden" />
                       <span className="lg:sr-only">Browse tools</span>
                       <ChevronDownIcon className="h-4 w-4 lg:hidden" />
                     </button>
