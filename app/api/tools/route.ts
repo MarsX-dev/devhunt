@@ -10,6 +10,7 @@ import { moderateSubmission } from '@/utils/server/jev';
 import { incompleteReason, moderationDecision } from '@/utils/moderation';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import { tooManyRequests, withinLimit } from '@/utils/server/rateLimit';
+import { MAKER_COMMENT_MAX } from '@/utils/makerComment';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,7 @@ interface SubmitBody {
   categoryIds?: number[];
   week?: string; // weekKey (YYYY-MM-DD) of the chosen week
   submitType?: SubmitType;
+  makerComment?: string; // the maker's first comment, posted under their account
 }
 
 const isHttpUrl = (value?: string) => {
@@ -140,6 +142,14 @@ export async function POST(req: Request) {
     if (other) await serviceClient.from('product_category_product').insert({ product_id: product.id, category_id: other.id });
   }
   const status = decision.status as Exclude<typeof decision.status, 'incomplete'>; // incomplete returned above
+  // The maker's own upvote, so every tool starts at 1 (votes_count follows via trigger).
+  const { error: voteError } = await serviceClient.from('product_votes').insert({ product_id: product.id, user_id: user.id });
+  if (voteError) console.error('maker upvote insert failed:', voteError.message);
+  const makerComment = typeof body.makerComment === 'string' ? body.makerComment.trim().slice(0, MAKER_COMMENT_MAX) : '';
+  if (makerComment && status !== 'blocked') {
+    const { error: commentError } = await serviceClient.from('comment').insert({ content: makerComment, user_id: user.id, product_id: product.id });
+    if (commentError) console.error('maker comment insert failed:', commentError.message);
+  }
   if (status !== 'ok') {
     await logModeration({
       kind: 'tool_submission',

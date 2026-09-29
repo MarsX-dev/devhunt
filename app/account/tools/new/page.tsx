@@ -26,6 +26,7 @@ import { trackStep } from '@/utils/funnelClient';
 import ProfileService from '@/utils/supabase/services/profile';
 import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
+import { MAKER_COMMENT_MAX, templateMakerComment } from '@/utils/makerComment';
 
 interface Inputs {
   tool_name: string;
@@ -35,6 +36,7 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
+  maker_comment: string;
 }
 
 const MAX_SCREENSHOTS = 3; // the tool page shows at most 3 media tiles
@@ -72,7 +74,18 @@ export default () => {
     setError,
     getValues,
     setValue,
-  } = useForm<Inputs>();
+    watch,
+    getFieldState,
+  } = useForm<Inputs>({ defaultValues: { maker_comment: templateMakerComment() } });
+
+  // Until the maker edits their first comment, it follows the tool name and slogan they type
+  // (an AI draft from the website import counts as their text and is left alone).
+  const [aiComment, setAiComment] = useState(false);
+  const [toolName, toolSlogan] = watch(['tool_name', 'slogan']);
+  useEffect(() => {
+    if (aiComment || getFieldState('maker_comment').isDirty) return;
+    setValue('maker_comment', templateMakerComment(toolName, toolSlogan));
+  }, [toolName, toolSlogan, aiComment]);
 
   const [profile, setProfile] = useState<Profile>();
 
@@ -199,7 +212,7 @@ export default () => {
     try {
       scrollToErroView();
       if (validateImages() && (await validateToolName())) {
-        const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video } = data;
+        const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, maker_comment } = data;
 
         setLaunching(true);
         trackStep('form_submitted', {
@@ -212,6 +225,7 @@ export default () => {
           has_logo: !!logoPreview,
           has_github: !!github_repo,
           has_video: !!demo_video,
+          has_maker_comment: !!maker_comment?.trim(),
           imported: importState === 'done',
         });
         // The tool joins the free launch queue; the owner picks free vs. a paid week on the next step.
@@ -226,6 +240,7 @@ export default () => {
           assetUrls: imagePreviews,
           demoVideoUrl: demo_video,
           categoryIds: categories.map(item => item.id),
+          makerComment: maker_comment,
         });
         const product = res.product;
         localStorage.setItem(
@@ -269,6 +284,10 @@ export default () => {
       setValue('tool_description', draft.description, { shouldValidate: true });
       if (draft.pricingTypeId) setValue('pricing_type', draft.pricingTypeId, { shouldValidate: true });
       if (data.categories?.length) setCategory(data.categories);
+      if (data.makerComment) {
+        setValue('maker_comment', data.makerComment);
+        setAiComment(true);
+      }
       if (draft.logoUrl) {
         setLogoPreview(draft.logoUrl);
         setLogoFile(draft.logoUrl);
@@ -516,6 +535,21 @@ export default () => {
                   ))}
                 </ImagesUploader>
                 <LabelError className="mt-2">{imagesError}</LabelError>
+              </div>
+              </FormStep>
+              <FormStep n="04" title="Your first comment">
+              <div>
+                <Label>1st comment from the maker</Label>
+                <p className="text-sm text-slate-400">
+                  Posted on your launch page under your name, so visitors see you&apos;re around. We drafted it for you: make it yours, or
+                  clear it to skip.
+                </p>
+                <Textarea
+                  placeholder="Hey everyone 👋 I'm the maker..."
+                  className="w-full h-28 mt-2"
+                  validate={{ ...register('maker_comment', { maxLength: MAKER_COMMENT_MAX }) }}
+                />
+                <LabelError className="mt-2">{errors.maker_comment && `Please keep it under ${MAKER_COMMENT_MAX} characters`}</LabelError>
               </div>
               </FormStep>
               <div>
