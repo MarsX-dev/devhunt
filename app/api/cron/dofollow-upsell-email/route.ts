@@ -9,17 +9,15 @@ export const maxDuration = 120;
 
 const JOB = 'dofollow-upsell-email';
 const DAY = 86400000;
-// Tools submitted 1-3 days ago get the first email, 7-9 days ago the last one (the window covers missed runs).
-const STAGES: { stage: UpsellStage; from: number; to: number }[] = [
-  { stage: 'day1', from: 3, to: 1 },
-  { stage: 'day7', from: 9, to: 7 },
-];
+// One email only, to tools submitted 1-3 days ago (the window covers missed runs). No follow-up: we don't nag.
+const STAGES: { stage: UpsellStage; from: number; to: number }[] = [{ stage: 'day1', from: 3, to: 1 }];
 
 // Free submissions still unpaid: tell the owner their link is nofollow and offer the $49 upgrade.
-// Each tool gets each stage once (cron_sends). ?dry=1 lists who would get what, without sending.
+// Each person gets it once ever, keyed by email in cron_sends (even with several free tools). ?dry=1 lists who would get what, without sending.
+// Not behind the EMAIL_CRONS_ENABLED switch: no old system sends this one.
 export const GET = cronRoute(JOB, async () => {
   return run(false);
-});
+}, { alwaysOn: true });
 
 export async function POST(req: Request) {
   // Manual dry run: same auth as the cron, nothing is sent.
@@ -59,7 +57,7 @@ async function run(dry: boolean) {
         outcomes.push(`${tool.slug} -> ${email}: ${mail.subject}`);
         continue;
       }
-      const sent = await sendOnce(JOB, stage, String(tool.id), async () => {
+      const sent = await sendOnce(JOB, 'once', email.toLowerCase(), async () => {
         const { error: sendError } = await resend.emails.send({
           from: 'John from DevHunt <hey@devhunt.org>',
           to: email,

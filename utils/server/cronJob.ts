@@ -32,12 +32,12 @@ export async function sendOnce(job: string, period: string, key: string, send: (
 }
 
 // Wraps a cron route: auth, JSON result, and a Discord alert on failure (the next scheduled run retries).
-export function cronRoute(job: string, run: () => Promise<Record<string, unknown>>) {
+export function cronRoute(job: string, run: () => Promise<Record<string, unknown>>, opts: { alwaysOn?: boolean } = {}) {
   return async (req: Request) => {
     if (!isAuthorizedCron(req)) return new NextResponse('Unauthorized', { status: 401 });
     // Kill switch: the old external schedulers still send these emails, so scheduled Vercel Cron runs do
     // nothing until EMAIL_CRONS_ENABLED=true. Manual calls (MARSX_MAILER_AUTH, dry runs) still work.
-    if (req.headers.get('user-agent')?.startsWith('vercel-cron') && process.env.EMAIL_CRONS_ENABLED !== 'true') {
+    if (!opts.alwaysOn && req.headers.get('user-agent')?.startsWith('vercel-cron') && process.env.EMAIL_CRONS_ENABLED !== 'true') {
       console.log(`[cron] ${job} disabled (EMAIL_CRONS_ENABLED is not true)`);
       return NextResponse.json({ success: true, disabled: true });
     }
