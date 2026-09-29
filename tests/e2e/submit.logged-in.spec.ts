@@ -40,8 +40,8 @@ test('submit a tool, then keep the free launch date on the next step', async ({ 
   // Step 2: the tool already sits in the free queue; the owner picks free or a paid week.
   await page.waitForURL(/\/account\/tools\/activate-launch\/qa-form-tool-\d+\?new=1/, { timeout: 60_000 });
   createdSlug = new URL(page.url()).pathname.split('/').pop();
-  await expect(page.getByText(`${name} is submitted`)).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Pick your launch date' })).toBeVisible();
+  await expect(page.getByText(`Launch plan · ${name}`)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /in front of .* developers/ })).toBeVisible();
 
   const { data } = await serviceDb().from('products').select('isPaid, paid_launch_date, launch_start').eq('slug', createdSlug!).single();
   expect(data!.isPaid).toBe(false);
@@ -59,7 +59,7 @@ test('submit a tool, then keep the free launch date on the next step', async ({ 
   await page.locator(`label:has(input[value="${third}"])`).click();
   await expect(weeks.nth(2)).toBeChecked();
   const thirdDate = new Date(`${third}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
-  await expect(page.getByRole('button', { name: `Pay $49 and launch on ${thirdDate}` })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Launch on ${thirdDate} for $49` })).toBeVisible();
   await expectNoHorizontalScroll(page);
   await page.screenshot({ path: testInfo.outputPath('launch-date.png'), fullPage: true });
 

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { trackStep } from '@/utils/funnelClient';
 import moment from 'moment';
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import { Check, Home, Link2, Mail, Trophy, Twitter } from 'lucide-react';
 import { IconLoading } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
@@ -27,6 +27,50 @@ type Tool = {
 type Week = { startDate: Date; endDate: Date };
 
 const PAID_WEEKS = 4;
+
+// Numbers behind the paid launch pitch, from the database on 2026-09-29 (avg impressions of tools
+// launched in the last 12 months; top 3 = weekly top-3 finishers). Refresh them now and then.
+const DOMAIN_RATING = 65;
+const PERKS = {
+  users: '40,000+',
+  xFollowers: '3,600+',
+  paidImpressions: '3,000',
+  freeImpressions: '700',
+  winnerImpressions: '11,000+',
+  daytonaImpressions: '216,000',
+};
+const PERK_LIST = [
+  {
+    icon: Home,
+    stat: `~${PERKS.paidImpressions} impressions`,
+    title: 'from a week on the home page',
+    body: `Paid launches average ${PERKS.paidImpressions} impressions, 4x more than free listings (${PERKS.freeImpressions}), because they're featured where every visitor lands.`,
+  },
+  {
+    icon: Mail,
+    stat: PERKS.users,
+    title: 'developer inboxes',
+    body: 'Your launch goes out in the DevHunt newsletter to every registered developer, on your launch day.',
+  },
+  {
+    icon: Twitter,
+    stat: PERKS.xFollowers,
+    title: 'followers on X',
+    body: 'We post your launch on @devhunt_ to a following of founders, devs and investors.',
+  },
+  {
+    icon: Link2,
+    stat: `DR ${DOMAIN_RATING}`,
+    title: 'dofollow backlink, for good',
+    body: 'Helps you rank in Google and get cited by ChatGPT, Perplexity and other AI answers. Free listings get nofollow, which passes nothing.',
+  },
+  {
+    icon: Trophy,
+    stat: PERKS.winnerImpressions,
+    title: 'impressions if you win',
+    body: `Weekly top-3 tools average ${PERKS.winnerImpressions} impressions and keep the winner badge. Daytona won its week and has ${PERKS.daytonaImpressions} so far.`,
+  },
+];
 
 // Next step after submitting a tool (and the "Skip the queue" page): keep the free launch date, or
 // pay $49 to launch in one of the next 4 weeks. The launch is only marked as paid by the server
@@ -253,89 +297,112 @@ export default function ActivateLaunch({ params: { slug } }: { params: { slug: s
       )}
 
       {(status === 'ready' || status === 'redirecting') && tool && tool.moderation !== 'not_a_fit' && (
-        <div className={mergeTW('mx-auto mt-4 space-y-8 py-12', freeDate ? 'max-w-3xl' : 'max-w-lg')}>
-          <div>
-            {isNew && (
-              <p className="inline-flex items-center gap-x-1.5 text-sm text-green-400 font-medium">
-                <Check className="w-4 h-4" strokeWidth={3} /> {tool.name} is submitted
-              </p>
-            )}
-            <h1 className="mt-2 text-2xl font-semibold text-slate-50">Pick your launch date</h1>
-            <p className="mt-2 text-slate-400">
-              Paid launches get a dofollow backlink (DR 65), a home page spotlight and a spot in our morning newsletter. Free listings link with nofollow.
+        <div className="mx-auto max-w-5xl py-10 md:py-14">
+          <div className="max-w-2xl">
+            <p className="truncate font-mono text-xs uppercase tracking-[0.14em] text-orange-400">Launch plan · {tool.name}</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-50 md:text-4xl">
+              Put it in front of {PERKS.users} developers
+            </h1>
+            <p className="mt-3 text-slate-400">
+              A paid launch is a full week of promotion across everything DevHunt has, plus a backlink that keeps working after the week is over.
             </p>
           </div>
-          {canceled && <p className="text-sm text-orange-300">The payment was canceled. You can try again whenever you're ready.</p>}
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {canceled && <p className="mt-6 text-sm text-orange-300">The payment was canceled. You can try again whenever you&apos;re ready.</p>}
+          {error && <p className="mt-6 text-sm text-red-400">{error}</p>}
 
-          <div className={mergeTW('grid gap-4', freeDate ? 'md:grid-cols-2' : '')}>
-            {freeDate && (
-              <div className="flex flex-col rounded-xl border border-slate-700 bg-slate-800/30 p-5">
-                <div className="flex items-center justify-between gap-x-2">
-                  <h2 className="text-lg font-semibold text-slate-50">Free launch</h2>
-                  <span className="flex-none rounded-full bg-slate-700 px-2.5 py-0.5 text-sm font-semibold text-slate-200">Free</span>
+          <div className="mt-10 grid gap-10 md:grid-cols-[1fr_360px] md:gap-12">
+            <ul className="space-y-6">
+              {PERK_LIST.map(({ icon: Icon, stat, title, body }) => (
+                <li key={title} className="flex gap-x-4">
+                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-lg border border-slate-800 bg-slate-800/50 text-orange-400">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-slate-100">
+                      <span className="font-semibold text-slate-50">{stat}</span> {title}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-400">{body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="md:sticky md:top-24 md:self-start">
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-medium text-slate-300">Pick your launch week</p>
+                  <p className="text-slate-50">
+                    <span className="text-2xl font-semibold">$49</span> <span className="text-sm text-slate-500">one-time</span>
+                  </p>
                 </div>
-                <p className="mt-1 text-sm text-slate-400">Wait for the next free spot in the queue (15 free tools per week).</p>
-                <div className="mt-4 rounded-lg border border-slate-700 px-3 py-2 text-sm">
-                  <span className="block font-medium text-slate-200">{freeDate.format('LL')}</span>
-                  <span className="block text-xs text-slate-400">{freeDate.fromNow()}</span>
-                </div>
-                <div className="mt-auto pt-5">
+                <fieldset className="mt-4 grid grid-cols-2 gap-2" aria-label="Launch week">
+                  {weeks.map((w, idx) => {
+                    const key = weekKey(w.startDate);
+                    const selected = key === week;
+                    return (
+                      <label
+                        key={key}
+                        className={mergeTW(
+                          'cursor-pointer rounded-lg border px-3 py-2 text-sm transition-colors',
+                          selected ? 'border-orange-500 bg-orange-500/10 text-slate-50 ring-1 ring-orange-500' : 'border-slate-800 text-slate-300 hover:border-slate-600',
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="week"
+                          value={key}
+                          checked={selected}
+                          onChange={() => {
+                            setWeek(key);
+                            if (tool) trackStep('week_picked', { week: key }, tool.id);
+                          }}
+                          className="sr-only"
+                        />
+                        <span className="block font-medium">{moment.utc(w.startDate).format('MMM D')}</span>
+                        <span className={mergeTW('block text-xs', selected ? 'text-orange-300' : 'text-slate-500')}>
+                          {idx === 0 ? 'Next week' : `In ${idx + 1} weeks`}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </fieldset>
+                <button
+                  onClick={() => void pay()}
+                  disabled={!week || status === 'redirecting'}
+                  className="mt-4 w-full rounded-lg bg-orange-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-orange-400 disabled:opacity-50"
+                >
+                  {status === 'redirecting' ? 'Opening secure checkout...' : `Launch on ${paidDate ?? 'your week'} for $49`}
+                </button>
+                <ul className="mt-4 space-y-1.5 text-xs text-slate-400">
+                  {['Home page for the whole week', `Newsletter to ${PERKS.users} developers`, `Post on X to ${PERKS.xFollowers} followers`, `Dofollow backlink, DR ${DOMAIN_RATING}`].map(
+                    item => (
+                      <li key={item} className="flex items-center gap-x-2">
+                        <Check className="h-3.5 w-3.5 flex-none text-orange-400" strokeWidth={3} /> {item}
+                      </li>
+                    ),
+                  )}
+                </ul>
+                <p className="mt-4 border-t border-slate-800 pt-3 text-xs text-slate-500">Secure payment by Stripe. No subscription.</p>
+              </div>
+
+              <div className="mt-5 text-center">
+                {freeDate ? (
                   <button
                     onClick={keepFree}
                     disabled={status === 'redirecting'}
-                    className="w-full rounded-lg border border-slate-600 px-4 py-2.5 text-sm font-medium text-slate-300 hover:border-slate-400 hover:text-slate-100 disabled:opacity-50 duration-150"
+                    className="text-sm text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline disabled:opacity-50"
                   >
                     Launch for free on {freeDate.format('LL')}
                   </button>
-                </div>
+                ) : (
+                  <Link href="/account/tools" className="text-sm text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline">
+                    Not now
+                  </Link>
+                )}
+                <p className="mt-1 text-xs text-slate-600">Free listings get a nofollow link and no newsletter or X post.</p>
               </div>
-            )}
-            <div className="flex flex-col rounded-xl border border-orange-500/70 bg-slate-800/60 p-5">
-              <div className="flex items-center justify-between gap-x-2">
-                <h2 className="text-lg font-semibold text-slate-50">Launch in the next 4 weeks</h2>
-                <span className="flex-none rounded-full bg-orange-500 px-2.5 py-0.5 text-sm font-semibold text-white">$49</span>
-              </div>
-              <p className="mt-1 text-sm text-slate-400">
-                A dofollow backlink from DevHunt (DR 65), your pick of launch week, and a rich launch page with your awards, reviews and press.
-              </p>
-              <fieldset className="mt-4 grid grid-cols-2 gap-2" aria-label="Launch week">
-                {weeks.map((w, idx) => {
-                  const key = weekKey(w.startDate);
-                  const selected = key === week;
-                  return (
-                    <label
-                      key={key}
-                      className={mergeTW(
-                        'cursor-pointer rounded-lg border px-3 py-2 text-sm',
-                        selected ? 'border-orange-500 bg-orange-500 text-white' : 'border-slate-700 text-slate-300 hover:border-slate-500',
-                      )}
-                    >
-                      <input type="radio" name="week" value={key} checked={selected} onChange={() => {
-                        setWeek(key);
-                        if (tool) trackStep('week_picked', { week: key }, tool.id);
-                      }} className="sr-only" />
-                      <span className="block font-medium">{moment.utc(w.startDate).format('MMM D')}</span>
-                      <span className={mergeTW('block text-xs', selected ? 'text-orange-100' : 'text-slate-400')}>{idx === 0 ? 'Next week' : `In ${idx + 1} weeks`}</span>
-                    </label>
-                  );
-                })}
-              </fieldset>
-              <button
-                onClick={() => void pay()}
-                disabled={!week || status === 'redirecting'}
-                className="mt-5 w-full rounded-lg bg-orange-500 px-4 py-2.5 font-semibold text-white hover:bg-orange-400 disabled:opacity-50 transition-colors"
-              >
-                {status === 'redirecting' ? 'Opening secure checkout...' : `Pay $49${paidDate ? ` and launch on ${paidDate}` : ''}`}
-              </button>
-              <p className="mt-2 text-xs text-slate-500">Payments are processed securely by Stripe.</p>
             </div>
           </div>
-          {!freeDate && (
-            <Link href="/account/tools" className="block text-center text-sm text-slate-500 hover:text-slate-300">
-              Not now
-            </Link>
-          )}
         </div>
       )}
     </section>
