@@ -35,6 +35,12 @@ export async function sendOnce(job: string, period: string, key: string, send: (
 export function cronRoute(job: string, run: () => Promise<Record<string, unknown>>) {
   return async (req: Request) => {
     if (!isAuthorizedCron(req)) return new NextResponse('Unauthorized', { status: 401 });
+    // Kill switch: the old external schedulers still send these emails, so scheduled Vercel Cron runs do
+    // nothing until EMAIL_CRONS_ENABLED=true. Manual calls (MARSX_MAILER_AUTH, dry runs) still work.
+    if (req.headers.get('user-agent')?.startsWith('vercel-cron') && process.env.EMAIL_CRONS_ENABLED !== 'true') {
+      console.log(`[cron] ${job} disabled (EMAIL_CRONS_ENABLED is not true)`);
+      return NextResponse.json({ success: true, disabled: true });
+    }
     try {
       const result = await run();
       console.log(`[cron] ${job}`, JSON.stringify(result));
