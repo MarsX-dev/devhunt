@@ -5,6 +5,7 @@ import SectionLabel from '@/components/ui/SectionLabel';
 import FunnelReport from './FunnelReport';
 import AdsReport from './AdsReport';
 import ModerationReport from './ModerationReport';
+import RevenueReport from './RevenueReport';
 import { isAdmin } from '@/utils/server/admin';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -177,6 +178,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: { 
           </ul>
         </div>
       </div>
+      <RevenueReport />
       <FunnelReport days={days} step={searchParams?.step} />
       <AdsReport days={days} />
       <ModerationReport days={days} />
