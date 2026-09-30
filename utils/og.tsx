@@ -58,17 +58,39 @@ export function sized(url: string | null | undefined, width: number, format: 'pn
   }
 }
 
-// Images as data URLs: one that fails to load is left out instead of breaking the card.
-export async function dataUrl(url: string | null | undefined, timeoutMs = 5000): Promise<string | null> {
+// Pixel size from a PNG, GIF or JPEG header, so a card can frame an image at its own aspect ratio.
+function imageSize(b: Buffer): { width: number; height: number } | null {
+  if (b.length > 24 && b.readUInt32BE(0) === 0x89504e47) return { width: b.readUInt32BE(16), height: b.readUInt32BE(20) };
+  if (b.length > 10 && b.toString('ascii', 0, 3) === 'GIF') return { width: b.readUInt16LE(6), height: b.readUInt16LE(8) };
+  if (b[0] === 0xff && b[1] === 0xd8) {
+    for (let i = 2; i + 9 < b.length; ) {
+      if (b[i] !== 0xff) return null;
+      const marker = b[i + 1];
+      // SOF0..SOF15 hold the frame size (C4 DHT, C8 JPG and CC DAC share the range but don't).
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) return { width: b.readUInt16BE(i + 7), height: b.readUInt16BE(i + 5) };
+      i += 2 + b.readUInt16BE(i + 2);
+    }
+  }
+  return null;
+}
+
+// Images as data URLs (with their size when readable): one that fails to load is left out instead of breaking the card.
+export async function image(url: string | null | undefined, timeoutMs = 5000): Promise<{ src: string; width: number; height: number } | null> {
   if (!url) return null;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
     const type = res.headers.get('content-type') ?? '';
     if (!res.ok || !/^image\/(png|jpe?g|gif)/.test(type)) return null;
-    return `data:${type};base64,${Buffer.from(await res.arrayBuffer()).toString('base64')}`;
+    const buf = Buffer.from(await res.arrayBuffer());
+    const size = imageSize(buf) ?? { width: 0, height: 0 };
+    return { src: `data:${type};base64,${buf.toString('base64')}`, ...size };
   } catch {
     return null;
   }
+}
+
+export async function dataUrl(url: string | null | undefined, timeoutMs = 5000): Promise<string | null> {
+  return (await image(url, timeoutMs))?.src ?? null;
 }
 
 // A logo, or the first letter on a tile when there is none.

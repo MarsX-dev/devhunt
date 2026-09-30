@@ -1,6 +1,6 @@
 import { getToolPageData } from '@/utils/toolPageData';
 import { getWeekRank } from '@/utils/weekRank';
-import { C, Frame, Logo, MONO, clip, dataUrl, ogImage, sized } from '@/utils/og';
+import { C, Frame, Logo, MONO, clip, dataUrl, image, ogImage, sized } from '@/utils/og';
 
 export const revalidate = 3600;
 
@@ -24,8 +24,14 @@ export async function GET(_req: Request, { params }: { params: { slug: string } 
   const [rank, logo, shot] = await Promise.all([
     getWeekRank(tool as any).catch(() => undefined),
     dataUrl(sized(tool.logo_url, 192)),
-    dataUrl(sized(tool.asset_urls?.[0], 1200, 'jpg'), 8000),
+    image(sized(tool.asset_urls?.[0], 1200, 'jpg'), 8000),
   ]);
+  // The whole screenshot, scaled to fit the right column at its own aspect ratio (a fixed box with
+  // objectFit cover cut the sides off most of them). Unknown size: assume 16:10.
+  const box = { w: 566, h: 490 };
+  const ratio = shot && shot.width && shot.height ? shot.width / shot.height : 1.6;
+  const shotW = Math.round(Math.min(box.w, box.h * ratio));
+  const shotH = Math.round(shotW / ratio);
   const votes = `▲ ${(tool.votes_count ?? 0).toLocaleString('en-US')} upvote${tool.votes_count === 1 ? '' : 's'}`;
   const chips: { text: string; tone: 'win' | 'live' | 'plain' }[] =
     end < now && rank && rank <= 3
@@ -53,13 +59,13 @@ export async function GET(_req: Request, { params }: { params: { slug: string } 
           </div>
         </div>
         {shot && (
-          <div style={{ display: 'flex', flex: 1, marginRight: -60, marginTop: 6 }}>
+          <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={shot}
-              width={660}
-              height={470}
-              style={{ width: 660, height: 470, objectFit: 'cover', objectPosition: 'left top', borderRadius: '18px 0 0 18px', border: `2px solid #393633`, borderRight: 'none' }}
+              src={shot.src}
+              width={shotW}
+              height={shotH}
+              style={{ width: shotW, height: shotH, borderRadius: 16, border: `2px solid #393633`, boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
             />
           </div>
         )}
