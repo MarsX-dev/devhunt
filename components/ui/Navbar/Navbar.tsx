@@ -120,7 +120,7 @@ export default () => {
               </div>
             </div>
           </div>
-          <div onClick={closeMenusOnLink} className={`flex-1 lg:static  ${isActive ? 'w-full fixed top-14 bottom-0 inset-x-0 px-4 pb-4 overflow-y-auto overscroll-contain lg:px-0' : 'hidden lg:block'}`}>
+          <div onClick={closeMenusOnLink} className={`flex-1 lg:static  ${isActive ? 'w-full fixed top-14 h-[calc(100dvh-3.5rem)] inset-x-0 px-4 pb-20 overflow-y-auto overscroll-contain lg:px-0' : 'hidden lg:block'}`}>
             <div className="p-4 px-4 mt-8 text-sm bg-slate-900 rounded-lg lg:block lg:mt-0 lg:p-0 lg:bg-transparent">
               <ul className="justify-end items-center space-y-6 text-slate-400 lg:flex lg:space-x-4 lg:space-y-0">
                 {!isLoggedin ? (
