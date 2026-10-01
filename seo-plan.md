@@ -251,7 +251,10 @@ Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs we
   - Comparisons are indexed when both tools are reference listings (Cursor vs Windsurf, Supabase vs Firebase, Postman vs Insomnia...).
   - The profile generator now always offers same-category reference listings as candidates.
   - Wrong picks were removed by hand: Stripe, Docker and GitHub Actions have no true peers listed yet; PostHog/Plausible ↔ Supabase removed. **Regenerating a profile can bring wrong picks back; re-check after any FORCE regeneration.**
-  - Next: list the missing peers (Podman, GitLab CI, CircleCI, Paddle, Lemon Squeezy, Mixpanel, Amplitude...) and reread GSC for "{tool} alternatives" in ~3 weeks. Demand (US/month, KD):
+  - **Batch 2 added 2026-10-01 (81 reference listings total):** Paddle, Lemon Squeezy, Polar, GitLab CI, CircleCI, Podman, Kubernetes, Terraform, Coolify, Mixpanel, Amplitude, Google Analytics, Umami, Grafana, New Relic, Better Stack, PlanetScale, MongoDB, Convex, Turso, Prisma, WorkOS, Better Auth, Mintlify, GitBook, Docusaurus, Playwright, Cypress, Resend, Postmark, Zapier, Make, LlamaIndex, Mastra, AI SDK, Material UI, Next.js, Strapi, Sanity.
+  - Profiles were regenerated so peers pick each other (Stripe → Paddle, Polar, Lemon Squeezy; Datadog → New Relic, Grafana, Better Stack).
+  - About 45 wrong picks were removed by hand, and three entries were hand-written (Playwright ↔ Cypress, Strapi → Sanity).
+  - Reread GSC for "{tool} alternatives" and "X vs Y" in ~3 weeks. Demand (US/month, KD):
 
   | Tool | Volume | KD |
   |---|---|---|
