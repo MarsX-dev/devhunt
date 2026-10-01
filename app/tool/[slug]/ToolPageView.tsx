@@ -61,7 +61,7 @@ export default async function ToolPageView({ data, slug, banner }: { data: ToolP
     { name: 'About', hash: '#description' },
     ...(profile?.data.features.length && sectionShown(profile.data, 'features') ? [{ name: 'Features', hash: '#features' }] : []),
     ...(profile?.compare.length && sectionShown(profile.data, 'compare') ? [{ name: 'Alternatives', hash: '#compare' }] : []),
-    { name: 'Maker', hash: '#details' },
+    { name: (product as { is_reference?: boolean }).is_reference ? 'Listing' : 'Maker', hash: '#details' },
     { name: 'Trending', hash: '#launches' },
   ];
 

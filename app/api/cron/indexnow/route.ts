@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     // Edited (live tools only: unlaunched free-queue pages are thin until launch day), launched in the
     // window, or removed (soft delete sets deleted_at, not updated_at).
     .or(
-      `and(deleted.eq.false,updated_at.gte.${since},or(launch_start.lte.${now},isPaid.eq.true)),and(deleted.eq.false,launch_start.gte.${since},launch_start.lte.${now}),deleted_at.gte.${since}`,
+      `and(deleted.eq.false,updated_at.gte.${since},or(launch_start.lte.${now},isPaid.eq.true,is_reference.eq.true)),and(deleted.eq.false,launch_start.gte.${since},launch_start.lte.${now}),deleted_at.gte.${since}`,
     )
     .limit(10_000);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

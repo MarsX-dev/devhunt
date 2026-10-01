@@ -115,3 +115,11 @@ describe('monthly roundups', () => {
     expect(monthName({ year: 2026, month: 9 })).toBe('September 2026');
   });
 });
+
+describe('reference listings', () => {
+  it('index their alternatives and comparisons regardless of votes', async () => {
+    const { alternativesIndexable, compareIndexable } = await import('@/utils/seoIndex');
+    expect(alternativesIndexable({ slug: 'cursor', votes_count: 0, is_reference: true })).toBe(true);
+    expect(compareIndexable({ slug: 'cursor', votes_count: 0, is_reference: true }, { slug: 'x', votes_count: 0 })).toBe(true);
+  });
+});

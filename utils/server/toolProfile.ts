@@ -70,7 +70,7 @@ async function candidatesFor(productId: number, categoryIds: number[]): Promise<
     .eq('moderation', 'ok')
     .eq('site_status', 'ok')
     .neq('id', productId)
-    .not('launch_start', 'is', null)
+    .or('launch_start.not.is.null,is_reference.eq.true') // launched tools and DevHunt's reference listings
     .order('votes_count', { ascending: false })
     .limit(40);
   const seen = new Set<number>();

@@ -21,9 +21,10 @@ interface Props extends React.HTMLAttributes<HTMLButtonElement> {
   launchDate: string | number;
   launchEnd: string | number;
   votesToday?: number; // real votes in the last 24 hours, replayed as floating upvotes
+  alwaysOpen?: boolean; // reference listings (well-known tools DevHunt lists) take votes any time
 }
 
-export default ({ count, productId, className = '', launchDate = '', launchEnd = '', votesToday = 0, ...props }: Props) => {
+export default ({ count, productId, className = '', launchDate = '', launchEnd = '', votesToday = 0, alwaysOpen = false, ...props }: Props) => {
   // call to trigger a vote
   // client only -- move to client component for Voting
   const { session } = useSupabase();
@@ -42,7 +43,8 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
   const shadowElRef = useRef<HTMLDivElement>(null);
   const voteCountRef = useRef<HTMLSpanElement>(null);
 
-  const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
+  const isLaunchStarted = alwaysOpen || new Date(launchDate).getTime() <= Date.now();
+  const isVotingOpen = alwaysOpen || (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now());
 
   const toggleVote = async () => {
     if (session && session.user) {
@@ -51,7 +53,7 @@ export default ({ count, productId, className = '', launchDate = '', launchEnd =
           ? { title: 'Not Launched Yet!', desc: `Oops, this tool hasn't launched yet! Check back on ${customDateFromNow(launchDate)}.` }
           : { title: 'Voting has ended', desc: `Voting for this tool closed at the end of its launch week. It launched ${customDateFromNow(launchDate)}.` },
       );
-      if (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now()) {
+      if (isVotingOpen) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
         setUpvoted(!isUpvoted);
         setPendingVote(false);

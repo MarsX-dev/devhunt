@@ -101,6 +101,36 @@ export function CategoryHubIntro({ name, total, top, stats }: HubProps) {
   );
 }
 
+// DevHunt's reference listings (well-known tools that never launched here), so the category isn't missing
+// the tools everyone expects. Shown above the vote ranking, not mixed into it.
+export function CategoryWellKnown({ name, tools }: { name: string; tools: CategoryHubStats['wellKnown'] }) {
+  if (!tools.length) return null;
+  return (
+    <div className="mt-6">
+      <SectionLabel title={`Well-known ${name} tools`} hint="listed by DevHunt" />
+      <ul className="mt-3 flex flex-wrap gap-2">
+        {tools.map(t => (
+          <li key={t.slug}>
+            <Link
+              href={`/tool/${t.slug}`}
+              className="inline-flex items-center gap-x-2 rounded-full border border-slate-800 py-1 pl-1 pr-3 text-sm text-slate-300 hover:border-slate-600 hover:text-white"
+            >
+              {t.logo_url
+                ? (
+                <img src={t.logo_url.replace(/w=\d+/g, 'w=48')} alt="" className="h-6 w-6 rounded-full bg-slate-800 object-cover" />
+                  )
+                : (
+                <span className="h-6 w-6 rounded-full bg-slate-800" />
+                  )}
+              {t.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function CategoryHubFaq({ faq, name }: { faq: { q: string; a: string }[]; name: string }) {
   return (
     <div className="mt-12">

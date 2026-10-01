@@ -15,8 +15,8 @@ export async function getLiveTools(): Promise<SitemapTool[]> {
       .from('products')
       .select('slug, updated_at, profiles (username)')
       .eq('deleted', false)
-      // Launched tools and paid listings; the free queue years ahead would be thin, unlaunched pages.
-      .or(`launch_start.lte.${new Date().toISOString()},isPaid.eq.true`)
+      // Launched tools, paid listings and reference listings; the free queue years ahead would be thin, unlaunched pages.
+      .or(`launch_start.lte.${new Date().toISOString()},isPaid.eq.true,is_reference.eq.true`)
       .order('id')
       .range(from, from + PAGE_SIZE - 1);
     if (error) throw new Error(error.message);

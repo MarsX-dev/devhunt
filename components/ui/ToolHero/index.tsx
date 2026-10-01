@@ -17,9 +17,14 @@ import addHttpsToUrl from '@/utils/addHttpsToUrl';
 import handleURLQuery from '@/utils/handleURLQuery';
 import { relFor } from '@/utils/links';
 
-type Phase = 'upcoming' | 'live' | 'ended';
+// 'reference': a well-known tool DevHunt lists itself (products.is_reference). It never launches: no dates,
+// no contest, votes open any time.
+type Phase = 'upcoming' | 'live' | 'ended' | 'reference';
+
+export const isReference = (tool: unknown) => !!(tool as { is_reference?: boolean } | null)?.is_reference;
 
 export function launchPhase(tool: Pick<ProductType, 'launch_start' | 'launch_end'>, now = Date.now()): Phase {
+  if (isReference(tool)) return 'reference';
   if (!tool.launch_start || Date.parse(tool.launch_start) > now) return 'upcoming';
   return tool.launch_end && Date.parse(tool.launch_end) < now ? 'ended' : 'live';
 }
@@ -37,6 +42,9 @@ function useMinuteClock() {
 function StatusPill({ tool, phase, weekRank }: { tool: ProductType; phase: Phase; weekRank?: number }) {
   const now = useMinuteClock();
   const base = 'inline-flex items-center gap-x-2 rounded-full border px-3 py-1 text-xs';
+  if (phase === 'reference') {
+    return <span className={`${base} border-slate-700 bg-slate-900 text-slate-400`}>Listed by DevHunt</span>;
+  }
   // "Other" tools (not for developers) launch without competing: no countdown, votes or rank.
   if (phase === 'live' && (tool as { moderation?: string }).moderation === 'not_a_fit') {
     return (
@@ -158,6 +166,7 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
             launchDate={tool.launch_date}
             launchEnd={tool.launch_end as string}
             votesToday={votesToday}
+            alwaysOpen={phase === 'reference'}
           />
         )}
       </div>
@@ -191,7 +200,8 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
       </p>
 
       {/* owner undefined = still loading (preview modal): keep the row's space with a skeleton. */}
-      {owner !== null && (
+      {/* Reference listings have no maker; the voters row starts with the maker, so it's skipped. */}
+      {owner !== null && phase !== 'reference' && (
         <div className="mt-4">{owner ? <VoterAvatarsList productId={tool.id} owner={owner} small /> : <VotersSkeleton small />}</div>
       )}
     </div>
@@ -200,6 +210,21 @@ export default function ToolHero({ tool, owner, weekRank, votesToday = 0, commen
 
 // "The maker" card near the bottom of a tool page.
 export function ToolMaker({ tool, owner }: { tool: ProductType; owner?: Profile | null }) {
+  if (isReference(tool)) {
+    return (
+      <div id="details">
+        <SectionLabel title="About this listing" />
+        <p className="mt-4 rounded-2xl border border-slate-800 p-4 text-sm leading-relaxed text-slate-400">
+          DevHunt lists {tool.name} because developers expect to find it next to the tools in its category. It did not launch on DevHunt.
+          Work on {tool.name}?{' '}
+          <a href="https://x.com/johnrush" target="_blank" rel="noopener" className="text-slate-200 underline decoration-slate-600 underline-offset-2 hover:text-white">
+            Message us to claim this listing
+          </a>
+          .
+        </p>
+      </div>
+    );
+  }
   if (owner === null) return null;
   if (!owner)
     return (

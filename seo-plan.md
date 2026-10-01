@@ -204,10 +204,10 @@ Owners: **[C]** Claude can do it in this repo or with the connected tools; **[J]
 
 ## A2. Decisions and moderation
 
-- [ ] **[J]** Dev-only, or accept "software tools in general"? (~18% of query clicks are developer queries.) This decides which tools get alternatives and compare pages first.
-- [ ] **[J]** namso-gen (credit card number generator, 8,100 searches, pos 12–14): keep or hide under the fraud rule.
+- [x] **Decided 2026-10-01:** non-dev tools are fine as long as dev tools are the primary topic. Homepage and hubs feature dev tools; non-dev tool pages keep their traffic without being promoted.
+- [x] namso-gen stays (2026-10-01): a Luhn test-card generator developers use to test payment forms.
 - [ ] **[J]** Borderline listings: nofiltergpt (3581), deepswap (6350), imagetovideo (7224), soulmaite-io (3753).
-- [ ] **[J]** SEObot: stop auto-publishing, or keep it only for drafts a human edits and signs.
+- [x] SEObot auto-publishing stopped by John (2026-10-01).
 - [x] 48 NSFW/undress listings hidden (2026-09-27); new submissions moderated (`utils/moderation.ts`).
 
 ## A3. Technical SEO
@@ -240,7 +240,13 @@ Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs we
   - Mostly "Crawled – not indexed": improve the template first.
 - [ ] **[C]** Weekly for 6 weeks: site-wide clicks and impressions (a slow sitewide drop would point to quality).
 - [ ] **[C]** Make each programmatic page unique: votes and comments, a pricing table, a "best for" verdict, an FAQ from real questions; no near-duplicate text across pairs.
-- [ ] **[C]** **New pilot: alternatives for well-known dev tools.** Demand (US/month, KD):
+- [x] **Reference listings for well-known tools** (decided and built 2026-10-01):
+  - Cursor, Claude Code, Codex, Copilot, Supabase, Vercel, Postman and others: 42 in `utils/referenceTools.ts`, seeded by `scripts/seed-reference-tools.ts`.
+  - New `products.is_reference` column; only DevHunt can set it (guard triggers).
+  - No launch dates, so they never enter the weekly contest, roundups or launch stats. Votes are open any time.
+  - The page says "Listed by DevHunt" with a claim link instead of a maker.
+  - They appear in categories (as a "Well-known {X} tools" row above the vote ranking), search, the sitemap and as alternatives in other tools' profiles.
+- [ ] **[C]** **New pilot: alternatives for well-known dev tools** (unblocked by the reference listings; add them to `SEO_PILOT_SLUGS` once their profiles exist). Demand (US/month, KD):
 
   | Tool | Volume | KD |
   |---|---|---|
@@ -330,7 +336,7 @@ Each new template launches with a pilot batch and an indexing check.
   - A plain `<a href="https://devhunt.org/tool/{slug}"><img></a>` snippet (HTML or Markdown) in the dashboard's banner-code modal and on the post-launch guide.
   - The old launch banner is injected by a script and only advertises the live week; the badge is a crawlable link that keeps working.
   - Getting makers to embed it is B3.
-- [ ] **[C]** Build the maker SEO report: the tool page's Google impressions shown in the owner dashboard (and email, once John turns email crons on).
+- [x] ~~Maker SEO report~~ dropped (2026-10-01): makers won't watch stats on DevHunt.
 - [ ] **[C]** Original stats on hubs and guides (votes, launches, impressions per category). The GEO paper found quotes and statistics raise AI visibility (up to ~40% in its setup).
 - [ ] **[C]** Fold the 508 long (7+ word) GSC queries into hub FAQs; no page per variant.
 

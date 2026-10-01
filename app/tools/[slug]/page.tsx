@@ -11,7 +11,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import CategoryService from '@/utils/supabase/services/categories';
 import { getLeaderboardPage, LIST_PAGE_SIZE, pageFromParam } from '@/utils/toolLists';
 import { getCategoryHubStats } from '@/utils/categoryHub';
-import { CategoryHubFaq, CategoryHubIntro, categoryFaq, categoryJsonLd } from '@/components/ui/CategoryHub';
+import { CategoryHubFaq, CategoryHubIntro, CategoryWellKnown, categoryFaq, categoryJsonLd } from '@/components/ui/CategoryHub';
 
 type Params = { params: { slug: string }; searchParams: { page?: string } };
 
@@ -57,17 +57,27 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
       {hub && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd({ name: categoryName, slug, top: rows, faq })).replace(/</g, '\\u003c') }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(categoryJsonLd({ name: categoryName, slug, top: rows, faq })).replace(/</g, '\\u003c'),
+          }}
         />
       )}
       <PageHeader eyebrow="Category" title={`Best ${categoryName} tools`}>
         {categoryDescription(categoryName)} {total.toLocaleString('en-US')} tools, ranked by upvotes from the community.
       </PageHeader>
       {hub && <CategoryHubIntro {...hub} />}
+      {hub && <CategoryWellKnown name={categoryName} tools={hub.stats.wellKnown} />}
       <MonitizorAdCards />
       <ol className="mt-10 mb-4">
         {rows.map((tool, idx) => [
-          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} rank="row" rankDigits={String(page * LIST_PAGE_SIZE).length} />,
+          sponsorBefore(idx, rows.length) >= 0 && (
+            <InlineSponsor
+              key={`sponsor-${idx}`}
+              n={sponsorBefore(idx, rows.length)}
+              rank="row"
+              rankDigits={String(page * LIST_PAGE_SIZE).length}
+            />
+          ),
           <ToolRow
             key={tool.id}
             tool={tool}

@@ -15,12 +15,14 @@ export interface CompareProduct {
   logo_url: string | null;
   demo_url: string | null;
   votes_count: number;
+  is_reference: boolean;
   launch_start: string | null;
   pricing: string | null;
   categories: { id: number; name: string }[];
 }
 
-const PRODUCT_COLUMNS = 'id, slug, name, slogan, logo_url, demo_url, votes_count, launch_start, deleted, moderation, product_pricing_types(title), product_categories(id, name)';
+const PRODUCT_COLUMNS =
+  'id, slug, name, slogan, logo_url, demo_url, votes_count, is_reference, launch_start, deleted, moderation, product_pricing_types(title), product_categories(id, name)';
 
 const toCompareProduct = (p: any): CompareProduct => ({
   id: p.id,
@@ -30,6 +32,7 @@ const toCompareProduct = (p: any): CompareProduct => ({
   logo_url: p.logo_url,
   demo_url: p.demo_url,
   votes_count: p.votes_count ?? 0,
+  is_reference: !!p.is_reference,
   launch_start: p.launch_start,
   pricing: p.product_pricing_types?.title ?? null,
   categories: (p.product_categories ?? []).filter((c: any) => c.name !== 'Other'),
@@ -57,7 +60,7 @@ export const getAlternatives = unstable_cache(
         .in('product_category_product.category_id', categoryIds)
         .eq('deleted', false)
         .eq('moderation', 'ok')
-        .lte('launch_start', new Date().toISOString())
+        .or(`launch_start.lte.${new Date().toISOString()},is_reference.eq.true`)
         .order('votes_count', { ascending: false })
         .limit(40);
       const seen = new Set<number>();
@@ -66,7 +69,11 @@ export const getAlternatives = unstable_cache(
         .slice(0, 20)
         .map(toToolRow);
     }
-    return { tool, profile: profile && sectionShown(profile.data, 'compare') ? profile : profile ? { ...profile, compare: [] } : null, more };
+    return {
+      tool,
+      profile: profile && sectionShown(profile.data, 'compare') ? profile : profile ? { ...profile, compare: [] } : null,
+      more,
+    };
   },
   ['tool-alternatives'],
   { revalidate: 600 },
@@ -100,6 +107,7 @@ export const getComparison = unstable_cache(
 export interface SitemapTool {
   slug: string;
   votes_count: number;
+  is_reference?: boolean;
 }
 
 // Canonical pairs for the sitemap: every (tool, alternative) from visible profiles.
@@ -107,7 +115,10 @@ export async function comparisonPairs(): Promise<[SitemapTool, SitemapTool][]> {
   const client = createBrowserClient();
   const rows: { product_id: number; alternatives: { id: number }[] | null; hidden: string[] | null }[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data } = await client.from('tool_profiles' as never).select('product_id, alternatives:data->alternatives, hidden:data->hidden').range(from, from + 999);
+    const { data } = await client
+      .from('tool_profiles' as never)
+      .select('product_id, alternatives:data->alternatives, hidden:data->hidden')
+      .range(from, from + 999);
     rows.push(...((data ?? []) as any[]));
     if (!data || data.length < 1000) break;
   }
@@ -123,8 +134,12 @@ export async function comparisonPairs(): Promise<[SitemapTool, SitemapTool][]> {
   const tools = new Map<number, SitemapTool>();
   const idList = Array.from(ids);
   for (let i = 0; i < idList.length; i += 300) {
-    const { data } = await client.from('products').select('id, slug, votes_count, deleted').in('id', idList.slice(i, i + 300));
-    for (const p of (data ?? []) as any[]) if (!p.deleted) tools.set(p.id, { slug: p.slug, votes_count: p.votes_count ?? 0 });
+    const { data } = await client
+      .from('products')
+      .select('id, slug, votes_count, is_reference, deleted')
+      .in('id', idList.slice(i, i + 300));
+    for (const p of (data ?? []) as any[])
+      if (!p.deleted) tools.set(p.id, { slug: p.slug, votes_count: p.votes_count ?? 0, is_reference: !!p.is_reference });
   }
   const out = new Map<string, [SitemapTool, SitemapTool]>();
   for (const [x, y] of pairs) {
@@ -142,14 +157,22 @@ export async function toolsWithAlternatives(): Promise<SitemapTool[]> {
   const client = createBrowserClient();
   const ids: number[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data } = await client.from('tool_profiles' as never).select('product_id, alternatives:data->alternatives, hidden:data->hidden').range(from, from + 999);
-    for (const r of (data ?? []) as any[]) if (!r.hidden?.includes('compare') && Array.isArray(r.alternatives) && r.alternatives.length >= 2) ids.push(r.product_id);
+    const { data } = await client
+      .from('tool_profiles' as never)
+      .select('product_id, alternatives:data->alternatives, hidden:data->hidden')
+      .range(from, from + 999);
+    for (const r of (data ?? []) as any[])
+      if (!r.hidden?.includes('compare') && Array.isArray(r.alternatives) && r.alternatives.length >= 2) ids.push(r.product_id);
     if (!data || data.length < 1000) break;
   }
   const tools: SitemapTool[] = [];
   for (let i = 0; i < ids.length; i += 300) {
-    const { data } = await client.from('products').select('slug, votes_count, deleted').in('id', ids.slice(i, i + 300));
-    for (const p of (data ?? []) as any[]) if (!p.deleted) tools.push({ slug: p.slug, votes_count: p.votes_count ?? 0 });
+    const { data } = await client
+      .from('products')
+      .select('slug, votes_count, is_reference, deleted')
+      .in('id', ids.slice(i, i + 300));
+    for (const p of (data ?? []) as any[])
+      if (!p.deleted) tools.push({ slug: p.slug, votes_count: p.votes_count ?? 0, is_reference: !!p.is_reference });
   }
   return tools;
 }
