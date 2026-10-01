@@ -47,20 +47,20 @@ export default () => {
         <p>We're lucky to have some amazing contributors on board:</p>
         <ul>
           <li>
-            <a href="https://x.com/johnrush">John Rush</a>
+            <a href="https://x.com/johnrush" rel="nofollow noopener">John Rush</a>
           </li>
           <li>
-            <a href="https://twitter.com/sidi_jeddou_dev">Sidi Jeddou</a>
+            <a href="https://twitter.com/sidi_jeddou_dev" rel="nofollow noopener">Sidi Jeddou</a>
           </li>
           <li>
-            <a href="https://twitter.com/vitalik_may">Vitalik May</a>
+            <a href="https://twitter.com/vitalik_may" rel="nofollow noopener">Vitalik May</a>
           </li>
           <li>
-            <a href="https://twitter.com/BotanMan">Igor Boky</a>
+            <a href="https://twitter.com/BotanMan" rel="nofollow noopener">Igor Boky</a>
           </li>
 
           <li>
-            <a href="https://twitter.com/chris_byrne">Chris</a>
+            <a href="https://twitter.com/chris_byrne" rel="nofollow noopener">Chris</a>
           </li>
         </ul>
         <h2>Our Story</h2>

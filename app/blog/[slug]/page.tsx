@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { followOwnProducts } from '@/utils/links';
+import { blogLinkRels } from '@/utils/links';
 import { getArticle } from '@/utils/blog';
 import { blogNoindex, blogRedirect } from '@/utils/blogPrune';
 import { withBlogSeo } from '@/utils/blogSeo';
@@ -127,7 +127,7 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       }
       <div
         className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8 text-[15px] leading-7"
-        dangerouslySetInnerHTML={{ __html: followOwnProducts(post.html ?? '') }} // John's products followed; other links as SEObot wrote them
+        dangerouslySetInnerHTML={{ __html: blogLinkRels(post.html ?? '') }} // John's products followed; other outside links nofollow
       ></div>
       <div className="flex flex-wrap gap-2 justify-start w-full">
         {(post.tags || []).map((t: any, ix: number) => (

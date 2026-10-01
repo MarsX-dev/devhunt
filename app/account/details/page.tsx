@@ -135,7 +135,7 @@ function Profile() {
               {isEmailTyping ? (
                 <span className="absolute left-0 -top-1 text-sm bg-green-500 text-green-50 border border-green-600 rounded-full px-2 py-1">
                   Please{' '}
-                  <a href="https://twitter.com/devhunt_" target="_blank" className="font-medium underline">
+                  <a href="https://twitter.com/devhunt_" target="_blank" rel="nofollow noopener" className="font-medium underline">
                     contact us
                   </a>{' '}
                   on twitter to change your email

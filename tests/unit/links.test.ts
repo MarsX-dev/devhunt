@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { followOwnProducts, hostOf, isInternal, isOwnProduct, relFor, withLinkRels } from '@/utils/links';
+import { blogLinkRels, hostOf, isInternal, isOwnProduct, relFor, withLinkRels } from '@/utils/links';
 
 describe('hostOf', () => {
   it('reads hosts, with or without a scheme', () => {
@@ -46,10 +46,11 @@ describe('withLinkRels', () => {
   });
 });
 
-describe('followOwnProducts', () => {
-  it("drops nofollow only on John's products", () => {
-    expect(followOwnProducts('<a href="https://seobotai.com" rel="nofollow noopener">a</a>')).toBe('<a href="https://seobotai.com" rel="noopener">a</a>');
-    expect(followOwnProducts('<a rel="nofollow" href="https://seobotai.com">a</a>')).toBe('<a href="https://seobotai.com">a</a>');
-    expect(followOwnProducts('<a href="https://other.dev" rel="nofollow">a</a>')).toBe('<a href="https://other.dev" rel="nofollow">a</a>');
+describe('blogLinkRels', () => {
+  it("follows only John's products; every other outside link becomes nofollow", () => {
+    expect(blogLinkRels('<a href="https://seobotai.com" rel="nofollow noopener">a</a>')).toBe('<a href="https://seobotai.com" target="_blank" rel="noopener">a</a>');
+    expect(blogLinkRels('<a href="https://www.floatui.com/x">a</a>')).toBe('<a href="https://www.floatui.com/x" target="_blank" rel="noopener">a</a>');
+    expect(blogLinkRels('<a href="https://other.dev">a</a>')).toBe('<a href="https://other.dev" target="_blank" rel="nofollow noopener">a</a>');
+    expect(blogLinkRels('<a href="/blog/x">a</a>')).toBe('<a href="/blog/x">a</a>');
   });
 });

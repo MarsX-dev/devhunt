@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Brand from '../Brand/Brand';
 import NewsletterForm from '../Newsletter/NewsletterForm';
 import { categoryPath } from '@/utils/sitemap';
+import { relFor } from '@/utils/links';
 
 // Category hubs linked from every page, so crawlers reach them from anywhere (not only from in-content links).
 const FOOTER_CATEGORIES = ['AI', 'AI Coding', 'AI Agents', 'MCP', 'Open Source', 'DevOps', 'API', 'DB', 'Auth', 'Hosting', 'Testing', 'UI Library', 'Analytics'];
@@ -79,7 +80,7 @@ export default () => {
                     {item.name}
                   </Link>
                 ) : (
-                  <a href={item.href} className="block hover:text-slate-100 transition-colors duration-200">
+                  <a href={item.href} rel={relFor(item.href)} className="block hover:text-slate-100 transition-colors duration-200">
                     {item.name}
                   </a>
                 )}
@@ -103,14 +104,14 @@ export default () => {
         <div className="mt-8 items-center justify-between sm:flex">
           <div className="mt-4 sm:mt-0">
             &copy; {new Date().getFullYear()} Dev Hunt. Member of{' '}
-            <a className=" text-slate-100 hover:text-slate-50" href="https://www.marsx.dev/">
+            <a className=" text-slate-100 hover:text-slate-50" href="https://www.marsx.dev/" rel={relFor('https://www.marsx.dev/')}>
               MarsX.Dev
             </a>{' '}
             family. <br />
             <div className="text-xs pt-2">
               Uses & Sponsored by{' '}
               {usedTools.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="noopener" target="_blank">
+                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel={relFor(t.url)} target="_blank">
                   {t.title}
                   {usedTools.length - 1 === i ? '' : ', '}
                 </a>
@@ -120,7 +121,7 @@ export default () => {
             <div className="text-xs pt-2">
               Built by{' '}
               {builtBy.map((t, i) => (
-                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel="noopener" target="_blank">
+                <a className=" text-slate-200 hover:text-slate-50" key={i} href={t.url} rel={relFor(t.url)} target="_blank">
                   {t.title}
                   {builtBy.length - 1 === i ? '' : ', '}
                 </a>
@@ -128,13 +129,13 @@ export default () => {
               {'.'}
             </div>
             <div className="text-xs pt-2">
-              <a href="https://devhunt.openstatus.dev/">Status page</a>
+              <a href="https://devhunt.openstatus.dev/" rel={relFor('https://devhunt.openstatus.dev/')}>Status page</a>
             </div>
           </div>
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
               <li>
-                <a href="https://twitter.com/devhunt_" aria-label="DevHunt on X">
+                <a href="https://twitter.com/devhunt_" rel={relFor('https://twitter.com/devhunt_')} aria-label="DevHunt on X">
                   <svg className="svg-icon w-6 h-6 text-slate-500 hover:text-slate-300" viewBox="0 0 20 20">
                     <path
                       fill="none"

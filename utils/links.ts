@@ -35,6 +35,24 @@ export const OWN_PRODUCT_DOMAINS = [
   'saassoftware.org',
   'bestaiagents.org',
   'directoryhunt.org',
+  // From John's Ahrefs projects (2026-10-01) and his list: Float UI and the rest of the portfolio.
+  'floatui.com',
+  'float-ui.com',
+  'rapidforms.co',
+  'marketsy.ai',
+  'lorem.space',
+  'aibloggenerators.com',
+  'lowcodeplatforms.org',
+  'lowcodenocode.org',
+  'indiemakerlist.com',
+  'createinfluencer.com',
+  'employeeremote.com',
+  'minibusinessideas.com',
+  'aiscraper.co',
+  'seobesttools.org',
+  'tailwindgpt.co',
+  'vclist.org',
+  'startupstools.com',
 ] as const;
 
 // Lowercased host without "www.", or null for relative/invalid URLs. Bare domains ("example.com/x") count.
@@ -90,14 +108,6 @@ export function withLinkRels(html: string, options: RelOptions = {}): string {
   });
 }
 
-// Blog articles (SEObot HTML): links to John's products lose their nofollow; every other link is left as written.
-export function followOwnProducts(html: string): string {
-  return html.replace(/<a\b([^>]*)>/gi, (tag, attrs: string) => {
-    const href = /\shref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(attrs);
-    if (!href || !isOwnProduct(href[1] ?? href[2] ?? href[3])) return tag;
-    return tag.replace(/\srel\s*=\s*(["'])([^"']*)\1/i, (_m, q: string, value: string) => {
-      const kept = value.split(/\s+/).filter(v => v && !/^(nofollow|ugc)$/i.test(v));
-      return kept.length ? ` rel=${q}${kept.join(' ')}${q}` : '';
-    });
-  });
-}
+// Blog articles (SEObot HTML): John's products followed, every other outside link nofollow (SEObot writes
+// plain links to the third-party tools it mentions), internal links untouched.
+export const blogLinkRels = (html: string): string => withLinkRels(html);

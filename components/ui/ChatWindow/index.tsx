@@ -8,7 +8,7 @@ export default function FounderBadge() {
     <a
       href="https://x.com/johnrush"
       target="_blank"
-      rel="noopener"
+      rel="nofollow noopener"
       aria-label="Built by John Rush, follow on X"
       className="group fixed bottom-0 right-0 z-10 flex items-center gap-1.5 rounded-tl-xl border-l border-t border-slate-700/80 bg-slate-900/90 py-1 pl-2.5 pr-1.5 shadow-[0_-4px_24px_-8px_rgba(249,115,22,0.35)] backdrop-blur-md duration-200 hover:border-orange-500/60 hover:bg-slate-800/90"
       style={{ paddingBottom: 'max(0.25rem, env(safe-area-inset-bottom))' }}

@@ -222,7 +222,7 @@ export default ({ uniqueVisitors }: { uniqueVisitors?: number }) => (
           <CountUp value={uniqueVisitors ?? 452356} />
         </span>{' '}
         unique visitors since launch ·{' '}
-        <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641">
+        <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641" rel="nofollow noopener">
           how it started
         </a>
       </span>

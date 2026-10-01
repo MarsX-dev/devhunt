@@ -95,6 +95,7 @@ export default () => {
                 <p className="text-slate-400">{item.desc}</p>
                 <a
                   href={item.link}
+                  rel="nofollow noopener"
                   onClick={e => onItemClick(e, item)}
                   className="px-3 inline-block text-center py-3 rounded-lg w-full font-semibold text-sm duration-150 text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700"
                 >
@@ -127,7 +128,7 @@ export default () => {
 
       <p className="text-slate-300 mt-8 text-center">
         Reach out to{' '}
-        <a className="text-orange-500 underline" href="https://x.com/johnrush">
+        <a className="text-orange-500 underline" href="https://x.com/johnrush" rel="nofollow noopener">
           John Rush
         </a>{' '}
         for details and prices.

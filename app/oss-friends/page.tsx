@@ -4,6 +4,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import Button from '@/components/ui/Button';
 import LinkItem from '@/components/ui/Link/LinkItem';
+import { relFor } from '@/utils/links';
 
 type OSSFriend = {
   href: string;
@@ -39,6 +40,7 @@ export default async () => {
             href={item.href}
             key={key}
             target="_blank"
+            rel={relFor(item.href)}
             className="flex flex-col no-underline group relative space-y-3 w-full border border-slate-800 rounded-2xl p-5 duration-150 hover:border-slate-600 hover:bg-slate-800/30"
           >
             <h2 className="text-base text-slate-100 font-semibold">{item.name}</h2>
@@ -52,6 +54,7 @@ export default async () => {
       <div className="flex justify-center mt-6">
         <LinkItem
           target="_blank"
+          rel="nofollow noopener"
           href="https://formbricks.com/clhys1p9r001cpr0hu65rwh17"
           className="rounded-full border border-slate-700 bg-transparent text-sm text-slate-300 hover:border-slate-500 hover:bg-transparent hover:text-slate-50"
         >

@@ -73,7 +73,7 @@ export default function FaqPage() {
         ))}
         <p>
           More questions? Read <Link href="/the-story">about DevHunt</Link>, see <Link href="/advertise">advertising options</Link>, or ask{' '}
-          <a href="https://x.com/johnrush">John on X</a>.
+          <a href="https://x.com/johnrush" rel="nofollow noopener">John on X</a>.
         </p>
       </article>
     </div>

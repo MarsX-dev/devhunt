@@ -167,7 +167,7 @@ function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase
             Example post {idx + 1} ↗
           </a>
         ))}
-        <a href="https://x.com/devhunt_" target="_blank" rel="noopener" className="text-orange-400 hover:text-orange-300">
+        <a href="https://x.com/devhunt_" target="_blank" rel="nofollow noopener" className="text-orange-400 hover:text-orange-300">
           See @devhunt_ on X ↗
         </a>
       </p>
