@@ -18,7 +18,7 @@ const STRUCTURED_DATA = {
     '@type': 'Organization',
     name: 'DevHunt',
     url: 'https://devhunt.org',
-    sameAs: ['https://github.com/MarsX-dev/devhunt', 'https://x.com/johnrush'],
+    sameAs: ['https://github.com/MarsX-dev/devhunt', 'https://x.com/devhunt_'],
     founder: {
       '@type': 'Person',
       name: 'John Rush',

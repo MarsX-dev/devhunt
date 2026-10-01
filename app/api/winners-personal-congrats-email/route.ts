@@ -28,7 +28,11 @@ export const GET = cronRoute(JOB, async () => {
   for (let idx = 0; idx < Math.min(products.length, 3); idx++) {
     const p = products[idx] as any;
     const rank = ranks[idx];
-    const html = winnersPersonalCongratsEmailTemplate.replace('{{namehere}}', p.email.split('@')[0] || '').replace('{{rankhere}}', rank || '');
+    const html = winnersPersonalCongratsEmailTemplate
+      .replace('{{namehere}}', p.email.split('@')[0] || '')
+      .replace('{{rankhere}}', rank || '')
+      .replace('{{ranknumhere}}', String(idx + 1))
+      .replace('{{idhere}}', String(p.id));
     results[rank] = await sendOnce(JOB, period, p.email, async () => {
       const { error } = await resend.emails.send({
         from: 'DevHunt <hey@devhunt.org>',

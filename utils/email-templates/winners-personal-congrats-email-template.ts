@@ -494,26 +494,9 @@ export default `
                                                         well-deserved victory.
                                                       </p>
                                                       <p>
-                                                        Claim your winner's<a
-                                                          href="https://e.sensorpro.net/run/Url.aspx?m1=n6.jiPOlPh9PW7gaTSvqgCp-3aWLTEOuSh0.DmHkfbvfox5VQwKk0PYZUiRGZMAoYWs7PICqNnQ_hdtd_etstdat|CjfKiQr3IiGGloMxW-WRtHAf92po1MRg9JcdHZbRKIv-iaq1CJroDqEsIIN-Mo-b_hdtd_zd&d2=&l1=1030250"
-                                                          target="_blank"
-                                                          rel="noopener"
-                                                          style="
-                                                            color: rgb(
-                                                              255,
-                                                              255,
-                                                              255
-                                                            );
-                                                            font-family:
-                                                              &quot;courier new&quot;,
-                                                              courier;
-                                                            font-size: 16px;
-                                                            text-decoration: none;
-                                                            font-weight: normal;
-                                                          "
-                                                        >
-                                                          badge here</a
-                                                        >
+                                                        Your <strong>#{{ranknumhere}} Dev Tool of the Week</strong> badge is ready.
+                                                        <a href="https://devhunt.org/account/tools/highlights/{{idhere}}" target="_blank" rel="noopener" style="color: orange; text-decoration: underline;">Copy the badge code</a>
+                                                        for your site footer or README. It links to your DevHunt page and keeps showing your rank.
                                                       </p>
                                                       <p>
                                                         Wear it with pride and
