@@ -259,6 +259,9 @@ Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs we
   - **Batch 4 added 2026-10-01 (130 reference listings total):** peers for listings that had none, plus big gaps. Typesense, Meilisearch, Elasticsearch (Algolia now has 3 peers), Vonage, SendGrid, Mailgun, Sentry (slug `sentryio`, since `sentry` is another product), Kinde, Drizzle ORM, Upstash, Ollama, OpenRouter, Hugging Face, Kiro, Visual Studio Code (`vs-code` is taken by a queued listing), React, Vue.js, Penpot, Appsmith, ToolJet.
     - Skipped: Clerk and Kilo Code (already launched by their makers), Continue (slug taken by a deleted listing), and Roo Code (its site now describes another product).
     - 33 profiles regenerated; about 15 wrong picks removed by hand. Ollama's alternatives and two search-engine comparisons were hand-written, because the generated text wrongly said those engines lacked vector search.
+  - **Batch 5 added 2026-10-01 (152 reference listings total):** Expo, React Native, Flutter, Ionic, Snyk, Semgrep, Infisical, Doppler, Chart.js, Recharts, D3, Django, Laravel, Ruby on Rails, FastAPI, Hono, Neovim, Ghostty, Modal, Replicate, LangGraph, Smithery. 32 profiles regenerated; 36 wrong picks removed and 6 false claims in difference texts fixed (e.g. "LangChain has no TypeScript"). Thin peers still: Ghostty, FastAPI, Smithery, LlamaIndex, Doppler/Infisical.
+  - Compare pages (2026-10-01) now have a "which to pick" verdict, a pair FAQ (FAQPage) and DevHunt data built from profile data only (A4 uniqueness).
+  - Next for tool pages: add DevHunt facts (upvotes, pricing, number of alternatives) to the tool meta description instead of repeating the slogan. Do it after the title test is read (~2026-10-29) so the test isn't confounded.
   - Reread GSC for "{tool} alternatives" and "X vs Y" in ~3 weeks. Demand (US/month, KD):
 
   | Tool | Volume | KD |
