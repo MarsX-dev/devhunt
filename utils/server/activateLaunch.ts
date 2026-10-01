@@ -47,7 +47,12 @@ export async function activateFromCheckoutSession(session: Stripe.Checkout.Sessi
         amount: session.amount_total,
         currency: session.currency,
         launchStart: result.launchStart,
-        tier: session.metadata?.tier === 'basic' ? '$19, no tweet' : '$49 boost',
+        tier: [
+          session.metadata?.tier === 'basic' ? 'basic, no tweet' : 'boost',
+          session.metadata?.regional ? `regional price for ${session.metadata.country || '?'}` : '',
+        ]
+          .filter(Boolean)
+          .join(', '),
       });
     }
     return result;

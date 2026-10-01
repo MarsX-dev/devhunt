@@ -13,7 +13,7 @@ import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { OFFER_FREE_LAUNCH, weekKey } from '@/utils/launchWeeks';
 import { prefetchRoute } from '@/utils/prefetch';
-import { LAUNCH_TIERS, type LaunchTier } from '@/utils/launchTiers';
+import { LAUNCH_TIERS, launchPrice, type LaunchTier } from '@/utils/launchTiers';
 import { type StatsSummary } from '@/utils/publicStats';
 import { type LaunchShowcase, type ShowcaseTool } from '@/utils/launchShowcase';
 
@@ -178,8 +178,8 @@ function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase
     stat: 'Boosted',
     title: 'to the top of the list',
     body: other
-      ? 'Boosted tools are listed first in "Also launching this week", on the home page and in the newsletter, ahead of $19 and free listings.'
-      : `Lists are ranked by votes, and on equal votes boosted tools come first, then $19 launches, then free ones. Every tool starts its week with one vote, from its maker, so a boosted launch opens the week at the top of the home page, and leads the email that announces the week's launches to ${users} ${audience}.`,
+      ? 'Boosted tools are listed first in "Also launching this week", on the home page and in the newsletter, ahead of basic and free listings.'
+      : `Lists are ranked by votes, and on equal votes boosted tools come first, then basic launches, then free ones. Every tool starts its week with one vote, from its maker, so a boosted launch opens the week at the top of the home page, and leads the email that announces the week's launches to ${users} ${audience}.`,
   };
   const backlink: Perk = {
     icon: Link2,
@@ -217,11 +217,17 @@ export default function LaunchPlan({
   params: { slug },
   stats,
   showcase,
+  regionalCountry,
 }: {
   params: { slug: string };
   stats: StatsSummary | null;
   showcase: LaunchShowcase | null;
+  regionalCountry: string | null; // set when the visitor gets the regional price
 }) {
+  const regional = !!regionalCountry;
+  const boostPrice = launchPrice('boost', regional);
+  const basicPrice = launchPrice('basic', regional);
+  const countryName = regionalCountry ? countryDisplayName(regionalCountry) : null;
   // Live registered-developer count (they all get the newsletter); the hard-coded figure if stats are down.
   const users = stats ? fmtNum(stats.users) : PERKS.users;
   const router = useRouter();
@@ -474,9 +480,11 @@ export default function LaunchPlan({
                 <div className="flex items-baseline justify-between">
                   <p className="text-sm font-medium text-slate-300">Boosted launch</p>
                   <p className="text-slate-50">
-                    <span className="text-2xl font-semibold">${LAUNCH_TIERS.boost.price}</span> <span className="text-sm text-slate-500">one-time</span>
+                    {regional && <s className="mr-1.5 text-base text-slate-500">${LAUNCH_TIERS.boost.price}</s>}
+                    <span className="text-2xl font-semibold">${boostPrice}</span> <span className="text-sm text-slate-500">one-time</span>
                   </p>
                 </div>
+                {regional && <p className="mt-1 text-right text-xs font-medium text-emerald-400">Regional price for {countryName}</p>}
                 <p className="mt-3 text-xs font-medium text-slate-400">Pick your launch week</p>
                 <fieldset className="mt-3 divide-y divide-slate-800/70" aria-label="Launch week">
                   {weeks.map((w, idx) => {
@@ -506,11 +514,11 @@ export default function LaunchPlan({
                   disabled={!week || status === 'redirecting'}
                   className="mt-4 w-full rounded-lg bg-orange-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-orange-400 disabled:opacity-50"
                 >
-                  {status === 'redirecting' && paying === 'boost' ? 'Opening secure checkout...' : `Launch on ${paidDate ?? 'your week'} for $${LAUNCH_TIERS.boost.price}`}
+                  {status === 'redirecting' && paying === 'boost' ? 'Opening secure checkout...' : `Launch on ${paidDate ?? 'your week'} for $${boostPrice}`}
                 </button>
                 <ul className="mt-4 space-y-1.5 text-xs text-slate-400">
                   {[
-                    other ? 'Listed first, above $19 and free listings' : 'On top on equal votes, on the site and in the email',
+                    other ? 'Listed first, above basic and free listings' : 'On top on equal votes, on the site and in the email',
                     other ? 'A launch week you pick' : 'Home page for the whole week',
                     `Newsletter to ${users} ${audience}`,
                     `Dedicated post on X to ${PERKS.xFollowers} followers`,
@@ -532,7 +540,13 @@ export default function LaunchPlan({
                   disabled={!week || status === 'redirecting'}
                   className="text-sm text-slate-300 underline underline-offset-4 decoration-slate-600 hover:text-slate-100 hover:decoration-slate-400 disabled:opacity-50"
                 >
-                  {status === 'redirecting' && paying === 'basic' ? 'Opening secure checkout...' : `List without a boost for $${LAUNCH_TIERS.basic.price}`}
+                  {status === 'redirecting' && paying === 'basic'
+                    ? 'Opening secure checkout...'
+                    : (
+                    <>
+                      List without a boost for {regional && <s className="text-slate-500">${LAUNCH_TIERS.basic.price}</s>} ${basicPrice}
+                    </>
+                      )}
                 </button>
                 <p className="mt-1 text-xs text-slate-500">Same week, newsletter and dofollow link. No boost, no dedicated post on X.</p>
                 {freeDate && other
@@ -556,4 +570,13 @@ export default function LaunchPlan({
       )}
     </section>
   );
+}
+
+// "India" for IN; the code itself if the runtime has no country names.
+function countryDisplayName(code: string): string {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) ?? code;
+  } catch {
+    return code;
+  }
 }

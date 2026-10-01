@@ -5,14 +5,15 @@ import { getRouteUser } from '@/utils/server/auth';
 import { requestContext, trackFunnel } from '@/utils/server/funnel';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { LAUNCH_PRICE_ID, stripe } from '@/utils/server/stripe';
-import { LAUNCH_TIERS, isLaunchTier } from '@/utils/launchTiers';
+import { hasRegionalPrice, isLaunchTier, launchPrice } from '@/utils/launchTiers';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
 
 // Starts a Stripe Checkout for a paid launch of the caller's own tool in the chosen week, as a
-// boosted ($49, default) or basic ($19) launch.
+// boosted ($49, default) or basic ($19) launch. Visitors from non-high-income countries (Vercel geo
+// header, set by the edge, not the browser) pay the regional price: $29 / $9.
 export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,15 +38,17 @@ export async function POST(req: Request) {
     : resolvePaidWeek(product.paid_launch_date as PlannedWeek | null, weeks);
   if (!target) return NextResponse.json({ error: 'No upcoming launch weeks available.' }, { status: 400 });
 
+  const { country } = requestContext();
+  const regional = hasRegionalPrice(country);
   const origin = new URL(req.url).origin;
   let session;
   try {
     session = await stripe().checkout.sessions.create({
       mode: 'payment',
       line_items: [
-        tier === 'boost'
+        tier === 'boost' && !regional
           ? { price: LAUNCH_PRICE_ID, quantity: 1 }
-          : { price_data: { currency: 'usd', unit_amount: LAUNCH_TIERS.basic.price * 100, product_data: { name: `DevHunt launch: ${product.name}` } }, quantity: 1 },
+          : { price_data: { currency: 'usd', unit_amount: launchPrice(tier, regional) * 100, product_data: { name: `DevHunt launch: ${product.name}` } }, quantity: 1 },
       ],
       allow_promotion_codes: true,
       // Local-currency pricing (Adaptive Pricing) makes Checkout reject promotion codes, so charge in USD.
@@ -56,6 +59,8 @@ export async function POST(req: Request) {
         product_id: String(product.id),
         user_id: user.id,
         tier,
+        country: country ?? '',
+        regional: regional ? '1' : '',
         week: String(target.week),
         week_start: target.startDate,
         week_end: target.endDate,
@@ -88,13 +93,13 @@ export async function POST(req: Request) {
     userId: user.id,
     amountTotal: session.amount_total,
     currency: session.currency,
-    details: { week: target.week, week_start: target.startDate, tool: product.slug, tier },
+    details: { week: target.week, week_start: target.startDate, tool: product.slug, tier, country, regional },
   });
   await trackFunnel({
     step: 'checkout_started',
     userId: user.id,
     productId: product.id,
-    props: { week: target.startDate, amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, stripe_session: session.id, tool: product.slug, tier },
+    props: { week: target.startDate, amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, stripe_session: session.id, tool: product.slug, tier, regional },
   });
   return NextResponse.json({ url: session.url });
 }

@@ -44,7 +44,7 @@ async function reportFailure(event: Stripe.Event, session: Stripe.Checkout.Sessi
     email: session?.customer_details?.email ?? session?.customer_email,
     amount: session?.amount_total,
     currency: session?.currency,
-    reason,
+    reason: [reason, session?.metadata?.regional ? `regional price for ${session.metadata.country || '?'}` : ''].filter(Boolean).join(', '),
   });
 }
 
