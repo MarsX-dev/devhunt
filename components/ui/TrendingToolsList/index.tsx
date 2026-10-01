@@ -19,20 +19,27 @@ const loadTrending = (): Promise<ToolRowData[]> =>
       return [];
     }));
 
-// This week's leaders as compact ranked rows (tool page and preview modal).
-export default function TrendingToolsList({ excludeId }: { excludeId?: number }) {
-  const [tools, setTools] = useState<{ tool: ToolRowData; rank: number }[] | null>(null); // null while loading
+const rankedList = (list: ToolRowData[], excludeId?: number) =>
+  list
+    .map((tool, idx) => ({ tool, rank: idx + 1 })) // real week ranks
+    .filter(({ tool }) => tool.id !== excludeId)
+    .slice(0, SHOWN);
+
+// This week's leaders as compact ranked rows (tool page and preview modal). `initial` comes from the server
+// (tool page), so the rows and their links are in the HTML; without it the list loads after mount.
+export default function TrendingToolsList({ excludeId, initial }: { excludeId?: number; initial?: ToolRowData[] }) {
+  const [tools, setTools] = useState<{ tool: ToolRowData; rank: number }[] | null>(initial ? rankedList(initial, excludeId) : null); // null while loading
 
   useEffect(() => {
+    if (initial) return;
     let alive = true;
     void loadTrending().then(list => {
-      const ranked = list.map((tool, idx) => ({ tool, rank: idx + 1 })); // real week ranks
-      if (alive) setTools(ranked.filter(({ tool }) => tool.id !== excludeId).slice(0, SHOWN));
+      if (alive) setTools(rankedList(list, excludeId));
     });
     return () => {
       alive = false;
     };
-  }, [excludeId]);
+  }, [excludeId, initial]);
 
   if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" ranked />;
   return (

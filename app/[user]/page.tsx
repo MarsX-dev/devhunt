@@ -56,8 +56,12 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
   const decoded = decodeURIComponent(user);
   if (!decoded.startsWith('@')) return { title: 'Page not found - Dev Hunt' };
   const username = decoded.slice(1);
-  const { profile } = await getProfilePageData(username); // same cached data as the page
+  const { profile, tools } = await getProfilePageData(username); // same cached data as the page
   if (!profile) return { title: 'Page not found - Dev Hunt' };
+  // Only makers' profiles are indexed (same rule as the sitemap): a live launched or paid tool. The ~40k
+  // voter-only profiles are thin pages.
+  const now = Date.now();
+  const isMaker = ((tools ?? []) as ProductType[]).some(t => !t.deleted && (t.isPaid || Date.parse(t.launch_start ?? '') <= now));
 
   const name = profile?.full_name || `@${username}`;
   const title = `${name} on DevHunt`;
@@ -72,6 +76,7 @@ export async function generateMetadata({ params: { user } }: { params: { user: s
     alternates: {
       canonical: `${decodeURIComponent(user)}`,
     },
+    robots: isMaker ? undefined : { index: false, follow: true },
     openGraph: {
       type: 'article',
       title,

@@ -6,3 +6,4 @@ Disallow: /api/
 # Share images (og:image) must be fetchable by X, LinkedIn, Facebook, Slack... crawlers.
 Allow: /api/og/
 Sitemap: https://devhunt.org/sitemap.xml
+Sitemap: https://devhunt.org/blog/sitemap.xml

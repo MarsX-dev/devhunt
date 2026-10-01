@@ -116,15 +116,35 @@ describe('protected endpoints reject anonymous callers', () => {
 });
 
 describe('sitemap.xml', () => {
-  it('is complete, well-formed and uses the standard namespace', async () => {
+  it('is an index of the per-type sitemaps and the blog sitemap', async () => {
     const res = await get('/sitemap.xml');
     expect(res.status).toBe(200);
     const xml = await res.text();
-    expect(xml.trimStart().startsWith('<?xml')).toBe(true);
+    expect(xml).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    for (const file of ['pages', 'tools', 'compare']) expect(xml).toContain(`https://devhunt.org/sitemaps/${file}.xml`);
+    expect(xml).toContain('https://devhunt.org/blog/sitemap.xml');
+  });
+
+  it('lists every live tool with lastmod, well-formed', async () => {
+    const res = await get('/sitemaps/tools.xml');
+    expect(res.status).toBe(200);
+    const xml = await res.text();
     expect(xml).toContain('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
     // Supabase caps queries at 1,000 rows; the sitemap must page past that.
     expect((xml.match(/\/tool\//g) ?? []).length).toBeGreaterThan(5_000);
+    expect(xml).toContain('<lastmod>');
     expect(/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;)/.test(xml)).toBe(false);
     expect(xml).not.toContain('/tool/devhunt29<');
+  });
+
+  it('keeps the compare sitemap to the gated pages', async () => {
+    const xml = await (await get('/sitemaps/compare.xml')).text();
+    const count = (xml.match(/<loc>/g) ?? []).length;
+    expect(count).toBeGreaterThan(50);
+    expect(count).toBeLessThan(3_000);
+  });
+
+  it('404s unknown sitemap files', async () => {
+    expect((await get('/sitemaps/nope.xml')).status).toBe(404);
   });
 });

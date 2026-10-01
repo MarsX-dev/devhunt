@@ -10,6 +10,7 @@ import { cleanName } from '@/components/ui/ToolProfile';
 import { getAlternatives } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
+import { alternativesIndexable } from '@/utils/seoIndex';
 
 // Alternatives pages are cached after their first visit (CDN) for 10 minutes. Nothing is built ahead (empty
 // generateStaticParams); Next 14 caches a not-found page with its 404 status.
@@ -34,8 +35,8 @@ export async function generateMetadata({ params: { slug } }: Params): Promise<Me
     description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: { canonical: `/tool/${data.tool.slug}/alternatives` },
-    // Thin pages (no picked alternatives and few category peers) stay out of the index.
-    robots: (data.profile?.compare.length ?? 0) >= 2 || data.more.length >= 5 ? undefined : { index: false, follow: true },
+    // Indexed only with at least 2 picked alternatives, in tested batches (utils/seoIndex.ts). Matches the sitemap.
+    robots: (data.profile?.compare.length ?? 0) >= 2 && alternativesIndexable(data.tool) ? undefined : { index: false, follow: true },
     openGraph: { title, description, url: `https://devhunt.org/tool/${data.tool.slug}/alternatives`, images: [shareImage] },
     twitter: { card: 'summary_large_image', title, description, images: [shareImage] },
   };
