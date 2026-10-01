@@ -256,6 +256,9 @@ Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs we
   - About 45 wrong picks were removed by hand, and three entries were hand-written (Playwright ↔ Cypress, Strapi → Sanity).
   - **Batch 3 added 2026-10-01 (110 reference listings total):** Remix, Astro, SvelteKit, Nuxt, Pulumi, OpenTofu, Amazon Q Developer, Augment Code, Amp, Qodo, Warp, OpenCode, Heroku, DigitalOcean, Redis, Algolia, Twilio, Contentful, Payload, Retool, Bubble, Webflow, Framer, Figma, Storybook, Vitest, Jest, Bun, Deno.
   - Reference candidates now come from a tool's specific categories (not the broad "Open Source"/"AI" ones), which fixed most cross-domain picks. Remaining wrong picks were removed by hand (e.g. Algolia/Twilio → API clients, Bun/Deno → unrelated small tools). Algolia has no peer listed yet.
+  - **Batch 4 added 2026-10-01 (130 reference listings total):** peers for listings that had none, plus big gaps. Typesense, Meilisearch, Elasticsearch (Algolia now has 3 peers), Vonage, SendGrid, Mailgun, Sentry (slug `sentryio`, since `sentry` is another product), Kinde, Drizzle ORM, Upstash, Ollama, OpenRouter, Hugging Face, Kiro, Visual Studio Code (`vs-code` is taken by a queued listing), React, Vue.js, Penpot, Appsmith, ToolJet.
+    - Skipped: Clerk and Kilo Code (already launched by their makers), Continue (slug taken by a deleted listing), and Roo Code (its site now describes another product).
+    - 33 profiles regenerated; about 15 wrong picks removed by hand. Ollama's alternatives and two search-engine comparisons were hand-written, because the generated text wrongly said those engines lacked vector search.
   - Reread GSC for "{tool} alternatives" and "X vs Y" in ~3 weeks. Demand (US/month, KD):
 
   | Tool | Volume | KD |
