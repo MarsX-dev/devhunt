@@ -13,6 +13,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { ListPageSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
 import CodeBlock from '@/components/CodeBlock';
 import { bannerPreviewDoc, bannerScript } from '@/components/ui/ModalBannerCode/bannerScript';
+import BadgeSnippet from '@/components/ui/BadgeSnippet';
 
 type Status = 'pending' | 'approved' | 'hidden';
 interface Item {
@@ -385,6 +386,13 @@ function LaunchGuide({ tool, shown }: { tool: Tool; shown: number }) {
           </div>
         </div>
       )}
+
+      <div className="mt-12">
+        <SectionLabel title="DevHunt badge" hint="Footer or README" />
+        <div className="mt-2">
+          <BadgeSnippet slug={tool.slug} name={tool.name} />
+        </div>
+      </div>
 
       <div className="mt-12 flex flex-wrap gap-3">
         <Link href={`/tool/${tool.slug}`} className="rounded-full bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-white">

@@ -83,3 +83,18 @@ describe('toolTitle', () => {
     expect(toolTitle('yt1d', 'YT1D', 'Free YouTube Video Downloader')).toBe('YT1D - Free YouTube Video Downloader');
   });
 });
+
+describe('DevHunt badge', () => {
+  it('links to the tool page with a plain <a><img>, escaped', async () => {
+    const { badgeHtml, badgeMarkdown, badgeSvg, badgeLabel } = await import('@/utils/badge');
+    const html = badgeHtml('a&b', 'Tool "X" <1>', 'light');
+    expect(html).toContain('href="https://devhunt.org/tool/a%26b"');
+    expect(html).toContain('src="https://devhunt.org/badge/a%26b.svg?theme=light"');
+    expect(html).toContain('alt="Tool &quot;X&quot; &lt;1&gt; - Featured on DevHunt"');
+    expect(badgeMarkdown('yt1d', 'YT1D')).toBe('[![YT1D on DevHunt](https://devhunt.org/badge/yt1d.svg)](https://devhunt.org/tool/yt1d)');
+    expect(badgeLabel(2)).toBe('#2 Dev Tool of the Week');
+    expect(badgeLabel(7)).toBe('Featured on');
+    expect(badgeSvg({ rank: 1 })).toContain('#1 DEV TOOL OF THE WEEK');
+    expect(badgeSvg({})).toMatch(/^<svg[^>]+role="img"/);
+  });
+});

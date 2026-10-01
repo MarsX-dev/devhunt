@@ -324,7 +324,12 @@ Each new template launches with a pilot batch and an indexing check.
 ## A8. Internal authority and maker tools we build
 
 - [ ] **[C]** Pass homepage authority inward: link from the homepage and top tool pages to pages stuck near page one; rotate monthly (*@regalstreak*).
-- [ ] **[C]** Build the "Launched on DevHunt" badge (links to the maker's tool page, not the homepage) and the embed snippet on the owner dashboard. Getting makers to embed it is Part B.
+- [x] **"Featured on DevHunt" badge** (2026-10-01):
+  - `/badge/{slug}.svg` in dark and light, with DevHunt's logo. Week winners show "#N Dev Tool of the Week".
+  - Cached a day at the CDN and an hour for data, so maker sites never hit the database per view.
+  - A plain `<a href="https://devhunt.org/tool/{slug}"><img></a>` snippet (HTML or Markdown) in the dashboard's banner-code modal and on the post-launch guide.
+  - The old launch banner is injected by a script and only advertises the live week; the badge is a crawlable link that keeps working.
+  - Getting makers to embed it is B3.
 - [ ] **[C]** Build the maker SEO report: the tool page's Google impressions shown in the owner dashboard (and email, once John turns email crons on).
 - [ ] **[C]** Original stats on hubs and guides (votes, launches, impressions per category). The GEO paper found quotes and statistics raise AI visibility (up to ~40% in its setup).
 - [ ] **[C]** Fold the 508 long (7+ word) GSC queries into hub FAQs; no page per variant.

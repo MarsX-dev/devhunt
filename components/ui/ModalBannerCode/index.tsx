@@ -10,6 +10,7 @@ import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { bannerPreviewDoc, bannerScript } from './bannerScript';
+import BadgeSnippet from '@/components/ui/BadgeSnippet';
 
 export default ({
   toolSlug = '',
@@ -102,6 +103,14 @@ export default ({
           {bannerScript(toolSlug)}
         </CodeBlock>
       </div>
+      {toolSlug && (
+        <div className="mt-6 border-t border-slate-800 pt-5">
+          <h3 className="text-slate-50 font-medium">Add the DevHunt badge</h3>
+          <div className="mt-2">
+            <BadgeSnippet slug={toolSlug} />
+          </div>
+        </div>
+      )}
       <div className="mt-3 flex gap-x-3">
         <Button className="ring-offset-2 ring-orange-500 focus:ring-2" onClick={copyDone}>
           I've done this
