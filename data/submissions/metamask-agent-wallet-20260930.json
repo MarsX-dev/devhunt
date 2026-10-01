@@ -1,0 +1,12 @@
+{
+  "id": "metamask-agent-wallet",
+  "name": "MetaMask Agent Wallet",
+  "tagline": "Official MetaMask skills and plugin that let AI coding agents run a crypto wallet through the `mm` CLI.",
+  "description": "MetaMask Agent Wallet gives AI agents such as Claude Code, Cursor, Codex, Antigravity, and Grok Build a crypto wallet through the MetaMask Agent Wallet CLI (`mm`, npm `@metamask/agent-wallet`). One skill covers auth, wallets and balances, transfers, message and typed-data signing, token swaps, cross-chain bridges, perpetual futures, prediction markets, DeFi earn vaults, EVM calldata decoding, and x402 pay-per-request payments. It ships as a plugin for each agent host, with a session-start readiness check that never installs software. The agent asks before installing the CLI and confirms before any action that moves funds. Open source under MIT.",
+  "url": "https://github.com/MetaMask/agent-skills",
+  "imageUrl": "https://raw.githubusercontent.com/MetaMask/agent-skills/main/assets/logo.svg",
+  "pricing": "Open Source",
+  "categories": ["Open Source", "AI Agents", "Crypto", "Web3", "CLI"],
+  "tags": ["metamask", "wallet", "crypto", "web3", "ai-agents", "claude-code", "cursor", "codex", "agent-skills", "cli", "open-source"],
+  "createdAt": "2026-09-30T00:00:00.000000+00:00"
+}
