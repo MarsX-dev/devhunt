@@ -69,10 +69,16 @@ describe('programmatic page index gate', () => {
 describe('indexNowPayload', () => {
   it('sends the changed tools plus the listing pages, keyed to devhunt.org', async () => {
     const { indexNowPayload, INDEXNOW_KEY } = await import('@/utils/indexnow');
-    const p = indexNowPayload([{ slug: 'yt1d' }, { slug: 'a&b' }, { slug: 'yt1d' }]);
+    const p = indexNowPayload([{ slug: 'yt1d' }, { slug: 'a&b' }, { slug: 'yt1d' }], new Date('2026-10-05T06:30:00Z'));
     expect(p.host).toBe('devhunt.org');
     expect(p.keyLocation).toBe(`https://devhunt.org/${INDEXNOW_KEY}.txt`);
-    expect(p.urlList).toEqual(['https://devhunt.org/', 'https://devhunt.org/upcoming', 'https://devhunt.org/tool/yt1d', 'https://devhunt.org/tool/a%26b']);
+    expect(p.urlList).toEqual([
+      'https://devhunt.org/',
+      'https://devhunt.org/upcoming',
+      'https://devhunt.org/best/2026/10',
+      'https://devhunt.org/tool/yt1d',
+      'https://devhunt.org/tool/a%26b',
+    ]);
   });
 });
 
@@ -122,5 +128,19 @@ describe('reference listings', () => {
     expect(alternativesIndexable({ slug: 'cursor', votes_count: 0, is_reference: true })).toBe(true);
     expect(compareIndexable({ slug: 'cursor', votes_count: 0, is_reference: true }, { slug: 'windsurf', votes_count: 0, is_reference: true })).toBe(true);
     expect(compareIndexable({ slug: 'cursor', votes_count: 0, is_reference: true }, { slug: 'x', votes_count: 0 })).toBe(false);
+  });
+});
+
+describe('compareRelated', () => {
+  it('needs a shared specific category or a mutual pick', async () => {
+    const { compareRelated, compareIndexable } = await import('@/utils/seoIndex');
+    expect(compareRelated(['API', 'Open Source'], ['API'], false)).toBe(true);
+    expect(compareRelated(['Open Source', 'AI'], ['AI', 'Open Source'], false)).toBe(false);
+    expect(compareRelated(['Video'], ['Design'], true)).toBe(true);
+    const big = { slug: 'x', votes_count: 50 };
+    const big2 = { slug: 'y', votes_count: 40 };
+    expect(compareIndexable(big, big2, false)).toBe(false);
+    expect(compareIndexable(big, big2, true)).toBe(true);
+    expect(compareIndexable({ ...big, is_reference: true }, { ...big2, is_reference: true }, false)).toBe(true);
   });
 });

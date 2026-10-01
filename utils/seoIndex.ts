@@ -70,12 +70,18 @@ interface IndexTool {
 export const alternativesIndexable = (tool: IndexTool) =>
   !!tool.is_reference || SEO_PILOT_SLUGS.has(tool.slug) || tool.votes_count >= MIN_ALTERNATIVES_VOTES;
 
-export const compareIndexable = (a: IndexTool, b: IndexTool) =>
+// Categories too broad to say two tools do the same job.
+const BROAD_CATEGORIES = new Set(['Open Source', 'AI', 'Other']);
+
+// Two tools are related when they share a specific category or each lists the other as an alternative.
+// Without this, a pilot tool's odd pick (a video generator next to an image compressor) got indexed.
+export const compareRelated = (aCategories: string[], bCategories: string[], mutual: boolean) =>
+  mutual || aCategories.some(c => !BROAD_CATEGORIES.has(c) && bCategories.includes(c));
+
+export const compareIndexable = (a: IndexTool, b: IndexTool, related = true) =>
   // Two well-known tools (Cursor vs Codex) have real search demand; a big tool next to a small launch doesn't.
   (!!a.is_reference && !!b.is_reference) ||
-  SEO_PILOT_SLUGS.has(a.slug) ||
-  SEO_PILOT_SLUGS.has(b.slug) ||
-  Math.min(a.votes_count, b.votes_count) >= MIN_COMPARE_VOTES;
+  (related && (SEO_PILOT_SLUGS.has(a.slug) || SEO_PILOT_SLUGS.has(b.slug) || Math.min(a.votes_count, b.votes_count) >= MIN_COMPARE_VOTES));
 
 // Title test (started 2026-10-01, read after 28 days in GSC: CTR of these pages vs their previous 28 days and
 // vs the other pilot tools). Tool pages with many impressions and low CTR get a title that says what this page

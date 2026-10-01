@@ -8,7 +8,7 @@ import { cleanName } from '@/components/ui/ToolProfile';
 import { type Comparison, type CompareProduct } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
 import { resolve } from './resolve';
-import { alternativesIndexable, compareIndexable } from '@/utils/seoIndex';
+import { alternativesIndexable, compareIndexable, compareRelated } from '@/utils/seoIndex';
 import { sectionShown } from '@/utils/toolProfile';
 import { type ToolProfileView } from '@/utils/toolProfileData';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
@@ -38,7 +38,9 @@ export async function generateMetadata({ params: { pair } }: Params): Promise<Me
     metadataBase: new URL('https://devhunt.org'),
     alternates: { canonical: comparePath(c.a.slug, c.b.slug) },
     // Indexed in tested batches (utils/seoIndex.ts); the rest stay reachable for visitors.
-    robots: compareIndexable(c.a, c.b) ? undefined : { index: false, follow: true },
+    robots: compareIndexable(c.a, c.b, compareRelated(c.a.categories.map(x => x.name), c.b.categories.map(x => x.name), c.mutual))
+      ? undefined
+      : { index: false, follow: true },
     openGraph: { title, description, url: `https://devhunt.org${comparePath(c.a.slug, c.b.slug)}`, images: [shareImage] },
     twitter: { card: 'summary_large_image', title, description, images: [shareImage] },
   };

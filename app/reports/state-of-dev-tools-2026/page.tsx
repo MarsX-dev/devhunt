@@ -53,13 +53,15 @@ const findings = [
   `The median #1 tool of the week had ${report.winnerVotes[2].median} upvotes in 2026 (${report.winnerVotes[0].median} in 2024).`,
 ];
 
+const OG_IMAGE = { url: `https://devhunt.org/api/og/page/${report.slug}`, width: 1200, height: 630, alt: TITLE };
+
 export const metadata: Metadata = {
   title: `${TITLE} | DevHunt`,
   description: DESCRIPTION,
   metadataBase: new URL('https://devhunt.org'),
   alternates: { canonical: URL_PATH },
-  openGraph: { type: 'article', title: TITLE, description: DESCRIPTION, url: URL_FULL },
-  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
+  openGraph: { type: 'article', title: TITLE, description: DESCRIPTION, url: URL_FULL, images: [OG_IMAGE] },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [OG_IMAGE] },
 };
 
 const Bar = ({ value, max, accent = false }: { value: number; max: number; accent?: boolean }) => (

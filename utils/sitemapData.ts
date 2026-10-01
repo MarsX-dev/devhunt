@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@/utils/supabase/browser';
 import { comparisonPairs, toolsWithAlternatives } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
-import { alternativesIndexable, compareIndexable } from '@/utils/seoIndex';
+import { alternativesIndexable, compareIndexable, compareRelated } from '@/utils/seoIndex';
 import { type SitemapEntry, type SitemapTool, toolPath } from '@/utils/sitemap';
 
 // Supabase returns at most 1,000 rows per request, so fetch in pages.
@@ -33,6 +33,11 @@ export async function getProgrammaticEntries(liveSlugs: Set<string>): Promise<Si
   const [alternatives, pairs] = await Promise.all([toolsWithAlternatives(), comparisonPairs()]);
   return [
     ...alternatives.filter(t => liveSlugs.has(t.slug) && alternativesIndexable(t)).map(t => ({ path: `${toolPath(t.slug)}/alternatives` })),
-    ...pairs.filter(([a, b]) => liveSlugs.has(a.slug) && liveSlugs.has(b.slug) && compareIndexable(a, b)).map(([a, b]) => ({ path: comparePath(a.slug, b.slug) })),
+    ...pairs
+      .filter(
+        ([a, b, mutual]) =>
+          liveSlugs.has(a.slug) && liveSlugs.has(b.slug) && compareIndexable(a, b, compareRelated(a.categories ?? [], b.categories ?? [], mutual)),
+      )
+      .map(([a, b]) => ({ path: comparePath(a.slug, b.slug) })),
   ];
 }

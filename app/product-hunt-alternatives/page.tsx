@@ -117,13 +117,15 @@ const FAQ = [
   },
 ];
 
+const OG_IMAGE = { url: 'https://devhunt.org/api/og/page/product-hunt-alternatives', width: 1200, height: 630, alt: TITLE };
+
 export const metadata: Metadata = {
   title: `${TITLE} | DevHunt`,
   description: DESCRIPTION,
   metadataBase: new URL('https://devhunt.org'),
   alternates: { canonical: PATH },
-  openGraph: { type: 'article', title: TITLE, description: DESCRIPTION, url: `https://devhunt.org${PATH}` },
-  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION },
+  openGraph: { type: 'article', title: TITLE, description: DESCRIPTION, url: `https://devhunt.org${PATH}`, images: [OG_IMAGE] },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [OG_IMAGE] },
 };
 
 export default function ProductHuntAlternatives() {

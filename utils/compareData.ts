@@ -87,6 +87,7 @@ export interface Comparison {
   profileA: ToolProfileView | null;
   profileB: ToolProfileView | null;
   difference: string | null; // how they differ, from one tool's profile
+  mutual: boolean; // each lists the other as an alternative
 }
 
 // Two tools are compared only when one lists the other as an alternative (keeps these pages useful).
@@ -100,7 +101,7 @@ export const getComparison = unstable_cache(
     const aToB = altOf(profileA, b.id);
     const bToA = altOf(profileB, a.id);
     if (!aToB && !bToA) return null;
-    return { a, b, profileA, profileB, difference: aToB?.difference ?? bToA?.difference ?? null };
+    return { a, b, profileA, profileB, difference: aToB?.difference ?? bToA?.difference ?? null, mutual: !!aToB && !!bToA };
   },
   ['tool-comparison'],
   { revalidate: 600 },
@@ -110,10 +111,11 @@ export interface SitemapTool {
   slug: string;
   votes_count: number;
   is_reference?: boolean;
+  categories?: string[];
 }
 
 // Canonical pairs for the sitemap: every (tool, alternative) from visible profiles.
-export async function comparisonPairs(): Promise<[SitemapTool, SitemapTool][]> {
+export async function comparisonPairs(): Promise<[SitemapTool, SitemapTool, boolean][]> {
   const client = createBrowserClient();
   const rows: { product_id: number; alternatives: { id: number }[] | null; hidden: string[] | null }[] = [];
   for (let from = 0; ; from += 1000) {
@@ -126,10 +128,12 @@ export async function comparisonPairs(): Promise<[SitemapTool, SitemapTool][]> {
   }
   const ids = new Set<number>();
   const pairs: [number, number][] = [];
+  const picks = new Set<string>(); // "x>y": x lists y
   for (const row of rows) {
     if (row.hidden?.includes('compare')) continue;
     for (const alt of row.alternatives ?? []) {
       pairs.push([row.product_id, alt.id]);
+      picks.add(`${row.product_id}>${alt.id}`);
       ids.add(row.product_id).add(alt.id);
     }
   }
@@ -138,17 +142,23 @@ export async function comparisonPairs(): Promise<[SitemapTool, SitemapTool][]> {
   for (let i = 0; i < idList.length; i += 300) {
     const { data } = await client
       .from('products')
-      .select('id, slug, votes_count, is_reference, deleted')
+      .select('id, slug, votes_count, is_reference, deleted, product_categories(name)')
       .in('id', idList.slice(i, i + 300));
     for (const p of (data ?? []) as any[])
-      if (!p.deleted) tools.set(p.id, { slug: p.slug, votes_count: p.votes_count ?? 0, is_reference: !!p.is_reference });
+      if (!p.deleted)
+        tools.set(p.id, {
+          slug: p.slug,
+          votes_count: p.votes_count ?? 0,
+          is_reference: !!p.is_reference,
+          categories: (p.product_categories ?? []).map((c: any) => c.name),
+        });
   }
-  const out = new Map<string, [SitemapTool, SitemapTool]>();
+  const out = new Map<string, [SitemapTool, SitemapTool, boolean]>();
   for (const [x, y] of pairs) {
     const [ta, tb] = [tools.get(x), tools.get(y)];
     if (ta && tb) {
       const [first, second] = [ta, tb].sort((m, n) => (m.slug < n.slug ? -1 : m.slug > n.slug ? 1 : 0));
-      out.set(`${first.slug}|${second.slug}`, [first, second]);
+      out.set(`${first.slug}|${second.slug}`, [first, second, picks.has(`${x}>${y}`) && picks.has(`${y}>${x}`)]);
     }
   }
   return Array.from(out.values());

@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
           .join(', ')}`
       : ''
   }.`.slice(0, 160);
+  const image = { url: `https://devhunt.org/api/og${monthPath(m)}`, width: 1200, height: 630, alt: title };
   return {
     title,
     description,
@@ -40,8 +41,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     alternates: { canonical: monthPath(m) },
     // A month with almost nothing launched is a thin page.
     robots: r.total < 10 ? { index: false, follow: true } : undefined,
-    openGraph: { title, description, url: `https://devhunt.org${monthPath(m)}` },
-    twitter: { card: 'summary', title, description },
+    openGraph: { title, description, url: `https://devhunt.org${monthPath(m)}`, images: [image] },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
   };
 }
 
