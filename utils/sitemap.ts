@@ -9,6 +9,7 @@ export const STATIC_PATHS = [
   '/faq',
   '/stats',
   '/advertise',
+  '/reports/state-of-dev-tools-2026',
   '/blog',
   '/oss-friends',
   '/best-dev-tools-this-week-on-product-hunt',

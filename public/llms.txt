@@ -17,6 +17,9 @@
 - [About DevHunt](https://devhunt.org/the-story): who builds DevHunt and what can launch here
 - [Advertise](https://devhunt.org/advertise): sponsor placements
 - [Blog](https://devhunt.org/blog): guides and roundups of developer tools
+- [State of Dev Tools 2026](https://devhunt.org/reports/state-of-dev-tools-2026): original data on 9,400 dev tool launches (AI agents, MCP, AI coding, pricing, open source)
+- [Best new dev tools by month](https://devhunt.org/best): the most upvoted launches of each month since 2024
+- [Stats](https://devhunt.org/stats): live DevHunt traffic, launches and impressions
 
 ## Tool pages
 

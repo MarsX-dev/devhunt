@@ -17,6 +17,7 @@ export default () => {
     { href: '/faq', name: 'FAQ' },
     { href: '/stats', name: 'Stats' },
     { href: '/best', name: 'Best by month' },
+    { href: '/reports/state-of-dev-tools-2026', name: 'State of Dev Tools 2026' },
     {
       href: 'https://github.com/MarsX-dev/devhunt',
       name: 'GitHub Repository',

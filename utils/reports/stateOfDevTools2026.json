@@ -1,0 +1,52 @@
+{
+  "slug": "state-of-dev-tools-2026",
+  "title": "State of Dev Tools 2026",
+  "asOf": "2026-10-01",
+  "coverage": "Tools submitted to DevHunt from January 1, 2024 to September 30, 2026",
+  "submissionsByYear": [
+    { "year": 2024, "submitted": 2142, "free": 53.0, "subscription": 33.0, "oneTime": 14.0, "github": 16.6 },
+    { "year": 2025, "submitted": 3915, "free": 45.3, "subscription": 39.7, "oneTime": 15.0, "github": 11.5 },
+    { "year": 2026, "submitted": 3352, "free": 51.3, "subscription": 36.9, "oneTime": 11.8, "github": 22.2, "partial": true }
+  ],
+  "submissionsByQuarter": [
+    { "quarter": "2024 Q1", "submitted": 401 },
+    { "quarter": "2024 Q2", "submitted": 517 },
+    { "quarter": "2024 Q3", "submitted": 709 },
+    { "quarter": "2024 Q4", "submitted": 515 },
+    { "quarter": "2025 Q1", "submitted": 609 },
+    { "quarter": "2025 Q2", "submitted": 1141 },
+    { "quarter": "2025 Q3", "submitted": 1047 },
+    { "quarter": "2025 Q4", "submitted": 1118 },
+    { "quarter": "2026 Q1", "submitted": 1459 },
+    { "quarter": "2026 Q2", "submitted": 696 },
+    { "quarter": "2026 Q3", "submitted": 1155 }
+  ],
+  "categoryShare": [
+    { "category": "AI", "2024": 24.4, "2025": 24.8, "2026": 25.6 },
+    { "category": "AI Agents", "2024": 1.0, "2025": 3.4, "2026": 9.8 },
+    { "category": "Marketing", "2024": 8.5, "2025": 7.4, "2026": 6.8 },
+    { "category": "Open Source", "2024": 9.2, "2025": 4.7, "2026": 6.5 },
+    { "category": "MCP", "2024": 0.0, "2025": 1.0, "2026": 5.4 },
+    { "category": "SEO", "2024": 4.1, "2025": 4.3, "2026": 5.3 },
+    { "category": "Code", "2024": 6.4, "2025": 3.2, "2026": 4.9 },
+    { "category": "Design", "2024": 6.7, "2025": 5.3, "2026": 4.8 },
+    { "category": "API", "2024": 6.5, "2025": 2.8, "2026": 4.7 },
+    { "category": "DevOps", "2024": 4.5, "2025": 2.9, "2026": 4.6 },
+    { "category": "Image", "2024": 3.5, "2025": 5.2, "2026": 4.6 },
+    { "category": "Video", "2024": 2.2, "2025": 4.0, "2026": 4.6 },
+    { "category": "Analytics", "2024": 3.8, "2025": 2.7, "2026": 3.7 },
+    { "category": "CLI", "2024": 1.7, "2025": 1.4, "2026": 3.4 },
+    { "category": "NoCode", "2024": 6.2, "2025": 3.1, "2026": 3.0 },
+    { "category": "Security", "2024": 1.6, "2025": 1.7, "2026": 2.9 },
+    { "category": "AI Coding", "2024": 0.3, "2025": 0.9, "2026": 2.7 },
+    { "category": "Monitoring", "2024": 2.9, "2025": 1.7, "2026": 2.7 },
+    { "category": "Content Writing", "2024": 3.0, "2025": 2.7, "2026": 1.9 },
+    { "category": "Boilerplate", "2024": 4.3, "2025": 1.2, "2026": 0.9 },
+    { "category": "UI Library", "2024": 2.2, "2025": 1.0, "2026": 0.8 }
+  ],
+  "winnerVotes": [
+    { "year": 2024, "weeks": 53, "median": 34, "min": 11, "max": 339 },
+    { "year": 2025, "weeks": 52, "median": 13.5, "min": 3, "max": 331 },
+    { "year": 2026, "weeks": 38, "median": 21.5, "min": 4, "max": 76, "partial": true }
+  ]
+}
