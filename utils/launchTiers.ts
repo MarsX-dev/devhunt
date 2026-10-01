@@ -9,13 +9,15 @@ export const LAUNCH_TIERS: Record<LaunchTier, { price: number; regionalPrice: nu
 
 export const isLaunchTier = (t: unknown): t is LaunchTier => t === 'basic' || t === 'boost';
 
-// High-income countries (World Bank list, roughly) pay the full price; every other known country gets
-// the regional price. Unknown country (XX: no geo header, e.g. locally) pays full price.
+// High-income countries (World Bank list, roughly), plus countries that already bought at full price
+// (AR, MA, TR), pay the full price; every other known country gets the regional price. Unknown country
+// (XX: no geo header, e.g. locally) pays full price.
 const FULL_PRICE_COUNTRIES = new Set(
   (
     'US CA GB IE AU NZ JP KR SG HK TW MO IL AE QA KW BH SA OM BN ' +
     'DE FR NL BE LU AT CH LI MC SM AD IS NO SE DK FI IT ES PT MT CY GR SI SK CZ PL HU HR RO BG EE LV LT ' +
-    'CL UY PA PR BS BB AG KN TT AW CW SX KY BM VG VI TC GU MP GL FO GI IM JE GG NC PF SC NR GY RU'
+    'CL UY PA PR BS BB AG KN TT AW CW SX KY BM VG VI TC GU MP GL FO GI IM JE GG NC PF SC NR GY RU ' +
+    'AR MA TR'
   ).split(' '),
 );
 
