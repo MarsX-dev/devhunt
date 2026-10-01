@@ -1,3 +1,5 @@
+import { blogIndexable } from '@/utils/blogPrune';
+
 const BASE_URL = 'https://devhunt.org';
 
 async function getSitemap() {
@@ -26,9 +28,9 @@ async function generateSiteMap() {
     <url>
       <loc>https://devhunt.org/blog</loc>
     </url>
-      ${blogSitemap.articles.map((i: SitemapItem) => toSitemapRecord(`/blog/${i.slug}`, i.lastmod))}
-      ${blogSitemap.categories.map((i: SitemapItem) => toSitemapRecord(`/blog/category/${i.slug}`, i.lastmod))}
-      ${blogSitemap.tags.map((i: SitemapItem) => toSitemapRecord(`/blog/tag/${i.slug}`, i.lastmod))}
+      ${blogSitemap.articles.filter((i: SitemapItem) => blogIndexable(i.slug)).map((i: SitemapItem) => toSitemapRecord(`/blog/${i.slug}`, i.lastmod)).join('\n')}
+      ${blogSitemap.categories.map((i: SitemapItem) => toSitemapRecord(`/blog/category/${i.slug}`, i.lastmod)).join('\n')}
+      ${blogSitemap.tags.map((i: SitemapItem) => toSitemapRecord(`/blog/tag/${i.slug}`, i.lastmod)).join('\n')}
    </urlset>
  `;
 }

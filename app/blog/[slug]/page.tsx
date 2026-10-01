@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { type Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,6 +7,7 @@ import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { followOwnProducts } from '@/utils/links';
 import { getArticle } from '@/utils/blog';
+import { blogNoindex, blogRedirect } from '@/utils/blogPrune';
 
 // Blog posts are cached after their first visit (CDN) and refreshed hourly. Nothing is built ahead (empty
 // generateStaticParams); Next 14 caches a not-found page with its 404 status.
@@ -20,6 +21,7 @@ async function getPost(slug: string) {
 }
 
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
+  if (blogRedirect(slug)) return {};
   const post = await getPost(slug);
   if (!post) return {};
 
@@ -32,6 +34,7 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
     alternates: {
       canonical: `/blog/${slug}`,
     },
+    robots: blogNoindex(slug) ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'article',
       title,
@@ -49,6 +52,9 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 }
 
 export default async function Article({ params: { slug } }: { params: { slug: string } }) {
+  // Merged near-duplicates are 308-redirected in next.config.js; this is a fallback (e.g. a stale cache).
+  const target = blogRedirect(slug);
+  if (target) permanentRedirect(`/blog/${target}`);
   const post = await getPost(slug);
   if (!post) notFound();
 

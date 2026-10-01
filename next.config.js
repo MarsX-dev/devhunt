@@ -18,6 +18,13 @@ const nextConfig = {
     return [
       { source: '/account/analytics', destination: '/admin/analytics', permanent: true },
       { source: '/about', destination: '/the-story', permanent: true },
+      // Blog near-duplicates merged into the post that won their topic (utils/blogPrune.ts, seo-plan.md A6).
+      // Here rather than in the page: the page streams behind loading.tsx, where a redirect is not a real 308.
+      ...Object.entries(require('./utils/blogPrune.json').redirects).map(([from, to]) => ({
+        source: `/blog/${from}`,
+        destination: `/blog/${to}`,
+        permanent: true,
+      })),
     ];
   },
   // No `env` block: Next inlines those values into every bundle that references them, including

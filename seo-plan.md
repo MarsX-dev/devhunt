@@ -289,9 +289,15 @@ Also on every tool page: answer "is X free / safe / legit" plainly.
 
 449 indexed posts, 0.26% CTR, AI-generated, organization as author.
 
-- [ ] **[C]** Export every blog URL with 16 months of GSC data.
-- [ ] **[C]** Prune: no clicks in 16 months and position >50 → 410 or noindex.
-- [ ] **[C]** Merge each cluster into one post and 301 the rest:
+- [x] Exported 16 months of GSC data per post (768 of 936 posts had impressions; 362 got a click).
+- [x] **Done 2026-10-01** (`utils/blogPrune.json`, reversible):
+  - **163 near-duplicates 308-redirected** (in `next.config.js`) into the posts that won their topic.
+  - Biggest clusters: web analytics (~33 near-identical posts), AWS JS SDK (9), "boost productivity" dev tools (8), Safari devtools (7), forms, 400 bad request, JSONPlaceholder, GitHub Student Pack, online gdb, Android SDK.
+  - **234 posts set to `noindex,follow`**: no clicks in 16 months and no impressions or average position below 50, plus clusters where even the best post had no clicks.
+  - The blog sitemap drops both groups (539 posts left) and **no longer has commas between `<url>` entries**, so it's valid XML.
+  - Content still lives in SEObot. To bring a post back, remove its slug from the JSON.
+- [ ] **[C]** ~2026-10-29: check the merged winners gained position (e.g. Safari guide, GitHub Student Pack, 400 bad request) and that blog clicks didn't drop.
+- [x] Merge each cluster into one post and 301 the rest:
   - Safari devtools (3), GitHub Student Pack (3), Chrome devtools (3), online gdb (2+)
   - Free online forms (3+), web traffic/stats tools (3+), no-code platforms
 - [ ] **[C + J]** Rebuild the survivors with a real byline and author page (John or a named editor), an answer-first block, DevHunt data, a table, an FAQ from "People also ask", and links to category hubs and tool pages. **[J]** approves the byline.
