@@ -3,7 +3,7 @@
 Tracking doc for devhunt.org organic growth across Google, Google's AI features and AI assistants. Tick boxes as work ships, and add the date and commit.
 
 - **Owner:** John Rush
-- **Created:** 2026-09-26. **Rewritten:** 2026-10-01 (new data, code audit, three research docs).
+- **Created:** 2026-09-26. **Rewritten:** 2026-10-01 (new data, code audit, three research docs; split into Part A in our control / Part B outside our control).
 - **Sources:**
   - **Data:** SEO Gets (GSC through 2026-09-29), Ubersuggest (project `devhunt.org`, US/en), a live check of devhunt.org, and a code audit of this repo.
   - **Research:** *SEO-AEO-GEO-Agent-Instructions* (viral X tactics, cited by handle), *SEO-AEO-GEO-Playbook* and its raw notes (Google Search Central, Ahrefs, SparkToro, the GEO paper).
@@ -42,7 +42,7 @@ The playbook's main point: **for Google, AEO/GEO is still SEO.** Google's AI fea
 | **Ubersuggest est. US traffic** | **13,863/mo**, the highest month in its 2-year series | up from 11,141 |
 | Keywords in top 3 (US) | 33 (Aug 15) | up |
 | Domain Authority / ref domains | 31 / 1,700 | flat |
-| AI visibility (ChatGPT, 10 prompts) | **0%** | prompts are wrong, see 6.1 |
+| AI visibility (ChatGPT, 10 prompts) | **0%** | prompts are wrong, see A9 |
 | `/compare/*` | **4,912 URLs in the sitemap**, 59 with any impressions (71 total) | new |
 | `/tool/*/alternatives` | **1,323 URLs in the sitemap**, 13 with impressions (23 total) | new |
 | Sitemap size | 17,618 URLs (tools 6,792 + compare 4,912 + alternatives 1,323 + profiles, categories) | |
@@ -83,15 +83,15 @@ The listings hidden on 2026-09-27 (spicygen, offrobe, hifun, hackaig, crano and 
 | Query | Ahrefs tool | Feeds |
 |---|---|---|
 | DR, organic keywords and traffic, history | `site-explorer-metrics`, `-metrics-history`, `-domain-rating-history` | Baseline 1.1, progress log |
-| Our keywords at positions 4–20 with volume and KD | `site-explorer-organic-keywords` (where position 4–20) | 5.2 near-page-one list (replaces the Ubersuggest volumes) |
-| Organic competitors and keyword gap vs producthunt.com, alternativeto.net, saashub.com, uneed.best, peerlist.io | `site-explorer-organic-competitors`, `-organic-keywords` per competitor | Section 7: which alternatives, compare and category pages have demand |
-| Their top pages by traffic | `site-explorer-top-pages` on alternativeto.net and saashub.com | Proven page templates and URL patterns for 7 |
-| **Broken backlinks** to devhunt.org (removed tools, old URLs) | `site-explorer-broken-backlinks` | Phase D: 301 still-valuable dead URLs to the closest live page |
-| Referring domains gap (who links to Uneed, Peerlist, Microlaunch but not us) | `site-explorer-referring-domains` per competitor | Phase D link targets |
-| **AI citations of devhunt.org** per platform | `site-explorer-ai-responses-count` | 6.1 baseline (Ahrefs Brand Radar, the dataset behind the playbook's studies) |
-| Brand Radar share of voice: DevHunt vs Product Hunt, Uneed, Peerlist, BetaList | `brand-radar-sov-overview`, `-mentions-overview`, `-cited-pages` | 6.1 measurement; replaces Ubersuggest AISV (its prompts don't fit) |
-| Volume and KD for planned pages ("product hunt alternatives", "where to launch", "mcp servers", "{tool} alternatives") | `keywords-explorer-overview`, `-matching-terms` | 6.2 and 7 priorities |
-| GSC data inside Ahrefs (CTR by position, anonymous queries) | `gsc-ctr-by-position`, `gsc-anonymous-queries` | Title test reading (5.4, gap #8) |
+| Our keywords at positions 4–20 with volume and KD | `site-explorer-organic-keywords` (where position 4–20) | A5 near-page-one list |
+| Organic competitors and keyword gap vs producthunt.com, alternativeto.net, saashub.com, uneed.best, peerlist.io | `site-explorer-organic-competitors`, `-organic-keywords` per competitor | A4/A7: which alternatives, compare and category pages have demand |
+| Their top pages by traffic | `site-explorer-top-pages` on alternativeto.net and saashub.com | Proven page templates and URL patterns for A7 |
+| **Broken backlinks** to devhunt.org (removed tools, old URLs) | `site-explorer-broken-backlinks` | A3: 301 still-valuable dead URLs to the closest live page |
+| Referring domains gap (who links to Uneed, Peerlist, Microlaunch but not us) | `site-explorer-referring-domains` per competitor | B2 link targets |
+| **AI citations of devhunt.org** per platform | `site-explorer-ai-responses-count` | A9 baseline (Ahrefs Brand Radar, the dataset behind the playbook's studies) |
+| Brand Radar share of voice: DevHunt vs Product Hunt, Uneed, Peerlist, BetaList | `brand-radar-sov-overview`, `-mentions-overview`, `-cited-pages` | A9 measurement; replaces Ubersuggest AISV |
+| Volume and KD for planned pages ("product hunt alternatives", "where to launch", "mcp servers", "{tool} alternatives") | `keywords-explorer-overview`, `-matching-terms` | A7 priorities |
+| GSC data inside Ahrefs (CTR by position, anonymous queries) | `gsc-ctr-by-position`, `gsc-anonymous-queries` | Title test reading (A0) |
 
 ### 1.6 DataForSEO research (2026-10-01, US, Google)
 
@@ -124,13 +124,13 @@ The listings hidden on 2026-09-27 (spicygen, offrobe, hifun, hackaig, crano and 
 |---|---|---|---|
 | mcp servers | 60,500 | 34 | Head term owned by dedicated directories (mcpservers.org lists 9,800+ servers; mcp.so, GitHub). Go after the long tail ("{tool} mcp server", "best mcp servers" 880/KD 14, "awesome mcp servers" 880/KD 8), not the head term. |
 | ai coding assistant | 18,100 | 37 | Category hub "AI coding assistants" |
-| github student developer pack | 8,100 | 38 | Merged guide (5.3) |
+| github student developer pack | 8,100 | 38 | Merged guide (A6) |
 | best ai agents | 1,900 | 21 | Category hub |
 | dev tools | 1,900 | 27 | Homepage / category hubs |
 | notion alternatives | 1,600 | n/a | Alternatives template, if Notion-like tools are listed |
 | cursor alternatives | 1,000 | **5** | Alternatives template: **"{well-known dev tool} alternatives" is low-KD and high-intent** |
 | supabase alternatives | 880 | n/a | same |
-| open source alternatives | 880 | 15 | "Open-source alternatives" hub (7) |
+| open source alternatives | 880 | 15 | "Open-source alternatives" hub (A7) |
 | postman alternatives | 720 | **2** | same |
 | vercel alternatives | 720 | n/a | same |
 | best ai coding tools | 720 | 24 | Category hub |
@@ -147,10 +147,10 @@ The listings hidden on 2026-09-27 (spicygen, offrobe, hifun, hackaig, crano and 
 Many are self-serve "submit your product" lists, so they're the quickest wins. Skip spammy ones (e.g. ainsfwbots.com, link farms).
 
 **What changes in the plan**
-1. **New pilot for alternatives pages: well-known dev tools** (Cursor, Postman, Supabase, Vercel, Firebase, Notion...). KD 2–5 and real volume, unlike most of our listed tools. Needs those tools to exist as listings (or a "popular tools" seed list) with real alternatives from DevHunt. Add to section 7.
+1. **New pilot for alternatives pages: well-known dev tools** (Cursor, Postman, Supabase, Vercel, Firebase, Notion...). KD 2–5 and real volume, unlike most of our listed tools. Needs those tools to exist as listings (or a "popular tools" seed list) with real alternatives from DevHunt. See A4.
 2. **Product Hunt alternatives: off-site first.** Ask to be added to or upgraded in pinggy.io, startupa.ge, smollaunch.com, launchvault.dev, clickup's list and the Reddit threads (honestly, from John's account). Only then our own comparison page.
 3. **MCP:** long tail plus per-tool "{tool} MCP server" pages, not a head-term directory race.
-4. **Quick wins in 5.2:** onlinegdb (KD 3, pos 7), reddit-list (KD 3–14, pos 8–11), visualgpt (KD 8, pos 20), and merging the Safari and GitHub Student Pack clusters.
+4. **Quick wins (A5):** onlinegdb (KD 3, pos 7), reddit-list (KD 3–14, pos 8–11), visualgpt (KD 8, pos 20), and merging the Safari and GitHub Student Pack clusters.
 5. **Moderation check:** namso-gen (credit card number generator) against the fraud rule.
 
 ## 2. Audiences
@@ -175,255 +175,243 @@ SEO mostly serves A. C pays. D buys proof of A–C. E is the channel that grows.
 
 ---
 
-## 3. Status: what's live (verified 2026-10-01)
+## How this plan is split
 
-**Done**
-- [x] www → root redirect (`https://www` 301 → `https://devhunt.org`). Minor: `http://www` takes two hops (308 → https://www → 301). Make it one hop in Vercel.
-- [x] Trailing slash 308s to the clean URL.
-- [x] Self-referencing canonicals on every page type.
-- [x] Hidden NSFW listings (48, 2026-09-27). New submissions are moderated (`utils/moderation.ts`: adult ≥0.6 is blocked and saved as `deleted=true`).
-- [x] robots.txt: disallows `/account/`, `/api/` and `/private/`; allows `/api/og/`.
-- [x] JSON-LD:
-  - Organization + WebSite on the homepage
-  - SoftwareApplication (+ FAQPage when the tool has a profile) on tool pages
-  - ItemList on alternatives pages
-  - BlogPosting + BreadcrumbList on blog posts
-  - FAQPage on `/faq`
-  - AboutPage + Person on `/the-story`
-- [x] `/llms.txt`, `/faq`, `/about` → `/the-story`, `/stats`, `/advertise`.
-- [x] Branded OG images for tools, makers, categories, comparisons, alternatives and the homepage.
-- [x] Alternatives pages are noindexed unless the tool has ≥2 picked alternatives or ≥5 category peers.
-- [x] Tool meta description is slogan + description, cut to 160 chars (no longer the slogan alone).
+- **Part A: in our control.** Code, content, data, moderation and settings in our own accounts. Do all of Part A first.
+- **Part B: outside our control.** Other people's sites, communities, press, links and mentions. Start only after Part A is done.
 
-**Gaps found in the code audit**
-
-Ordered by impact (P1 highest).
-
-| # | Gap | Where | Priority |
-|---|---|---|---|
-| 1 | **6,235 compare + alternatives URLs entered the sitemap at once.** See section 4. | `app/sitemap.xml/route.tsx:39-40` | P1 |
-| 2 | Sitemap may list alternatives pages that are noindexed. Sitemap and noindex must agree. | sitemap route vs `alternatives/page.tsx:38` | P1 |
-| 3 | No `lastmod` in the main sitemap; one 17.6k-URL file | `utils/sitemap.ts` | P2 |
-| 4 | Blog sitemap (`/blog/sitemap.xml`) isn't in robots.txt | `app/robots.txt` | P2 |
-| 5 | IndexNow key file exists, but nothing submits URLs | `public/6f2e…602.txt` | P2 |
-| 6 | No Bing Webmaster verification (ChatGPT search uses Bing's index) | layout | P2 |
-| 7 | Empty profiles aren't noindexed (only left out of the sitemap); 745 profile URLs got impressions | `app/[user]/page.tsx` | P2 |
-| 8 | Tool title `{name} - {slogan}` has no brand and no intent words | `app/tool/[slug]/page.tsx:58` | P2 |
-| 9 | Categories, compare and profiles have no JSON-LD; no breadcrumbs except on blog posts | | P3 (rich results only) |
-| 10 | Blog tag and category pages have no description, and the canonical ignores `?page` | `app/blog/tag`, `category` | P3 |
-| 11 | "Trending launches" on tool pages is `ssr:false`, so its internal links aren't in the HTML | `app/tool/[slug]/page.tsx:17` | P2 |
-| 12 | Footer has no category links; deep pages rely on in-content links | `Footer.tsx` | P3 |
-| 13 | `/advertise` isn't in the sitemap | `utils/sitemap.ts:4` | P3 |
-| 14 | Paid-launch dofollow links, deliberate (decided 2026-09-27, don't re-argue). Google's link spam policy wants `rel="sponsored"` on paid links. If GSC ever shows a manual action, switch to `sponsored` and file a reconsideration request. Keep "dofollow backlink" out of public sales copy. | `utils/links.ts:74-79` | watch |
+Owners: **[C]** Claude can do it in this repo or with the connected tools; **[J]** John has to click or decide (accounts, money, policy).
 
 ---
 
-## 4. Main risk now: scaled programmatic pages
+# PART A: In our control
 
-Google's spam policy defines **scaled content abuse** as many pages generated mainly to rank, with little value, whether made by AI, humans or both. Their AI-optimization guide also warns against making pages for every fan-out variant. We just published **4,912 compare and 1,323 alternatives URLs**. So far only 59 and 13 of them have any impressions.
+## A0. Ship what's built
 
-The template is sound (*@alexgroberman* / Rankscale: "alternatives" and "vs" pages from vendors get cited by AI Overviews and ChatGPT). Volume is the risk. Steps:
+- [ ] **[J]** Push `main` (commits ad395ed, 068e5c0, 4eb1c4c and this one), or ask **[C]** to run `pnpm build` first and push.
+- [ ] **[C]** Title test and server-rendered "Trending launches" are written but sit in the uncommitted tool-page refactor (`app/tool/[slug]/ToolPageView.tsx`). They ship when that refactor is committed. Check they're in the deploy.
+- [ ] **[C]** After deploy, check live: `/sitemap.xml` index, `/sitemaps/compare.xml` (~689 URLs), noindex on an ungated comparison, IndexNow cron runs (Vercel cron logs).
 
-- [x] **Quality gate for indexing compare pages** (2026-10-01, `utils/seoIndex.ts`). Shipped rule: index when either tool is in the 50-tool pilot or both tools have ≥20 votes; alternatives pages need ≥2 picked alternatives plus the pilot or ≥10 votes. Result: 426 compare + 263 alternatives URLs in the sitemap (was 4,912 + 1,323). Original idea: `index` only when both tools are live, both have a profile (features and pricing), the pair has a real `difference` text, and either pair gets search demand or both tools have votes above a threshold. Otherwise `noindex,follow` and leave the page out of the sitemap. Target the first wave at a few hundred pairs, not 4,912.
-- [x] Make the sitemap match the noindex rules exactly (gap #2). Both use the same functions in `utils/seoIndex.ts`.
-- [ ] **Pilot (live 2026-10-01; read on ~10-22):** top 50 tools by GSC clicks (`SEO_PILOT_SLUGS`), plus their alternatives pages and 1–3 compare pairs each. Check in GSC Page indexing after 3 weeks:
-  - If more than 50% are indexed and getting impressions, add the next tier.
-  - If most sit in "Crawled – currently not indexed", improve the template before growing.
-- [ ] Watch **site-wide** clicks and impressions weekly for 6 weeks. A slow sitewide drop after a big URL push points to quality, not the pages themselves.
-- [ ] Every programmatic page needs something no other page has: our votes and comments, a pricing table, a "best for" verdict, an FAQ written from real questions. No near-duplicate text across pairs.
+## A1. Account settings (one-time clicks)
 
----
+- [ ] **[J]** GSC: resubmit `https://devhunt.org/sitemap.xml` (it's now a sitemap index).
+- [ ] **[J]** GSC: confirm the site is **included in Search generative AI features**, and open the **Generative AI performance report**.
+- [ ] **[J]** Bing Webmaster Tools: "Import from Google Search Console" (verifies the site and brings the sitemaps). ChatGPT search uses Bing's index.
+- [ ] **[J]** Link GA4 in SEO Gets, so conversions (signups, submissions, paid launches) show per landing page.
+- [ ] **[J]** Ahrefs: rerun the DevHunt Site Audit after the deploy (the 2026-09-25 crawl scored 0, most likely due to the 504s that week). Budget ~50–100k units/month for DevHunt.
+- [ ] **[C, with J's OK]** Ubersuggest: replace the 10 AI-visibility prompts with DevHunt prompts (list in A9) and turn on Gemini / AI Overview tracking.
+- [x] www → root redirect (Vercel shows `www.devhunt.org` 301 → `devhunt.org`). The extra `http://www` hop is Vercel's automatic HTTPS upgrade and can't be changed; harmless.
 
-## 5. Phase A: Fix and refresh what already ranks (now → 60 days)
+## A2. Decisions and moderation
 
-Rule (*@jakezward*): spend ~60 days refreshing positions 4–20 before defaulting to new pages. Google: no preferred word count, and change the date only with a real change.
+- [ ] **[J]** Dev-only, or accept "software tools in general"? (~18% of query clicks are developer queries.) This decides which tools get alternatives and compare pages first.
+- [ ] **[J]** namso-gen (credit card number generator, 8,100 searches, pos 12–14): keep or hide under the fraud rule.
+- [ ] **[J]** Borderline listings: nofiltergpt (3581), deepswap (6350), imagetovideo (7224), soulmaite-io (3753).
+- [ ] **[J]** SEObot: stop auto-publishing, or keep it only for drafts a human edits and signs.
+- [x] 48 NSFW/undress listings hidden (2026-09-27); new submissions moderated (`utils/moderation.ts`).
 
-### 5.1 Pages with impressions but no clicks (`no_clicks` flag: impressions >500, CTR <0.5%, last 28 days)
+## A3. Technical SEO
 
-Fix: put the exact query in the title, H1 and first sentence, answer it in the first two lines, and match the page type to the intent (*@regalstreak*).
+Done (verified 2026-10-01):
+- [x] Self-referencing canonicals on every page type; trailing slash 308s to the clean URL
+- [x] robots.txt: disallows `/account/`, `/api/`, `/private/`; allows `/api/og/`; lists both sitemaps
+- [x] Sitemap index with per-type files, `lastmod` on tools, gated compare and alternatives (`utils/seoIndex.ts`)
+- [x] Daily IndexNow cron (`/api/cron/indexnow`, 06:30 UTC)
+- [x] `noindex,follow` on profiles without a live launched or paid tool
+- [x] JSON-LD: Organization + WebSite (home), SoftwareApplication + FAQPage (tools), ItemList (alternatives), BlogPosting + BreadcrumbList (blog), FAQPage (/faq), AboutPage + Person (/the-story)
+- [x] `/llms.txt`, `/faq`, `/about` → `/the-story`, `/stats`, `/advertise`; branded OG images
+- [x] All major crawlers get HTTP 200 (Googlebot, bingbot, GPTBot, OAI-SearchBot, PerplexityBot, ClaudeBot, Ahrefs)
+
+To do:
+- [ ] **[C]** BreadcrumbList on tool, category and compare pages; ItemList on categories (for rich results only)
+- [ ] **[C]** Blog tag and category pages: add a description; make the canonical respect `?page`
+- [ ] **[C]** Footer links to the top categories (deep pages rely only on in-content links today)
+- [ ] **[C]** Mobile performance: rerun PageSpeed / Lighthouse (DataForSEO `on_page_lighthouse`). Earlier: mobile LCP 3.3s, time to interactive 8.9s. Target LCP <2.5s on tool pages.
+- [ ] **[C]** Investigate /tool/bootstrap: 69k impressions in 3 days for "+javascript libraries" at pos 2.0 with 0 clicks. Exclude it from trend readings.
+- [ ] **[C]** Broken backlinks: list links to dead DevHunt URLs (DataForSEO backlinks, or Ahrefs after Oct 3) and 301 the valuable ones to the closest live page. The redirect is ours to add, even though the links are external.
+
+## A4. Programmatic pages: gated growth
+
+Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs went into the sitemap on 2026-09-27; now gated to 689.
+
+- [x] Index gate (pilot of the top 50 tools by GSC clicks, or ≥20 votes for compare / ≥10 for alternatives); the sitemap and page robots use the same rule.
+- [ ] **[C] ~2026-10-22:** read the pilot in GSC Page indexing.
+  - More than 50% indexed with impressions: add the next tier.
+  - Mostly "Crawled – not indexed": improve the template first.
+- [ ] **[C]** Weekly for 6 weeks: site-wide clicks and impressions (a slow sitewide drop would point to quality).
+- [ ] **[C]** Make each programmatic page unique: votes and comments, a pricing table, a "best for" verdict, an FAQ from real questions; no near-duplicate text across pairs.
+- [ ] **[C]** **New pilot: alternatives for well-known dev tools.** Demand (US/month, KD):
+
+  | Tool | Volume | KD |
+  |---|---|---|
+  | cursor | 1,000 | 5 |
+  | postman | 720 | 2 |
+  | supabase | 880 | n/a |
+  | vercel | 720 | n/a |
+  | firebase | 320 | n/a |
+  | notion | 1,600 | n/a |
+
+  Needs those tools as listings (or a seed list) plus real alternatives from DevHunt. Start with 10 tools and check indexing before adding more.
+
+## A5. Refresh pages that already rank
+
+Rule (*@jakezward*): refresh positions 4–20 before writing new pages. Change the date only with a real change.
+
+**No clicks** (impressions >500, CTR <0.5%, GSC 28d): put the exact query in the title, H1 and first sentence, and answer it in the first two lines.
 
 | Query | Impr 28d | Pos | Clicks | Page | Done |
 |---|---|---|---|---|---|
-| tiktokio / tiktokio video downloader | 60,388 | 6–8 | 12 | /tool/-tiktokio-tiktok-downloader- | [ ] |
-| toolfk / toolfk ai | 52,421 | 5.8 | 132 | /tool/toolfk | [ ] |
-| google maps api | 5,419 | 7.0 | 0 | /blog/google-map-api-for-developers-integration-basics | [ ] |
+| tiktokio (+ video downloader) | 60,388 | 6–8 | 12 | /tool/-tiktokio-tiktok-downloader- | [ ] |
+| toolfk (+ ai) | 52,421 | 5.8 | 132 | /tool/toolfk (title test) | [ ] |
+| google maps api | 5,419 | 7.0 | 0 | google maps API blog post | [ ] |
 | vidful | 4,924 | 6.3 | 5 | /tool/vidfulai-free-ai-video-generator-online | [ ] |
-| online gdb | 1,409 | 6.3 | 3 | gdb blog posts (merge, 5.3) | [ ] |
+| online gdb | 1,409 | 6.3 | 3 | gdb posts (merge, A6) | [ ] |
 | vidbeer, 77adc, lan orangutan, getgpt, sopilot, aitdk, pseudorun | 600–1,300 each | 6–9 | ~0 | their tool pages | [ ] |
 
-Also check: **does each tool page answer "is X safe/legit/free"?** These tool-name searchers often want a verdict, not a description.
+**Near page one, quickest wins first** (DataForSEO US volume + GSC):
 
-### 5.2 Near page one (`almost_there`: positions 3–20, non-brand)
+| Keyword | US vol | KD | Pos | Page | Done |
+|---|---|---|---|---|---|
+| onlinegdb | 12,100 | 3 | 7 | gdb blog post | [ ] |
+| reddit list / redditlist | 16,200 | 3–14 | 8–11 | /tool/reddit-list | [ ] |
+| visualgpt | 14,800 | 8 | 20 | /tool/visualgpt | [ ] |
+| image describer | 12,100 | 30 | 11 | /tool/image-describer | [ ] |
+| easy comment (+ ai) | 15,300 | low | 8–10 | easycomment tool | [ ] |
+| facewow face swap | 4,400 | 9 | 19 | /tool/facewow | [ ] |
+| yt1s / y2down / dolphin radar / snapwc / chatmatch / camdiv / 4download / ss youtube | GSC: 4k–25k impr each | n/a | 3.5–9 | their tool pages | [ ] |
+| Safari devtools cluster (~20 variants) | ~30k | 10–37 | 8–20 | merge 3 posts → 1 (A6) | [ ] |
+| GitHub Student Pack cluster | ~25k | 22–49 | 15–20 | merge 3 posts → 1 (A6) | [ ] |
+| android software development kit | 4,400 | 44 | 15 | android SDK post | [ ] |
 
-| Query | Impr 28d | Pos | Clicks | Done |
-|---|---|---|---|---|
-| yt1s | 25,455 | 8.9 | 200 | [ ] |
-| y2down (+ app) | 23,556 | 7.5 | 265 | [ ] |
-| dolphin radar | 18,830 | 3.8 | 164 | [ ] |
-| snapwc / snap wc | 14,980 | 3.5–4.6 | 128 | [ ] |
-| easycomment (+ ai) | 12,655 | 4.6–5.0 | 88 | [ ] |
-| chatmatch | 7,783 | 8.6 | 417 | [ ] |
-| camdiv | 7,720 | 5.7 | 401 | [ ] |
-| 4download | 7,678 | 5.2 | 139 | [ ] |
-| ss youtube | 4,474 | 7.7 | 24 | [ ] |
+Also on every tool page: answer "is X free / safe / legit" plainly.
 
-US-volume targets (Ubersuggest) that are still open:
+## A6. Blog cleanup
 
-| Keyword | US volume | KD | Pos | Done |
-|---|---|---|---|---|
-| easy comment (+ ai) | 8.1k + 4.4k | 15–16 | 9–11 | [ ] |
-| student developer pack github | 8.1k | 39 | 17 | [ ] |
-| tts sam | 6.6k | 30 | 23 | [ ] |
-| android software development kit | 4.4k | 57 | 18 | [ ] |
-| github student | 2.9k | 35 | 30 | [ ] |
-| steam calculator | 1.9k | 34 | 28 | [ ] |
-| dev tools for safari | 1.6k | 48 | 16 | [ ] |
+449 indexed posts, 0.26% CTR, AI-generated, organization as author.
 
-### 5.3 Blog: the biggest leak
+- [ ] **[C]** Export every blog URL with 16 months of GSC data.
+- [ ] **[C]** Prune: no clicks in 16 months and position >50 → 410 or noindex.
+- [ ] **[C]** Merge each cluster into one post and 301 the rest:
+  - Safari devtools (3), GitHub Student Pack (3), Chrome devtools (3), online gdb (2+)
+  - Free online forms (3+), web traffic/stats tools (3+), no-code platforms
+- [ ] **[C + J]** Rebuild the survivors with a real byline and author page (John or a named editor), an answer-first block, DevHunt data, a table, an FAQ from "People also ask", and links to category hubs and tool pages. **[J]** approves the byline.
 
-The blog has 449 indexed URLs and 0.26% CTR. The posts are AI-generated (SEObot) with the organization as author. That fits the "scaled, commodity, no who/how/why" pattern Google's helpful-content guidance warns about.
+## A7. New on-site pages
 
-- [ ] Export every blog URL with 16 months of clicks, impressions and position.
-- [ ] **Prune:**
-  - No clicks in 16 months and position >50: 410 or noindex.
-  - Overlapping posts: merge into one and 301 the rest. Clusters: GitHub Student Pack (3 posts), Safari devtools (2), Chrome devtools (3), online gdb (2+), free online forms (3+), web traffic/stats tools (3+), no-code platforms.
-- [ ] **Rebuild the survivors** as non-commodity pages:
-  - A real author byline (John or a named editor) with an author page. Who/How/Why per Google.
-  - An answer-first block.
-  - Original proof: DevHunt data (votes, launches, categories), screenshots, tested steps.
-  - A table and an FAQ from real "People also ask" questions.
-  - Links to category hubs and 3–5 tool pages.
-- [ ] Decide on SEObot: keep it only for drafts a human edits and signs, or stop auto-publishing. Unedited auto-publishing at volume is exactly the scaled-content risk.
+Each new template launches with a pilot batch and an indexing check.
 
-### 5.4 Technical fixes (from section 3)
+| Page | For | Demand / notes | Done |
+|---|---|---|---|
+| "Best {category} tools ({year})" hubs: upgrade `/tools/{slug}` | Tool evaluators | e.g. "ai coding assistant" 18,100 / KD 37, "best ai agents" 1,900 / KD 21, "best ai coding tools" 720 / KD 24. Intro, method, table, FAQ, our stats. | [ ] |
+| Alternatives for well-known dev tools | Tool evaluators | A4 pilot | [ ] |
+| Free / open-source alternatives to X | Tool evaluators | "open source alternatives" 880 / KD 15; only tools with ≥3 matches | [ ] |
+| MCP: `has_mcp` field, `/mcp` hub, "{tool} MCP server" sections | Tool evaluators, AI | "mcp servers" 60,500 but owned by directories → go after the long tail ("best mcp servers" 880 / KD 14, "awesome mcp servers" 880 / KD 8) | [ ] |
+| Pricing / "is X free" as a tool-page section (not new URLs) | Tool evaluators | High intent | [ ] |
+| Monthly roundups `/best/{yyyy}/{mm}` | Developers, makers | Our winners and vote data | [ ] |
+| State of Dev Tools report (quarterly) | Developers, sponsors, AI | Original data, the citation and link asset | [ ] |
+| "Product Hunt alternatives for developers" page | Makers, AI | 110 searches/month; the AI Overview already names DevHunt via others' listicles. Build ours with honest tables and our numbers. | [ ] |
+| Launch guides (where / how to launch a dev tool) | Makers | Almost no Google demand; serves makers via links and AI answers | [ ] |
+| Weekly human-edited dev-tools digest (instead of auto news) | Developers | Our take, links to tool pages | [ ] |
+| Selective how-tos | Developers | Only with tested steps and relevant tools: "delete a branch in github" (3 × 8,100, KD 29–33), "developer tools in chrome" (5,400, KD 8) | [ ] |
+| Integrations pages, "stack behind X", public API / MCP for DevHunt data | Later | n/a | [ ] |
 
-- [x] Gap #1–2: compare/alternatives gating and sitemap agreement (section 4)
-- [x] Gap #3: `/sitemap.xml` is now an index of `/sitemaps/pages.xml` (static, categories, makers), `/sitemaps/tools.xml` (with `lastmod`), `/sitemaps/compare.xml` (gated compare + alternatives) and `/blog/sitemap.xml`. **Resubmit `/sitemap.xml` in GSC** so it picks up the index.
-- [x] Gap #4: blog sitemap listed in robots.txt
-- [x] Gap #5: daily IndexNow cron (`/api/cron/indexnow`, 06:30 UTC) for tools edited, launched or removed in the last 26h
-- [ ] Gap #6 (John): Bing Webmaster Tools. Easiest is "Import from Google Search Console", which verifies and brings sitemaps in one step.
-- [x] Gap #7: `noindex,follow` on profiles with no live launched or paid tool (same rule as the sitemap)
-- [ ] Gap #8 (test live 2026-10-01, read on ~10-29): 11 tools in `TITLE_TEST_SLUGS` use `{Name}: Features, Pricing & Alternatives ({year})`; only tools whose page shows pricing and picked alternatives. Original idea: tool title template, e.g. `{Name}: {short value prop} | DevHunt` (≤60 chars). Then **test it on the top 20 tools by impressions** before rolling out everywhere, comparing CTR 28 days before and after.
-- [x] Gap #11: "Trending launches" is server-rendered on tool pages from cached home data. Original idea: render "Trending launches" on the server (or a static list of related tools) so tool pages link to each other in the HTML
-- [ ] Gap #9: BreadcrumbList on tool, category and compare pages; ItemList on categories. This is for rich results, not AI citations.
-- [ ] One-hop `http://www` redirect (John, Vercel domain settings: point `http://www` straight at `https://devhunt.org`)
-- [ ] Mobile performance: rerun PageSpeed (the 2026-10-01 audit was still pending). Earlier: mobile LCP 3.3s and time to interactive 8.9s. Target LCP <2.5s on tool pages.
-- [ ] In GSC: confirm the site is **included in Search generative AI features**, and review the **Generative AI performance report** monthly.
+## A8. Internal authority and maker tools we build
 
----
+- [ ] **[C]** Pass homepage authority inward: link from the homepage and top tool pages to pages stuck near page one; rotate monthly (*@regalstreak*).
+- [ ] **[C]** Build the "Launched on DevHunt" badge (links to the maker's tool page, not the homepage) and the embed snippet on the owner dashboard. Getting makers to embed it is Part B.
+- [ ] **[C]** Build the maker SEO report: the tool page's Google impressions shown in the owner dashboard (and email, once John turns email crons on).
+- [ ] **[C]** Original stats on hubs and guides (votes, launches, impressions per category). The GEO paper found quotes and statistics raise AI visibility (up to ~40% in its setup).
+- [ ] **[C]** Fold the 508 long (7+ word) GSC queries into hub FAQs; no page per variant.
 
-## 6. Phase B: AI assistants (GEO / AEO)
+## A9. Measurement routine (weekly, ~1 hour)
 
-### 6.1 Measure first
-
-- [ ] **Replace the 10 Ubersuggest prompts.** The current ones ("best directory builder", "AI blog generator", "marketing tools for e-commerce") are about John's other products, not DevHunt, so 0% means nothing yet. New set:
+- [ ] `almost_there` (pos 3–20, non-brand) → add the exact phrase or H2s
+- [ ] `no_clicks` (>500 impressions, CTR <0.5%) → title, H1, first lines
+- [ ] `decaying` (−30% week on week) → find the cause
+- [ ] `untargeted` / `wrong_intent` → section, new page, or change the page type
+- [ ] Compare and alternatives indexing counts (A4)
+- [ ] Conversions by landing page (after the GA4 link)
+- [ ] Monthly: GSC Generative AI report; DataForSEO ChatGPT mentions (DevHunt 6 vs Product Hunt 926 on 2026-10-01); manual prompt audit in ChatGPT, Perplexity, Gemini, Copilot, AI Mode and Grok. Prompts:
   1. Where should I launch a developer tool?
-  2. What are the best Product Hunt alternatives for developers?
-  3. Best sites to submit a new dev tool or SaaS
-  4. Where can I discover new developer tools every week?
-  5. How do I get early users for my developer tool?
-  6. Best alternatives to {top tool in our traffic, e.g. yt1d}
+  2. Best Product Hunt alternatives for developers?
+  3. Best sites to submit a new dev tool
+  4. Where can I discover new dev tools weekly?
+  5. How do I get early users for my dev tool?
+  6. Best alternatives to {top tool}
   7. Best new AI coding tools this month
   8. Best open-source alternatives to {popular dev tool}
   9. Which dev tools have MCP servers?
-  10. Is DevHunt legit / DevHunt vs Product Hunt
-- [ ] Turn on Gemini and Google AI Overviews tracking in Ubersuggest (`aisv_gemini_answers_tracked` is false).
-- [ ] **Monthly manual audit** of the same prompts in ChatGPT, Perplexity, Gemini, Copilot, Google AI Mode and **Grok** (no public citation study exists for Grok). Log who is cited and whether facts about DevHunt are correct.
-
-### 6.2 On-site: pages worth quoting
-
-- [ ] **"Product Hunt alternatives for developers"**: a table vs Product Hunt, Uneed, Peerlist, Microlaunch, BetaList, Show HN, with honest pros and cons and our own numbers. Wording differs, but intent matches prompts 1–3.
-- [ ] **"Where to launch your dev tool (2026)"** plus a **"How to launch a dev tool"** playbook. Original advice from actual DevHunt launch data, not a commodity listicle.
-- [ ] **Original stats on every key page.** The GEO paper (KDD 2024): quotes, statistics and cited sources raised visibility by up to ~40% in its setup; keyword stuffing hurt. We own unique data (launches, votes, impressions per category, `/stats`). Put real numbers on hubs and guides.
-- [ ] **Long conversational queries** (`ai_mode` flag, 7+ words): 508 such queries with impressions in the last 28 days (2,949 impressions). Examples: "best mobile app debugging platforms for ios developers testing without context switching", "is there a platform that generates social graphics from github releases without manual design work?". Fold them into category hubs and FAQs. **Don't** make one page per variant (Google mythbust).
-- [ ] Visible "updated {date}: what changed" notes on hubs, only when they actually change. ChatGPT favors fresher citations (Ahrefs: ~958 days vs ~1,416 for organic results).
-
-### 6.3 Off-site: the strongest AI-visibility correlates
-
-- [ ] **YouTube program.** Ahrefs (75k brands): YouTube mentions correlate ~0.74 with AI visibility, the strongest signal measured. YouTube was 5.6% of all AI Overview citations and 18.2% of citations from outside the top 100 (Mar 2026).
-  - Weekly: "Top dev tools launched this week on DevHunt" (3–5 minutes, screen recordings).
-  - Monthly: "Best {category} tools" and "{popular tool} alternatives" for the top categories.
-  - Titles, descriptions and transcripts name DevHunt and the tools, and link to DevHunt pages.
-- [ ] **Earn real brand mentions** (branded web mentions ~0.66–0.71): podcasts, maker interviews, "how I launched" guest posts, being included in "where to launch" lists. **No bought mentions** (Google spam policy).
-- [ ] **Reddit, Indie Hackers, Hacker News:** honest answers in "where to launch" threads from John's account. No spam, no rings of accounts.
-- [ ] **Entity consistency:** the same name, description, logo and founder on X, LinkedIn, GitHub, Crunchbase and `/the-story`. A Wikipedia/Wikidata entry only if DevHunt genuinely meets notability rules.
-- [ ] Maker badge (Phase D): every embed is a branded mention plus a link.
+  10. DevHunt vs Product Hunt
+- [ ] Progress log row (bottom of this doc)
 
 ---
 
-## 7. Phase C: New pages (60–120 days, gated by Phase A results)
+# PART B: Outside our control (start after Part A)
 
-Order follows audience A first, then C, then E. Each new template launches with a pilot batch and an indexing check.
+These need other people: their sites, their communities, their editors. Ordered by expected value from the research.
 
-| Idea | Audience | Verdict | Notes |
-|---|---|---|---|
-| Alternatives pages (built) | A | **Gate, then grow** | Section 4 |
-| Compare pages (built) | A | **Gate, then grow** | Only pairs with demand or real differences |
-| **Free / open-source alternatives to X** | A | Build | Variant of alternatives, filtered by pricing and license. Only for tools with ≥3 qualifying matches. |
-| **Pricing / "is X free" pages** | A | Build as a section of the tool page, not new URLs | High intent; avoids thin URLs |
-| **Tools with MCP servers** hub (`/mcp`) | A, E | Build | MCP exists only as a category today. Add a `has_mcp` field, a hub with setup snippets, and update it monthly. |
-| **"Best {category} tools ({year})" hubs** | A | Upgrade `/tools/{slug}` | Intro, our ranking method, table, FAQ, our stats. Content goes below or above the grid (*@SEOKeval*). |
-| **Monthly roundups** `/best/{yyyy}/{mm}` | B, C | Build | Real winners, our vote data, links to tool pages. A natural link target for makers. |
-| **State of Dev Tools report** (quarterly, plus an annual big one) | B, D, E | Build | Original data from launches, categories and votes. Gives journalists and AIs something to cite, and is the link engine. Pitch to newsletters. |
-| **Launch guides** (how to launch / promote a dev tool, launch-day checklist) | C | Build | Written from DevHunt's own launch data. Ties to `/launch`. |
-| **Educational how-tos** (Chrome extension, AI agent, monetizing open source) | B | **Selective** | Big volume, strong incumbents (MDN, Google docs). Only where we add tested steps plus relevant tools. Low-KD Ubersuggest picks: "delete a branch in github" (3 × 8.1k, KD 29–33), "ai first code editor" (4.4k, KD 25), "developer tools in chrome" (5.4k, KD 8). |
-| **Daily auto-generated news posts** | B | **Don't**, as automated rewrites | Matches the scaled-content and commodity patterns. Instead: a weekly human-edited digest with our take, linking to tool pages. |
-| **Top Hacker News discussions** | B | **Reframe** | Not rehosted threads. "Dev tools HN talked about this week", with our links and data. |
-| **Integrations pages** ("tools that work with Supabase / Vercel / Stripe") | A | Later | Needs integration data; generate only where ≥5 tools qualify. |
-| **"Stack behind {product}"** | B | Later | Shareable, editorial, not programmatic. |
-| **Public read API / MCP server for DevHunt data** | E | Later | Lets agents query and cite DevHunt. Promote it on the MCP hub. |
+## B1. Get onto the pages AI already cites
 
----
+Google's AI Overview for "product hunt alternatives" names DevHunt via **pinggy.io**, and also cites startupa.ge, smollaunch.com and a Reddit r/startups thread.
 
-## 8. Phase D: Authority and links
+- [ ] Ask to be added or described accurately on: pinggy.io, startupa.ge, smollaunch.com, launchvault.dev, clickup.com's list, apify's launch-boards page, kimchihill's list.
+- [ ] Honest answers from John's account in the Reddit threads ranking for it (r/SaaS, r/micro_saas, r/startups, r/ProductHunters).
 
-- [ ] **"Launched on DevHunt" badge** linking to the maker's tool page (not the homepage).
-- [ ] **Maker SEO report:** email each maker their tool page's Google impressions (we rank for their brand name). It proves the launch value and gets them to embed the badge.
-- [ ] **Pass homepage authority inward.** ~600 of 1,700 referring domains point at `/`. Link from the homepage and top tool pages to pages stuck near page one, and rotate monthly (*@regalstreak*).
-- [ ] **Backlink gap vs uneed.best, peerlist.io, microlaunch.net, betalist.com, saashub.com.** Ubersuggest's report never finished; rerun `backlink_opportunity`.
-- [ ] Link-worthy assets: the State of Dev Tools report, `/stats`, the MCP hub, awesome-lists, and the open-source repo README.
+## B2. Link gap: 247 domains link to Uneed, Microlaunch, Peerlist, BetaList and SaaSHub but not to us
 
----
+- [ ] Self-serve submissions first: clakr.com, shouldiuse.io, robuta.com, vibelaunched.com, launchpointzero.com, growstartup.co, launch-list.org, saaslaunch.site, launching.best, toolfound.com, saascity.io, topsaasdirectories.com, bootstraparena.com, makerhunt.io, agentlaun.ch
+- [ ] Communities: Indie Hackers, dev.to, Beehiiv (a newsletter or profile with a link)
+- [ ] Skip spammy targets (NSFW lists, link farms)
+- [ ] Full list: rerun DataForSEO `backlinks_domain_intersection` (targets uneed.best, microlaunch.net, peerlist.io, betalist.com, saashub.com; exclude devhunt.org)
 
-## 9. Weekly routine (~1 hour, via SEO Gets)
+## B3. Maker distribution
 
-Based on *@regalstreak*'s six flags and *@jakezward*'s refresh loop.
+- [ ] Ask makers to embed the badge (built in A8). Today 39k of 52k backlinks sit in footers, so badges that link to tool pages spread authority to deep pages.
+- [ ] Use the maker SEO report as the hook ("your DevHunt page got N Google impressions").
 
-- [ ] `almost_there`: non-brand queries at positions 3–20 → add the exact phrase or 2–3 H2s on the ranking page
-- [ ] `no_clicks`: impressions >500 and CTR <0.5% → title, H1, first lines, page type
-- [ ] `decaying`: clicks down ≥30% week on week → find the cause
-- [ ] `untargeted`: a query with no matching page → section on an existing page first, new page only if the search results show a different intent
-- [ ] `wrong_intent`: search results want a tool or comparison and we show an essay (or the reverse) → change the format
-- [ ] `ai_mode`: 7+ word queries → fold into hub FAQs
-- [ ] Indexing: count of "Crawled/Discovered – not indexed" for compare and alternatives (section 4)
-- [ ] Conversions by landing page, once GA4 is linked
-- [ ] Monthly: GSC Generative AI report, Ubersuggest AI visibility, manual prompt audit, progress log row
+## B4. YouTube and video
+
+No permission needed, but it's off-site work. YouTube mentions are the strongest AI-visibility correlate measured (Ahrefs, ~0.74).
+
+- [ ] Weekly "top dev tools launched this week on DevHunt" (3–5 minutes)
+- [ ] Monthly "best {category} tools" and "{popular tool} alternatives"
+- [ ] Titles, descriptions and transcripts name DevHunt and link to tool pages
+
+## B5. Earned mentions and PR
+
+- [ ] Pitch the State of Dev Tools report (A7) to dev newsletters and journalists
+- [ ] Podcasts, maker interviews, "how I launched" guest posts
+- [ ] No bought mentions, links or reviews (Google spam policy)
+
+## B6. Entity profiles
+
+- [ ] Same name, description, logo and founder on X, LinkedIn, GitHub, Crunchbase and `/the-story`
+- [ ] Wikipedia/Wikidata only if DevHunt genuinely meets notability rules
 
 ---
 
-## 10. Don't do
-
-From Google's docs plus the playbook's anti-patterns.
+## Don't do
 
 - Date-bumping without a real change
 - One page per long-tail or fan-out variant
-- Schema spam or FAQ spam aimed at AI Overviews
+- Schema or FAQ spam aimed at AI Overviews
 - Unedited auto-published AI posts at volume
 - Buying mentions, links or reviews; fake engagement
-- Parasite/off-site publishing on hosts we don't own or aren't allowed to publish on
+- Publishing on hosts we don't own or aren't allowed to use
 - Treating `llms.txt` as a channel
-- Panicking over day-to-day AI-answer swings. Brand lists reshuffle often (~70k-response study via @ViperChill/@iannuttall), so read trends over weeks.
+- Panicking over day-to-day AI-answer swings; read trends over weeks
+- Paid-launch dofollow links are deliberate (decided 2026-09-27). If GSC ever shows a manual action, switch them to `rel="sponsored"` and file a reconsideration request. Keep "dofollow backlink" out of public sales copy.
 
 ---
 
-## 11. Progress log
+## Progress log
 
 | Date | Clicks/day (28d avg) | Ubersuggest KW (US) | Est. US traffic | DA | Ref domains | AI visibility | Notes |
 |---|---|---|---|---|---|---|---|
 | 2026-09-26 | ~405 | 5,360 | 11,141 | 31 | 1,681 | 0% | Baseline |
 | 2026-10-01 | ~435 | 6,086 (DFS: 1,457) | 13,863 (DFS: ~2,740) | 31 | 1,700 (DFS: 1,716) | 0% Ubersuggest; ChatGPT mentions 6 vs PH 926 (DFS) | 48 NSFW hidden; 6.2k compare/alternatives URLs added; bootstrap anomaly |
 
-## 12. Changelog
+## Changelog
 
 | Date | Change | Commit | Expected effect |
 |---|---|---|---|
@@ -431,5 +419,5 @@ From Google's docs plus the playbook's anti-patterns.
 | 2026-09-29 | llms.txt, /faq (FAQPage), /about → /the-story (AboutPage + Person), BlogPosting + BreadcrumbList | d7e377f | Rich results, entity clarity |
 | 2026-09-29 | Branded OG images for all page types | 3b2d0e7, b9ce708 | Social CTR |
 | 2026-09-29 | Public /stats page | 1cc15f9+ | Citable data, sponsor proof |
-| 2026-09-27 | Compare + alternatives pages (and in the sitemap) | 47cb134 | Needs gating per section 4 |
-| 2026-10-01 | Index gate (pilot + votes), split sitemap with lastmod, IndexNow cron, maker-only profile indexing, SSR trending links, title test on 11 tools | (this commit) | Fewer thin URLs; faster Bing pickup; CTR read on ~10-29 |
+| 2026-09-27 | Compare + alternatives pages (and in the sitemap) | 47cb134 | Gated 2026-10-01 (A4) |
+| 2026-10-01 | Index gate (pilot + votes), split sitemap with lastmod, IndexNow cron, maker-only profile indexing, SSR trending links, title test on 11 tools | ad395ed | Fewer thin URLs; faster Bing pickup; CTR read on ~10-29 |
