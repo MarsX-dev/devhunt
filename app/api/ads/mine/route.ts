@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { stripe } from '@/utils/server/stripe';
 import { availability, refundableUntil } from '@/utils/server/ads';
-import { REFUND_DAYS } from '@/utils/ads';
+import { REFUND_MS } from '@/utils/ads';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
@@ -33,27 +33,28 @@ export async function GET() {
     )
   )
     .flat();
-  // Single newsletter editions bought on their own: one payment each, from the checkout session.
+  // Weekly ads (a week of sidebar/inline, one newsletter edition) bought on their own: one payment each, from the checkout session.
   const singles = ads.filter(a => !a.stripe_subscription_id && a.stripe_session_id && a.status !== 'blocked');
   for (const s of await Promise.all(singles.map(a => stripe().checkout.sessions.retrieve(a.stripe_session_id).then(session => ({ a, session })).catch(() => null)))) {
     if (s?.session.payment_status !== 'paid') continue;
-    payments.push({ id: s.session.id, ad: `${s.a.name}: newsletter (1 edition)`, amount: (s.session.amount_total ?? 0) / 100, currency: s.session.currency ?? 'usd', status: s.a.refunded_at ? 'refunded' : 'paid', date: s.a.started_at ?? s.a.created_at });
+    payments.push({ id: s.session.id, ad: `${s.a.name}: ${s.a.kind} (${s.a.plan === 'single' ? '1 edition' : '1 week'})`, amount: (s.session.amount_total ?? 0) / 100, currency: s.session.currency ?? 'usd', status: s.a.refunded_at ? 'refunded' : 'paid', date: s.a.started_at ?? s.a.created_at });
   }
   payments.sort((a, b) => b.date.localeCompare(a.date));
 
   const liveSubs = Array.from(new Set(ads.filter(a => a.stripe_subscription_id && ['active', 'canceling'].includes(a.status)).map(a => a.stripe_subscription_id)));
   const windows = await Promise.all(liveSubs.map(refundableUntil));
   const refundable = Object.fromEntries(liveSubs.map((id, i) => [id, windows[i]]));
-  // Ads bought together share a group (the subscription); cancel/refund act on the group.
-  const groups = Object.fromEntries(Array.from(new Set(ads.map(a => a.stripe_subscription_id).filter(Boolean))).map((id, i) => [id, i + 1]));
+  // Ads bought together share a group (the subscription, or the payment for weekly ones); cancel/refund act on the group.
+  const groupKey = (a: any) => a.stripe_subscription_id ?? a.stripe_session_id;
+  const groups = Object.fromEntries(Array.from(new Set(ads.map(groupKey).filter(Boolean))).map((id, i) => [id, i + 1]));
   const free = await availability();
   return NextResponse.json({
     ads: ads.map(({ stripe_subscription_id: sub, stripe_session_id, ...a }) => {
-      // A single edition (bought alone) is refundable until it's sent, within the refund window.
-      const singleUntil = !sub && a.plan === 'single' && a.editions_left && a.started_at ? Date.parse(a.started_at) + REFUND_DAYS * 86400_000 : 0;
+      // Weekly ads bought without a subscription: refundable for 24 hours after the payment.
+      const singleUntil = !sub && ['active', 'canceling'].includes(a.status) && a.started_at ? Date.parse(a.started_at) + REFUND_MS : 0;
       return {
         ...a,
-        group: sub ? groups[sub] : null,
+        group: groups[sub ?? stripe_session_id] ?? null,
         refundable_until: sub ? refundable[sub] ?? null : singleUntil > Date.now() ? new Date(singleUntil).toISOString() : null,
       };
     }),

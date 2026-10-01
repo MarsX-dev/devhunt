@@ -1,6 +1,6 @@
 import type Stripe from 'stripe';
 import { revalidatePath } from 'next/cache';
-import { AD_PRODUCTS, AUDIENCE, LIVE_STATUSES, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_PRODUCTS, AUDIENCE, LIVE_STATUSES, REFUND_MS, WEEK_DAYS, isRecurring, planLabel, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 import { type EmailSponsorAdConfig } from '@/utils/email-templates/email-sponsor-ad';
 import { groqJson } from '@/utils/server/enrich';
 import { jevAsk } from '@/utils/server/jev';
@@ -161,7 +161,23 @@ export function refreshAdPages() {
   }
 }
 
+// Weekly sidebar/inline ads end 7 days after they start. Run before reading live slots (the reads are
+// cached: the rails once a minute, the advertise pages on each visit of a buyer), so nothing polls for it.
+export async function expireWeeklyAds() {
+  const { data } = await serviceClient
+    .from('ad_slots' as any)
+    .update({ status: 'ended' })
+    .eq('plan', 'weekly')
+    .in('status', LIVE_STATUSES as any)
+    .lt('current_period_end', new Date().toISOString())
+    .select('name, slot, kind');
+  if (!data?.length) return;
+  refreshAdPages();
+  await notifyAdDiscord(`🔚 Weekly sponsor ended: ${(data as any[]).map(r => `${r.name} (${r.kind} slot ${r.slot})`).join(', ')}; slots are free again`);
+}
+
 export async function liveSlots(kind: AdKind): Promise<number[]> {
+  await expireWeeklyAds();
   const { data } = await serviceClient.from('ad_slots' as any).select('slot').eq('kind', kind).in('status', LIVE_STATUSES as any);
   return ((data ?? []) as any[]).map(r => r.slot as number);
 }
@@ -172,13 +188,15 @@ export async function freeSlot(kind: AdKind): Promise<number | null> {
 }
 // Free slots per product, for the advertise pages.
 export async function availability(): Promise<Record<AdKind, number>> {
+  await expireWeeklyAds();
   const { data } = await serviceClient.from('ad_slots' as any).select('kind').in('status', LIVE_STATUSES as any);
   const used = ((data ?? []) as any[]).reduce<Record<string, number>>((m, r) => ({ ...m, [r.kind]: (m[r.kind] ?? 0) + 1 }), {});
   return Object.fromEntries(Object.values(AD_PRODUCTS).map(p => [p.kind, Math.max(0, p.slots - (used[p.kind] ?? 0))])) as Record<AdKind, number>;
 }
 
-// One checkout for everything picked. Monthly ads become one subscription (one item each); a single
-// newsletter edition is a one-time item on the first invoice, or a plain payment when bought alone.
+// One checkout for everything picked. Monthly ads become one subscription (one item each); weekly ads
+// (a week of sidebar/inline, one newsletter edition) are one-time items on the first invoice, or a
+// plain payment when nothing monthly is bought.
 export async function createAdCheckout(ads: { id: number; kind: AdKind; plan: AdPlan; name: string }[], user: { id: string; email?: string | null }, origin: string) {
   const meta = { kind: 'ad', ad_ids: ads.map(a => a.id).join(','), products: ads.map(a => `${a.kind}:${a.plan}`).join(','), user_id: user.id };
   const recurring = ads.some(a => isRecurring(a.kind, a.plan));
@@ -193,7 +211,7 @@ export async function createAdCheckout(ads: { id: number; kind: AdKind; plan: Ad
         product_data: {
           name: isRecurring(ad.kind, ad.plan)
             ? `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}${AD_PRODUCTS[ad.kind].per ? ` (${AD_PRODUCTS[ad.kind].per} a month)` : ''}: ${ad.name}`
-            : `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}, 1 edition: ${ad.name}`,
+            : `DevHunt ${AD_PRODUCTS[ad.kind].title.toLowerCase()}, ${ad.plan === 'single' ? '1 edition' : '1 week'}: ${ad.name}`,
         },
       },
     })),
@@ -260,7 +278,8 @@ export async function activateAd(session: Stripe.Checkout.Session, source: 'webh
           stripe_session_id: session.id,
           stripe_subscription_id: subId ?? null,
           stripe_customer_id: typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null,
-          current_period_end: sub && row.plan !== 'single' ? periodEnd(sub) : null,
+          current_period_end:
+            row.plan === 'weekly' ? new Date(Date.now() + WEEK_DAYS * 86400_000).toISOString() : sub && row.plan === 'monthly' ? periodEnd(sub) : null,
           editions_left: row.plan === 'single' ? 1 : null,
         })
         .eq('id', row.id);
@@ -268,7 +287,7 @@ export async function activateAd(session: Stripe.Checkout.Session, source: 'webh
         done = true;
         activated++;
         await logPaymentEvent({ event: 'ad_activated', stripeSessionId: session.id, userId: row.user_id, details: { ad_id: row.id, kind: row.kind, slot, source } });
-        await notifyAdDiscord(`💸 **New sponsor** ${AD_PRODUCTS[row.kind as AdKind].title} ${row.plan === 'single' ? `$${planPrice(row.kind, 'single')} single edition` : `$${planPrice(row.kind)}/mo`}: [${row.name}](${row.url}) in slot ${slot}${email ? ` by ${email}` : ''}`);
+        await notifyAdDiscord(`💸 **New sponsor** ${AD_PRODUCTS[row.kind as AdKind].title} ${planLabel(row.kind, row.plan)}: [${row.name}](${row.url}) in slot ${slot}${email ? ` by ${email}` : ''}`);
       }
     }
     if (!done) {
@@ -298,7 +317,7 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
     .from('ad_slots' as any)
     .update({ status, current_period_end: periodEnd(sub), ...(status !== 'active' ? { canceled_at: new Date().toISOString() } : { canceled_at: null }) })
     .eq('stripe_subscription_id', sub.id)
-    .eq('plan', 'monthly') // a single edition bought alongside runs until it's sent (see newsletterSent)
+    .eq('plan', 'monthly') // weekly items bought alongside run their week / edition (expireWeeklyAds, newsletterSent)
     .in('status', ['active', 'canceling'])
     .select('name, slot, kind');
   if (data?.length) refreshAdPages();
@@ -307,12 +326,12 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
   }
 }
 
-// "Cancel and refund": within REFUND_DAYS of the latest charge, refunds it and ends the subscription
+// "Cancel and refund": within REFUND_HOURS of the latest charge, refunds it and ends the subscription
 // (every ad in it) now. Returns null when the latest payment is too old (a normal cancel still works).
 export async function refundSubscription(subscriptionId: string, label: string) {
   const { data: invoices } = await stripe().invoices.list({ subscription: subscriptionId, status: 'paid', limit: 1 });
   const invoice = invoices[0];
-  if (!invoice || Date.now() - invoice.created * 1000 > REFUND_DAYS * 86400_000) return null;
+  if (!invoice || Date.now() - invoice.created * 1000 > REFUND_MS) return null;
   let refunded = 0;
   if (invoice.amount_paid > 0) {
     const { data: payments } = await stripe().invoicePayments.list({ invoice: invoice.id!, status: 'paid' });
@@ -323,31 +342,36 @@ export async function refundSubscription(subscriptionId: string, label: string) 
     refunded = refund.amount;
   }
   const sub = await stripe().subscriptions.cancel(subscriptionId);
-  // The refund covered everything on that invoice, including a single edition not sent yet.
+  // The refund covered everything on that invoice, including weekly items bought with it.
   await serviceClient.from('ad_slots' as any).update({ refunded_at: new Date().toISOString() }).eq('stripe_subscription_id', subscriptionId);
-  await serviceClient.from('ad_slots' as any).update({ status: 'ended', canceled_at: new Date().toISOString() }).eq('stripe_subscription_id', subscriptionId).eq('plan', 'single').in('status', LIVE_STATUSES as any);
+  await serviceClient.from('ad_slots' as any).update({ status: 'ended', canceled_at: new Date().toISOString() }).eq('stripe_subscription_id', subscriptionId).in('plan', ['single', 'weekly']).in('status', LIVE_STATUSES as any);
   await syncAdSubscription(sub);
   await notifyAdDiscord(`↩️ Sponsor refunded $${(refunded / 100).toFixed(2)} and ended: ${label}`);
   return { refunded };
 }
 
-// A single edition bought on its own: refundable within REFUND_DAYS as long as it hasn't gone out.
-export async function refundSingle(ad: { id: number; name: string; stripe_session_id: string; editions_left: number | null; started_at: string | null }) {
-  if (!ad.editions_left || !ad.started_at || Date.now() - Date.parse(ad.started_at) > REFUND_DAYS * 86400_000) return null;
+// Weekly ads bought without a subscription (one payment, maybe several ads): refundable within
+// REFUND_HOURS of the payment (not once a newsletter edition in it was sent). The refund covers the
+// whole payment, so every ad in it ends.
+export async function refundOneTime(ad: { id: number; name: string; status: string; stripe_session_id: string; started_at: string | null }) {
+  if (!(LIVE_STATUSES as readonly string[]).includes(ad.status) || !ad.started_at || Date.now() - Date.parse(ad.started_at) > REFUND_MS) return null;
+  // A newsletter edition that has gone out can't be taken back: no refund for that payment.
+  const { data: sent } = await serviceClient.from('ad_slots' as any).select('id').eq('stripe_session_id', ad.stripe_session_id).eq('plan', 'single').eq('editions_left', 0).limit(1);
+  if (sent?.length) return null;
   const session = await stripe().checkout.sessions.retrieve(ad.stripe_session_id);
   const intentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
   if (!intentId) throw new Error('no payment to refund');
   const refund = await stripe().refunds.create({ payment_intent: intentId, metadata: { ad_id: String(ad.id) } });
-  await serviceClient.from('ad_slots' as any).update({ status: 'ended', refunded_at: new Date().toISOString(), canceled_at: new Date().toISOString() }).eq('id', ad.id);
+  await serviceClient.from('ad_slots' as any).update({ status: 'ended', refunded_at: new Date().toISOString(), canceled_at: new Date().toISOString() }).eq('stripe_session_id', ad.stripe_session_id);
   refreshAdPages();
-  await notifyAdDiscord(`↩️ Sponsor refunded $${(refund.amount / 100).toFixed(2)} (single newsletter edition, not sent): ${ad.name}`);
+  await notifyAdDiscord(`↩️ Sponsor refunded $${(refund.amount / 100).toFixed(2)} (weekly, one-time) and ended: ${ad.name}`);
   return { refunded: refund.amount };
 }
 
 // The refund window for an ad's latest charge (for the "Cancel and refund" button).
 export async function refundableUntil(subscriptionId: string): Promise<string | null> {
   const { data } = await stripe().invoices.list({ subscription: subscriptionId, status: 'paid', limit: 1 }).catch(() => ({ data: [] as Stripe.Invoice[] }));
-  const until = data[0] ? data[0].created * 1000 + REFUND_DAYS * 86400_000 : 0;
+  const until = data[0] ? data[0].created * 1000 + REFUND_MS : 0;
   return until > Date.now() ? new Date(until).toISOString() : null;
 }
 

@@ -1,21 +1,24 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSupabase } from '@/components/supabase/provider';
 import { GithubProvider, GoogleProvider } from '@/components/ui/AuthProviderButtons';
 import AdPlacement from '@/components/ui/Sponsors/AdPlacement';
+import ProgressTerminal from '@/components/ui/ProgressTerminal';
 import { PENDING_KEY, type PendingAd } from '@/components/ui/Sponsors/AdResume';
 import fileUploader from '@/utils/supabase/fileUploader';
 import { trackStep } from '@/utils/funnelClient';
-import { AD_KINDS, AD_PRODUCTS, NEWSLETTER_SINGLE_PRICE, REFUND_DAYS, isAdKind, isRecurring, planLabel, planPrice, spotsLeft, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_KINDS, AD_PRODUCTS, REFUND_HOURS, isAdKind, isRecurring, monthlySaving, planPrice, spotsLeft, weeklyPlan, type AdKind, type AdPlan } from '@/utils/ads';
 
-// The ad builder at the top of /advertise: switch on ad types, enter a URL, get the ads written,
-// edit, pay. Anyone can fill it in; signing in is asked for at "Generate", and the choices survive
+// The ad builder at the top of /advertise: enter a URL, all three ads get written, switch on the ones
+// to buy (right column), edit, pay. Anyone can fill it in; signing in is asked for at "Generate", and the choices survive
 // the OAuth round trip (localStorage), after which it generates straight away.
 const NAME_MAX = 24;
 const TAGLINE_MAX = 70;
 const DESCRIPTION_MAX = 220;
+
+const AD_STEPS = ['fetching your website', 'reading what it does', 'writing your headline', 'writing the newsletter copy', 'grabbing your logo and banner', 'checking the ad can run'];
 
 type Draft = { id: number; kind: AdKind; url: string; name: string; tagline: string; description: string | null; logo_url: string | null; image_url: string | null };
 
@@ -30,7 +33,7 @@ function Preview({ ad }: { ad: Draft }) {
   );
   if (ad.kind === 'rail')
     return (
-      <div className="mx-auto flex h-44 w-full max-w-[13rem] flex-col items-center justify-center rounded-xl border border-slate-700 bg-slate-800/60 p-3 text-center">
+      <div className="mx-auto flex w-full max-w-[13rem] flex-col items-center justify-center rounded-xl border border-slate-700 bg-slate-800/60 p-3 text-center">
         {logo}
         <span className="mt-2 text-sm font-semibold text-slate-100">{ad.name || 'Name'}</span>
         <span className="mt-1 line-clamp-3 font-mono text-[11px] leading-snug text-slate-400">{ad.tagline || 'Your headline'}</span>
@@ -66,10 +69,10 @@ function Preview({ ad }: { ad: Draft }) {
 // Current image with a button to upload a new one.
 export function ImagePick({ label, hint, src, busy, onPick, onRemove, square }: { label: string; hint: string; src: string | null; busy: boolean; onPick: (f?: File) => void; onRemove?: () => void; square?: boolean }) {
   return (
-    <div className="text-sm text-slate-400">
+    <div className="min-w-0 text-sm text-slate-400">
       {label} <span className="font-mono text-xs text-slate-600">{hint}</span>
-      <div className="mt-1 flex items-center gap-3">
-        <div className={`flex flex-none items-center justify-center overflow-hidden rounded-lg border border-slate-700 bg-slate-800 ${square ? 'h-12 w-12' : 'h-12 w-24'}`}>
+      <div className="mt-1 flex items-center gap-2">
+        <div className={`flex flex-none items-center justify-center overflow-hidden rounded-lg border border-slate-700 bg-slate-800 ${square ? 'h-12 w-12' : 'h-12 w-20'}`}>
           {src ? <img src={src} alt="" className="h-full w-full object-cover" /> : <span className="font-mono text-[10px] text-slate-500">none</span>}
         </div>
         <label className={`cursor-pointer rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-200 hover:border-slate-500 ${busy ? 'pointer-events-none opacity-60' : ''}`}>
@@ -85,13 +88,25 @@ export function ImagePick({ label, hint, src, busy, onPick, onRemove, square }: 
           />
         </label>
         {src && onRemove && (
-          <button type="button" onClick={onRemove} className="text-xs text-slate-500 hover:text-slate-300">
-            Remove
+          <button type="button" onClick={onRemove} className="text-lg leading-none text-slate-500 hover:text-slate-300" aria-label={`Remove ${label.toLowerCase()}`} title="Remove">
+            ×
           </button>
         )}
       </div>
     </div>
   );
+}
+
+// Grows with its content instead of scrolling.
+function AutoTextarea({ value, onChange, maxLength, className }: { value: string; onChange: (v: string) => void; maxLength: number; className: string }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + 2}px`; // + the borders
+  }, [value]);
+  return <textarea ref={ref} rows={2} value={value} maxLength={maxLength} onChange={e => onChange(e.target.value)} className={className} />;
 }
 
 function SignIn({ onClose }: { onClose: () => void }) {
@@ -128,7 +143,7 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
   const [blocked, setBlocked] = useState(false);
   const [busy, setBusy] = useState<'' | 'draft' | 'pay'>('');
   const [error, setError] = useState('');
-  const [newsletterPlan, setNewsletterPlan] = useState<AdPlan>('monthly');
+  const [monthlyKinds, setMonthlyKinds] = useState<AdKind[]>([]); // the rest are bought for a week (the default)
   const [signIn, setSignIn] = useState(false);
   const resumed = useRef(false);
 
@@ -147,18 +162,17 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
     e?.preventDefault();
     setError('');
     setBlocked(false);
-    if (!state.kinds.length) return setError('Pick at least one ad type.');
     if (e) trackStep('ad_generate_click', { url: state.url, kinds: state.kinds, signed_in: !!session?.user });
     if (!session?.user) {
       trackStep('ad_signin_prompt', { url: state.url, kinds: state.kinds });
       try {
-        localStorage.setItem(PENDING_KEY, JSON.stringify({ url: state.url, kinds: state.kinds, newsletterPlan, at: Date.now() } satisfies PendingAd));
+        localStorage.setItem(PENDING_KEY, JSON.stringify({ url: state.url, kinds: state.kinds, monthly: monthlyKinds, at: Date.now() } satisfies PendingAd));
       } catch {}
       return setSignIn(true);
     }
     setDrafts([]);
     setBusy('draft');
-    const d = await post('/api/ads/draft', { url: state.url, kinds: state.kinds });
+    const d = await post('/api/ads/draft', { url: state.url, kinds: AD_KINDS }); // all three: switching one on later needs no new run
     setBusy('');
     if (!d.ok) return setError(d.error ?? 'Something went wrong.');
     if (d.blocked) return setBlocked(true);
@@ -177,7 +191,7 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
     if (!pending || Date.now() - pending.at > 30 * 60_000) return;
     setUrl(pending.url);
     setKinds(pending.kinds.filter(isAdKind));
-    setNewsletterPlan(pending.newsletterPlan);
+    setMonthlyKinds((pending.monthly ?? []).filter(isAdKind));
     if (session?.user && pending.url) void generate(undefined, { url: pending.url, kinds: pending.kinds.filter(isAdKind) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, session]);
@@ -195,7 +209,7 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
       url: draft.url,
       logoUrl: draft.logo_url,
       imageUrl: draft.image_url,
-      plans: { newsletter: newsletterPlan },
+      plans: Object.fromEntries(picked.map(d => [d.kind, planOf(d.kind)])),
     });
     if (d.url) return (window.location.href = d.url);
     setBusy('');
@@ -219,17 +233,142 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
 
   const soldOut = (k: AdKind) => free?.[k] === 0;
   const toggle = (k: AdKind) => setKinds(ks => (ks.includes(k) ? ks.filter(x => x !== k) : AD_KINDS.filter(x => x === k || ks.includes(x))));
-  // Switching a card off after generating just leaves it out of the checkout.
-  const picked = drafts.filter(d => kinds.includes(d.kind));
-  const planOf = (k: AdKind): AdPlan => (k === 'newsletter' ? newsletterPlan : 'monthly');
+  // All three ads are written at once; the switches only decide what goes into the checkout.
+  const picked = drafts.filter(d => kinds.includes(d.kind) && !soldOut(d.kind));
+  const planOf = (k: AdKind): AdPlan => (monthlyKinds.includes(k) ? 'monthly' : weeklyPlan(k));
+  const setPlan = (k: AdKind, plan: AdPlan) => {
+    setMonthlyKinds(ms => (plan === 'monthly' ? [...ms.filter(x => x !== k), k] : ms.filter(x => x !== k)));
+    if (!kinds.includes(k)) toggle(k);
+  };
   const dueToday = picked.reduce((sum, d) => sum + planPrice(d.kind, planOf(d.kind)), 0);
   const monthly = picked.filter(d => isRecurring(d.kind, planOf(d.kind))).reduce((sum, d) => sum + planPrice(d.kind), 0);
-  const missing = draft ? kinds.filter(k => !drafts.some(d => d.kind === k)) : [];
   const input = 'mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500';
+  const host = (draft?.url ?? url).replace(/^https?:\/\//i, '').replace(/\/$/, '');
+  const startOver = () => {
+    setDrafts([]);
+    setBlocked(false);
+    setError('');
+  };
 
   return (
-    <div>
-      <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start lg:gap-10">
+      {/* Left: website -> progress -> edit and pay */}
+      <div className="min-w-0">
+        {busy === 'draft' ? (
+          <ProgressTerminal
+            url={url}
+            eyebrow={null}
+            title="Writing your ads…"
+            command="advertise"
+            steps={AD_STEPS}
+            footer="takes about 10 seconds · you can edit everything next"
+            className=""
+          />
+        ) : !draft ? (
+          <div className="rounded-2xl border border-slate-800 p-6">
+            <h2 className="text-xl font-semibold text-slate-50">Your website</h2>
+            <p className="mt-1 text-sm text-slate-400">We read it and write all three ads for you.</p>
+            <form onSubmit={generate} className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <input value={url} onChange={e => setUrl(e.target.value)} placeholder="yourproduct.com" required className={`${input} !mt-0 min-w-0 flex-1`} />
+              <button className="flex-none rounded-lg bg-orange-500 px-5 py-2 text-sm font-semibold text-white hover:bg-orange-400">Write my ads</button>
+            </form>
+            {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+            {blocked && (
+              <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-300">
+                Sorry, we can&apos;t run this ad. DevHunt doesn&apos;t accept ads for crypto, gambling, adult content or anything that looks deceptive. If you think this is a mistake, email john@marsx.dev.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-5">
+            <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/[0.06] px-3.5 py-2 font-mono text-xs text-green-300">
+              <button onClick={startOver} className="flex-none text-slate-400 hover:text-slate-200">
+                ← back
+              </button>
+              <span className="min-w-0 truncate">✓ ads written from {host}</span>
+            </div>
+
+            <div className="space-y-3 rounded-2xl border border-slate-800 p-5">
+              <p className="text-sm font-medium text-slate-200">Edit your ad</p>
+              <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
+                <label className="block text-sm text-slate-400">
+                  Name
+                  <input value={draft.name} maxLength={NAME_MAX} onChange={e => setDraft({ ...draft, name: e.target.value })} className={input} />
+                </label>
+                <label className="block text-sm text-slate-400">
+                  Link
+                  <input value={draft.url} onChange={e => setDraft({ ...draft, url: e.target.value })} placeholder="https://yourproduct.com" className={input} />
+                </label>
+              </div>
+              <label className="block text-sm text-slate-400">
+                Headline <span className="font-mono text-xs text-slate-600">{draft.tagline.length}/{TAGLINE_MAX}</span>
+                <input value={draft.tagline} maxLength={TAGLINE_MAX} onChange={e => setDraft({ ...draft, tagline: e.target.value })} className={input} />
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <ImagePick label="Logo" hint="1:1" src={draft.logo_url} busy={uploading === 'logo_url'} onPick={f => void upload('logo_url', f)} square />
+                {kinds.includes('newsletter') && (
+                  <ImagePick
+                    label="Banner"
+                    hint="2:1"
+                    src={draft.image_url}
+                    busy={uploading === 'image_url'}
+                    onPick={f => void upload('image_url', f)}
+                    onRemove={() => setDraft({ ...draft, image_url: null })}
+                  />
+                )}
+              </div>
+              {kinds.includes('newsletter') && (
+                <label className="block text-sm text-slate-400">
+                  Newsletter text <span className="font-mono text-xs text-slate-600">{(draft.description ?? '').length}/{DESCRIPTION_MAX}</span>
+                  <AutoTextarea value={draft.description ?? ''} maxLength={DESCRIPTION_MAX} onChange={v => setDraft({ ...draft, description: v })} className={`${input} resize-none overflow-hidden`} />
+                </label>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 p-5">
+              {picked.length ? (
+                <ul className="space-y-1.5 text-sm">
+                  {picked.map(d => (
+                    <li key={d.kind} className="flex justify-between gap-3">
+                      <span className="text-slate-300">
+                        {AD_PRODUCTS[d.kind].title} <span className="text-slate-500">· {isRecurring(d.kind, planOf(d.kind)) ? 'monthly' : planOf(d.kind) === 'single' ? '1 edition' : '1 week'}</span>
+                      </span>
+                      <span className="font-mono text-slate-200">
+                        ${planPrice(d.kind, planOf(d.kind))}
+                        {isRecurring(d.kind, planOf(d.kind)) ? '/mo' : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-slate-400">Switch on at least one ad on the right.</p>
+              )}
+              <button
+                onClick={pay}
+                disabled={busy === 'pay' || !picked.length || !!uploading}
+                className="mt-4 w-full rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-50"
+              >
+                {busy === 'pay' ? 'Opening checkout…' : picked.length ? `Pay $${dueToday} and go live` : 'Pick an ad'}
+              </button>
+              {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+              <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                {monthly ? (
+                  <>
+                    {dueToday !== monthly ? `$${dueToday} today, then ` : ''}${monthly}/month until you cancel.
+                  </>
+                ) : (
+                  'One-time payment, nothing renews.'
+                )}{' '}
+                Not satisfied? Full refund within {REFUND_HOURS} hours for sidebar card and inline listing ads.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right: where to show it */}
+      <div className="space-y-3 lg:sticky lg:top-24">
+        <p className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">Where to show it</p>
         {AD_KINDS.map(k => {
           const p = AD_PRODUCTS[k];
           const on = kinds.includes(k) && !soldOut(k);
@@ -238,14 +377,10 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
             <div
               key={k}
               onClick={() => !soldOut(k) && toggle(k)}
-              className={`flex cursor-pointer flex-col rounded-2xl border p-5 duration-150 ${on ? 'border-orange-500/70 bg-orange-500/[0.04]' : 'border-slate-800 hover:border-slate-600'} ${soldOut(k) ? 'cursor-not-allowed opacity-50' : ''}`}
+              className={`cursor-pointer rounded-2xl border p-4 duration-150 ${on ? 'border-orange-500/70 bg-orange-500/[0.04]' : 'border-slate-800 hover:border-slate-600'} ${soldOut(k) ? 'cursor-not-allowed opacity-50' : ''}`}
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold text-slate-50">{p.title}</h2>
-                  <p className="mt-0.5 font-mono text-xs text-slate-400">{soldOut(k) ? 'sold out' : planLabel(k, planOf(k))}</p>
-                  {free && !soldOut(k) && <p className="mt-0.5 font-mono text-[11px] text-orange-300">{spotsLeft(k, free[k])}</p>}
-                </div>
+                <h3 className="font-semibold text-slate-50">{p.title}</h3>
                 <button
                   type="button"
                   role="switch"
@@ -261,130 +396,48 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
                   <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow duration-150 ${on ? 'left-[22px]' : 'left-0.5'}`} />
                 </button>
               </div>
-              <p className="mt-3 text-sm text-slate-400">{p.pitch}</p>
-              <ul className="mt-3 space-y-1 text-xs text-slate-300">
-                {p.where.map(w => (
-                  <li key={w} className="flex gap-1.5">
-                    <span className="text-orange-400">✓</span>
-                    {w}
-                  </li>
-                ))}
-              </ul>
-              {k === 'newsletter' && (
-                <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-slate-800/70 p-1 text-xs" onClick={e => e.stopPropagation()}>
-                  {(
-                    [
-                      ['monthly', '4 editions / month', `$${p.price} monthly`],
-                      ['single', '1 edition', `$${NEWSLETTER_SINGLE_PRICE} once`],
-                    ] as const
-                  ).map(([plan, label, price]) => (
-                    <button
-                      key={plan}
-                      type="button"
-                      onClick={() => {
-                        setNewsletterPlan(plan);
-                        if (!kinds.includes('newsletter')) toggle('newsletter');
-                      }}
-                      className={`rounded-md px-2 py-1.5 text-left duration-150 ${newsletterPlan === plan ? 'bg-slate-950 text-slate-50 ring-1 ring-orange-500/60' : 'text-slate-400 hover:text-slate-200'}`}
-                    >
-                      <span className="block font-medium">{label}</span>
-                      <span className="font-mono text-[10px] text-slate-500">{price}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              <AdPlacement kind={k} className="mt-3 self-start" />
-              <div className={`mt-auto pt-5 ${on ? '' : 'opacity-40'}`}>
-                {generated ? (
+              <div className="mt-0.5 flex items-center justify-between gap-3">
+                <p className={`font-mono text-[11px] ${soldOut(k) ? 'text-slate-500' : 'text-orange-300'}`}>{free ? spotsLeft(k, free[k]) : ''}</p>
+                <AdPlacement kind={k} ad={generated} />
+              </div>
+              {generated && on ? (
+                <div className="mt-3" onClick={e => e.stopPropagation()}>
                   <Preview ad={generated} />
-                ) : (
-                  <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-slate-700 px-3 text-center font-mono text-[11px] text-slate-500">
-                    {!on ? 'switched off' : draft ? 'generate again to add this one' : 'your ad appears here'}
-                  </div>
-                )}
+                </div>
+              ) : (
+                <ul className="mt-2 space-y-0.5 text-sm text-slate-400">
+                  {p.where.map(w => (
+                    <li key={w} className="flex gap-1.5">
+                      <span className="text-orange-400">✓</span>
+                      {w}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-slate-800/70 p-1 text-xs" onClick={e => e.stopPropagation()}>
+                {(
+                  [
+                    [weeklyPlan(k), k === 'newsletter' ? '1 email' : '1 week', `$${planPrice(k, weeklyPlan(k))}`],
+                    ['monthly', 'Monthly', `$${p.price} · -${monthlySaving(k)}%`],
+                  ] as const
+                ).map(([plan, label, price]) => (
+                  <button
+                    key={plan}
+                    type="button"
+                    disabled={soldOut(k)}
+                    onClick={() => setPlan(k, plan)}
+                    className={`truncate rounded-md px-2 py-1.5 text-left duration-150 ${planOf(k) === plan ? 'bg-slate-950 text-slate-50 ring-1 ring-orange-500/60' : 'text-slate-400 hover:text-slate-200'}`}
+                  >
+                    <span className="font-medium">{label}</span> <span className="font-mono text-[10px] text-slate-500">{price}</span>
+                  </button>
+                ))}
               </div>
             </div>
           );
         })}
       </div>
 
-      <form onSubmit={generate} className="mt-6 flex gap-2">
-        <input value={url} onChange={e => setUrl(e.target.value)} placeholder="yourproduct.com" required className={`${input} !mt-0 min-w-0 flex-1`} />
-        <button disabled={busy === 'draft' || !kinds.length} className="flex-none rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60">
-          {busy === 'draft' ? 'Writing your ads…' : draft && !missing.length ? 'Regenerate' : kinds.length > 1 ? `Generate ${kinds.length} ads` : 'Generate ad'}
-        </button>
-      </form>
-      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-      {blocked && (
-        <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-300">
-          Sorry, we can't run this ad. DevHunt doesn't accept ads for crypto, gambling, adult content or anything that looks deceptive. If you think this is a mistake, email john@marsx.dev.
-        </p>
-      )}
-
-      {draft && (
-        <div className="mt-6 space-y-3 rounded-2xl border border-slate-800 p-5">
-          <p className="text-sm text-slate-400">Edit the copy; every ad above updates as you type.</p>
-          <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
-            <label className="block text-sm text-slate-400">
-              Name
-              <input value={draft.name} maxLength={NAME_MAX} onChange={e => setDraft({ ...draft, name: e.target.value })} className={input} />
-            </label>
-            <label className="block text-sm text-slate-400">
-              Headline <span className="font-mono text-xs text-slate-600">{draft.tagline.length}/{TAGLINE_MAX}</span>
-              <input value={draft.tagline} maxLength={TAGLINE_MAX} onChange={e => setDraft({ ...draft, tagline: e.target.value })} className={input} />
-            </label>
-          </div>
-          <label className="block text-sm text-slate-400">
-            Link
-            <input value={draft.url} onChange={e => setDraft({ ...draft, url: e.target.value })} placeholder="https://yourproduct.com" className={input} />
-          </label>
-          <div className="flex flex-wrap gap-6">
-            <ImagePick
-              label="Logo"
-              hint="square, shown on the cards"
-              src={draft.logo_url}
-              busy={uploading === 'logo_url'}
-              onPick={f => void upload('logo_url', f)}
-              square
-            />
-            {picked.some(d => d.kind === 'newsletter') && (
-              <ImagePick
-                label="Newsletter image"
-                hint="wide, 2:1 works best"
-                src={draft.image_url}
-                busy={uploading === 'image_url'}
-                onPick={f => void upload('image_url', f)}
-                onRemove={() => setDraft({ ...draft, image_url: null })}
-              />
-            )}
-          </div>
-          {picked.some(d => d.kind === 'newsletter') && (
-            <label className="block text-sm text-slate-400">
-              Newsletter description <span className="font-mono text-xs text-slate-600">{(draft.description ?? '').length}/{DESCRIPTION_MAX}</span>
-              <textarea value={draft.description ?? ''} maxLength={DESCRIPTION_MAX} rows={2} onChange={e => setDraft({ ...draft, description: e.target.value })} className={input} />
-            </label>
-          )}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <button onClick={pay} disabled={busy === 'pay' || !picked.length || !!uploading} className="rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-400 disabled:opacity-60">
-              {busy === 'pay' ? 'Opening checkout…' : monthly ? `Pay $${dueToday} and go live` : `Pay $${dueToday} once and go live`}
-            </button>
-          </div>
-          <p className="text-xs text-slate-400">
-            {monthly ? (
-              <>
-                {dueToday !== monthly ? `$${dueToday} today, then ` : ''}
-                <b className="text-slate-200">${monthly}/month, renews automatically</b>
-                {picked.length > 1 ? ' (one subscription for everything you picked)' : ''}. You can cancel future months anytime, even right after paying: your ads keep
-                running for the month you paid for. Full refund within {REFUND_DAYS} days of a payment.
-              </>
-            ) : (
-              <>One-time payment, no subscription. Your ad goes out in the next weekly newsletter. Refundable until it&apos;s sent (within {REFUND_DAYS} days).</>
-            )}
-          </p>
-        </div>
-      )}
-
-    {signIn && <SignIn onClose={() => setSignIn(false)} />}
+      {signIn && <SignIn onClose={() => setSignIn(false)} />}
     </div>
   );
 }

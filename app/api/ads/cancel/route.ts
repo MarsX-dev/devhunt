@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
-import { refundSingle, refundSubscription, syncAdSubscription } from '@/utils/server/ads';
+import { refundOneTime, refundSubscription, syncAdSubscription } from '@/utils/server/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { trackFunnel } from '@/utils/server/funnel';
 import { stripe } from '@/utils/server/stripe';
@@ -17,16 +17,16 @@ export async function POST(req: Request) {
   const { data } = await serviceClient.from('ad_slots' as any).select('id, name, user_id, status, plan, editions_left, started_at, stripe_session_id, stripe_subscription_id').eq('id', Number(adId)).single();
   const ad = data as any;
   if (!ad || ad.user_id !== user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  // A single newsletter edition bought on its own: nothing recurs, so the only action is a refund.
+  // Weekly ads bought without a subscription: nothing recurs, so the only action is a refund (within 24 hours).
   if (!ad.stripe_subscription_id) {
     if (!refund || !ad.stripe_session_id) return NextResponse.json({ error: 'Nothing to cancel: this was a one-time payment.' }, { status: 409 });
-    const single = await refundSingle(ad).catch(err => {
+    const single = await refundOneTime(ad).catch(err => {
       console.error('ad refund failed:', (err as Error).message);
       return undefined;
     });
     if (single === undefined) return NextResponse.json({ error: 'The refund failed. Please email john@marsx.dev.' }, { status: 502 });
-    if (single === null) return NextResponse.json({ error: 'This edition was already sent or the refund window has passed.' }, { status: 409 });
-    await logPaymentEvent({ event: 'ad_refunded', userId: user.id, amountTotal: single.refunded, details: { ad_id: ad.id, plan: 'single' } });
+    if (single === null) return NextResponse.json({ error: 'Refunds are only possible within 24 hours of the payment.' }, { status: 409 });
+    await logPaymentEvent({ event: 'ad_refunded', userId: user.id, amountTotal: single.refunded, details: { ad_id: ad.id, plan: ad.plan } });
     await trackFunnel({ step: 'ad_refunded', userId: user.id, props: { name: ad.name, amount: single.refunded / 100 } });
     return NextResponse.json({ ok: true, refunded: single.refunded });
   }

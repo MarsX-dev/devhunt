@@ -1,6 +1,6 @@
 'use client';
 
-import ImportTerminal from './ImportTerminal';
+import ProgressTerminal from '@/components/ui/ProgressTerminal';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
 import CategoryInput from '@/components/ui/CategoryInput';
@@ -400,7 +400,7 @@ export default () => {
           </div>
         )}
 
-        {stage === 'loading' && <ImportTerminal url={importUrl} />}
+        {stage === 'loading' && <ProgressTerminal url={importUrl} />}
 
         {stage === 'form' && (
           <div id="form-container">

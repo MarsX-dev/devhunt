@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import PageHeader from '@/components/ui/PageHeader';
 import AdBuilder from '@/components/ui/Sponsors/AdBuilder';
-import { AUDIENCE, REFUND_DAYS } from '@/utils/ads';
+import { AUDIENCE, REFUND_HOURS } from '@/utils/ads';
 import { availability } from '@/utils/server/ads';
 import { formatStat, getSiteStats, DOMAIN_RATING } from '@/utils/siteStats';
 
@@ -52,7 +52,7 @@ export default async function AdvertisePitch() {
   return (
     <section className="container-custom-screen mb-24 mt-10">
       <PageHeader eyebrow="Advertise" title="Put your product in front of developers">
-        Switch on where you want to show up, enter your URL and we&apos;ll write the ads. Monthly, cancel anytime, full refund within {REFUND_DAYS} days of a payment.
+        Pick a spot, enter your URL, and we write the ad.
       </PageHeader>
       <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-slate-500">
         <span>
@@ -104,15 +104,15 @@ export default async function AdvertisePitch() {
       <div className="mt-16 grid gap-6 text-sm text-slate-400 sm:grid-cols-3">
         <div>
           <h3 className="font-semibold text-slate-100">We write the ad</h3>
-          <p className="mt-1">Enter your URL. We read your site and draft the name, headline and copy. You can edit it before paying.</p>
+          <p className="mt-1">From your URL. Edit it before paying.</p>
         </div>
         <div>
           <h3 className="font-semibold text-slate-100">Live right away</h3>
-          <p className="mt-1">Your ad goes live as soon as the payment clears. Crypto, gambling, adult and deceptive products aren&apos;t accepted.</p>
+          <p className="mt-1">As soon as you pay. No crypto, gambling or adult products.</p>
         </div>
         <div>
-          <h3 className="font-semibold text-slate-100">Cancel or refund anytime</h3>
-          <p className="mt-1">Cancel from your account and the ad runs until the paid month ends. Changed your mind? Full refund within {REFUND_DAYS} days of a payment.</p>
+          <h3 className="font-semibold text-slate-100">Refund within {REFUND_HOURS} hours</h3>
+          <p className="mt-1">Not happy? Get your money back. Weekly ads never renew.</p>
         </div>
       </div>
     </section>

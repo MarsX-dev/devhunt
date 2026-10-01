@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useImpression } from './track';
-import { AD_PRICE_USD, AD_SLOTS, spotsLeft, type PublicAd } from '@/utils/ads';
+import { AD_SLOTS, WEEKLY_PRICE, spotsLeft, type PublicAd } from '@/utils/ads';
 
 type LiveAd = PublicAd & { freeFrom: string | null };
 type Card = { ad: LiveAd | null; slot: number; freeFrom?: string | null };
@@ -55,8 +55,8 @@ function RailCard({ card, side }: { card: Card; side: 'l' | 'r' }) {
       <Link href="/advertise?ref=open-rail" className="group flex h-44 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700 p-3 text-center opacity-40 duration-150 hover:border-orange-500/60 hover:opacity-100">
         <span className="font-mono text-[10px] tracking-[0.25em] text-slate-500">OPEN SLOT</span>
         <span className="mt-2 text-lg font-bold text-slate-100">
-          ${AD_PRICE_USD}
-          <span className="font-mono text-[11px] font-normal text-slate-500">/mo</span>
+          ${WEEKLY_PRICE.rail}
+          <span className="font-mono text-[11px] font-normal text-slate-500">/week</span>
         </span>
         <span className="mt-2 font-mono text-[11px] text-slate-400 group-hover:text-orange-400">your ad here {side === 'l' ? '←' : '→'}</span>
       </Link>
@@ -194,7 +194,7 @@ export function SponsorStrip() {
             <Pill key={i} ad={ad} />
           ) : (
             <Link key={i} href="/advertise?ref=open-strip" className="flex flex-none items-center rounded-lg border border-dashed border-slate-600 px-3 py-1.5 font-mono text-xs text-slate-400 opacity-50 hover:opacity-100">
-              your ad here · ${AD_PRICE_USD}/mo
+              your ad here · ${WEEKLY_PRICE.rail}/week
             </Link>
           ),
         )}

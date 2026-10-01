@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRouteUser } from '@/utils/server/auth';
 import { AD_DESCRIPTION_MAX, AD_NAME_MAX, AD_TAGLINE_MAX, adImage, adUrl, createAdCheckout, freeSlot, moderateAdEdit, notifyAdDiscord } from '@/utils/server/ads';
-import { AD_PRODUCTS, isAdPlan, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_PRODUCTS, planPrice, weeklyPlan, type AdKind, type AdPlan } from '@/utils/ads';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { logModeration } from '@/utils/server/moderationLog';
 import { trackFunnel } from '@/utils/server/funnel';
@@ -10,7 +10,7 @@ import { supabase as serviceClient } from '@/utils/supabase/services/supabaseCli
 export const dynamic = 'force-dynamic';
 
 // Saves the advertiser's edits to their drafts (one per ad type picked), re-checks edited copy, and
-// starts one monthly subscription covering all of them.
+// starts one checkout covering all of them (weekly one-time items and/or one monthly subscription).
 export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,8 +64,8 @@ export async function POST(req: Request) {
     }
   }
 
-  // Only the newsletter has a choice (monthly or one edition); everything else is monthly.
-  const planFor = (kind: AdKind): AdPlan => (kind === 'newsletter' && isAdPlan(body.plans?.[kind]) ? (body.plans![kind] as AdPlan) : 'monthly');
+  // Each product is bought for a week (the default) or monthly.
+  const planFor = (kind: AdKind): AdPlan => (body.plans?.[kind] === 'monthly' ? 'monthly' : weeklyPlan(kind));
   for (const a of ads) {
     a.plan = planFor(a.kind);
     await serviceClient.from('ad_slots' as any).update({ plan: a.plan }).eq('id', a.id);

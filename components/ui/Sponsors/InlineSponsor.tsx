@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRef } from 'react';
 import { useImpression } from './track';
-import { AD_PRODUCTS, INLINE_MAX_OPEN, type PublicAd } from '@/utils/ads';
+import { AD_PRODUCTS, INLINE_MAX_OPEN, type PublicAd, WEEKLY_PRICE } from '@/utils/ads';
 import { useLiveAds } from './SponsorRails';
 
 const row = '-mx-2 flex items-center gap-x-3 rounded-lg px-2 py-2.5 duration-150 hover:bg-slate-800/50';
@@ -56,7 +56,7 @@ export default function InlineSponsor({
           <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg border border-dashed border-slate-600 text-slate-500">
             +
           </span>
-          <span className="min-w-0 flex-1 truncate font-mono text-xs text-slate-400">your ad here · ${AD_PRODUCTS.inline.price}/mo</span>
+          <span className="min-w-0 flex-1 truncate font-mono text-xs text-slate-400">your ad here · ${WEEKLY_PRICE.inline}/week</span>
           <span className="flex-none font-mono text-[10px] uppercase tracking-wider text-slate-500">open spot</span>
         </Link>
       )}

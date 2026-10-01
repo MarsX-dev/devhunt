@@ -4,11 +4,10 @@ export type AdKind = 'rail' | 'inline' | 'newsletter';
 export interface AdProduct {
   kind: AdKind;
   title: string;
-  price: number; // USD per month, recurring
+  price: number; // USD per month, recurring (WEEKLY_PRICE: one week)
   slots: number; // for sale at the same time
   per?: string; // what one month buys, when it isn't obvious
-  pitch: string;
-  where: string[];
+  where: string[]; // the card's bullets: short, no repeats
 }
 
 export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
@@ -17,22 +16,14 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     title: 'Sidebar card',
     price: 499,
     slots: 6,
-    pitch: 'Your logo, name and headline in a card beside the content on every public page of DevHunt, all month long.',
-    where: ['Every public page: home, tool pages, categories, blog', 'Stays in view while visitors scroll (desktop)', 'Scrolling logo strip under the header on mobile', 'Only 6 spots, never rotated'],
+    where: ['On every page of DevHunt', 'Stays in view while visitors scroll', 'Always shown, never rotated'],
   },
   inline: {
     kind: 'inline',
     title: 'Inline listing',
     price: 299,
-    slots: 4,
-    pitch: 'A row inside the tool lists developers browse to find new tools, styled like the launches around it and marked "Sponsored".',
-    where: [
-      'Home page, right after the top 3 launches of the week',
-      'Tool pages, categories, upcoming launches, all tools and more',
-      'Repeated in long lists (every 8 tools)',
-      'Logo, name and headline, links to your site',
-      'Only 4 sponsors share the spots',
-    ],
+    slots: 6,
+    where: ['Your product listed among the tools', "Right under the week's top 3", 'On the home, tool and category pages'],
   },
   newsletter: {
     kind: 'newsletter',
@@ -40,19 +31,28 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     price: 999,
     slots: 1,
     per: '4 editions',
-    pitch: 'The only sponsor in the weekly DevHunt email, sent to 40,000 developers. Monthly (4 editions) or a single edition to try it.',
-    where: ['4 editions a month, one every week, or a single one', 'Banner, headline and description', 'The only sponsor in each email'],
+    where: ['Top of the weekly email to 40,000 developers', 'Banner, headline and description', 'Sent every Wednesday'],
   },
 };
 
-// How an ad is paid: every product is monthly; the newsletter can also be bought for one edition.
-export type AdPlan = 'monthly' | 'single';
-export const NEWSLETTER_SINGLE_PRICE = 299;
-export const isAdPlan = (p: unknown): p is AdPlan => p === 'monthly' || p === 'single';
-export const planPrice = (kind: AdKind, plan: AdPlan = 'monthly') => (kind === 'newsletter' && plan === 'single' ? NEWSLETTER_SINGLE_PRICE : AD_PRODUCTS[kind].price);
-export const isRecurring = (kind: AdKind, plan: AdPlan = 'monthly') => !(kind === 'newsletter' && plan === 'single');
+// How an ad is paid. Weekly (the default) is a one-time payment: a sidebar or inline ad runs for 7 days
+// (plan 'weekly'), a newsletter ad for one edition (plan 'single', the newsletter goes out weekly).
+// Monthly is a subscription and works out ~16% cheaper than 4 weeks.
+export type AdPlan = 'monthly' | 'single' | 'weekly';
+export const WEEK_DAYS = 7;
+export const WEEKLY_PRICE: Record<AdKind, number> = { rail: 149, inline: 89, newsletter: 299 };
+export const NEWSLETTER_SINGLE_PRICE = WEEKLY_PRICE.newsletter;
+export const isAdPlan = (p: unknown): p is AdPlan => p === 'monthly' || p === 'single' || p === 'weekly';
+// The one-time plan of a product.
+export const weeklyPlan = (kind: AdKind): AdPlan => (kind === 'newsletter' ? 'single' : 'weekly');
+export const planPrice = (kind: AdKind, plan: AdPlan = 'monthly') => (plan === 'monthly' ? AD_PRODUCTS[kind].price : WEEKLY_PRICE[kind]);
+export const isRecurring = (_kind: AdKind, plan: AdPlan = 'monthly') => plan === 'monthly';
 export const planLabel = (kind: AdKind, plan: AdPlan = 'monthly') =>
-  isRecurring(kind, plan) ? `$${planPrice(kind, plan)}/month${AD_PRODUCTS[kind].per ? ` · ${AD_PRODUCTS[kind].per}` : ''}` : `$${planPrice(kind, plan)} once · 1 edition`;
+  isRecurring(kind, plan)
+    ? `$${planPrice(kind, plan)}/month${AD_PRODUCTS[kind].per ? ` · ${AD_PRODUCTS[kind].per}` : ''}`
+    : `$${planPrice(kind, plan)} once · ${plan === 'single' ? '1 edition' : '1 week'}`;
+// Saving of monthly against 4 one-time weeks, in percent.
+export const monthlySaving = (kind: AdKind) => Math.round((1 - AD_PRODUCTS[kind].price / (4 * WEEKLY_PRICE[kind])) * 100);
 
 export const AD_KINDS = Object.keys(AD_PRODUCTS) as AdKind[];
 
@@ -65,8 +65,9 @@ export function spotsLeft(kind: AdKind, free: number) {
 }
 export const isAdKind = (k: unknown): k is AdKind => typeof k === 'string' && k in AD_PRODUCTS;
 
-// Refund the latest payment (and stop the ad) within this many days of the charge.
-export const REFUND_DAYS = 7;
+// Refund the latest payment (and stop the ads it paid for) within this many hours of the charge; after that, no refunds.
+export const REFUND_HOURS = 24;
+export const REFUND_MS = REFUND_HOURS * 3600_000;
 
 // Where inline sponsor rows go in a tool list (components/ui/Sponsors/InlineSponsor): before the
 // 4th item, then every 8 items. Lists shorter than 4 items get none. Tune placement here.

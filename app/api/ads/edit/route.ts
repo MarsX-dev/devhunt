@@ -31,17 +31,18 @@ export async function POST(req: Request) {
   };
   const { data } = await serviceClient
     .from('ad_slots' as any)
-    .select('id, kind, user_id, status, name, tagline, description, url, logo_url, image_url, stripe_subscription_id')
+    .select('id, kind, user_id, status, name, tagline, description, url, logo_url, image_url, stripe_subscription_id, stripe_session_id')
     .eq('id', Number(body.adId))
     .maybeSingle();
   const ad = data as any;
   if (!ad || ad.user_id !== user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   if (!EDITABLE.includes(ad.status)) return NextResponse.json({ error: 'Only running ads can be edited.' }, { status: 409 });
 
-  // Ads bought in one checkout share a subscription and their copy: edit them together.
+  // Ads bought in one checkout share a subscription (or, weekly ones, a payment) and their copy: edit them together.
   let ids = [ad.id as number];
-  if (ad.stripe_subscription_id) {
-    const { data: group } = await serviceClient.from('ad_slots' as any).select('id').eq('stripe_subscription_id', ad.stripe_subscription_id).in('status', EDITABLE);
+  if (ad.stripe_subscription_id || ad.stripe_session_id) {
+    const [col, val] = ad.stripe_subscription_id ? ['stripe_subscription_id', ad.stripe_subscription_id] : ['stripe_session_id', ad.stripe_session_id];
+    const { data: group } = await serviceClient.from('ad_slots' as any).select('id').eq(col, val).in('status', EDITABLE);
     ids = ((group ?? []) as any[]).map(g => g.id as number);
   }
 

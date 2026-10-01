@@ -357,7 +357,7 @@ export default async function StatsPage() {
             <h3 className="font-medium text-slate-100">Advertise</h3>
             <p className="mt-1.5">
               Sidebar, in-list and newsletter spots in front of {short(s.users)} registered developers, who
-              also get the weekly newsletter. We write the ads from your URL. Monthly, cancel anytime.
+              also get the weekly newsletter. We write the ads from your URL. From $89 a week, nothing renews.
             </p>
             <Link href="/advertise" className="mt-3 inline-block text-orange-400 hover:text-orange-300">
               See ad spots →

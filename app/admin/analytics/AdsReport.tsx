@@ -191,7 +191,7 @@ export default async function AdsReport({ days }: { days: number }) {
                     <td className="py-2 pr-3">
                       {AD_PRODUCTS[ad.kind]?.title}
                       {ad.slot ? ` #${ad.slot}` : ''}
-                      <span className="block text-slate-500">{ad.plan === 'single' ? '1 edition' : `$${planPrice(ad.kind)}/mo`}</span>
+                      <span className="block text-slate-500">{ad.plan === 'single' ? '1 edition' : ad.plan === 'weekly' ? `$${planPrice(ad.kind, 'weekly')} · 1 week` : `$${planPrice(ad.kind)}/mo`}</span>
                     </td>
                     <td className="py-2 text-right">
                       {fmt(ad.impressions_range)}

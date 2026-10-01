@@ -9,7 +9,7 @@ import { ListPageSkeleton, RowsSkeleton } from '@/components/ui/Skeletons/PageSk
 import { ImagePick } from '@/components/ui/Sponsors/AdBuilder';
 import fileUploader from '@/utils/supabase/fileUploader';
 import { trackStep } from '@/utils/funnelClient';
-import { AD_PRODUCTS, REFUND_DAYS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_PRODUCTS, REFUND_HOURS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 
 const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
 
@@ -81,8 +81,8 @@ function AdvertisePage() {
 
   async function manage(ad: MyAd, action: 'cancel' | 'resume' | 'refund') {
     const ask = {
-      cancel: `Cancel future months for ${ad.name}?\n\nThis only stops future charges. You've paid for the current month, so your ads (everything bought in the same checkout) stay live until ${fmt(ad.current_period_end)}, then stop. Nothing is refunded; for a refund use "Cancel and refund" within ${REFUND_DAYS} days of a payment.`,
-      refund: `Cancel ${ad.name} now and refund your last payment?\n\nThe ads come down right away and nothing renews.`,
+      cancel: `Cancel future months for ${ad.name}?\n\nThis only stops future charges. You've paid for the current month, so your ads (everything bought in the same checkout) stay live until ${fmt(ad.current_period_end)}, then stop. Nothing is refunded; for a refund use "Cancel and refund" within ${REFUND_HOURS} hours of a payment.`,
+      refund: `Cancel ${ad.name} now and refund your last payment?\n\nEvery ad paid for with it comes down right away and nothing renews.`,
       resume: '',
     }[action];
     if (ask && !confirm(ask)) return;
@@ -140,7 +140,10 @@ function AdvertisePage() {
               )}
             </>
           ) : (
-            <p className="mt-2">One-time payment, nothing renews. Your ad goes out in the next weekly newsletter.</p>
+            <p className="mt-2">
+              One-time payment, nothing renews.{' '}
+              {latestGroup.some(a => a.plan === 'weekly') ? `Your ad runs until ${fmt(latestGroup.find(a => a.plan === 'weekly')?.current_period_end ?? null)}.` : 'Your ad goes out in the next weekly newsletter.'}
+            </p>
           )}
         </div>
       )}
@@ -170,7 +173,8 @@ function AdvertisePage() {
                   <p className="mt-0.5 font-mono text-xs text-slate-500">
                     {AD_PRODUCTS[ad.kind]?.title} · <span className={STATUS[ad.status]?.cls}>{STATUS[ad.status]?.label ?? ad.status}</span>
                     {ad.plan === 'single' ? (ad.editions_left ? ' · 1 edition, goes out in the next email' : ' · edition sent') : ''}
-                    {ad.plan !== 'single' && ad.status === 'active' && ad.current_period_end ? ` · renews ${fmt(ad.current_period_end)}` : ''}
+                    {ad.plan === 'weekly' && ad.status === 'active' && ad.current_period_end ? ` · 1 week, runs until ${fmt(ad.current_period_end)}` : ''}
+                    {ad.plan === 'monthly' && ad.status === 'active' && ad.current_period_end ? ` · renews ${fmt(ad.current_period_end)}` : ''}
                     {ad.status === 'canceling' ? ` · ends ${fmt(ad.current_period_end)}` : ''}
                     {ad.refunded_at ? ` · refunded ${fmt(ad.refunded_at)}` : ''}
                   </p>
@@ -183,7 +187,7 @@ function AdvertisePage() {
                     {editing === ad.id ? 'Close' : 'Edit'}
                   </button>
                 )}
-                {lead && ad.status === 'active' && ad.plan !== 'single' && (
+                {lead && ad.status === 'active' && ad.plan === 'monthly' && (
                   <button onClick={() => manage(ad, 'cancel')} disabled={busy === ad.id} className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:border-slate-500">
                     Cancel future months
                   </button>
