@@ -3,7 +3,7 @@ import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { KindBadge, ToolChip } from '@/components/ui/FreeAlternatives';
-import { CHECKED, FREE_KIND_LABEL, freeAlternativesPath } from '@/utils/freeAlternatives';
+import { CHECKED, freeAlternativesPath } from '@/utils/freeAlternatives';
 import { getFreeRows } from '@/utils/freeAlternativesData';
 
 // The free-alternatives matrix: well-known paid dev tools down the left, their genuinely free or open-source
@@ -62,15 +62,10 @@ export default async function FreeAlternatives() {
         self-host, not a free trial or a limited tier of a paid product.
       </PageHeader>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-        {(['oss', 'source-available', 'free'] as const).map(k => (
-          <span key={k} className="inline-flex items-center gap-2">
-            <KindBadge kind={k} />
-            {k === 'oss' ? 'OSI-approved license' : k === 'source-available' ? 'source-available, free to self-host with limits' : 'free product'}
-          </span>
-        ))}
-        <span>· Licenses checked {CHECKED}</span>
-      </div>
+      <p className="mt-6 text-xs text-slate-500">
+        All open source unless marked <span className="text-amber-400/80">*</span> (source-available: free to self-host, with limits in the
+        license). Licenses checked {CHECKED}; hover a mark for the license.
+      </p>
 
       {groups.map(group => (
         <section key={group} className="mt-10">
@@ -88,7 +83,7 @@ export default async function FreeAlternatives() {
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {r.alternatives.map(a => (
-                      <span key={a.slug} className="inline-flex items-center gap-1.5">
+                      <span key={a.slug} className="inline-flex items-center gap-0.5">
                         <ToolChip slug={a.tool.slug} name={a.tool.name} logo={a.tool.logo_url} />
                         <KindBadge kind={a.kind} license={a.license} />
                       </span>
@@ -108,7 +103,7 @@ export default async function FreeAlternatives() {
         <a href="https://x.com/devhunt_" className="text-slate-300 underline" target="_blank" rel="noopener">
           X
         </a>
-        . {FREE_KIND_LABEL.oss} tools can still sell a hosted version; the badge is about the code you can run yourself.
+        . Open-source tools can still sell a hosted version; the label is about the code you can run yourself.
       </p>
     </article>
   );

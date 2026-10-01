@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
-import { KindBadge, smallLogo } from '@/components/ui/FreeAlternatives';
+import { smallLogo } from '@/components/ui/FreeAlternatives';
 import { CHECKED, FREE_KIND_LABEL, freeAlternativesPath } from '@/utils/freeAlternatives';
 import { getFreeRow, type FreeRowView } from '@/utils/freeAlternativesData';
 
@@ -123,11 +123,10 @@ export default async function FreeAlternativesFor({ params }: Params) {
                 </Link>
                 {a.tool.slogan && <p className="truncate text-sm text-slate-400">{a.tool.slogan}</p>}
               </div>
-              <KindBadge kind={a.kind} license={a.license} />
             </div>
             {a.note && <p className="mt-3 text-sm text-slate-300">{a.note}</p>}
             <p className="mt-2 font-mono text-xs text-slate-500">
-              {a.license ? `License: ${a.license} · ` : ''}
+              {a.kind === 'oss' ? 'Open source' : 'Source-available'}{a.license ? ` (${a.license})` : ''} · 
               {a.tool.votes_count > 0 ? `▲ ${a.tool.votes_count} upvotes on DevHunt · ` : ''}
               <Link href={`/tool/${a.slug}`} className="text-orange-400 hover:text-orange-300">
                 details

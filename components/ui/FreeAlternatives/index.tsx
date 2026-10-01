@@ -3,19 +3,12 @@ import { FREE_KIND_LABEL, type FreeKind } from '@/utils/freeAlternatives';
 
 export const smallLogo = (url: string | null, w = 48) => (url ? url.replace(/w=\d+/g, `w=${w}`) : null);
 
-const KIND_STYLE: Record<FreeKind, string> = {
-  oss: 'border-emerald-700/60 text-emerald-300',
-  'source-available': 'border-amber-700/60 text-amber-300',
-  free: 'border-sky-700/60 text-sky-300',
-};
-
+// Open source is the default and gets no badge; only the exceptions are marked, quietly.
 export function KindBadge({ kind, license }: { kind: FreeKind; license?: string }) {
+  if (kind === 'oss') return null;
   return (
-    <span
-      title={license ? `License: ${license}` : undefined}
-      className={`inline-flex flex-none items-center rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${KIND_STYLE[kind]}`}
-    >
-      {FREE_KIND_LABEL[kind]}
+    <span title={license ? `License: ${license}` : undefined} className="flex-none text-[11px] text-amber-400/80">
+      {kind === 'source-available' ? '*' : FREE_KIND_LABEL[kind]}
     </span>
   );
 }
