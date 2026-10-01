@@ -77,9 +77,23 @@ export function isInternal(url: string | null | undefined): boolean {
   return !!host && matches(host, SITE_DOMAIN);
 }
 
+// John's and DevHunt's own profiles on shared hosts (followed: they build John's and DevHunt's entity).
+// Matched by host and first path segment, case-insensitive; other accounts on these hosts stay nofollow.
+export const OWN_PROFILES: Record<string, string[]> = {
+  'x.com': ['johnrush', 'devhunt_'],
+  'twitter.com': ['johnrush', 'devhunt_'],
+  'github.com': ['marsx-dev'],
+};
+
 export function isOwnProduct(url: string | null | undefined): boolean {
   const host = hostOf(url);
-  return !!host && OWN_PRODUCT_DOMAINS.some(domain => matches(host, domain));
+  if (!host) return false;
+  if (OWN_PRODUCT_DOMAINS.some(domain => matches(host, domain))) return true;
+  const profiles = OWN_PROFILES[host];
+  if (!profiles) return false;
+  const raw = (url ?? '').trim();
+  const path = new URL(/^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`).pathname;
+  return profiles.includes(path.split('/')[1]?.toLowerCase() ?? '');
 }
 
 export interface RelOptions {

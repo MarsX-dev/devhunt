@@ -2,6 +2,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import Pricing from './pricing';
 import Stats from './stats';
 import Logos from './logos';
+import { relFor } from '@/utils/links';
 
 export const metadata = {
   title: 'About DevHunt - the launchpad for dev tools',
@@ -47,7 +48,7 @@ export default () => {
         <p>We're lucky to have some amazing contributors on board:</p>
         <ul>
           <li>
-            <a href="https://x.com/johnrush" rel="nofollow noopener">John Rush</a>
+            <a href="https://x.com/johnrush" rel={relFor('https://x.com/johnrush')}>John Rush</a>
           </li>
           <li>
             <a href="https://twitter.com/sidi_jeddou_dev" rel="nofollow noopener">Sidi Jeddou</a>

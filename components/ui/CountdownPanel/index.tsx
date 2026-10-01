@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import CountUp from '@/components/ui/CountUp';
 import { isFinalHours, votingDeadline } from '@/utils/votingDeadline';
+import { relFor } from '@/utils/links';
 
 const SponsorSkeleton = () => (
   <div className="mt-3 w-80 text-left sm:block border border-slate-700 bg-slate-900 rounded-md p-4 animate-pulse">
@@ -222,7 +223,7 @@ export default ({ uniqueVisitors }: { uniqueVisitors?: number }) => (
           <CountUp value={uniqueVisitors ?? 452356} />
         </span>{' '}
         unique visitors since launch ·{' '}
-        <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641" rel="nofollow noopener">
+        <a className="text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-slate-100" href="https://x.com/johnrush/status/1661534492949872641" rel={relFor('https://x.com/johnrush/status/1661534492949872641')}>
           how it started
         </a>
       </span>

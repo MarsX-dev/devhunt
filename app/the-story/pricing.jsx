@@ -1,6 +1,7 @@
 'use client';
 
 import Script from 'next/script';
+import { relFor } from '@/utils/links';
 
 export default () => {
   const plans = [
@@ -128,7 +129,7 @@ export default () => {
 
       <p className="text-slate-300 mt-8 text-center">
         Reach out to{' '}
-        <a className="text-orange-500 underline" href="https://x.com/johnrush" rel="nofollow noopener">
+        <a className="text-orange-500 underline" href="https://x.com/johnrush" rel={relFor('https://x.com/johnrush')}>
           John Rush
         </a>{' '}
         for details and prices.

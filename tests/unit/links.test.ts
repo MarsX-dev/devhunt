@@ -54,3 +54,15 @@ describe('blogLinkRels', () => {
     expect(blogLinkRels('<a href="/blog/x">a</a>')).toBe('<a href="/blog/x">a</a>');
   });
 });
+
+describe('own profiles', () => {
+  it("follows John's and DevHunt's own profiles, not other accounts on the same hosts", () => {
+    expect(relFor('https://x.com/johnrush')).toBe('noopener');
+    expect(relFor('https://x.com/JohnRush/status/1')).toBe('noopener');
+    expect(relFor('https://twitter.com/devhunt_')).toBe('noopener');
+    expect(relFor('https://github.com/MarsX-dev/devhunt')).toBe('noopener');
+    expect(relFor('https://x.com/vitalik_may')).toBe('nofollow noopener');
+    expect(relFor('https://github.com/someone/repo')).toBe('nofollow noopener');
+    expect(relFor('https://x.com/')).toBe('nofollow noopener');
+  });
+});

@@ -217,7 +217,7 @@ export function ToolMaker({ tool, owner }: { tool: ProductType; owner?: Profile 
         <p className="mt-4 rounded-2xl border border-slate-800 p-4 text-sm leading-relaxed text-slate-400">
           DevHunt lists {tool.name} because developers expect to find it next to the tools in its category. It did not launch on DevHunt.
           Work on {tool.name}?{' '}
-          <a href="https://x.com/johnrush" target="_blank" rel="nofollow noopener" className="text-slate-200 underline decoration-slate-600 underline-offset-2 hover:text-white">
+          <a href="https://x.com/johnrush" target="_blank" rel={relFor('https://x.com/johnrush')} className="text-slate-200 underline decoration-slate-600 underline-offset-2 hover:text-white">
             Message us to claim this listing
           </a>
           .

@@ -16,6 +16,7 @@ import { prefetchRoute } from '@/utils/prefetch';
 import { LAUNCH_TIERS, launchPrice, type LaunchTier } from '@/utils/launchTiers';
 import { type StatsSummary } from '@/utils/publicStats';
 import { type LaunchShowcase, type ShowcaseTool } from '@/utils/launchShowcase';
+import { relFor } from '@/utils/links';
 
 interface Tool {
   id: number;
@@ -167,7 +168,7 @@ function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase
             Example post {idx + 1} ↗
           </a>
         ))}
-        <a href="https://x.com/devhunt_" target="_blank" rel="nofollow noopener" className="text-orange-400 hover:text-orange-300">
+        <a href="https://x.com/devhunt_" target="_blank" rel={relFor('https://x.com/devhunt_')} className="text-orange-400 hover:text-orange-300">
           See @devhunt_ on X ↗
         </a>
       </p>
