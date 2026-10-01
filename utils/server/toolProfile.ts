@@ -80,8 +80,21 @@ async function candidatesFor(productId: number, categoryIds: number[]): Promise<
       .eq('moderation', 'ok')
       .eq('site_status', 'ok')
       .neq('id', productId);
+  // Reference peers come from the specific categories only: broad tags (Open Source, AI) would pair a framework
+  // with every open-source backend.
+  const { data: broad } = await serviceClient.from('product_categories').select('id').in('name', ['Open Source', 'AI']);
+  const broadIds = new Set(((broad ?? []) as { id: number }[]).map(c => c.id));
+  const specific = categoryIds.filter(id => !broadIds.has(id));
+  const referenceQuery = () =>
+    serviceClient
+      .from('products')
+      .select('id, name, slogan, product_category_product!inner(category_id)')
+      .in('product_category_product.category_id', specific.length ? specific : categoryIds)
+      .eq('deleted', false)
+      .eq('is_reference', true)
+      .neq('id', productId);
   const [references, launched] = await Promise.all([
-    query().eq('is_reference', true).limit(20),
+    referenceQuery().limit(20),
     query()
       .or('launch_start.not.is.null,is_reference.eq.true') // launched tools and DevHunt's reference listings
       .order('votes_count', { ascending: false })

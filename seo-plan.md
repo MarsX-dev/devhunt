@@ -254,6 +254,8 @@ Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs we
   - **Batch 2 added 2026-10-01 (81 reference listings total):** Paddle, Lemon Squeezy, Polar, GitLab CI, CircleCI, Podman, Kubernetes, Terraform, Coolify, Mixpanel, Amplitude, Google Analytics, Umami, Grafana, New Relic, Better Stack, PlanetScale, MongoDB, Convex, Turso, Prisma, WorkOS, Better Auth, Mintlify, GitBook, Docusaurus, Playwright, Cypress, Resend, Postmark, Zapier, Make, LlamaIndex, Mastra, AI SDK, Material UI, Next.js, Strapi, Sanity.
   - Profiles were regenerated so peers pick each other (Stripe → Paddle, Polar, Lemon Squeezy; Datadog → New Relic, Grafana, Better Stack).
   - About 45 wrong picks were removed by hand, and three entries were hand-written (Playwright ↔ Cypress, Strapi → Sanity).
+  - **Batch 3 added 2026-10-01 (110 reference listings total):** Remix, Astro, SvelteKit, Nuxt, Pulumi, OpenTofu, Amazon Q Developer, Augment Code, Amp, Qodo, Warp, OpenCode, Heroku, DigitalOcean, Redis, Algolia, Twilio, Contentful, Payload, Retool, Bubble, Webflow, Framer, Figma, Storybook, Vitest, Jest, Bun, Deno.
+  - Reference candidates now come from a tool's specific categories (not the broad "Open Source"/"AI" ones), which fixed most cross-domain picks. Remaining wrong picks were removed by hand (e.g. Algolia/Twilio → API clients, Bun/Deno → unrelated small tools). Algolia has no peer listed yet.
   - Reread GSC for "{tool} alternatives" and "X vs Y" in ~3 weeks. Demand (US/month, KD):
 
   | Tool | Volume | KD |
