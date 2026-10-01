@@ -30,6 +30,7 @@ import { type ProductType } from '@/type';
 import { usableVideoUrl } from '@/utils/demoVideo';
 import { withLinkRels } from '@/utils/links';
 import { categoryPath } from '@/utils/sitemap';
+import { FreeAltLinks } from '@/components/ui/FreeAlternatives';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -148,6 +149,7 @@ export default async function ToolPageView({ data, slug, banner }: { data: ToolP
             ) : (
               ''
             )}
+            <FreeAltLinks slug={product.slug} name={cleanName(product.name)} />
             <ToolHighlights extras={extras} />
             {profile && <ToolGlance profile={profile} paid={!!product.isPaid} />}
           </div>

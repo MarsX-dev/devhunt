@@ -3,6 +3,7 @@ import Link from 'next/link';
 import PageHeader from '@/components/ui/PageHeader';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { KindBadge, ToolChip } from '@/components/ui/FreeAlternatives';
+import SuggestForm from '@/components/ui/FreeAlternatives/SuggestForm';
 import { CHECKED, freeAlternativesPath } from '@/utils/freeAlternatives';
 import { getFreeRows } from '@/utils/freeAlternativesData';
 
@@ -64,7 +65,7 @@ export default async function FreeAlternatives() {
 
       <p className="mt-6 text-xs text-slate-500">
         All open source unless marked <span className="text-amber-400/80">*</span> (source-available: free to self-host, with limits in the
-        license). Licenses checked {CHECKED}; hover a mark for the license.
+        license). Licenses and prices checked {CHECKED}; hover a mark for the license. Self-hosting is free, but you pay for the server (a small VPS is about $4–6/mo).
       </p>
 
       {groups.map(group => (
@@ -76,7 +77,10 @@ export default async function FreeAlternatives() {
               .map(r => (
                 <div key={r.row.slug} className="grid gap-3 py-4 sm:grid-cols-[13rem_1fr] sm:items-center">
                   <div className="flex items-center gap-2">
-                    <ToolChip slug={r.tool.slug} name={r.tool.name} logo={r.tool.logo_url} />
+                    <span className="flex flex-col items-start gap-1">
+                      <ToolChip slug={r.tool.slug} name={r.tool.name} logo={r.tool.logo_url} />
+                      {r.row.paidFrom && <span className="pl-2 font-mono text-[11px] text-slate-500">from {r.row.paidFrom}</span>}
+                    </span>
                     <span className="text-slate-600" aria-hidden>
                       →
                     </span>
@@ -98,8 +102,15 @@ export default async function FreeAlternatives() {
         </section>
       ))}
 
-      <p className="mt-12 text-xs leading-relaxed text-slate-500">
-        Missing a tool or spotted a wrong license? Tell us on{' '}
+      <section className="mt-14 rounded-2xl border border-slate-800 p-5">
+        <SectionLabel title="Suggest a free alternative" hint="reviewed by hand" />
+        <div className="mt-4">
+          <SuggestForm />
+        </div>
+      </section>
+
+      <p className="mt-8 text-xs leading-relaxed text-slate-500">
+        Spotted a wrong license? Tell us on{' '}
         <a href="https://x.com/devhunt_" className="text-slate-300 underline" target="_blank" rel="noopener">
           X
         </a>

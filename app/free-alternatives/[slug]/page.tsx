@@ -106,8 +106,10 @@ export default async function FreeAlternativesFor({ params }: Params) {
       </PageHeader>
 
       <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-sm leading-relaxed text-slate-400">
-        <span className="text-slate-200">Short answer:</span> the best free alternatives to {r.tool.name} are {list(names(r))}. Licenses checked{' '}
-        {CHECKED}.
+        <span className="text-slate-200">Short answer:</span> the best free alternatives to {r.tool.name} are {list(names(r))}.
+        {r.row.paidFrom &&
+          (r.row.paidFrom.startsWith('usage') ? ` ${r.tool.name} is priced by usage.` : ` ${r.tool.name} starts at ${r.row.paidFrom}.`)}{' '}
+        Self-hosting is free; you pay only for the server (a small VPS is about $4–6/mo). Licenses and prices checked {CHECKED}.
       </div>
 
       <ol className="mt-8 space-y-3">

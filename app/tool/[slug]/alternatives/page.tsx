@@ -11,6 +11,7 @@ import { getAlternatives } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
 import { alternativesIndexable } from '@/utils/seoIndex';
+import { FreeAltLinks } from '@/components/ui/FreeAlternatives';
 
 // Alternatives pages are cached after their first visit (CDN) for 10 minutes. Nothing is built ahead (empty
 // generateStaticParams); Next 14 caches a not-found page with its 404 status.
@@ -70,6 +71,7 @@ export default async function AlternativesPage({ params: { slug } }: Params) {
         {profile?.data.summary ?? tool.slogan} Here are {picked.length + more.length} similar tools on DevHunt
         {picked.length ? ', starting with the closest matches' : ''}.
       </PageHeader>
+      <FreeAltLinks slug={tool.slug} name={name} />
 
       {!!picked.length && (
         <div className="mt-12">

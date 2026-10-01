@@ -7,6 +7,7 @@
 
 export const CHECKED = '2026-10-01';
 export const MIN_ALTERNATIVES = 2;
+export const PRICES_CHECKED = '2026-10-01';
 
 export type FreeKind = 'oss' | 'source-available' | 'free';
 
@@ -25,6 +26,8 @@ export interface FreeAlternative {
 
 export interface FreeAlternativeRow {
   slug: string; // the well-known paid tool (a reference listing)
+  name: string; // its display name (for links on other tools' pages, without a query)
+  paidFrom?: string; // entry price from its pricing page on PRICES_CHECKED; left out when unclear
   group: string;
   alternatives: FreeAlternative[];
 }
@@ -32,6 +35,8 @@ export interface FreeAlternativeRow {
 export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   {
     slug: 'cursor',
+    name: 'Cursor',
+    paidFrom: '$20/user/mo (Pro)',
     group: 'AI coding',
     alternatives: [
       { slug: 'cline', kind: 'oss', license: 'Apache-2.0', note: 'Coding agent for VS Code; bring your own model key.' },
@@ -40,6 +45,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'github-copilot',
+    name: 'GitHub Copilot',
+    paidFrom: '$10/mo (Pro)',
     group: 'AI coding',
     alternatives: [
       { slug: 'tabby-ml', kind: 'oss', license: 'Apache-2.0 (core)', note: 'Self-hosted code completion server.' },
@@ -48,6 +55,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'claude-code',
+    name: 'Claude Code',
+    paidFrom: '$20/mo (Claude Pro)',
     group: 'AI coding',
     alternatives: [
       { slug: 'opencode', kind: 'oss', license: 'MIT', note: 'Terminal coding agent that works with many models.' },
@@ -57,6 +66,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'postman',
+    name: 'Postman',
+    paidFrom: '$9/user/mo (Solo)',
     group: 'APIs',
     alternatives: [
       { slug: 'bruno', kind: 'oss', license: 'MIT', note: 'Offline API client; collections live as files in your git repo.' },
@@ -66,6 +77,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'algolia',
+    name: 'Algolia',
+    paidFrom: 'usage-based',
     group: 'Search',
     alternatives: [
       { slug: 'meilisearch', kind: 'oss', license: 'MIT (core)', note: 'Fast, typo-tolerant search you can self-host.' },
@@ -75,6 +88,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'elasticsearch',
+    name: 'Elasticsearch',
+    paidFrom: 'usage-based (Elastic Cloud)',
     group: 'Search',
     alternatives: [
       { slug: 'opensearch', kind: 'oss', license: 'Apache-2.0', note: 'Apache-licensed fork of Elasticsearch 7.10.' },
@@ -84,6 +99,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'heroku',
+    name: 'Heroku',
+    paidFrom: '$5/mo per dyno (Eco)',
     group: 'Hosting',
     alternatives: [
       { slug: 'coolify', kind: 'oss', license: 'Apache-2.0', note: 'Self-hosted Heroku/Netlify alternative on your own server.' },
@@ -93,6 +110,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'vercel',
+    name: 'Vercel',
+    paidFrom: '$20/mo per seat (Pro)',
     group: 'Hosting',
     alternatives: [
       { slug: 'coolify', kind: 'oss', license: 'Apache-2.0', note: 'Deploy Next.js and other apps on your own server.' },
@@ -101,6 +120,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'firebase',
+    name: 'Firebase',
+    paidFrom: 'usage-based (Blaze)',
     group: 'Backend',
     alternatives: [
       { slug: 'supabase', kind: 'oss', license: 'Apache-2.0', note: 'Postgres backend with auth, storage and realtime; self-hostable.' },
@@ -110,6 +131,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'auth0',
+    name: 'Auth0',
+    paidFrom: '$35/mo (Essentials)',
     group: 'Auth',
     alternatives: [
       { slug: 'keycloak', kind: 'oss', license: 'Apache-2.0', note: 'Identity and access management server (CNCF).' },
@@ -120,6 +143,7 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'contentful',
+    name: 'Contentful',
     group: 'CMS',
     alternatives: [
       { slug: 'strapi', kind: 'oss', license: 'MIT (core)', note: 'Headless CMS for Node.js; the Community Edition is free.' },
@@ -129,6 +153,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'datadog',
+    name: 'Datadog',
+    paidFrom: '$15/host/mo',
     group: 'Monitoring',
     alternatives: [
       { slug: 'grafana', kind: 'oss', license: 'AGPL-3.0', note: 'Dashboards and alerting; pairs with Prometheus and Loki.' },
@@ -138,6 +164,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'sentryio',
+    name: 'Sentry',
+    paidFrom: '$26/mo (Team)',
     group: 'Monitoring',
     alternatives: [
       { slug: 'glitchtip', kind: 'oss', license: 'MIT', note: 'Error tracking that accepts Sentry SDKs.' },
@@ -146,6 +174,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'mixpanel',
+    name: 'Mixpanel',
+    paidFrom: 'usage-based',
     group: 'Analytics',
     alternatives: [
       { slug: 'posthog', kind: 'oss', license: 'MIT (core)', note: 'Product analytics, session replay and flags; self-hostable.' },
@@ -154,6 +184,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'amplitude',
+    name: 'Amplitude',
+    paidFrom: 'usage-based',
     group: 'Analytics',
     alternatives: [
       { slug: 'posthog', kind: 'oss', license: 'MIT (core)', note: 'Funnels, retention and replay in one tool.' },
@@ -162,6 +194,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'zapier',
+    name: 'Zapier',
+    paidFrom: '$19.99/mo (annual)',
     group: 'Automation',
     alternatives: [
       { slug: 'n8n', kind: 'source-available', license: 'Sustainable Use License', note: 'Free to self-host for internal use.' },
@@ -171,6 +205,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'make',
+    name: 'Make',
+    paidFrom: '$9/mo (Core)',
     group: 'Automation',
     alternatives: [
       { slug: 'n8n', kind: 'source-available', license: 'Sustainable Use License', note: 'Visual workflows with code when you need it.' },
@@ -179,6 +215,7 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'retool',
+    name: 'Retool',
     group: 'Internal tools',
     alternatives: [
       { slug: 'appsmith', kind: 'oss', license: 'Apache-2.0', note: 'Build admin panels and dashboards on your data.' },
@@ -188,6 +225,7 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'notion',
+    name: 'Notion',
     group: 'Docs and wikis',
     alternatives: [
       { slug: 'appflowy', kind: 'oss', license: 'AGPL-3.0', note: 'Notion-style workspace that keeps data local.' },
@@ -197,6 +235,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'gitbook',
+    name: 'GitBook',
+    paidFrom: '$65/mo per site',
     group: 'Docs and wikis',
     alternatives: [
       { slug: 'docusaurus', kind: 'oss', license: 'MIT', note: 'Docs sites from Markdown, by Meta.' },
@@ -205,6 +245,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'docker',
+    name: 'Docker',
+    paidFrom: '$9/user/mo (Pro)',
     group: 'DevOps',
     alternatives: [
       { slug: 'podman', kind: 'oss', license: 'Apache-2.0', note: 'Daemonless containers with a Docker-compatible CLI.' },
@@ -213,6 +255,7 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'github-actions',
+    name: 'GitHub Actions',
     group: 'DevOps',
     alternatives: [
       { slug: 'woodpecker-ci', kind: 'oss', license: 'Apache-2.0', note: 'Simple self-hosted CI with YAML pipelines.' },
@@ -221,6 +264,7 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'terraform',
+    name: 'Terraform',
     group: 'DevOps',
     alternatives: [
       { slug: 'opentofu', kind: 'oss', license: 'MPL-2.0', note: 'Drop-in, community fork of Terraform (Linux Foundation).' },
@@ -229,6 +273,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'redis',
+    name: 'Redis',
+    paidFrom: '$5/mo (Redis Cloud)',
     group: 'Databases',
     alternatives: [
       { slug: 'valkey', kind: 'oss', license: 'BSD-3-Clause', note: 'Linux Foundation fork of Redis 7.2.' },
@@ -237,6 +283,7 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'snyk',
+    name: 'Snyk',
     group: 'Security',
     alternatives: [
       { slug: 'semgrep', kind: 'oss', license: 'LGPL-2.1 (CE)', note: 'Static analysis with community rules.' },
@@ -245,6 +292,8 @@ export const FREE_ALTERNATIVES: FreeAlternativeRow[] = [
   },
   {
     slug: 'figma',
+    name: 'Figma',
+    paidFrom: '$16/seat/mo',
     group: 'Design',
     alternatives: [{ slug: 'penpot', kind: 'oss', license: 'MPL-2.0', note: 'Open-source design and prototyping, works with SVG.' }],
   },
@@ -256,3 +305,8 @@ export const rowFor = (slug: string) => FREE_ALTERNATIVES.find(r => r.slug === s
 
 export const allFreeSlugs = (): string[] =>
   Array.from(new Set(FREE_ALTERNATIVES.flatMap(r => [r.slug, ...r.alternatives.map(a => a.slug)])));
+
+// Rows where this tool is the paid one, and rows where it is one of the free alternatives.
+export const freeRowsAsPaid = (slug: string) => FREE_ALTERNATIVES.filter(r => r.slug === slug && r.alternatives.length >= MIN_ALTERNATIVES);
+export const freeRowsAsAlternative = (slug: string) =>
+  FREE_ALTERNATIVES.filter(r => r.alternatives.length >= MIN_ALTERNATIVES && r.alternatives.some(a => a.slug === slug));

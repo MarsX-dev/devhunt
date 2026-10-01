@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FREE_KIND_LABEL, type FreeKind } from '@/utils/freeAlternatives';
+import { FREE_KIND_LABEL, type FreeKind, freeAlternativesPath, freeRowsAsAlternative, freeRowsAsPaid } from '@/utils/freeAlternatives';
 
 export const smallLogo = (url: string | null, w = 48) => (url ? url.replace(/w=\d+/g, `w=${w}`) : null);
 
@@ -24,5 +24,40 @@ export function ToolChip({ slug, name, logo, href }: { slug: string; name: strin
       {src ? <img src={src} alt="" className="h-6 w-6 rounded-full bg-slate-800 object-cover" /> : <span className="h-6 w-6 rounded-full bg-slate-800" />}
       {name}
     </Link>
+  );
+}
+
+// Links between a tool and the free-alternatives pages: "free alternatives to X" on a paid tool, "a free alternative
+// to X, Y" on a free one. Static data only, no query.
+export function FreeAltLinks({ slug, name }: { slug: string; name: string }) {
+  const asPaid = freeRowsAsPaid(slug);
+  const asAlt = freeRowsAsAlternative(slug);
+  if (!asPaid.length && !asAlt.length) return null;
+  const link = 'text-orange-400 hover:text-orange-300';
+  return (
+    <div className="mt-4 space-y-1 text-sm text-slate-400">
+      {asPaid.length > 0 && (
+        <p>
+          Looking for something free?{' '}
+          <Link href={freeAlternativesPath(slug)} className={link}>
+            Free and open-source {name} alternatives →
+          </Link>
+        </p>
+      )}
+      {asAlt.length > 0 && (
+        <p>
+          {name} is a free alternative to{' '}
+          {asAlt.map((r, i) => (
+            <span key={r.slug}>
+              {i > 0 && (i === asAlt.length - 1 ? ' and ' : ', ')}
+              <Link href={freeAlternativesPath(r.slug)} className={link}>
+                {r.name}
+              </Link>
+            </span>
+          ))}
+          .
+        </p>
+      )}
+    </div>
   );
 }
