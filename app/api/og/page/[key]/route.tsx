@@ -17,6 +17,11 @@ const CARDS: Record<string, { kicker: string; title: string; lines: string[] }> 
       `MCP: ${share('MCP', '2024')}% → ${share('MCP', '2026')}%`,
     ],
   },
+  'free-alternatives': {
+    kicker: 'FREE · OPEN SOURCE',
+    title: 'Free alternatives to popular dev tools',
+    lines: ['Postman → Bruno, Hoppscotch', 'Auth0 → Keycloak, SuperTokens', 'Zapier → n8n, Activepieces · Heroku → Coolify'],
+  },
   'product-hunt-alternatives': {
     kicker: 'GUIDE',
     title: 'Product Hunt alternatives for developer tools',

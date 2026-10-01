@@ -19,6 +19,7 @@
 - [Blog](https://devhunt.org/blog): guides and roundups of developer tools
 - [State of Dev Tools 2026](https://devhunt.org/reports/state-of-dev-tools-2026): original data on 9,400 dev tool launches (AI agents, MCP, AI coding, pricing, open source)
 - [Best new dev tools by month](https://devhunt.org/best): the most upvoted launches of each month since 2024
+- [Free and open-source alternatives to popular dev tools](https://devhunt.org/free-alternatives): Postman, Heroku, Auth0, Datadog, Zapier, Retool, Notion, Copilot and more, with licenses; one page per tool at /free-alternatives/{slug}
 - [Product Hunt alternatives for developer tools](https://devhunt.org/product-hunt-alternatives): where to launch a dev tool, compared by cycle, cost and audience
 - [Stats](https://devhunt.org/stats): live DevHunt traffic, launches and impressions
 
