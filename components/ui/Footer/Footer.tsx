@@ -3,6 +3,10 @@
 import Link from 'next/link';
 import Brand from '../Brand/Brand';
 import NewsletterForm from '../Newsletter/NewsletterForm';
+import { categoryPath } from '@/utils/sitemap';
+
+// Category hubs linked from every page, so crawlers reach them from anywhere (not only from in-content links).
+const FOOTER_CATEGORIES = ['AI', 'AI Agents', 'MCP', 'Open Source', 'DevOps', 'API', 'DB', 'Auth', 'Hosting', 'Testing', 'UI Library', 'Analytics'];
 
 export default () => {
   const footerNavs = [
@@ -80,6 +84,18 @@ export default () => {
             ))}
           </ul>
         </div>
+        <nav aria-label="Popular categories" className="mt-8 text-sm">
+          <p className="text-slate-300">Popular categories</p>
+          <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5">
+            {FOOTER_CATEGORIES.map(name => (
+              <li key={name}>
+                <Link href={categoryPath(name)} className="hover:text-slate-100 transition-colors duration-200">
+                  {name} tools
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
         {/* Footer links are all followed (John's products, the team), unlike tool links (utils/links.ts). */}
         <div className="mt-8 items-center justify-between sm:flex">
           <div className="mt-4 sm:mt-0">

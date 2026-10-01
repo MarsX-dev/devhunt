@@ -13,24 +13,34 @@ function deslugify(str: string) {
   return str.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
 
-export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-  const title = `${deslugify(slug)} - DevHunt Blog`;
+export async function generateMetadata({
+  params: { slug },
+  searchParams: { page },
+}: {
+  params: { slug: string };
+  searchParams: { page?: string };
+}): Promise<Metadata> {
+  const n = Number(page) > 1 ? Number(page) : 1;
+  const title = `${deslugify(slug)}${n > 1 ? ` - Page ${n}` : ''} - DevHunt Blog`;
+  const description = `Articles tagged "${deslugify(slug)}" on the DevHunt blog: guides and reviews of developer tools.`;
+  // Each page of the list is its own canonical, so posts on later pages stay discoverable.
+  const path = `/blog/tag/${slug}${n > 1 ? `?page=${n}` : ''}`;
   return {
     title,
+    description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
-      canonical: `/blog/tag/${slug}`,
+      canonical: path,
     },
     openGraph: {
       type: 'article',
       title,
-      // description: '',
-      // images: [],
-      url: `https://devhunt.org/blog/tag/${slug}`,
+      description,
+      url: `https://devhunt.org${path}`,
     },
     twitter: {
       title,
-      // description: '',
+      description,
       // card: 'summary_large_image',
       // images: [],
     },
