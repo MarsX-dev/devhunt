@@ -24,7 +24,10 @@ const toolLink = (t: { slug: string; name: string }) => (
 const n = (x: number) => x.toLocaleString('en-US');
 // "26 are subscriptions and 3 are one-time purchases", leaving out zero counts.
 const paidSplit = (stats: CategoryHubStats) =>
-  [stats.subscription && `${n(stats.subscription)} are subscriptions`, stats.oneTime && `${n(stats.oneTime)} are one-time purchases`]
+  [
+    stats.subscription && (stats.subscription === 1 ? '1 is a subscription' : `${n(stats.subscription)} are subscriptions`),
+    stats.oneTime && (stats.oneTime === 1 ? '1 is a one-time purchase' : `${n(stats.oneTime)} are one-time purchases`),
+  ]
     .filter(Boolean)
     .join(' and ');
 const join = (items: JSX.Element[]) => items.flatMap((el, i) => (i === 0 ? [el] : [i === items.length - 1 ? ' and ' : ', ', el]));

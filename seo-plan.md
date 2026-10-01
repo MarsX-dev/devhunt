@@ -308,7 +308,7 @@ Each new template launches with a pilot batch and an indexing check.
 
 | Page | For | Demand / notes | Done |
 |---|---|---|---|
-| "Best {category} tools ({year})" hubs: upgrade `/tools/{slug}` | Tool evaluators | **Done 2026-10-01:** page 1 of all 46 categories. Title "Best {X} Tools in {year}"; data summary (top 3 linked, free/paid split, launches in the last 30 days, top free tools, "updated {month}" from the latest launch); FAQ from our data; FAQPage + ItemList + BreadcrumbList. One cached query set per category per hour. Next: AI coding assistants as its own hub ("ai coding assistant" 18,100 / KD 37). | [x] |
+| "Best {category} tools ({year})" hubs: upgrade `/tools/{slug}` | Tool evaluators | **Done 2026-10-01:** page 1 of all 46 categories. Title "Best {X} Tools in {year}"; data summary (top 3 linked, free/paid split, launches in the last 30 days, top free tools, "updated {month}" from the latest launch); FAQ from our data; FAQPage + ItemList + BreadcrumbList. One cached query set per category per hour. **AI Coding** hub added 2026-10-01: new category (id 52) linked to 135 tools (46 on the listed page) matched by name/slogan for AI coding assistants, coding agents and AI code review, hand-pruned. Targets "best ai coding tools" (720 / KD 24) and "ai coding assistant" (18,100 / KD 37). In the footer and llms.txt; new submissions get it via the category classifier. Undo: `delete from product_category_product where category_id = 52`. | [x] |
 | Alternatives for well-known dev tools | Tool evaluators | A4 pilot | [ ] |
 | Free / open-source alternatives to X | Tool evaluators | "open source alternatives" 880 / KD 15; only tools with ≥3 matches | [ ] |
 | MCP: `has_mcp` field, `/mcp` hub, "{tool} MCP server" sections | Tool evaluators, AI | "mcp servers" 60,500 but owned by directories → go after the long tail ("best mcp servers" 880 / KD 14, "awesome mcp servers" 880 / KD 8) | [ ] |
@@ -323,7 +323,7 @@ Each new template launches with a pilot batch and an indexing check.
 
 ## A8. Internal authority and maker tools we build
 
-- [ ] **[C]** Pass homepage authority inward: link from the homepage and top tool pages to pages stuck near page one; rotate monthly (*@regalstreak*).
+- [ ] **[C, blocked on A2]** Pass homepage authority inward: link from the homepage to pages stuck near page one; rotate monthly (*@regalstreak*). Blocked: nearly all near-page-one tool pages are downloaders and AI media tools, and featuring them on the homepage conflicts with the dev-tools positioning until the dev-only decision (A2) is made. Dev-relevant targets meanwhile get links from the category hubs.
 - [x] **"Featured on DevHunt" badge** (2026-10-01):
   - `/badge/{slug}.svg` in dark and light, with DevHunt's logo. Week winners show "#N Dev Tool of the Week".
   - Cached a day at the CDN and an hour for data, so maker sites never hit the database per view.

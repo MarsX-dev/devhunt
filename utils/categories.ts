@@ -31,6 +31,7 @@ const categories: { name: string; description: string }[] = [
   { name: 'Visual editing', description: 'Visual editors and drag-and-drop builders.' },
   { name: 'SEO', description: 'Tools for search engine optimization, keywords and backlinks.' },
   { name: 'AI Agents', description: 'Autonomous AI agents and agent frameworks.' },
+  { name: 'AI Coding', description: 'AI coding assistants, coding agents, AI code review and tools that make them work better.' },
   { name: 'MCP', description: 'Model Context Protocol servers, clients and directories.' },
   { name: 'Testing', description: 'Unit, end-to-end, load and API testing tools.' },
   { name: 'Mobile', description: 'Tools for building iOS and Android apps.' },

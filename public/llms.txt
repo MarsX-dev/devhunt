@@ -27,6 +27,7 @@
 ## Categories
 
 - [AI](https://devhunt.org/tools/ai)
+- [AI Coding](https://devhunt.org/tools/ai-coding)
 - [AI Agents](https://devhunt.org/tools/ai-agents)
 - [MCP](https://devhunt.org/tools/mcp)
 - [Open Source](https://devhunt.org/tools/open-source)

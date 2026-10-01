@@ -6,7 +6,7 @@ import NewsletterForm from '../Newsletter/NewsletterForm';
 import { categoryPath } from '@/utils/sitemap';
 
 // Category hubs linked from every page, so crawlers reach them from anywhere (not only from in-content links).
-const FOOTER_CATEGORIES = ['AI', 'AI Agents', 'MCP', 'Open Source', 'DevOps', 'API', 'DB', 'Auth', 'Hosting', 'Testing', 'UI Library', 'Analytics'];
+const FOOTER_CATEGORIES = ['AI', 'AI Coding', 'AI Agents', 'MCP', 'Open Source', 'DevOps', 'API', 'DB', 'Auth', 'Hosting', 'Testing', 'UI Library', 'Analytics'];
 
 export default () => {
   const footerNavs = [
