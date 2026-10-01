@@ -71,8 +71,8 @@ export const alternativesIndexable = (tool: IndexTool) =>
   !!tool.is_reference || SEO_PILOT_SLUGS.has(tool.slug) || tool.votes_count >= MIN_ALTERNATIVES_VOTES;
 
 export const compareIndexable = (a: IndexTool, b: IndexTool) =>
-  !!a.is_reference ||
-  !!b.is_reference ||
+  // Two well-known tools (Cursor vs Codex) have real search demand; a big tool next to a small launch doesn't.
+  (!!a.is_reference && !!b.is_reference) ||
   SEO_PILOT_SLUGS.has(a.slug) ||
   SEO_PILOT_SLUGS.has(b.slug) ||
   Math.min(a.votes_count, b.votes_count) >= MIN_COMPARE_VOTES;

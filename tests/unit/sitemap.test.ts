@@ -117,9 +117,10 @@ describe('monthly roundups', () => {
 });
 
 describe('reference listings', () => {
-  it('index their alternatives and comparisons regardless of votes', async () => {
+  it('index their alternatives, and comparisons between two of them, regardless of votes', async () => {
     const { alternativesIndexable, compareIndexable } = await import('@/utils/seoIndex');
     expect(alternativesIndexable({ slug: 'cursor', votes_count: 0, is_reference: true })).toBe(true);
-    expect(compareIndexable({ slug: 'cursor', votes_count: 0, is_reference: true }, { slug: 'x', votes_count: 0 })).toBe(true);
+    expect(compareIndexable({ slug: 'cursor', votes_count: 0, is_reference: true }, { slug: 'windsurf', votes_count: 0, is_reference: true })).toBe(true);
+    expect(compareIndexable({ slug: 'cursor', votes_count: 0, is_reference: true }, { slug: 'x', votes_count: 0 })).toBe(false);
   });
 });

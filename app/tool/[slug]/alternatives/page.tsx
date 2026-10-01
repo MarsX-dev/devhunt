@@ -67,7 +67,7 @@ export default async function AlternativesPage({ params: { slug } }: Params) {
         {tool.logo_url && <img src={tool.logo_url.replace(/w=\d+/g, 'w=48')} alt="" className="h-5 w-5 rounded" />}← {name}
       </Link>
       <PageHeader eyebrow="Alternatives" title={`${name} alternatives`}>
-        {profile?.data.summary ?? tool.slogan} Here are {picked.length + more.length} similar tools developers launched on DevHunt
+        {profile?.data.summary ?? tool.slogan} Here are {picked.length + more.length} similar tools on DevHunt
         {picked.length ? ', starting with the closest matches' : ''}.
       </PageHeader>
 

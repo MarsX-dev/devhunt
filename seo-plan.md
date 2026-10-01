@@ -246,7 +246,12 @@ Risk: Google's *scaled content abuse* policy. 6,235 compare/alternatives URLs we
   - No launch dates, so they never enter the weekly contest, roundups or launch stats. Votes are open any time.
   - The page says "Listed by DevHunt" with a claim link instead of a maker.
   - They appear in categories (as a "Well-known {X} tools" row above the vote ranking), search, the sitemap and as alternatives in other tools' profiles.
-- [ ] **[C]** **New pilot: alternatives for well-known dev tools** (unblocked by the reference listings; add them to `SEO_PILOT_SLUGS` once their profiles exist). Demand (US/month, KD):
+- [x] **Alternatives and comparisons for well-known tools** (2026-10-01):
+  - All 42 reference listings have profiles, and their alternatives pages are indexable ("Best Cursor Alternatives in 2026" leads with Claude Code, Copilot and Cline).
+  - Comparisons are indexed when both tools are reference listings (Cursor vs Windsurf, Supabase vs Firebase, Postman vs Insomnia...).
+  - The profile generator now always offers same-category reference listings as candidates.
+  - Wrong picks were removed by hand: Stripe, Docker and GitHub Actions have no true peers listed yet; PostHog/Plausible ↔ Supabase removed. **Regenerating a profile can bring wrong picks back; re-check after any FORCE regeneration.**
+  - Next: list the missing peers (Podman, GitLab CI, CircleCI, Paddle, Lemon Squeezy, Mixpanel, Amplitude...) and reread GSC for "{tool} alternatives" in ~3 weeks. Demand (US/month, KD):
 
   | Tool | Volume | KD |
   |---|---|---|
