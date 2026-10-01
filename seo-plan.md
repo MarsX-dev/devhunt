@@ -357,6 +357,7 @@ Each new template launches with a pilot batch and an indexing check.
 
 - [ ] `almost_there` (pos 3–20, non-brand) → add the exact phrase or H2s
 - [ ] `no_clicks` (>500 impressions, CTR <0.5%) → title, H1, first lines
+  - 2026-10-01 pass: 9 SEObot posts near page one got query-matched titles, descriptions and H1s (`utils/blogSeo.ts`), each checked against the post's content. Biggest: "google maps api" (5,419 impr, pos 7.0, 0 clicks) and "online gdb" (~2,000 impr, pos 6, 3 clicks). Recheck CTR ~2026-10-29.
 - [ ] `decaying` (−30% week on week) → find the cause
 - [ ] `untargeted` / `wrong_intent` → section, new page, or change the page type
 - [ ] Compare and alternatives indexing counts (A4)

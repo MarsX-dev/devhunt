@@ -8,6 +8,7 @@ import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { followOwnProducts } from '@/utils/links';
 import { getArticle } from '@/utils/blog';
 import { blogNoindex, blogRedirect } from '@/utils/blogPrune';
+import { withBlogSeo } from '@/utils/blogSeo';
 
 // Blog posts are cached after their first visit (CDN) and refreshed hourly. Nothing is built ahead (empty
 // generateStaticParams); Next 14 caches a not-found page with its 404 status.
@@ -17,7 +18,8 @@ export async function generateStaticParams() {
 }
 
 async function getPost(slug: string) {
-  return await getArticle(slug);
+  const post = await getArticle(slug);
+  return post ? withBlogSeo(slug, post) : post;
 }
 
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
