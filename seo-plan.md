@@ -226,9 +226,9 @@ To do:
 - [ ] **[C]** BreadcrumbList on tool, category and compare pages; ItemList on categories (for rich results only). Waiting: tool and category pages are being edited in another session.
 - [x] Blog tag and category pages: description, `Page N` in the title, canonical includes `?page=N` (2026-10-01)
 - [x] Footer "Popular categories" row: 12 category hubs linked from every page (2026-10-01)
-- [ ] **[C]** Mobile performance: rerun PageSpeed / Lighthouse (DataForSEO `on_page_lighthouse`). Earlier: mobile LCP 3.3s, time to interactive 8.9s. Target LCP <2.5s on tool pages.
+- [x] Lighthouse on /tool/yt1d (2026-10-01, desktop): Performance 99, SEO 100, Best Practices 100, Accessibility 90; LCP 0.93s, CLS 0, TTFB 12ms. Speed is not a problem on tool pages. Fixed the flagged issues: an unnamed X link in the footer, and the weekly-email button's label mismatch. Left alone: low-contrast small grey labels (a design call). New Lighthouse "Agentic Browsing" score: 67 (llms.txt passes; no WebMCP tools registered; see A7).
 - [ ] **[C]** Investigate /tool/bootstrap: 69k impressions in 3 days for "+javascript libraries" at pos 2.0 with 0 clicks. Exclude it from trend readings.
-- [ ] **[C]** Broken backlinks: list links to dead DevHunt URLs (DataForSEO backlinks, or Ahrefs after Oct 3) and 301 the valuable ones to the closest live page. The redirect is ours to add, even though the links are external.
+- [x] Broken links (DataForSEO, 2026-10-01): 119 dead URLs, but nearly all were DevHunt's own old relative links (profile socials like `devhunt.org/x.com/...` and tool URLs without `https://`). Both are already fixed in today's code: live profile and category pages output only absolute links, and no tool description has scheme-less links. They'll drop out as crawlers revisit. No external backlinks point at dead pages, so no redirects are needed.
 
 ## A4. Programmatic pages: gated growth
 
@@ -313,7 +313,7 @@ Each new template launches with a pilot batch and an indexing check.
 | Launch guides (where / how to launch a dev tool) | Makers | Almost no Google demand; serves makers via links and AI answers | [ ] |
 | Weekly human-edited dev-tools digest (instead of auto news) | Developers | Our take, links to tool pages | [ ] |
 | Selective how-tos | Developers | Only with tested steps and relevant tools: "delete a branch in github" (3 × 8,100, KD 29–33), "developer tools in chrome" (5,400, KD 8) | [ ] |
-| Integrations pages, "stack behind X", public API / MCP for DevHunt data | Later | n/a | [ ] |
+| Integrations pages, "stack behind X", public API / MCP for DevHunt data | Later | Also WebMCP (Lighthouse "Agentic Browsing" checks it): expose search and submit as browser-agent tools | [ ] |
 
 ## A8. Internal authority and maker tools we build
 

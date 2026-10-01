@@ -131,7 +131,7 @@ export default () => {
           <div className="mt-6 sm:mt-0">
             <ul className="flex items-center space-x-4">
               <li>
-                <a href="https://twitter.com/devhunt_">
+                <a href="https://twitter.com/devhunt_" aria-label="DevHunt on X">
                   <svg className="svg-icon w-6 h-6 text-slate-500 hover:text-slate-300" viewBox="0 0 20 20">
                     <path
                       fill="none"

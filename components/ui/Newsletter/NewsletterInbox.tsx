@@ -55,7 +55,6 @@ export default function NewsletterInbox() {
     <div ref={ref} className="relative">
       <button
         onClick={toggle}
-        aria-label="Weekly email"
         aria-expanded={open}
         title="Weekly email"
         className={`relative flex items-center gap-x-2 hover:text-slate-200 lg:rounded-full lg:p-1.5 lg:hover:bg-slate-800 ${open ? 'lg:bg-slate-800 lg:text-slate-200' : ''}`}
@@ -63,11 +62,12 @@ export default function NewsletterInbox() {
         <span className="relative">
           <Bell className="h-[18px] w-[18px]" />
           {badge ? (
-            <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-slate-900">
+            <span aria-hidden className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-slate-900">
               {badge}
             </span>
           ) : null}
         </span>
+        {/* The accessible name comes from this text (the badge is hidden from it), so name and visible label match. */}
         <span className="lg:sr-only">Weekly email</span>
       </button>
       {open ? (
