@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import SectionLabel from '@/components/ui/SectionLabel';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import { createBrowserClient } from '@/utils/supabase/browser';
 
 const getFeaturedWinners = unstable_cache(
@@ -29,7 +31,11 @@ export default async function FeaturedWinners() {
     <div id="top-winners" className="mt-14">
       <SectionLabel title="Top winners" hint="Views & upvotes from their launch" />
       <ol className="mt-2 grid grid-cols-[minmax(0,1fr)] gap-x-10 sm:grid-cols-2">
-        {shown.map((tool, idx) => (
+        {shown.map((tool, idx) => [
+          // Two columns: a sponsor row takes a full row, so it goes before an even index (4, 12, ...) to keep pairs intact.
+          idx > 0 && sponsorBefore(idx - 1, shown.length) >= 0 && (
+            <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx - 1, shown.length)} list={2} className="col-span-full border-b border-slate-800/70 py-1" />
+          ),
           <li key={tool.id} className="border-b border-slate-800/70">
             <Link href={`/tool/${tool.slug}`} className="group flex items-center gap-x-3 py-2.5 text-sm">
               <span className="w-5 flex-none font-mono text-xs text-slate-600">{String(idx + 1).padStart(2, '0')}</span>
@@ -50,8 +56,8 @@ export default async function FeaturedWinners() {
               )}
               <span className="flex-none font-mono text-xs text-orange-400/90 tabular-nums">▲ {tool.votes_count.toLocaleString('en-US')}</span>
             </Link>
-          </li>
-        ))}
+          </li>,
+        ])}
       </ol>
     </div>
   );

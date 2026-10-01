@@ -101,9 +101,13 @@ export default function HomeFeed({
           <div id="also-launching" className="mt-14">
             <SectionLabel title="Also launching this week" hint="Not for developers, so not in the vote" />
             <ul className="mt-2 grid sm:grid-cols-2 sm:gap-x-6">
-              {data.others.map(tool => (
-                <ToolRow key={tool.id} tool={tool} noVotes />
-              ))}
+              {data.others.map((tool, idx) => [
+                // Two columns: sponsor rows span both, before an even index so pairs stay intact.
+                idx > 0 && sponsorBefore(idx - 1, data.others.length) >= 0 && (
+                  <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx - 1, data.others.length)} list={3} className="col-span-full" />
+                ),
+                <ToolRow key={tool.id} tool={tool} noVotes />,
+              ])}
             </ul>
           </div>
         )}
