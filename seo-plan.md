@@ -409,7 +409,7 @@ Google's AI Overview for "product hunt alternatives" names DevHunt via **pinggy.
 
 No permission needed, but it's off-site work. YouTube mentions are the strongest AI-visibility correlate measured (Ahrefs, ~0.74).
 
-- [ ] Weekly "top dev tools launched this week on DevHunt" (3–5 minutes)
+- [ ] Weekly "top dev tools launched this week on DevHunt". **Pipeline built 2026-10-01:** `studio/weekly.sh` (git-excluded) pulls the last completed week from the DB, renders a 33.6 s 1080p60 film with music, checks every shown number against the DB again and writes the YouTube title, description and tags. Week 38 is rendered; **[J]** uploads it. Run it every Tuesday or later; `VERTICAL=1` adds a 9:16 Shorts cut.
 - [ ] Monthly "best {category} tools" and "{popular tool} alternatives"
 - [ ] Titles, descriptions and transcripts name DevHunt and link to tool pages
 
