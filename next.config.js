@@ -18,6 +18,8 @@ const nextConfig = {
     return [
       { source: '/account/analytics', destination: '/admin/analytics', permanent: true },
       { source: '/about', destination: '/the-story', permanent: true },
+      // A maker listing of v0 whose link expired (hidden as hijacked); its search traffic goes to the v0 reference listing.
+      { source: '/tool/v0app-by-vercel', destination: '/tool/v0', permanent: true },
       // Blog near-duplicates merged into the post that won their topic (utils/blogPrune.ts, seo-plan.md A6).
       // Here rather than in the page: the page streams behind loading.tsx, where a redirect is not a real 308.
       ...Object.entries(require('./utils/blogPrune.json').redirects).map(([from, to]) => ({

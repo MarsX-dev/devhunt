@@ -1,6 +1,5 @@
 import { type Metadata } from 'next';
 import Link from 'next/link';
-import moment from 'moment';
 import { notFound } from 'next/navigation';
 import { Check } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -9,10 +8,12 @@ import { cleanName } from '@/components/ui/ToolProfile';
 import { type Comparison, type CompareProduct } from '@/utils/compareData';
 import { comparePath } from '@/utils/compare';
 import { resolve } from './resolve';
-import { compareIndexable } from '@/utils/seoIndex';
+import { alternativesIndexable, compareIndexable } from '@/utils/seoIndex';
 import { sectionShown } from '@/utils/toolProfile';
 import { type ToolProfileView } from '@/utils/toolProfileData';
 import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
+import { CompareDevHunt, ComparePairFaq, CompareVerdict } from '@/components/ui/CompareVerdict';
+import { buildPairFaq, buildVerdict, devHuntFacts, openSourceInfo, type VerdictTool } from '@/utils/compareVerdict';
 
 // Comparisons are cached after their first visit (CDN) for 10 minutes. Nothing is built ahead (empty
 // generateStaticParams); Next 14 caches a not-found page with its 404 status.
@@ -63,21 +64,41 @@ export default async function ComparePage({ params: { pair } }: Params) {
   // A tool without its own profile can still have a "best for" line in the other tool's alternatives.
   const bestFor = (t: CompareProduct, p: ToolProfileView | null) =>
     p?.data.best_for ?? [c.profileA, c.profileB].flatMap(x => x?.data.alternatives ?? []).find(alt => alt.id === t.id)?.best_for ?? '—';
+  const verdictTool = (t: CompareProduct): VerdictTool => ({
+    ...t,
+    name: cleanName(t.name),
+    profile: (t.id === c.a.id ? c.profileA : c.profileB)?.data ?? null,
+  });
+  const [va, vb] = [verdictTool(c.a), verdictTool(c.b)];
+  const verdict = buildVerdict(va, vb, c.difference);
+  const faq = buildPairFaq(va, vb);
+  const now = new Date();
+  const devhunt = tools.map(({ tool, profile }) => ({
+    id: tool.id,
+    name: cleanName(tool.name),
+    slug: tool.slug,
+    facts: devHuntFacts(tool, now),
+    // Same rule as the alternatives page's own robots tag: only link it where it's a real, indexable page.
+    alternatives: !!profile && sectionShown(profile.data, 'compare') && profile.compare.length >= 2 && alternativesIndexable(tool),
+  }));
   const allRows: { label: string; value: (t: CompareProduct, p: ToolProfileView | null) => string }[] = [
     { label: 'What it is', value: (t, p) => p?.data.summary ?? t.slogan ?? '—' },
     { label: 'Best for', value: bestFor },
     { label: 'Who it’s for', value: (t, p) => p?.data.audience ?? '—' },
     { label: 'Pricing', value: (t, p) => pricingOf(t, p) },
     { label: 'Plans', value: (t, p) => plansOf(p).join(' · ') || '—' },
-    { label: 'Open source', value: (t, p) => (p?.data.github ? `Yes, ${p.data.github.stars.toLocaleString('en-US')} GitHub stars` : '—') },
+    {
+      label: 'Open source',
+      value: t => {
+        const os = openSourceInfo(verdictTool(t));
+        return os.open ? (os.stars !== null ? `Yes, ${os.stars.toLocaleString('en-US')} GitHub stars` : 'Yes') : '—';
+      },
+    },
     { label: 'Works with', value: (t, p) => (p && sectionShown(p.data, 'glance') ? p.data.integrations.slice(0, 8).join(', ') : '') || '—' },
-    { label: 'DevHunt upvotes', value: t => t.votes_count.toLocaleString('en-US') },
-    { label: 'Launched on DevHunt', value: t => (t.launch_start ? moment.utc(t.launch_start).format('MMM YYYY') : '—') },
   ];
   const rows = allRows.filter(row => tools.some(({ tool, profile }) => row.value(tool, profile) !== '—'));
 
   const breadcrumbData = {
-    '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'DevHunt', item: 'https://devhunt.org/' },
@@ -85,10 +106,19 @@ export default async function ComparePage({ params: { pair } }: Params) {
       { '@type': 'ListItem', position: 3, name: `${nameA} vs ${nameB}`, item: `https://devhunt.org${comparePath(c.a.slug, c.b.slug)}` },
     ],
   };
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      breadcrumbData,
+      ...(faq.length
+        ? [{ '@type': 'FAQPage', mainEntity: faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }]
+        : []),
+    ],
+  };
 
   return (
     <section className="container-custom-screen mt-10 mb-20">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       {tools.filter(t => !t.profile).map(t => (
         <RequestProfile key={t.tool.id} productId={t.tool.id} />
       ))}
@@ -107,6 +137,8 @@ export default async function ComparePage({ params: { pair } }: Params) {
           </Link>
         ))}
       </div>
+
+      <CompareVerdict verdict={verdict} />
 
       <div className="mt-10">
         <SectionLabel title="Side by side" />
@@ -145,18 +177,12 @@ export default async function ComparePage({ params: { pair } }: Params) {
               ) : (
                 <p className="mt-4 text-sm text-slate-500">{tool.slogan}</p>
               )}
-              <div className="mt-5 flex flex-wrap gap-x-4 text-sm">
-                <Link href={`/tool/${tool.slug}`} className="text-orange-400 hover:text-orange-300">
-                  {cleanName(tool.name)} on DevHunt →
-                </Link>
-                <Link href={`/tool/${tool.slug}/alternatives`} className="text-slate-400 hover:text-slate-200">
-                  Alternatives
-                </Link>
-              </div>
             </div>
           );
         })}
       </div>
+      <ComparePairFaq faq={faq} title={`${nameA} vs ${nameB} FAQ`} />
+      <CompareDevHunt tools={devhunt} />
       <p className="mt-14 font-mono text-[11px] text-slate-600">Based on each tool&apos;s website and DevHunt data. Details may change; check the official sites.</p>
     </section>
   );

@@ -17,12 +17,13 @@ export interface CompareProduct {
   votes_count: number;
   is_reference: boolean;
   launch_start: string | null;
+  github_url: string | null;
   pricing: string | null;
   categories: { id: number; name: string }[];
 }
 
 const PRODUCT_COLUMNS =
-  'id, slug, name, slogan, logo_url, demo_url, votes_count, is_reference, launch_start, deleted, moderation, product_pricing_types(title), product_categories(id, name)';
+  'id, slug, name, slogan, logo_url, demo_url, votes_count, is_reference, launch_start, github_url, deleted, moderation, product_pricing_types(title), product_categories(id, name)';
 
 const toCompareProduct = (p: any): CompareProduct => ({
   id: p.id,
@@ -34,6 +35,7 @@ const toCompareProduct = (p: any): CompareProduct => ({
   votes_count: p.votes_count ?? 0,
   is_reference: !!p.is_reference,
   launch_start: p.launch_start,
+  github_url: p.github_url ?? null,
   pricing: p.product_pricing_types?.title ?? null,
   categories: (p.product_categories ?? []).filter((c: any) => c.name !== 'Other'),
 });
