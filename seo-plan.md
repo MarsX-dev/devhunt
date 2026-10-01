@@ -72,6 +72,27 @@ The listings hidden on 2026-09-27 (spicygen, offrobe, hifun, hackaig, crano and 
 
 ---
 
+### 1.5 Ahrefs (connected 2026-10-01)
+
+- **API units ran out:** 799,991 of 800,000 used this cycle; it resets **2026-10-03**. Only free endpoints answered (projects, Site Audit summary). Ahrefs project for DevHunt: `5254791`.
+- **Site Audit health score 0** (crawl of 2026-09-25: 2,032 of 2,042 URLs with errors, 2,035 with warnings). On 2026-10-01, every crawler gets HTTP 200: Googlebot, bingbot, GPTBot, OAI-SearchBot, PerplexityBot, ClaudeBot, AhrefsBot and AhrefsSiteAudit. The Vercel project has no custom firewall rules. Likely cause: the database slowdowns that week (504s), not a permanent block. **Rerun the crawl** after the deploy and read the issue list (`site-audit-issues`, costs units).
+- **Unit budget:** something else is using up 800k units a month (other sites or tools). Agree a monthly budget for DevHunt, roughly 50–100k units for the queries below.
+
+**Queries to run after the reset** (each feeds a section of this plan):
+
+| Query | Ahrefs tool | Feeds |
+|---|---|---|
+| DR, organic keywords and traffic, history | `site-explorer-metrics`, `-metrics-history`, `-domain-rating-history` | Baseline 1.1, progress log |
+| Our keywords at positions 4–20 with volume and KD | `site-explorer-organic-keywords` (where position 4–20) | 5.2 near-page-one list (replaces the Ubersuggest volumes) |
+| Organic competitors and keyword gap vs producthunt.com, alternativeto.net, saashub.com, uneed.best, peerlist.io | `site-explorer-organic-competitors`, `-organic-keywords` per competitor | Section 7: which alternatives, compare and category pages have demand |
+| Their top pages by traffic | `site-explorer-top-pages` on alternativeto.net and saashub.com | Proven page templates and URL patterns for 7 |
+| **Broken backlinks** to devhunt.org (removed tools, old URLs) | `site-explorer-broken-backlinks` | Phase D: 301 still-valuable dead URLs to the closest live page |
+| Referring domains gap (who links to Uneed, Peerlist, Microlaunch but not us) | `site-explorer-referring-domains` per competitor | Phase D link targets |
+| **AI citations of devhunt.org** per platform | `site-explorer-ai-responses-count` | 6.1 baseline (Ahrefs Brand Radar, the dataset behind the playbook's studies) |
+| Brand Radar share of voice: DevHunt vs Product Hunt, Uneed, Peerlist, BetaList | `brand-radar-sov-overview`, `-mentions-overview`, `-cited-pages` | 6.1 measurement; replaces Ubersuggest AISV (its prompts don't fit) |
+| Volume and KD for planned pages ("product hunt alternatives", "where to launch", "mcp servers", "{tool} alternatives") | `keywords-explorer-overview`, `-matching-terms` | 6.2 and 7 priorities |
+| GSC data inside Ahrefs (CTR by position, anonymous queries) | `gsc-ctr-by-position`, `gsc-anonymous-queries` | Title test reading (5.4, gap #8) |
+
 ## 2. Audiences
 
 SEO mostly serves A. C pays. D buys proof of A–C. E is the channel that grows.
