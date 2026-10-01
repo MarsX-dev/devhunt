@@ -171,7 +171,7 @@ SEO mostly serves A. C pays. D buys proof of A–C. E is the channel that grows.
 - Avoid thin copies of the tool's own marketing text. Those look like doorway pages.
 
 **Open decision (John):**
-- [ ] Stay dev-only, or accept "software tools in general"? Today ~18% of query clicks are developer-related; the rest is downloaders and AI media tools. The answer decides which tools get alternatives and compare pages first, and what we pitch sponsors.
+- [x] **Decided 2026-10-01 (John):** non-dev tools stay, but dev tools are the primary topic (reference listings, hubs, alternatives and compare pages focus on dev tools). Original question: stay dev-only, or accept "software tools in general"? Today ~18% of query clicks are developer-related; the rest is downloaders and AI media tools. The answer decides which tools get alternatives and compare pages first, and what we pitch sponsors.
 
 ---
 
@@ -227,7 +227,7 @@ To do:
 - [x] Blog tag and category pages: description, `Page N` in the title, canonical includes `?page=N` (2026-10-01)
 - [x] Footer "Popular categories" row: 12 category hubs linked from every page (2026-10-01)
 - [x] Lighthouse on /tool/yt1d (2026-10-01, desktop): Performance 99, SEO 100, Best Practices 100, Accessibility 90; LCP 0.93s, CLS 0, TTFB 12ms. Speed is not a problem on tool pages. Fixed the flagged issues: an unnamed X link in the footer, and the weekly-email button's label mismatch. Left alone: low-contrast small grey labels (a design call). New Lighthouse "Agentic Browsing" score: 67 (llms.txt passes; no WebMCP tools registered; see A7).
-- [ ] **[C]** Investigate /tool/bootstrap: 69k impressions in 3 days for "+javascript libraries" at pos 2.0 with 0 clicks. Exclude it from trend readings.
+- [ ] **[C]** Investigate /tool/bootstrap: 69k impressions in 3 days for "+javascript libraries" at pos 2.0 with 0 clicks. Exclude it from trend readings. (2026-10-01: SEO Gets' MCP no longer accepts the page and query dimensions, and Ahrefs has no GSC data connected, so drilling in needs the GSC UI: Performance → filter page /tool/bootstrap → Search appearance and Device. **[J]**)
 - [x] Broken links (DataForSEO, 2026-10-01): 119 dead URLs, but nearly all were DevHunt's own old relative links (profile socials like `devhunt.org/x.com/...` and tool URLs without `https://`). Both are already fixed in today's code: live profile and category pages output only absolute links, and no tool description has scheme-less links. They'll drop out as crawlers revisit. No external backlinks point at dead pages, so no redirects are needed.
 
 ## A4. Programmatic pages: gated growth
@@ -350,8 +350,8 @@ Each new template launches with a pilot batch and an indexing check.
   - The old launch banner is injected by a script and only advertises the live week; the badge is a crawlable link that keeps working.
   - Getting makers to embed it is B3.
 - [x] ~~Maker SEO report~~ dropped (2026-10-01): makers won't watch stats on DevHunt.
-- [ ] **[C]** Original stats on hubs and guides (votes, launches, impressions per category). The GEO paper found quotes and statistics raise AI visibility (up to ~40% in its setup).
-- [ ] **[C]** Fold the 508 long (7+ word) GSC queries into hub FAQs; no page per variant.
+- [x] **[C]** (2026-10-01) Category hubs show tool counts, the free/paid split, launches in the last 30 days and top tools by votes; the State of Dev Tools report has the cross-category numbers. Original task: stats on hubs and guides (votes, launches, impressions per category). The GEO paper found quotes and statistics raise AI visibility (up to ~40% in its setup).
+- [x] **[C]** Reviewed 2026-10-01; not doing it now. The long dev queries (no-code/low-code app builders, web analytics, open-source frameworks) land on old blog posts at positions 30–70, not on hubs. Writing FAQ answers for them would be FAQ padding (see Don't do). Revisit once the hubs are live and GSC shows which queries they get. Original task: fold the 508 long (7+ word) GSC queries into hub FAQs; no page per variant.
 
 ## A9. Measurement routine (weekly, ~1 hour)
 
