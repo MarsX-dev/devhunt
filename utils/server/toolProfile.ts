@@ -35,7 +35,10 @@ async function scrape(url: string, withLinks: boolean) {
 export async function githubStats(repo: string | null): Promise<GithubStats | null> {
   if (!repo) return null;
   try {
-    const headers = { Accept: 'application/vnd.github+json', ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) };
+    const headers = {
+      Accept: 'application/vnd.github+json',
+      ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}),
+    };
     const res = await fetch(`https://api.github.com/repos/${repo}`, { headers, signal: AbortSignal.timeout(8000) });
     if (!res.ok) return null;
     const r = await res.json();
@@ -52,32 +55,52 @@ export async function githubStats(repo: string | null): Promise<GithubStats | nu
       pushed_at: r.pushed_at ?? null,
       releases: (Array.isArray(releases) ? releases : [])
         .filter((rel: any) => !rel.draft && rel.published_at)
-        .map((rel: any) => ({ tag: String(rel.tag_name).slice(0, 40), name: rel.name ? String(rel.name).slice(0, 80) : null, published_at: rel.published_at, url: rel.html_url })),
+        .map((rel: any) => ({
+          tag: String(rel.tag_name).slice(0, 40),
+          name: rel.name ? String(rel.name).slice(0, 80) : null,
+          published_at: rel.published_at,
+          url: rel.html_url,
+        })),
     };
   } catch {
     return null;
   }
 }
 
-// The most upvoted launched tools that share a category with this one.
+// The most upvoted launched tools that share a category with this one, plus DevHunt's reference listings
+// (Cursor, Supabase...) in those categories: they have few votes but are the alternatives people compare against.
 async function candidatesFor(productId: number, categoryIds: number[]): Promise<Candidate[]> {
   if (!categoryIds.length) return [];
-  const { data } = await serviceClient
-    .from('products')
-    .select('id, name, slogan, product_category_product!inner(category_id)')
-    .in('product_category_product.category_id', categoryIds)
-    .eq('deleted', false)
-    .eq('moderation', 'ok')
-    .eq('site_status', 'ok')
-    .neq('id', productId)
-    .or('launch_start.not.is.null,is_reference.eq.true') // launched tools and DevHunt's reference listings
-    .order('votes_count', { ascending: false })
-    .limit(40);
+  const query = () =>
+    serviceClient
+      .from('products')
+      .select('id, name, slogan, product_category_product!inner(category_id)')
+      .in('product_category_product.category_id', categoryIds)
+      .eq('deleted', false)
+      .eq('moderation', 'ok')
+      .eq('site_status', 'ok')
+      .neq('id', productId);
+  const [references, launched] = await Promise.all([
+    query().eq('is_reference', true).limit(20),
+    query()
+      .or('launch_start.not.is.null,is_reference.eq.true') // launched tools and DevHunt's reference listings
+      .order('votes_count', { ascending: false })
+      .limit(40),
+  ]);
   const seen = new Set<number>();
-  return ((data ?? []) as any[]).filter(p => !seen.has(p.id) && seen.add(p.id)).map(p => ({ id: p.id, name: p.name, slogan: p.slogan }));
+  return [...((references.data ?? []) as any[]), ...((launched.data ?? []) as any[])]
+    .filter(p => !seen.has(p.id) && seen.add(p.id))
+    .map(p => ({ id: p.id, name: p.name, slogan: p.slogan }));
 }
 
-type Tool = { id: number; name: string; slogan: string | null; description: string | null; demo_url: string | null; github_url: string | null };
+type Tool = {
+  id: number;
+  name: string;
+  slogan: string | null;
+  description: string | null;
+  demo_url: string | null;
+  github_url: string | null;
+};
 
 // Builds and stores the profile for one tool. The caller must have claimed it (claim_tool_profile).
 export async function generateToolProfile(tool: Tool): Promise<{ status: 'ready' | 'failed'; error?: string }> {
@@ -95,14 +118,25 @@ export async function generateToolProfile(tool: Tool): Promise<{ status: 'ready'
     const hasPricing = picked.some(u => /pric|plan/i.test(u));
     // Pricing links often sit in the (stripped) navigation: try /pricing when none was found.
     const [pricingUrl, featuresUrl] = hasPricing ? picked : [`${new URL(site).origin}/pricing`, picked[0]];
-    const read = (max: number, url?: string) => (url ? scrape(url, false).then(p => ({ url, text: cleanMarkdown(p.markdown, max) })).catch(() => null) : null);
+    const read = (max: number, url?: string) =>
+      url
+        ? scrape(url, false)
+            .then(p => ({ url, text: cleanMarkdown(p.markdown, max) }))
+            .catch(() => null)
+        : null;
     const [pricingPage, featuresPage] = await Promise.all([read(16000, pricingUrl), read(6000, featuresUrl)]);
     const extra = [pricingPage, featuresPage].filter((p): p is { url: string; text: string } => !!p && p.text.length > 200);
     const pages = [{ url: site, text: cleanMarkdown(home.markdown, 12000) }, ...extra];
 
-    const { data: cats } = await serviceClient.from('product_category_product').select('category_id, product_categories(name)').eq('product_id', tool.id);
+    const { data: cats } = await serviceClient
+      .from('product_category_product')
+      .select('category_id, product_categories(name)')
+      .eq('product_id', tool.id);
     const categoryIds = ((cats ?? []) as any[]).filter(c => c.product_categories?.name !== OTHER_CATEGORY).map(c => c.category_id);
-    const [candidates, github] = await Promise.all([candidatesFor(tool.id, categoryIds), githubStats(pickGithubRepo(tool.github_url, home.links, tool.name, site))]);
+    const [candidates, github] = await Promise.all([
+      candidatesFor(tool.id, categoryIds),
+      githubStats(pickGithubRepo(tool.github_url, home.links, tool.name, site)),
+    ]);
 
     const sourceText = [tool.name, tool.slogan, tool.description, ...pages.map(p => p.text)].join('\n');
     const pricingText = pricingPage && /pric|plan/i.test(pricingPage.url) ? pricingPage.text : '';
