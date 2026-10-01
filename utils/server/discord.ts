@@ -8,6 +8,8 @@ export interface ModerationInfo {
 
 // Posts the new-tool message; moderated submissions get a clear note for the team.
 export async function announceNewTool(tool: { id?: number; name: string; slug: string }, makerName: string | null, moderation?: ModerationInfo) {
+  // Regular successful launches aren't posted; only moderation outcomes worth a look.
+  if (moderation?.status !== 'blocked' && moderation?.status !== 'not_a_fit') return;
   const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
   if (!webhook) return;
   const link = `https://devhunt.org/tool/${tool.slug}`;
@@ -18,9 +20,7 @@ export async function announceNewTool(tool: { id?: number; name: string; slug: s
       ? `🚫 ${who} was blocked and hidden: looks like **${moderation.reason === 'crypto' ? 'a crypto scam' : moderation.reason}**${
           moderation.topicProbability != null ? ` (${Math.round(moderation.topicProbability * 100)}%)` : ''
         }. Review ${link} - to unblock: \`UPDATE products SET moderation = 'ok', deleted = false WHERE id = ${tool.id};\``
-      : moderation?.status === 'not_a_fit'
-        ? `ℹ️ ${who} is not a developer tool${score}: kept out of the weekly competition, offered a paid listing in "Other". ${link}`
-        : `${who} [open the tool](${link})`;
+      : `ℹ️ ${who} is not a developer tool${score}: kept out of the weekly competition, offered a paid listing in "Other". ${link}`;
   await fetch(webhook, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
