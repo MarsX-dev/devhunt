@@ -380,6 +380,8 @@ Each new template launches with a pilot batch and an indexing check.
 
 These need other people: their sites, their communities, their editors. Ordered by expected value from the research.
 
+**Status 2026-10-01:** targets researched; drafts for B1, B2, B3, B5 and B6 are in `outreach/drafts.md`, which is kept out of git because it holds third-party contacts. Nothing has been sent; each send needs John's OK. Findings: 13 of the 15 B2 domains already list DevHunt or are dead, so the real gap is about 7 free launch boards plus 3 add requests. GrayGrids (#1 for "product hunt alternatives for developers") omits DevHunt; LaunchList describes DevHunt incorrectly. Only 3 of the top 48 recent makers' sites link back, which is the case for the badge email. Done in code: the winners email now links to the real badge code; Organization `sameAs` includes @devhunt_.
+
 ## B1. Get onto the pages AI already cites
 
 Google's AI Overview for "product hunt alternatives" names DevHunt via **pinggy.io**, and also cites startupa.ge, smollaunch.com and a Reddit r/startups thread.
