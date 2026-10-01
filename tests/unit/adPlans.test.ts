@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isRecurring, monthlySaving, planLabel, planPrice, weeklyPlan } from '@/utils/ads';
+import { isRecurring, monthlySaving, planLabel, planPrice, viewsEstimate, weeklyPlan } from '@/utils/ads';
 
 describe('ad plans', () => {
   it('prices a week and a month of each product', () => {
@@ -16,5 +16,14 @@ describe('ad plans', () => {
   });
   it('monthly is cheaper than 4 weeks', () => {
     for (const k of ['rail', 'inline', 'newsletter'] as const) expect(monthlySaving(k)).toBeGreaterThan(10);
+  });
+});
+
+describe('views estimate', () => {
+  it('follows the plan', () => {
+    expect(viewsEstimate('rail', 'weekly')).toBe('~20K–45K views a week');
+    expect(viewsEstimate('inline', 'monthly')).toBe('~14K–28K views a month');
+    expect(viewsEstimate('newsletter', 'single')).toBe('40K inboxes');
+    expect(viewsEstimate('newsletter', 'monthly')).toBe('160K inboxes a month');
   });
 });

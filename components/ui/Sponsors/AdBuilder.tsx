@@ -9,7 +9,7 @@ import ProgressTerminal from '@/components/ui/ProgressTerminal';
 import { PENDING_KEY, type PendingAd } from '@/components/ui/Sponsors/AdResume';
 import fileUploader from '@/utils/supabase/fileUploader';
 import { trackStep } from '@/utils/funnelClient';
-import { AD_KINDS, AD_PRODUCTS, REFUND_HOURS, isAdKind, isRecurring, monthlySaving, planPrice, spotsLeft, weeklyPlan, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_KINDS, AD_PRODUCTS, REFUND_HOURS, isAdKind, isRecurring, monthlySaving, planPrice, spotsLeft, viewsEstimate, weeklyPlan, type AdKind, type AdPlan } from '@/utils/ads';
 
 // The ad builder at the top of /advertise: enter a URL, all three ads get written, switch on the ones
 // to buy (right column), edit, pay. Anyone can fill it in; signing in is asked for at "Generate", and the choices survive
@@ -401,11 +401,18 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
                 <AdPlacement kind={k} ad={generated} />
               </div>
               {generated && on ? (
-                <div className="mt-3" onClick={e => e.stopPropagation()}>
+                <div className="relative mt-4" onClick={e => e.stopPropagation()}>
                   <Preview ad={generated} />
+                  <span className="absolute -top-2.5 right-2 rounded-full bg-slate-950 px-2 py-0.5 font-mono text-[10px] text-orange-200 ring-1 ring-orange-500/40">
+                    {viewsEstimate(k, planOf(k))}
+                  </span>
                 </div>
               ) : (
                 <ul className="mt-2 space-y-0.5 text-sm text-slate-400">
+                  <li className="flex gap-1.5 text-orange-200">
+                    <span className="text-orange-400">✓</span>
+                    {viewsEstimate(k, planOf(k))}
+                  </li>
                   {p.where.map(w => (
                     <li key={w} className="flex gap-1.5">
                       <span className="text-orange-400">✓</span>

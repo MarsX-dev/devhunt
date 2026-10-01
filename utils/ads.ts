@@ -31,7 +31,7 @@ export const AD_PRODUCTS: Record<AdKind, AdProduct> = {
     price: 999,
     slots: 1,
     per: '4 editions',
-    where: ['Top of the weekly email to 40,000 developers', 'Banner, headline and description', 'Sent every Wednesday'],
+    where: ['At the top of the weekly email', 'Banner, headline and description', 'Sent every Wednesday'],
   },
 };
 
@@ -51,6 +51,18 @@ export const planLabel = (kind: AdKind, plan: AdPlan = 'monthly') =>
   isRecurring(kind, plan)
     ? `$${planPrice(kind, plan)}/month${AD_PRODUCTS[kind].per ? ` · ${AD_PRODUCTS[kind].per}` : ''}`
     : `$${planPrice(kind, plan)} once · ${plan === 'single' ? '1 edition' : '1 week'}`;
+// Expected views for a booking, from the live ads' impressions (2026-09-28..30 full days: a sidebar
+// card ~3.2K-6.9K a day, an inline row ~0.5K-1K a day) and the newsletter list. Update as data grows.
+const WEEKLY_VIEWS: Record<AdKind, [number, number]> = { rail: [20_000, 45_000], inline: [3_500, 7_000], newsletter: [40_000, 40_000] }; // newsletter: AUDIENCE.newsletterSubscribers
+const k = (n: number) => (n >= 1000 ? `${Math.round(n / 100) / 10}K`.replace('.0K', 'K') : String(n));
+export function viewsEstimate(kind: AdKind, plan: AdPlan) {
+  const weeks = plan === 'monthly' ? 4 : 1;
+  const [lo, hi] = WEEKLY_VIEWS[kind].map(n => n * weeks);
+  const per = plan === 'monthly' ? ' a month' : plan === 'single' ? '' : ' a week';
+  if (kind === 'newsletter') return `${k(lo)} inboxes${per}`;
+  return `~${k(lo)}–${k(hi)} views${per}`;
+}
+
 // Saving of monthly against 4 one-time weeks, in percent.
 export const monthlySaving = (kind: AdKind) => Math.round((1 - AD_PRODUCTS[kind].price / (4 * WEEKLY_PRICE[kind])) * 100);
 
