@@ -366,7 +366,7 @@ export default () => {
                   <div className="mt-3 text-sm text-slate-100 font-medium">
                     *To pick your launch week (and get a dofollow backlink) you need to pay{' '}
                     <a href={`/account/tools/activate-launch/${slug}?from=edit_week`} className="underline text-orange-500">
-                      Upgrade for $49
+                      Upgrade from $19
                     </a>
                   </div>
                 )}

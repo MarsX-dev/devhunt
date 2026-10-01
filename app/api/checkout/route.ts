@@ -5,17 +5,20 @@ import { getRouteUser } from '@/utils/server/auth';
 import { requestContext, trackFunnel } from '@/utils/server/funnel';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { LAUNCH_PRICE_ID, stripe } from '@/utils/server/stripe';
+import { LAUNCH_TIERS, isLaunchTier } from '@/utils/launchTiers';
 import { logPaymentEvent } from '@/utils/server/paymentLog';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
 export const dynamic = 'force-dynamic';
 
-// Starts a Stripe Checkout for a paid launch of the caller's own tool in the chosen week.
+// Starts a Stripe Checkout for a paid launch of the caller's own tool in the chosen week, as a
+// boosted ($49, default) or basic ($19) launch.
 export async function POST(req: Request) {
   const user = await getRouteUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { productId, week } = (await req.json().catch(() => ({}))) as { productId?: number; week?: string };
+  const { productId, week, tier: rawTier } = (await req.json().catch(() => ({}))) as { productId?: number; week?: string; tier?: string };
+  const tier = isLaunchTier(rawTier) ? rawTier : 'boost';
   const { data: product } = await serviceClient
     .from('products')
     .select('id, slug, name, owner_id, isPaid, paid_launch_date, deleted')
@@ -39,7 +42,11 @@ export async function POST(req: Request) {
   try {
     session = await stripe().checkout.sessions.create({
       mode: 'payment',
-      line_items: [{ price: LAUNCH_PRICE_ID, quantity: 1 }],
+      line_items: [
+        tier === 'boost'
+          ? { price: LAUNCH_PRICE_ID, quantity: 1 }
+          : { price_data: { currency: 'usd', unit_amount: LAUNCH_TIERS.basic.price * 100, product_data: { name: `DevHunt launch: ${product.name}` } }, quantity: 1 },
+      ],
       allow_promotion_codes: true,
       // Local-currency pricing (Adaptive Pricing) makes Checkout reject promotion codes, so charge in USD.
       adaptive_pricing: { enabled: false },
@@ -48,6 +55,7 @@ export async function POST(req: Request) {
       metadata: {
         product_id: String(product.id),
         user_id: user.id,
+        tier,
         week: String(target.week),
         week_start: target.startDate,
         week_end: target.endDate,
@@ -80,13 +88,13 @@ export async function POST(req: Request) {
     userId: user.id,
     amountTotal: session.amount_total,
     currency: session.currency,
-    details: { week: target.week, week_start: target.startDate, tool: product.slug },
+    details: { week: target.week, week_start: target.startDate, tool: product.slug, tier },
   });
   await trackFunnel({
     step: 'checkout_started',
     userId: user.id,
     productId: product.id,
-    props: { week: target.startDate, amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, stripe_session: session.id, tool: product.slug },
+    props: { week: target.startDate, amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, stripe_session: session.id, tool: product.slug, tier },
   });
   return NextResponse.json({ url: session.url });
 }

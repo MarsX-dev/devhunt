@@ -19,6 +19,6 @@ describe('dofollow upsell email', () => {
     expect(m.html).toContain('This is the last one.');
     expect(m.html).not.toContain('home page spotlight');
     expect(m.html).toContain('newsletter to 40,000+ developers');
-    expect(m.html).toContain('Upgrade for $49');
+    expect(m.html).toContain('Upgrade from $19');
   });
 });

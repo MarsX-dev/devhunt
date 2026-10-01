@@ -12,7 +12,7 @@ const DAY = 86400000;
 // One email only, to tools submitted 1-3 days ago (the window covers missed runs). No follow-up: we don't nag.
 const STAGES: { stage: UpsellStage; from: number; to: number }[] = [{ stage: 'day1', from: 3, to: 1 }];
 
-// Free submissions still unpaid: tell the owner their link is nofollow and offer the $49 upgrade.
+// Free submissions still unpaid: tell the owner their link is nofollow and offer a paid launch (from $19).
 // Each person gets it once ever, keyed by email in cron_sends (even with several free tools). ?dry=1 lists who would get what, without sending.
 // Not behind the EMAIL_CRONS_ENABLED switch: no old system sends this one.
 export const GET = cronRoute(JOB, async () => {

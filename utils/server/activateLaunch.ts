@@ -4,6 +4,7 @@ import { supabase as serviceClient } from '@/utils/supabase/services/supabaseCli
 import { isCheckoutPaid, resolvePaidWeek, type PlannedWeek } from '@/utils/launchPlanning';
 import { getUpcomingWeeks } from '@/utils/server/launchWeeks';
 import { logPaymentEvent, notifyPaymentDiscord } from '@/utils/server/paymentLog';
+import { LAUNCH_TIERS, isLaunchTier } from '@/utils/launchTiers';
 
 export type ActivationResult =
   | { status: 'activated' | 'already-activated'; productId: number; launchStart: string }
@@ -36,7 +37,7 @@ export async function activateFromCheckoutSession(session: Stripe.Checkout.Sessi
         productId: result.productId,
         visitorId: session.metadata?.visitor_id || null,
         sessionId: session.metadata?.session_id || null,
-        props: { amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, week: session.metadata?.week_start, via: source, promo: !!session.total_details?.amount_discount },
+        props: { amount: (session.amount_total ?? 0) / 100, currency: session.currency ?? undefined, week: session.metadata?.week_start, via: source, tier: session.metadata?.tier ?? 'boost', promo: !!session.total_details?.amount_discount },
       });
       const { data: tool } = await serviceClient.from('products').select('name, slug').eq('id', result.productId).single();
       await notifyPaymentDiscord('paid', {
@@ -46,6 +47,7 @@ export async function activateFromCheckoutSession(session: Stripe.Checkout.Sessi
         amount: session.amount_total,
         currency: session.currency,
         launchStart: result.launchStart,
+        tier: session.metadata?.tier === 'basic' ? '$19, no tweet' : '$49 boost',
       });
     }
     return result;
@@ -91,10 +93,13 @@ async function activate(session: Stripe.Checkout.Session): Promise<ActivationRes
     throw new Error(`payments insert failed: ${insertError.message}`);
   }
 
+  const metaTier = session.metadata?.tier;
+  const tier = isLaunchTier(metaTier) ? metaTier : 'boost'; // sessions before tiers were all $49
   const { error: updateError } = await serviceClient
     .from('products')
     .update({
       isPaid: true,
+      launch_tier: LAUNCH_TIERS[tier].rank,
       paid_launch_date: target,
       launch_date: target.startDate,
       launch_start: target.startDate,

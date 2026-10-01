@@ -57,7 +57,7 @@ export default ({ label, value, className = '', validate, setAllWeeks = () => {}
         )}
         {weeks.map(i => (
           <option key={weekKey(i.startDate)} value={weekKey(i.startDate)}>{`${moment.utc(i.startDate).format('LL')} - ${moment.utc(i.endDate).format('LL')} (${i.count} tools) ${
-            i.count < 15 ? '- Free' : '- $49'
+            i.count < 15 ? '- Free' : '- from $19'
           }`}</option>
         ))}
       </select>

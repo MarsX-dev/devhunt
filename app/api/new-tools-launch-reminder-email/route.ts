@@ -28,6 +28,7 @@ export const GET = cronRoute('new-tools-launch-reminder-email', async () => {
     .eq('deleted', false)
     .gte('launch_start', startDate.toISOString())
     .lte('launch_start', endDate.toISOString())
+    .order('launch_tier', { ascending: false })
     .order('created_at', { ascending: true });
   const html = renderNewToolsLaunchReminderEmail(
     products.map(p => ({

@@ -1,4 +1,4 @@
-// Upsell for free submissions: their link is nofollow; $49 gets a dofollow backlink (and, for tools in
+// Upsell for free submissions: their link is nofollow; a paid launch (from $19) gets a dofollow backlink (and, for tools in
 // the free queue, a launch in one of the next weeks). Sent by /api/cron/dofollow-upsell-email, 1 and 7
 // days after submitting, only while the tool is still unpaid.
 
@@ -41,7 +41,7 @@ export function renderUpsellEmail(input: UpsellInput): { subject: string; html: 
           'A home page spotlight and a spot in our morning newsletter',
           'A rich launch page with your awards, reviews and press',
         ]),
-    'One-time $49, no subscription',
+    'One-time, from $19, no subscription',
   ];
 
   const subject =
@@ -49,8 +49,8 @@ export function renderUpsellEmail(input: UpsellInput): { subject: string; html: 
   const intro =
     input.stage === 'day1'
       ? `${where} One thing you should know: free listings link to your site with <code>rel="nofollow"</code>, so search engines don't count them as a backlink.`
-      : `Quick last note about ${tool}: its DevHunt link is still nofollow, so it passes no SEO value to your site. Here's what $49 changes:`;
-  const cta = 'Upgrade for $49';
+      : `Quick last note about ${tool}: its DevHunt link is still nofollow, so it passes no SEO value to your site. Here's what a paid launch (from $19) changes:`;
+  const cta = 'Upgrade from $19';
 
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${escape(subject)}</title></head>

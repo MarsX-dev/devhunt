@@ -38,13 +38,13 @@ const money = (amount?: number | null, currency?: string | null) =>
   amount == null ? '' : `${(amount / 100).toFixed(2)} ${(currency ?? 'usd').toUpperCase()}`;
 
 // Posts a payment notification to the Discord channel in DISCORD_PAYMENTS_WEBHOOK.
-export async function notifyPaymentDiscord(kind: 'paid' | 'failed', info: { toolName?: string | null; toolSlug?: string | null; email?: string | null; amount?: number | null; currency?: string | null; reason?: string; launchStart?: string | null }) {
+export async function notifyPaymentDiscord(kind: 'paid' | 'failed', info: { toolName?: string | null; toolSlug?: string | null; email?: string | null; amount?: number | null; currency?: string | null; reason?: string; launchStart?: string | null; tier?: string }) {
   const webhook = process.env.DISCORD_PAYMENTS_WEBHOOK;
   if (!webhook) return;
   const tool = info.toolSlug ? `[${info.toolName ?? info.toolSlug}](https://devhunt.org/tool/${info.toolSlug})` : info.toolName ?? 'unknown tool';
   const content =
     kind === 'paid'
-      ? `✅ **Paid launch** ${money(info.amount, info.currency)}: ${tool}${info.email ? ` by ${info.email}` : ''}${info.launchStart ? `, launches ${info.launchStart.slice(0, 10)}` : ''}`
+      ? `✅ **Paid launch** ${money(info.amount, info.currency)}${info.tier ? ` (${info.tier})` : ''}: ${tool}${info.email ? ` by ${info.email}` : ''}${info.launchStart ? `, launches ${info.launchStart.slice(0, 10)}` : ''}`
       : `❌ **Payment failed** ${money(info.amount, info.currency)}: ${tool}${info.email ? ` by ${info.email}` : ''}${info.reason ? ` (${info.reason})` : ''}`;
   await fetch(webhook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, allowed_mentions: { parse: [] } }) }).catch(err =>
     console.error(`[payments] discord notify failed: ${(err as Error).message}`),

@@ -44,7 +44,7 @@ export const getHomeData = unstable_cache(
         .eq('deleted', false)
         .lte('launch_start', nowIso)
         .gte('launch_end', nowIso)
-        .order('isPaid', { ascending: false })
+        .order('launch_tier', { ascending: false })
         .order('created_at', { ascending: true })
         .limit(60),
     ]);

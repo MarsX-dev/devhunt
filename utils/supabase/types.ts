@@ -427,6 +427,7 @@ export type Database = {
           votes_count: number;
           week: number | null;
           isPaid: boolean;
+          launch_tier: number;
           paid_launch_date?: {
             week: number;
             startDate: string;
@@ -460,6 +461,7 @@ export type Database = {
           votes_count?: number;
           week?: number | null;
           isPaid?: boolean;
+          launch_tier?: number;
           paid_launch_date?: {
             week: number;
             startDate: string;
@@ -493,6 +495,7 @@ export type Database = {
           votes_count?: number;
           week?: number | null;
           isPaid?: boolean;
+          launch_tier?: number;
           paid_launch_date?: {
             week: number;
             startDate: string;

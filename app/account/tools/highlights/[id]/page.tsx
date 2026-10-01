@@ -180,7 +180,7 @@ export default function ToolHighlights({ params: { id } }: { params: { id: strin
           <p className="font-medium text-slate-100">Rich launch pages come with paid launches</p>
           <p className="mt-1 text-sm text-slate-400">Pick a launch week and we&apos;ll add your awards, reviews and press to your page.</p>
           <Link href={`/account/tools/activate-launch/${tool.slug}`} className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400">
-            Launch for $49
+            Launch from $19
           </Link>
         </div>
       ) : (

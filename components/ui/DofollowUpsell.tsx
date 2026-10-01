@@ -13,7 +13,7 @@ export interface UpsellTool {
   moderation?: string | null;
 }
 
-// Free listings link out with rel="nofollow"; $49 (the paid launch) makes it dofollow. Shown to the
+// Free listings link out with rel="nofollow"; a paid launch (from $19) makes it dofollow. Shown to the
 // tool's owner only, in their dashboard, edit page and on their own tool page. `from` says where, for
 // the funnel (upsell_click, then launch_view on the launch page).
 export default function DofollowUpsell({ tool, from, compact = false }: { tool: UpsellTool; from: string; compact?: boolean }) {
@@ -24,10 +24,10 @@ export default function DofollowUpsell({ tool, from, compact = false }: { tool: 
   const track = () => trackStep('upsell_click', { from, queued }, tool.id);
 
   const pitch = listedOnly
-    ? 'Get a dofollow backlink from DevHunt (DR 65), a spot in our newsletter and a post on X for $49, one time.'
+    ? 'Get a dofollow backlink from DevHunt (DR 65), and a spot in our newsletter from $19, one time.'
     : queued
-      ? `Get a dofollow backlink from DevHunt (DR 65) and launch in a week you pick instead of ${moment.utc(tool.launch_start).format('MMM D, YYYY')}. $49, one time.`
-      : 'Get a dofollow backlink from DevHunt (DR 65) and a new launch week with a home page spotlight. $49, one time.';
+      ? `Get a dofollow backlink from DevHunt (DR 65) and launch in a week you pick instead of ${moment.utc(tool.launch_start).format('MMM D, YYYY')}. From $19, one time.`
+      : 'Get a dofollow backlink from DevHunt (DR 65) and a new launch week with a home page spotlight. From $19, one time.';
 
   if (compact)
     return (

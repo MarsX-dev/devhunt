@@ -19,7 +19,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Is launching on DevHunt free?',
-    a: 'Yes. Listing a tool is free, and free tools are given a launch week from the queue. A paid launch costs $49 once: you choose any launch week, get a home page spotlight, and your link becomes dofollow.',
+    a: 'Yes. Listing a tool is free, and free tools are given a launch week from the queue. A paid launch costs $19 once: you choose any launch week, get a spot in the newsletter, and your link becomes dofollow. For $49 it is boosted: on equal votes it is listed above $19 and free launches, on the site and in the weekly email, and gets its own post on X.',
   },
   {
     q: 'How does voting work?',

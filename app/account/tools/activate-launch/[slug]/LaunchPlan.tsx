@@ -6,13 +6,14 @@ import axios from 'axios';
 import { trackStep } from '@/utils/funnelClient';
 import moment from 'moment';
 import Link from 'next/link';
-import { Check, Home, Link2, Mail, Trophy, Twitter } from 'lucide-react';
+import { ArrowUp, Check, Home, Link2, Mail, Trophy, Twitter } from 'lucide-react';
 import { IconLoading } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import { OFFER_FREE_LAUNCH, weekKey } from '@/utils/launchWeeks';
 import { prefetchRoute } from '@/utils/prefetch';
+import { LAUNCH_TIERS, type LaunchTier } from '@/utils/launchTiers';
 import { type StatsSummary } from '@/utils/publicStats';
 import { type LaunchShowcase, type ShowcaseTool } from '@/utils/launchShowcase';
 
@@ -33,6 +34,13 @@ const PAID_WEEKS = 4;
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-US');
 // Rounded for ranges: 5,137 -> 5K, 1,035 -> 1K, 22,979 -> 23K.
 const approx = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}K` : fmtNum(Math.round(n / 100) * 100));
+// How far off a free queue date is, in words ("about 3 years"): a date years away reads like a typo.
+function queueWait(launchStart: string) {
+  const months = moment.utc(launchStart).diff(moment.utc(), 'months');
+  if (months < 12) return `about ${Math.max(months, 1)} month${months > 1 ? 's' : ''}`;
+  const years = Math.round(months / 12);
+  return `about ${years} year${years > 1 ? 's' : ''}`;
+}
 const short = (n: number) => (n >= 100_000 ? new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n) : fmtNum(n));
 
 // Fallback numbers for the pitch when the live showcase is unavailable (from the database on
@@ -165,13 +173,21 @@ function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase
       </p>
     ),
   };
+  const boost: Perk = {
+    icon: ArrowUp,
+    stat: 'Boosted',
+    title: 'to the top of the list',
+    body: other
+      ? 'Boosted tools are listed first in "Also launching this week", on the home page and in the newsletter, ahead of $19 and free listings.'
+      : `Lists are ranked by votes, and on equal votes boosted tools come first, then $19 launches, then free ones. Every tool starts its week with one vote, from its maker, so a boosted launch opens the week at the top of the home page, and leads the email that announces the week's launches to ${users} ${audience}.`,
+  };
   const backlink: Perk = {
     icon: Link2,
     stat: `DR ${DOMAIN_RATING}`,
     title: 'dofollow backlink, for good',
     body: `A dofollow link from a DR ${DOMAIN_RATING} site usually costs $150+ on its own. It helps you rank in Google and get cited by ChatGPT, Perplexity and other AI answers. Free listings get nofollow, which passes nothing.`,
   };
-  if (other) return [newsletter, x, backlink];
+  if (other) return [boost, newsletter, x, backlink];
   return [
     {
       icon: Trophy,
@@ -180,6 +196,7 @@ function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase
       body: "Top-3 tools stay on the home page under Past winners for a year, and the #1 of the week stays there for good, so the impressions keep coming long after launch week. Here's where the best ones are now:",
       extra: <Examples tools={winners.best} label="Top-3 tools, impressions so far" />,
     },
+    boost,
     {
       icon: Home,
       stat: `${approx(paid.low)}–${approx(paid.high)} impressions`,
@@ -193,8 +210,8 @@ function buildPerks({ showcase, users, other, tool }: { showcase: LaunchShowcase
   ];
 }
 
-// Next step after submitting a tool (and the "Skip the queue" page): keep the free launch date, or
-// pay $49 to launch in one of the next 4 weeks. The launch is only marked as paid by the server
+// Next step after submitting a tool (and the "Skip the queue" page): pay $49 for a boosted launch or
+// $19 for a basic one in one of the next 4 weeks, or do nothing and keep the free queue date. The launch is only marked as paid by the server
 // after Stripe confirms the payment.
 export default function LaunchPlan({
   params: { slug },
@@ -219,6 +236,7 @@ export default function LaunchPlan({
   const [weeks, setWeeks] = useState<Week[]>([]);
   const [week, setWeek] = useState<string>(searchParams?.get('week') ?? '');
   const [status, setStatus] = useState<'loading' | 'ready' | 'redirecting' | 'confirming' | 'activated' | 'error'>('loading');
+  const [paying, setPaying] = useState<LaunchTier>('boost');
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
@@ -298,11 +316,12 @@ export default function LaunchPlan({
     }
   }, [session, load]);
 
-  const pay = async () => {
+  const pay = async (tier: LaunchTier) => {
     if (!tool) return;
+    setPaying(tier);
     setStatus('redirecting');
     try {
-      const { data } = await axios.post('/api/checkout', { productId: tool.id, week: week || undefined });
+      const { data } = await axios.post('/api/checkout', { productId: tool.id, week: week || undefined, tier });
       window.location.href = data.url;
     } catch (err: any) {
       setError(err?.response?.data?.error ?? 'Could not start the payment, please try again.');
@@ -320,6 +339,7 @@ export default function LaunchPlan({
   // "Other" tools (not for developers) don't compete: they launch free in their own queue, and pay for reach.
   const other = tool?.moderation === 'not_a_fit';
   const freeDate = (OFFER_FREE_LAUNCH || other) && tool && new Date(tool.launch_start) > new Date() ? moment.utc(tool.launch_start) : null;
+  const queued = !!tool && new Date(tool.launch_start) > new Date();
   const perks = tool ? buildPerks({ showcase, users, other, tool }) : [];
   const audience = other ? 'users' : 'startup builders and developers';
   const paidDate = week ? moment.utc(week).format('MMM D') : null;
@@ -452,11 +472,12 @@ export default function LaunchPlan({
             <div className="md:sticky md:top-24 md:self-start">
               <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
                 <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-medium text-slate-300">Pick your launch week</p>
+                  <p className="text-sm font-medium text-slate-300">Boosted launch</p>
                   <p className="text-slate-50">
-                    <span className="text-2xl font-semibold">$49</span> <span className="text-sm text-slate-500">one-time</span>
+                    <span className="text-2xl font-semibold">${LAUNCH_TIERS.boost.price}</span> <span className="text-sm text-slate-500">one-time</span>
                   </p>
                 </div>
+                <p className="mt-3 text-xs font-medium text-slate-400">Pick your launch week</p>
                 <fieldset className="mt-3 divide-y divide-slate-800/70" aria-label="Launch week">
                   {weeks.map((w, idx) => {
                     const key = weekKey(w.startDate);
@@ -481,17 +502,18 @@ export default function LaunchPlan({
                   })}
                 </fieldset>
                 <button
-                  onClick={() => void pay()}
+                  onClick={() => void pay('boost')}
                   disabled={!week || status === 'redirecting'}
                   className="mt-4 w-full rounded-lg bg-orange-500 px-4 py-3 font-semibold text-white transition-colors hover:bg-orange-400 disabled:opacity-50"
                 >
-                  {status === 'redirecting' ? 'Opening secure checkout...' : `Launch on ${paidDate ?? 'your week'} for $49`}
+                  {status === 'redirecting' && paying === 'boost' ? 'Opening secure checkout...' : `Launch on ${paidDate ?? 'your week'} for $${LAUNCH_TIERS.boost.price}`}
                 </button>
                 <ul className="mt-4 space-y-1.5 text-xs text-slate-400">
                   {[
+                    other ? 'Listed first, above $19 and free listings' : 'On top on equal votes, on the site and in the email',
                     other ? 'A launch week you pick' : 'Home page for the whole week',
                     `Newsletter to ${users} ${audience}`,
-                    `Post on X to ${PERKS.xFollowers} followers`,
+                    `Dedicated post on X to ${PERKS.xFollowers} followers`,
                     `Dofollow backlink, DR ${DOMAIN_RATING}`,
                   ].map(
                     item => (
@@ -505,26 +527,28 @@ export default function LaunchPlan({
               </div>
 
               <div className="mt-5 text-center">
-                {freeDate
+                <button
+                  onClick={() => void pay('basic')}
+                  disabled={!week || status === 'redirecting'}
+                  className="text-sm text-slate-300 underline underline-offset-4 decoration-slate-600 hover:text-slate-100 hover:decoration-slate-400 disabled:opacity-50"
+                >
+                  {status === 'redirecting' && paying === 'basic' ? 'Opening secure checkout...' : `List without a boost for $${LAUNCH_TIERS.basic.price}`}
+                </button>
+                <p className="mt-1 text-xs text-slate-500">Same week, newsletter and dofollow link. No boost, no dedicated post on X.</p>
+                {freeDate && other
                   ? (
-                  <button
-                    onClick={keepFree}
-                    disabled={status === 'redirecting'}
-                    className="text-sm text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline disabled:opacity-50"
-                  >
-                    {other ? `Keep the free listing on ${freeDate.format('LL')}` : `Launch for free on ${freeDate.format('LL')}`}
+                  <button onClick={keepFree} disabled={status === 'redirecting'} className="mt-6 text-xs text-slate-600 hover:text-slate-400 disabled:opacity-50">
+                    Or keep the free listing on {freeDate.format('LL')}: one line on the home page, a nofollow link.
                   </button>
                     )
                   : (
-                  <Link href="/account/tools" className="text-sm text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline">
-                    Not now
-                  </Link>
+                  <p className="mt-6 text-xs text-slate-600">
+                    {queued ? `Free tools wait in the queue, ${queueWait(tool.launch_start)} right now, with a nofollow link.` : 'Free listings get a nofollow link.'}{' '}
+                    <button onClick={keepFree} disabled={status === 'redirecting'} className="underline underline-offset-2 hover:text-slate-400 disabled:opacity-50">
+                      {queued ? 'Keep my free spot' : 'Not now'}
+                    </button>
+                  </p>
                     )}
-                <p className="mt-1 text-xs text-slate-600">
-                  {other
-                    ? 'Free: one line on the home page for that week, a nofollow link, no newsletter or X post.'
-                    : 'Free listings get a nofollow link and no newsletter or X post.'}
-                </p>
               </div>
             </div>
           </div>
