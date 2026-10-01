@@ -30,6 +30,7 @@ const ACTION: Record<string, { label: string; cls: string }> = {
   blocked: { label: 'blocked', cls: 'text-red-300' },
   shadow: { label: 'shadow-blocked', cls: 'text-amber-300' },
   not_a_fit: { label: 'not a dev tool', cls: 'text-slate-400' },
+  unblocked: { label: 'unblocked', cls: 'text-emerald-300' },
 };
 const fmt = (n: number) => Number(n).toLocaleString('en-US');
 
@@ -65,7 +66,7 @@ export default async function ModerationReport({ days }: { days: number }) {
                   </span>
                   <span className="min-w-0 text-slate-300">
                     {e.slug ? (
-                      <Link href={`/tool/${e.slug}`} className="text-slate-100 underline decoration-slate-700 underline-offset-2">
+                      <Link href={e.action === 'blocked' ? `/admin/tool/${e.slug}` : `/tool/${e.slug}`} className="text-slate-100 underline decoration-slate-700 underline-offset-2">
                         {e.subject}
                       </Link>
                     ) : (

@@ -189,7 +189,7 @@ Owners: **[C]** Claude can do it in this repo or with the connected tools; **[J]
 ## A0. Ship what's built
 
 - [x] Pushed to `origin main` 2026-10-01 after a clean `next build` of the committed tree (ad395ed…9638e41). **[J]** sync the Vercel fork to deploy.
-- [ ] **[C]** Title test and server-rendered "Trending launches" are written but sit in the uncommitted tool-page refactor (`app/tool/[slug]/ToolPageView.tsx`). They ship when that refactor is committed. Check they're in the deploy.
+- [x] Title test (11 tools) and server-rendered "Trending launches" committed with the tool-page refactor (2026-10-01).
 - [ ] **[C]** After deploy, check live: `/sitemap.xml` index, `/sitemaps/compare.xml` (~689 URLs), noindex on an ungated comparison, IndexNow cron runs (Vercel cron logs).
 
 ## A1. Account settings (one-time clicks)
@@ -223,7 +223,7 @@ Done (verified 2026-10-01):
 - [x] All major crawlers get HTTP 200 (Googlebot, bingbot, GPTBot, OAI-SearchBot, PerplexityBot, ClaudeBot, Ahrefs)
 
 To do:
-- [ ] **[C]** BreadcrumbList on tool, category and compare pages; ItemList on categories (for rich results only). Waiting: tool and category pages are being edited in another session.
+- [x] BreadcrumbList on tool (DevHunt > category > tool), category and compare pages; ItemList on categories (2026-10-01)
 - [x] Blog tag and category pages: description, `Page N` in the title, canonical includes `?page=N` (2026-10-01)
 - [x] Footer "Popular categories" row: 12 category hubs linked from every page (2026-10-01)
 - [x] Lighthouse on /tool/yt1d (2026-10-01, desktop): Performance 99, SEO 100, Best Practices 100, Accessibility 90; LCP 0.93s, CLS 0, TTFB 12ms. Speed is not a problem on tool pages. Fixed the flagged issues: an unnamed X link in the footer, and the weekly-email button's label mismatch. Left alone: low-contrast small grey labels (a design call). New Lighthouse "Agentic Browsing" score: 67 (llms.txt passes; no WebMCP tools registered; see A7).
@@ -308,7 +308,7 @@ Each new template launches with a pilot batch and an indexing check.
 
 | Page | For | Demand / notes | Done |
 |---|---|---|---|
-| "Best {category} tools ({year})" hubs: upgrade `/tools/{slug}` | Tool evaluators | e.g. "ai coding assistant" 18,100 / KD 37, "best ai agents" 1,900 / KD 21, "best ai coding tools" 720 / KD 24. Intro, method, table, FAQ, our stats. | [ ] |
+| "Best {category} tools ({year})" hubs: upgrade `/tools/{slug}` | Tool evaluators | **Done 2026-10-01:** page 1 of all 46 categories. Title "Best {X} Tools in {year}"; data summary (top 3 linked, free/paid split, launches in the last 30 days, top free tools, "updated {month}" from the latest launch); FAQ from our data; FAQPage + ItemList + BreadcrumbList. One cached query set per category per hour. Next: AI coding assistants as its own hub ("ai coding assistant" 18,100 / KD 37). | [x] |
 | Alternatives for well-known dev tools | Tool evaluators | A4 pilot | [ ] |
 | Free / open-source alternatives to X | Tool evaluators | "open source alternatives" 880 / KD 15; only tools with ≥3 matches | [ ] |
 | MCP: `has_mcp` field, `/mcp` hub, "{tool} MCP server" sections | Tool evaluators, AI | "mcp servers" 60,500 but owned by directories → go after the long tail ("best mcp servers" 880 / KD 14, "awesome mcp servers" 880 / KD 8) | [ ] |

@@ -76,8 +76,19 @@ export default async function ComparePage({ params: { pair } }: Params) {
   ];
   const rows = allRows.filter(row => tools.some(({ tool, profile }) => row.value(tool, profile) !== '—'));
 
+  const breadcrumbData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'DevHunt', item: 'https://devhunt.org/' },
+      { '@type': 'ListItem', position: 2, name: nameA, item: `https://devhunt.org/tool/${c.a.slug}` },
+      { '@type': 'ListItem', position: 3, name: `${nameA} vs ${nameB}`, item: `https://devhunt.org${comparePath(c.a.slug, c.b.slug)}` },
+    ],
+  };
+
   return (
     <section className="container-custom-screen mt-10 mb-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData).replace(/</g, '\\u003c') }} />
       {tools.filter(t => !t.profile).map(t => (
         <RequestProfile key={t.tool.id} productId={t.tool.id} />
       ))}

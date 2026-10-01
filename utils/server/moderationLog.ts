@@ -3,7 +3,7 @@ import { supabase as serviceClient } from '@/utils/supabase/services/supabaseCli
 // Every moderation decision that stopped or downgraded something, for /admin/analytics (the matching
 // Discord alert is sent by the caller). Never throws: logging must not break the request.
 export type ModerationKind = 'tool_submission' | 'tool_edit' | 'comment' | 'comment_edit' | 'ad' | 'ad_edit';
-export type ModerationAction = 'refused' | 'blocked' | 'not_a_fit' | 'shadow';
+export type ModerationAction = 'refused' | 'blocked' | 'not_a_fit' | 'shadow' | 'unblocked'; // unblocked: by the team
 
 export async function logModeration(entry: {
   kind: ModerationKind;

@@ -45,7 +45,7 @@ export default function TrendingToolsList({ excludeId, initial }: { excludeId?: 
   return (
     <ol className="mt-2">
       {tools.map(({ tool, rank }, idx) => [
-        sponsorBefore(idx, tools.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, tools.length)} />,
+        sponsorBefore(idx, tools.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, tools.length)} rank="row" />,
         <ToolRow key={tool.id} tool={tool} rank={rank} revealIndex={idx} />,
       ])}
     </ol>

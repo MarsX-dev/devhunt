@@ -36,7 +36,7 @@ export default async function Page({ searchParams }: { searchParams: { page?: st
       </PageHeader>
       <ol className="mt-10 mb-4">
         {rows.map((tool, idx) => [
-          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} />,
+          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} rank="row" rankDigits={String(page * LIST_PAGE_SIZE).length} />,
           <ToolRow
             key={tool.id}
             tool={tool}

@@ -10,6 +10,8 @@ import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import CategoryService from '@/utils/supabase/services/categories';
 import { getLeaderboardPage, LIST_PAGE_SIZE, pageFromParam } from '@/utils/toolLists';
+import { getCategoryHubStats } from '@/utils/categoryHub';
+import { CategoryHubFaq, CategoryHubIntro, categoryFaq, categoryJsonLd } from '@/components/ui/CategoryHub';
 
 type Params = { params: { slug: string }; searchParams: { page?: string } };
 
@@ -20,7 +22,8 @@ export async function generateMetadata({ params: { slug }, searchParams }: Param
   const name = getOriginalSlug(slug);
   if (!name) return { title: '404: This page could not be found.', description: '' };
   const page = pageFromParam(searchParams?.page);
-  const title = `Best ${name} Tools${page > 1 ? ` - Page ${page}` : ''} | DevHunt`;
+  // Page 1 carries the year (the ranking and its facts update with every launch); later pages are plain lists.
+  const title = page > 1 ? `Best ${name} Tools - Page ${page} | DevHunt` : `Best ${name} Tools in ${new Date().getUTCFullYear()} | DevHunt`;
   const shareImage = { url: `https://devhunt.org/api/og/category/${slug}`, width: 1200, height: 630, alt: title };
   const description = `${categoryDescription(name)} The best ${name} dev tools launched on DevHunt, ranked by developer upvotes.`;
   return {
@@ -45,16 +48,26 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
   const { rows, total } = await getLeaderboardPage(page, category.id);
   const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
   if (page > totalPages) notFound();
+  // Page 1 is the category hub: a data summary, an FAQ and structured data (components/ui/CategoryHub).
+  const hub = page === 1 ? { name: categoryName, slug, total, top: rows, stats: await getCategoryHubStats(category.id) } : null;
+  const faq = hub ? categoryFaq(hub) : [];
 
   return (
     <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      {hub && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryJsonLd({ name: categoryName, slug, top: rows, faq })).replace(/</g, '\\u003c') }}
+        />
+      )}
       <PageHeader eyebrow="Category" title={`Best ${categoryName} tools`}>
         {categoryDescription(categoryName)} {total.toLocaleString('en-US')} tools, ranked by upvotes from the community.
       </PageHeader>
+      {hub && <CategoryHubIntro {...hub} />}
       <MonitizorAdCards />
       <ol className="mt-10 mb-4">
         {rows.map((tool, idx) => [
-          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} />,
+          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} rank="row" rankDigits={String(page * LIST_PAGE_SIZE).length} />,
           <ToolRow
             key={tool.id}
             tool={tool}
@@ -66,6 +79,7 @@ export default async function CategoryPage({ params: { slug }, searchParams }: P
         ])}
       </ol>
       <ListPagination basePath={`/tools/${slug}`} page={page} totalPages={totalPages} />
+      {hub && <CategoryHubFaq faq={faq} name={categoryName} />}
       <div className="mb-16" />
     </section>
   );

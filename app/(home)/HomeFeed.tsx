@@ -83,7 +83,7 @@ export default function HomeFeed({
         <div id="TA_AD_CONTAINER"></div> */}
         {sponsorBefore(3, contestants.length) >= 0 && (
           <ul className="border-t border-slate-800/70 py-1">
-            <InlineSponsor />
+            <InlineSponsor rank="card" />
           </ul>
         )}
         {contestants.length > 3 && (
@@ -92,7 +92,7 @@ export default function HomeFeed({
             {contestants.slice(3).map((product, i) => {
               const idx = i + 3;
               const n = idx > 3 ? sponsorBefore(idx, contestants.length) : -1;
-              return [n >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={n} className="py-1" />, card(product, idx)];
+              return [n >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={n} rank="card" className="py-1" />, card(product, idx)];
             })}
           </ol>
         )}

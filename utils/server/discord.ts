@@ -12,14 +12,15 @@ export async function announceNewTool(tool: { id?: number; name: string; slug: s
   if (moderation?.status !== 'blocked' && moderation?.status !== 'not_a_fit') return;
   const webhook = process.env.DISCORD_TOOL_WEBHOOK ?? process.env.DISCOR_TOOL_WEBHOOK;
   if (!webhook) return;
-  const link = `https://devhunt.org/tool/${tool.slug}`;
+  // Blocked tools are a 404 on /tool; the admin view shows them with an Unblock button.
+  const link = `https://devhunt.org/${moderation?.status === 'blocked' ? 'admin/' : ''}tool/${tool.slug}`;
   const who = `**${tool.name}** by ${makerName ?? 'someone'}`;
   const score = moderation?.devToolScore != null ? ` (dev-tool score ${moderation.devToolScore.toFixed(2)})` : '';
   const content =
     moderation?.status === 'blocked'
       ? `🚫 ${who} was blocked and hidden: looks like **${moderation.reason === 'crypto' ? 'a crypto scam' : moderation.reason}**${
           moderation.topicProbability != null ? ` (${Math.round(moderation.topicProbability * 100)}%)` : ''
-        }. Review ${link} - to unblock: \`UPDATE products SET moderation = 'ok', deleted = false WHERE id = ${tool.id};\``
+        }. Review and unblock: ${link}`
       : `ℹ️ ${who} is not a developer tool${score}: kept out of the weekly competition, offered a paid listing in "Other". ${link}`;
   await fetch(webhook, {
     method: 'POST',

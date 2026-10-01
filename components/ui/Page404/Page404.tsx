@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import AdminToolRedirect from './AdminToolRedirect';
 
 export default () => {
   return (
     <main>
+      <AdminToolRedirect />
       <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-start h-screen md:px-8">
         <div className="max-w-lg mx-auto space-y-3 text-center">
           <h3 className="text-orange-500 font-semibold">404 Error</h3>
