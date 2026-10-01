@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import moment from 'moment';
 import SectionLabel from '@/components/ui/SectionLabel';
+import FunnelDaily from './FunnelDaily';
 import { FUNNEL_STEPS, MAIN_PATH } from '@/utils/funnel';
 import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 
@@ -94,6 +95,8 @@ export default async function FunnelReport({ days, step: picked }: { days: numbe
         </p>
         {selected && people && <StepPeople step={selected} people={people} days={days} />}
       </div>
+
+      <FunnelDaily days={days} />
 
       {!!f.countries.length && (
         <div>
