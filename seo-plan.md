@@ -93,6 +93,66 @@ The listings hidden on 2026-09-27 (spicygen, offrobe, hifun, hackaig, crano and 
 | Volume and KD for planned pages ("product hunt alternatives", "where to launch", "mcp servers", "{tool} alternatives") | `keywords-explorer-overview`, `-matching-terms` | 6.2 and 7 priorities |
 | GSC data inside Ahrefs (CTR by position, anonymous queries) | `gsc-ctr-by-position`, `gsc-anonymous-queries` | Title test reading (5.4, gap #8) |
 
+### 1.6 DataForSEO research (2026-10-01, US, Google)
+
+**Domain**
+- 1,457 ranked keywords, est. ~2,740 organic visits/mo (DataForSEO's model, lower than Ubersuggest's 13.9k). Distribution: 16 in the top 3, 83 at positions 4–10, **295 at 11–20**, 303 at 21–30. Churn: 760 new, 1,296 lost.
+- Backlinks: 1,716 referring domains, 52k backlinks, spam score 10 (target 14). **39k of 52k backlinks sit in footers**, mostly site-wide badges, so few links point deep.
+
+**AI visibility**
+- **ChatGPT mentions: DevHunt 6, Product Hunt 926.** Product Hunt is cited mainly through its **product pages** (798 times as a search-result domain), the same page type as our `/tool/*`. Tool pages are our GEO asset; making them the best-sourced page about each tool (pricing, alternatives, votes, real comments) is the AI play too.
+- **Google AI Overview for "product hunt alternatives" already lists DevHunt** ("a weekly launch platform built explicitly for developer tools"). It cites pinggy.io's listicle, not our site. Proof that off-site mentions drive AI answers. The overview also cites startupa.ge, smollaunch.com and a Reddit r/startups thread; organic results include Reddit, apify, launchvault, peerlist, clickup and producthunt.com. **DevHunt's own site isn't in the top 10.**
+
+**Near page one (positions 4–20, by US volume; 678 keywords in range)**
+
+| Keyword (cluster) | US vol | KD | Pos | Page |
+|---|---|---|---|---|
+| onlinegdb | 12,100 | 3 | 7 | /blog/debug-code-anywhere-with-online-gdb-debuggers |
+| visualgpt | 14,800 | 8 | 20 | /tool/visualgpt |
+| image describer | 12,100 | 30 | 11 | /tool/image-describer |
+| reddit list / redditlist | 8,100 + 8,100 | 3–14 | 8–11 | /tool/reddit-list |
+| GitHub Student Pack cluster (6 variants) | ~25k combined | 22–49 | 15–20 | /blog/github-student-pack-getting-started |
+| Safari dev tools cluster (~20 variants, 1,300–1,600 each) | ~30k combined | 10–37 | 8–20 | 3 overlapping Safari posts (merge into one) |
+| easy comment (+ ai) | 9,900 + 5,400 | n/a | 8–10 | easycomment tool |
+| namso gen | 8,100 | 3–5 | 12–14 | /tool/namso-gen (**check moderation**: a test credit card number generator, close to the fraud rule) |
+| android software development kit | 4,400 | 44 | 15 | android SDK post |
+| facewow face swap | 4,400 | 9 | 19 | /tool/facewow |
+
+**Demand for planned pages (US monthly volume / KD)**
+
+| Keyword | Vol | KD | Read |
+|---|---|---|---|
+| mcp servers | 60,500 | 34 | Head term owned by dedicated directories (mcpservers.org lists 9,800+ servers; mcp.so, GitHub). Go after the long tail ("{tool} mcp server", "best mcp servers" 880/KD 14, "awesome mcp servers" 880/KD 8), not the head term. |
+| ai coding assistant | 18,100 | 37 | Category hub "AI coding assistants" |
+| github student developer pack | 8,100 | 38 | Merged guide (5.3) |
+| best ai agents | 1,900 | 21 | Category hub |
+| dev tools | 1,900 | 27 | Homepage / category hubs |
+| notion alternatives | 1,600 | n/a | Alternatives template, if Notion-like tools are listed |
+| cursor alternatives | 1,000 | **5** | Alternatives template: **"{well-known dev tool} alternatives" is low-KD and high-intent** |
+| supabase alternatives | 880 | n/a | same |
+| open source alternatives | 880 | 15 | "Open-source alternatives" hub (7) |
+| postman alternatives | 720 | **2** | same |
+| vercel alternatives | 720 | n/a | same |
+| best ai coding tools | 720 | 24 | Category hub |
+| firebase alternatives | 320 | n/a | same |
+| product hunt alternative(s) | 110 | n/a | Small volume, but drives the AI Overview above: get onto the cited listicles first |
+| startup / saas directories | 140 each | 14 | Low |
+| "how to launch a saas", "submit your startup", "new developer tools" | 10–20 | n/a | **No search demand.** Launch guides serve makers via links and AI answers, not Google volume. |
+
+**Link gap:** 247 domains link to all of Uneed, Microlaunch, Peerlist, BetaList and SaaSHub but not to DevHunt. Top ones by rank:
+
+- Launch lists and directories: clakr.com, shouldiuse.io, robuta.com, vibelaunched.com, launchpointzero.com, growstartup.co, launch-list.org, saaslaunch.site, launching.best, toolfound.com, saascity.io, topsaasdirectories.com, bootstraparena.com, makerhunt.io, agentlaun.ch
+- Communities: indiehackers.com, dev.to, beehiiv.com
+
+Many are self-serve "submit your product" lists, so they're the quickest wins. Skip spammy ones (e.g. ainsfwbots.com, link farms).
+
+**What changes in the plan**
+1. **New pilot for alternatives pages: well-known dev tools** (Cursor, Postman, Supabase, Vercel, Firebase, Notion...). KD 2–5 and real volume, unlike most of our listed tools. Needs those tools to exist as listings (or a "popular tools" seed list) with real alternatives from DevHunt. Add to section 7.
+2. **Product Hunt alternatives: off-site first.** Ask to be added to or upgraded in pinggy.io, startupa.ge, smollaunch.com, launchvault.dev, clickup's list and the Reddit threads (honestly, from John's account). Only then our own comparison page.
+3. **MCP:** long tail plus per-tool "{tool} MCP server" pages, not a head-term directory race.
+4. **Quick wins in 5.2:** onlinegdb (KD 3, pos 7), reddit-list (KD 3–14, pos 8–11), visualgpt (KD 8, pos 20), and merging the Safari and GitHub Student Pack clusters.
+5. **Moderation check:** namso-gen (credit card number generator) against the fraud rule.
+
 ## 2. Audiences
 
 SEO mostly serves A. C pays. D buys proof of A–C. E is the channel that grows.
@@ -361,7 +421,7 @@ From Google's docs plus the playbook's anti-patterns.
 | Date | Clicks/day (28d avg) | Ubersuggest KW (US) | Est. US traffic | DA | Ref domains | AI visibility | Notes |
 |---|---|---|---|---|---|---|---|
 | 2026-09-26 | ~405 | 5,360 | 11,141 | 31 | 1,681 | 0% | Baseline |
-| 2026-10-01 | ~435 | 6,086 | 13,863 | 31 | 1,700 | 0% (wrong prompts) | 48 NSFW hidden; 6.2k compare/alternatives URLs added; bootstrap anomaly |
+| 2026-10-01 | ~435 | 6,086 (DFS: 1,457) | 13,863 (DFS: ~2,740) | 31 | 1,700 (DFS: 1,716) | 0% Ubersuggest; ChatGPT mentions 6 vs PH 926 (DFS) | 48 NSFW hidden; 6.2k compare/alternatives URLs added; bootstrap anomaly |
 
 ## 12. Changelog
 
