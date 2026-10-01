@@ -43,8 +43,8 @@ const TOPIC_QUESTION = {
   instructions:
     'Which of these best describes what the product itself does? Judge what the product is, not the topics it deals with: a tool that detects, blocks or reports scams, fraud, spam or abuse is a normal product.',
   criteria: {
-    none: 'A normal legitimate product, including security, anti-fraud, anti-scam, anti-spam and trust & safety tools, and developer tooling for blockchains, payments or security',
-    crypto: 'Cryptocurrency trading, tokens, coins, NFT or airdrop promotion, crypto investing or yield schemes',
+    none: 'A normal legitimate product, including security, anti-fraud, anti-scam, anti-spam and trust & safety tools, developer tooling for blockchains, payments or security, and legitimate crypto businesses: wallets, exchanges, web3 SDKs and platforms (e.g. thirdweb, Coinbase, Alchemy), block explorers, market data, price trackers, portfolio and tax tools',
+    crypto: 'A crypto scam or likely scam: promoting or selling a specific token, coin, memecoin, presale, ICO or NFT drop, airdrop or giveaway farming, pump signals, guaranteed or high-yield returns, crypto investment or trading bots promising profits, mining or staking schemes, wallet drainers or seed-phrase collectors',
     gambling: 'Gambling, betting, casinos, lotteries or sweepstakes',
     adult: 'Adult or sexual content, dating for sex, NSFW generators',
     fraud: 'The product itself deceives or harms people: scams, selling fake reviews or followers, spam services, phishing, account or document selling, get-rich-quick schemes',

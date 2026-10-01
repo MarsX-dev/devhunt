@@ -15,7 +15,7 @@ export async function announceNewTool(tool: { id?: number; name: string; slug: s
   const score = moderation?.devToolScore != null ? ` (dev-tool score ${moderation.devToolScore.toFixed(2)})` : '';
   const content =
     moderation?.status === 'blocked'
-      ? `🚫 ${who} was blocked and hidden: looks like **${moderation.reason}**${
+      ? `🚫 ${who} was blocked and hidden: looks like **${moderation.reason === 'crypto' ? 'a crypto scam' : moderation.reason}**${
           moderation.topicProbability != null ? ` (${Math.round(moderation.topicProbability * 100)}%)` : ''
         }. Review ${link} - to unblock: \`UPDATE products SET moderation = 'ok', deleted = false WHERE id = ${tool.id};\``
       : moderation?.status === 'not_a_fit'
