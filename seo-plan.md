@@ -313,7 +313,7 @@ Each new template launches with a pilot batch and an indexing check.
 | Free / open-source alternatives to X | Tool evaluators | "open source alternatives" 880 / KD 15; only tools with ≥3 matches | [ ] |
 | MCP: `has_mcp` field, `/mcp` hub, "{tool} MCP server" sections | Tool evaluators, AI | "mcp servers" 60,500 but owned by directories → go after the long tail ("best mcp servers" 880 / KD 14, "awesome mcp servers" 880 / KD 8) | [ ] |
 | Pricing / "is X free" as a tool-page section (not new URLs) | Tool evaluators | High intent | [ ] |
-| Monthly roundups `/best/{yyyy}/{mm}` | Developers, makers | Our winners and vote data | [ ] |
+| Monthly roundups `/best/{yyyy}/{mm}` | Developers, makers | **Done 2026-10-01:** `/best` index plus 34 months (Jan 2024 → now). Each has the top 30 launches by votes, the weekly top-3 winners, top categories, prev/next links, ItemList + Breadcrumb JSON-LD. In the sitemap and footer. Months with <10 launches are noindexed. | [x] |
 | State of Dev Tools report (quarterly) | Developers, sponsors, AI | Original data, the citation and link asset | [ ] |
 | "Product Hunt alternatives for developers" page | Makers, AI | 110 searches/month; the AI Overview already names DevHunt via others' listicles. Build ours with honest tables and our numbers. | [ ] |
 | Launch guides (where / how to launch a dev tool) | Makers | Almost no Google demand; serves makers via links and AI answers | [ ] |

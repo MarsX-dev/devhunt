@@ -1,6 +1,7 @@
 import categories from '@/utils/categories';
 import { type SitemapFile, SITEMAP_FILES, pagesEntries, toolEntries, urlsetXml } from '@/utils/sitemap';
 import { getLiveTools, getProgrammaticEntries } from '@/utils/sitemapData';
+import { allMonths, monthPath } from '@/utils/roundups';
 
 // The parts of the /sitemap.xml index: /sitemaps/pages.xml, /sitemaps/tools.xml, /sitemaps/compare.xml.
 // Regenerated hourly instead of once per build.
@@ -12,7 +13,7 @@ export function generateStaticParams() {
 
 async function entries(file: SitemapFile) {
   const tools = await getLiveTools();
-  if (file === 'pages') return pagesEntries(tools, categories.map(c => c.name));
+  if (file === 'pages') return [...pagesEntries(tools, categories.map(c => c.name)), { path: '/best' }, ...allMonths().map(m => ({ path: monthPath(m) }))];
   if (file === 'tools') return toolEntries(tools);
   return await getProgrammaticEntries(new Set(tools.map(t => t.slug)));
 }

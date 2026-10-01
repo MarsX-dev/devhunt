@@ -98,3 +98,20 @@ describe('DevHunt badge', () => {
     expect(badgeSvg({})).toMatch(/^<svg[^>]+role="img"/);
   });
 });
+
+describe('monthly roundups', () => {
+  it('lists months from January 2024 to now, newest first, and parses only those', async () => {
+    const { allMonths, parseMonth, monthPath, monthName } = await import('@/utils/roundups');
+    const now = new Date(Date.UTC(2026, 9, 1)); // October 2026
+    const months = allMonths(now);
+    expect(months[0]).toEqual({ year: 2026, month: 10 });
+    expect(months[months.length - 1]).toEqual({ year: 2024, month: 1 });
+    expect(months).toHaveLength(34);
+    expect(parseMonth('2026', '09', now)).toEqual({ year: 2026, month: 9 });
+    expect(parseMonth('2026', '11', now)).toBeNull();
+    expect(parseMonth('2023', '12', now)).toBeNull();
+    expect(parseMonth('2026', '9', now)).toBeNull();
+    expect(monthPath({ year: 2026, month: 9 })).toBe('/best/2026/09');
+    expect(monthName({ year: 2026, month: 9 })).toBe('September 2026');
+  });
+});
