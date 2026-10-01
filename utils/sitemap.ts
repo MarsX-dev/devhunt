@@ -10,6 +10,7 @@ export const STATIC_PATHS = [
   '/stats',
   '/advertise',
   '/reports/state-of-dev-tools-2026',
+  '/product-hunt-alternatives',
   '/blog',
   '/oss-friends',
   '/best-dev-tools-this-week-on-product-hunt',
