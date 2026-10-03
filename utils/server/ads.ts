@@ -1,6 +1,6 @@
 import type Stripe from 'stripe';
 import { revalidatePath } from 'next/cache';
-import { AD_PRODUCTS, AUDIENCE, LIVE_STATUSES, REFUND_MS, WEEK_DAYS, isRecurring, planLabel, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_PRODUCTS, AUDIENCE, LIVE_STATUSES, REFUND_FEE_PCT, REFUND_MS, WEEK_DAYS, isRecurring, planLabel, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 import { type EmailSponsorAdConfig } from '@/utils/email-templates/email-sponsor-ad';
 import { groqJson } from '@/utils/server/enrich';
 import { jevAsk } from '@/utils/server/jev';
@@ -326,18 +326,12 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
   }
 }
 
-// Refunds a payment minus the processing fee Stripe charged on it (Stripe keeps that fee on refunds,
-// so a full refund would cost us the fee). The fee is in our balance currency; converted back to the
-// charge currency with the transaction's exchange rate.
+// Refunds a payment minus a flat REFUND_FEE_PCT, which covers the processing fee Stripe keeps on refunds.
 async function refundMinusFee(intentId: string, metadata: Record<string, string>) {
-  const intent = await stripe().paymentIntents.retrieve(intentId, { expand: ['latest_charge.balance_transaction'] });
-  const charge = intent.latest_charge as Stripe.Charge | null;
-  const tx = charge?.balance_transaction as Stripe.BalanceTransaction | null | undefined;
-  if (!charge || !tx || typeof tx === 'string') throw new Error('payment has no balance transaction yet');
-  const fee = Math.ceil(tx.fee / (tx.exchange_rate ?? 1));
-  const amount = charge.amount - charge.amount_refunded - fee;
+  const intent = await stripe().paymentIntents.retrieve(intentId);
+  const amount = Math.floor(intent.amount_received * (1 - REFUND_FEE_PCT / 100));
   if (amount <= 0) return { refunded: 0 };
-  const refund = await stripe().refunds.create({ payment_intent: intentId, amount, metadata: { ...metadata, fee_kept: String(fee) } });
+  const refund = await stripe().refunds.create({ payment_intent: intentId, amount, metadata });
   return { refunded: refund.amount };
 }
 

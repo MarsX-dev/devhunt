@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import PageHeader from '@/components/ui/PageHeader';
 import AdBuilder from '@/components/ui/Sponsors/AdBuilder';
-import { AUDIENCE, REFUND_HOURS } from '@/utils/ads';
+import { AUDIENCE, REFUND_FEE_PCT, REFUND_HOURS } from '@/utils/ads';
 import { availability } from '@/utils/server/ads';
 import { formatStat, getSiteStats, DOMAIN_RATING } from '@/utils/siteStats';
 
@@ -112,7 +112,7 @@ export default async function AdvertisePitch() {
         </div>
         <div>
           <h3 className="font-semibold text-slate-100">Refund within {REFUND_HOURS} hours</h3>
-          <p className="mt-1">Not happy? Get your money back, minus Stripe&apos;s processing fee (usually 3-5%), which Stripe doesn&apos;t return to us. Weekly ads never renew.</p>
+          <p className="mt-1">Not happy? Get your money back, minus {REFUND_FEE_PCT}% for Stripe&apos;s processing fee, which Stripe doesn&apos;t return to us. Weekly ads never renew.</p>
         </div>
       </div>
     </section>
