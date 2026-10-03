@@ -1,8 +1,9 @@
 import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 import ProductsService from '@/utils/supabase/services/products';
 import { upvoteLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
-import { createBrowserClient } from '@/utils/supabase/browser';
+import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import upvoteNotificationEmailTemplate from '@/utils/email-templates/upvote-notification-email-template';
 import { Resend } from 'resend';
 
@@ -40,7 +41,9 @@ function buildUpvoteEmailHtml(params: { productName: string; voterName: string; 
     .replace(/\{\{unsubscribeUrl\}\}/g, 'https://devhunt.org/newsletter/unsubscribe');
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
+  if (!isAuthorizedCron(request)) return new NextResponse('Unauthorized', { status: 401 });
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error('upvote-notification: RESEND_API_KEY is not set');
@@ -51,7 +54,7 @@ export async function POST(_request: NextRequest) {
 
   console.log('Upvote notification Works');
 
-  const productsService = new ProductsService(createBrowserClient());
+  const productsService = new ProductsService(serviceClient as any);
   const initUpvoteLogsService = await upvoteLogsService();
 
   const dayAgo = moment().add(-2, 'day').toDate();

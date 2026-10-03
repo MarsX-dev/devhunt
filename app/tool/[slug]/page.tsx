@@ -1,51 +1,70 @@
-import { IconVote, IconChartBar, IconArrowTopRight, IconFire } from '@/components/Icons';
 import dynamic from 'next/dynamic';
-import ButtonUpvote from '@/components/ui/ButtonUpvote';
-import { Gallery, GalleryImage } from '@/components/ui/Gallery';
-import LinkShiny from '@/components/ui/LinkShiny';
-import ProductLogo from '@/components/ui/ToolCard/Tool.Logo';
-import { Stat, StatsWrapper, StatCountItem, StatItem } from '@/components/ui/Stats';
+import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
+import { MediaGrid } from '@/components/ui/Gallery';
 import { Tabs } from '@/components/ui/TabsLink';
 
-const TabLink = dynamic(() => import('@/components/ui/TabsLink/TabLink'), { ssr: false });
-import { Tag, TagsGroup } from '@/components/ui/TagsGroup';
-import Title from '@/components/ui/ToolCard/Tool.Title';
-import ProductsService from '@/utils/supabase/services/products';
-import CommentService from '@/utils/supabase/services/comments';
+// Rendered on the server so the tab bar has its height from the first paint.
+import TabLink from '@/components/ui/TabsLink/TabLink';
 import CommentSection from '@/components/ui/Client/CommentSection';
-import { createServerClient } from '@/utils/supabase/server';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import AwardsService from '@/utils/supabase/services/awards';
+import { getWeekRank } from '@/utils/weekRank';
+import { getToolPageData } from '@/utils/toolPageData';
 import { type Metadata } from 'next';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import Link from 'next/link';
-import ProfileService from '@/utils/supabase/services/profile';
-import customDateFromNow from '@/utils/customDateFromNow';
-import Page404 from '@/components/ui/Page404/Page404';
-import addHttpsToUrl from '@/utils/addHttpsToUrl';
+import { notFound } from 'next/navigation';
 
-const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), { ssr: false });
-import WinnerBadge from '@/components/ui/WinnerBadge';
-import handleURLQuery from '@/utils/handleURLQuery';
-import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
+const TrendingToolsList = dynamic(() => import('@/components/ui/TrendingToolsList'), {
+  ssr: false,
+  loading: () => <RowsSkeleton rows={8} className="mt-2" ranked />,
+});
 import { Profile } from '@/utils/supabase/types';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
+import ToolHero, { ToolMaker } from '@/components/ui/ToolHero';
+import SectionLabel from '@/components/ui/SectionLabel';
+import { ToolAwards, ToolHighlights, ToolMentions, ToolReviews } from '@/components/ui/ToolExtras';
+import { sectionShown } from '@/utils/toolProfile';
+import { ProfileSource, cleanName, ToolCompare, ToolFaq, ToolFeatures, ToolGlance, ToolPricing, faqJsonLd } from '@/components/ui/ToolProfile';
+import RequestProfile from '@/components/ui/ToolProfile/RequestProfile';
+import TrackToolView from '@/components/ui/TrackToolView';
+import { OwnerDofollowUpsell } from '@/components/ui/DofollowUpsell';
+import { getRecentActivity } from '@/utils/recentActivity';
+import { type ProductType } from '@/type';
+import { usableVideoUrl } from '@/utils/demoVideo';
+import { withLinkRels } from '@/utils/links';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
+// Cached after the first visit (CDN); nothing is built ahead. Next 14 caches a not-found page with its
+// 404 status (13.5 cached it as 200, so this page used to render on every request).
 export const revalidate = 60;
+export async function generateStaticParams() {
+  return [];
+}
+
+const addHttps = (url: string) => (/^https?:\/\//i.test(url) ? url : `https://${url}`);
+
+// Slogan plus the start of the description, as plain text up to ~160 characters.
+function metaDescription(slogan?: string | null, description?: string | null) {
+  const text = (description ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const full = [slogan?.trim(), text].filter(Boolean).join(' - ');
+  if (full.length <= 160) return full;
+  const cut = full.slice(0, 157);
+  return `${cut.slice(0, cut.lastIndexOf(' '))}...`;
+}
 
 // set dynamic metadata
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-  const supabaseClient = createServerClient();
-  const productsService = new ProductsService(supabaseClient);
-  const tool = await productsService.getBySlug(slug);
+  const tool = (await getToolPageData(slug))?.product;
+  if (!tool) return { title: 'Page not found - Dev Hunt' };
 
+  const description = metaDescription(tool.slogan, tool.description);
+  // Branded card with the first screenshot (app/api/og/tool).
+  const shareImage = { url: `https://devhunt.org/api/og/tool/${encodeURIComponent(slug)}`, width: 1200, height: 630, alt: `${tool.name} on DevHunt` };
   return {
     title: `${tool?.name} - ${tool?.slogan}`,
-    description: tool?.slogan,
+    description,
     metadataBase: new URL('https://devhunt.org'),
     alternates: {
       canonical: `/tool/${slug}`,
@@ -53,213 +72,144 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
     openGraph: {
       type: 'article',
       title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan ?? '',
-      images: tool?.asset_urls ?? [],
+      description,
+      images: [shareImage],
       url: `https://devhunt.org/tool/${slug}`,
     },
     twitter: {
       title: `${tool?.name} - ${tool?.slogan}`,
-      description: tool?.slogan ?? '',
+      description,
       card: 'summary_large_image',
-      images: tool?.asset_urls ?? [],
+      images: [shareImage],
     },
   };
 }
 
 export default async function Page({ params: { slug } }: { params: { slug: string } }): Promise<JSX.Element> {
-  // const supabaseBrowserClient = createServerClient();
-  const supabaseBrowserClient = createBrowserClient();
+  // Hidden tools (website dead or hijacked) are a 404 (the owner sees why in their dashboard): the page
+  // is the same for everyone, so it can't depend on who is signed in.
+  const data = await getToolPageData(slug);
+  if (!data) notFound();
+  const { product, owner: owned, comments, extras, profile } = data;
 
-  const supabase = await createServerClient();
-  const { data, error } = await supabase.auth.getUser();
-
-  const productsService = new ProductsService(supabaseBrowserClient);
-  const product = await productsService.getBySlug(slug, true);
-  if (!product || product.deleted) return <Page404 />;
-
-  const awardService = new AwardsService(supabaseBrowserClient);
-  const commentService = new CommentService(supabaseBrowserClient);
-
-  const owned$ = new ProfileService(supabaseBrowserClient).getById(product.owner_id as string);
-  const toolAward$ = awardService.getProductRanks(product.id);
-  const comments$ = commentService.getByProductId(product.id);
-
-  const [owned, weekAward, comments] = await Promise.all([owned$, toolAward$, comments$]);
-  const isLaunchStarted = new Date(product.launch_date).getTime() <= Date.now();
-  const isLaunchEnd = new Date(product.launch_end as string).getTime() <= Date.now();
+  const [weekRank, activity] = await Promise.all([getWeekRank(product), getRecentActivity()]);
+  const pricingTitle: string | null = (product as any).product_pricing_types?.title ?? null;
+  const votesToday = activity?.votes_today?.[product.id] ?? 0;
 
   const tabs = [
-    {
-      name: 'About product',
-      hash: '#',
-    },
-    {
-      name: 'Comments',
-      hash: '#comments',
-    },
-    {
-      name: 'Launch details',
-      hash: '#details',
-    },
-    {
-      name: 'Related launches',
-      hash: '#launches',
-    },
+    // Comments come first on the page (visitors read them most), right under the tabs. The tab carries
+    // the count, so the section itself needs no heading.
+    { name: 'Comments', hash: '#comments', isActive: true, count: product.comments_count ?? 0 },
+    { name: 'About', hash: '#description' },
+    ...(profile?.data.features.length && sectionShown(profile.data, 'features') ? [{ name: 'Features', hash: '#features' }] : []),
+    ...(profile?.compare.length && sectionShown(profile.data, 'compare') ? [{ name: 'Alternatives', hash: '#compare' }] : []),
+    { name: 'Maker', hash: '#details' },
+    { name: 'Trending', hash: '#launches' },
   ];
 
-  const stats = [
-    {
-      count: product.votes_count,
-      icon: <IconVote />,
-      label: 'Upvotes',
-    },
-    {
-      count: product.views_count,
-      icon: <IconFire />,
-      label: 'Impressions',
-    },
-    // TODO add calculation of rank in week and day
-    // {
-    //   count: `#${dayAward?.rank}`,
-    //   icon: <IconChartBar />,
-    //   label: 'Day rank',
-    // },
-    {
-      count: `#${(weekAward[0] as any)?.rank}`,
-      icon: <IconChartBar />,
-      label: 'Week rank',
-    },
-  ];
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: product.name,
+    description: metaDescription(product.slogan, product.description),
+    url: `https://devhunt.org/tool/${product.slug}`,
+    sameAs: product.demo_url ? [addHttps(product.demo_url)] : undefined,
+    image: product.logo_url ?? undefined,
+    screenshot: product.asset_urls?.[0] ?? undefined,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web',
+    ...(pricingTitle === 'Free' ? { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } } : {}),
+    ...(profile?.data.features.length ? { featureList: profile.data.features.map(f => f.title) } : {}),
+  };
+  const faqData = profile ? faqJsonLd(profile) : null;
 
   return (
-    <section className="mt-20 pb-10">
-      <div className="container-custom-screen" id="about">
-        <div className="flex items-center justify-between">
-          <ProductLogo src={product?.logo_url} alt={product?.slogan as string} />
-          <WinnerBadge weekRank={(weekAward[0] as any)?.rank} isLaunchEnd={isLaunchEnd} />
-        </div>
-        <h1 className="mt-3 text-slate-100 font-medium">{product?.name}</h1>
-        <Title className="mt-1">{product?.slogan}</Title>
-        {/* {!product.isPaid && data?.user?.id == product.owner_id ? (
-          <div
-            className="mt-4 bg-slate-800/50 backdrop-blur-sm rounded-lg shadow-lg p-6 w-full border border-slate-700">
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="font-semibold text-slate-100">Tool Status</h2>
-              <div
-                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-yellow-400 border-yellow-400">
-                Draft
-              </div>
-            </div>
-            <p className="text-slate-300 mb-6 text-sm">
-              Your tool is currently in draft mode. Pay now to launch it and receive a dofollow backlink.
-            </p>
-            <a
-              href={`/account/tools/activate-launch/${product.slug}`}
-              className="w-full bg-orange-500 hover:bg-orange-600 px-3 py-2 text-sm rounded-lg text-white"
-            >
-              Pay Now to Launch
-            </a>
-          </div>
-        ) : ( */}
-        <div className="text-sm mt-3 flex items-center gap-x-3">
-          <LinkShiny
-            href={handleURLQuery(addHttpsToUrl(product?.demo_url as string))}
-            target="_blank"
-            className="flex items-center gap-x-2"
-          >
-            Live preview
-            <IconArrowTopRight />
-          </LinkShiny>
-          <ButtonUpvote
-            productId={product?.id}
-            count={product?.votes_count}
-            launchDate={product.launch_date}
-            launchEnd={product.launch_end as string}
-          />
-        </div>
-        {/* )} */}
-        <div className="mt-10">
-          <VoterAvatarsList productId={product.id} owner={owned as Profile} />
-        </div>
+    <section className="mt-10 pb-10 sm:mt-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
+      {faqData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData).replace(/</g, '\\u003c') }} />}
+      {!profile && <RequestProfile productId={product.id} />}
+      <TrackToolView productId={product.id} />
+      <div className="container-custom-screen">
+        <ToolHero
+          tool={product as ProductType}
+          owner={owned as Profile}
+          weekRank={weekRank}
+          votesToday={votesToday}
+          commentsCount={product.comments_count ?? 0} // kept by a trigger; excludes deleted comments
+        />
+        <OwnerDofollowUpsell
+          tool={{ id: product.id, slug: product.slug, isPaid: product.isPaid, launch_start: product.launch_start, moderation: (product as any).moderation, owner_id: product.owner_id }}
+        />
+        <ToolAwards extras={extras} />
       </div>
-      <Tabs ulClassName="container-custom-screen" className="mt-20 sticky pt-2 top-[3.75rem] z-10 bg-slate-900">
+      <Tabs ulClassName="container-custom-screen gap-x-6" className="mt-12 sticky pt-2 top-12 z-10 bg-slate-900/85 backdrop-blur-md">
         {tabs.map((item, idx) => (
-          <TabLink hash={item.hash} key={idx}>
+          <TabLink hash={item.hash} isActive={item.isActive} key={idx}>
             {item.name}
+            {item.count ? <span className="ml-1.5 font-mono text-xs text-slate-500 tabular-nums">{item.count}</span> : null}
           </TabLink>
         ))}
       </Tabs>
-      <div className="space-y-20">
-        <div>
-          <div className="relative overflow-hidden pb-12">
-            <div className="absolute top-0 w-full h-[100px] opacity-40 bg-[linear-gradient(180deg,_rgba(124,_58,_237,_0.06)_0%,_rgba(72,_58,_237,_0)_100%)]"></div>
-            <div className="relative container-custom-screen mt-12">
-              <div
-                className="prose text-slate-100 whitespace-pre-wrap"
-                // Use DOMPurify method for XSS sanitizeration
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product?.description as string) }}
-              ></div>
-              {product?.product_categories.length ? (
-                <div className="mt-6 flex flex-wrap gap-3 items-center">
-                  <h3 className="text-sm text-slate-400 font-medium">Classified in</h3>
-                  <TagsGroup>
-                    {product?.product_categories.map((pc: any, idx) => (
-                      <Tag href={`/tools/${pc.name.toLowerCase().replaceAll(' ', '-')}`}>{pc.name}</Tag>
-                    ))}
-                  </TagsGroup>
-                </div>
-              ) : (
-                ''
-              )}
-            </div>
-            {product?.asset_urls?.length && (
-              <div
-                className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}
-              >
-                <Gallery assets={product?.asset_urls} alt={product.name} src={product.demo_video_url as string}>
-                  {product?.asset_urls &&
-                    product?.asset_urls.map((item: string, idx: number) => (
-                      <GalleryImage key={idx} src={item.replaceAll('&fit=max&w=750', '')} alt={product.name} />
-                    ))}
-                </Gallery>
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="mt-6 space-y-16">
         <CommentSection productId={product.owner_id as string} comments={comments as any} slug={slug} />
-        {/* Keep doing based on Product interface */}
-        <div className="container-custom-screen" id="details">
-          <h3 className="text-slate-50 font-medium">About this launch</h3>
-          <p className="text-slate-300 mt-6">
-            {product.name} {isLaunchStarted ? 'was launched by' : 'by'}{' '}
-            <Link href={`/@${owned?.username}`} className="text-orange-500 hover:text-orange-400 duration-150">
-              {owned?.full_name}
-            </Link>{' '}
-            {isLaunchStarted ? 'in ' : 'Will be launched '}
-            {customDateFromNow(product.launch_date)}.
-          </p>
-          {isLaunchStarted ? (
-            <div className="mt-10">
-              <StatsWrapper>
-                {stats.map((item, idx) => (
-                  <Stat key={idx} className="py-4">
-                    <StatCountItem>{item.count}</StatCountItem>
-                    <StatItem className="mt-2">
-                      {item.icon}
-                      {item.label}
-                    </StatItem>
-                  </Stat>
+        <div id="description" className="scroll-mt-32 pb-4">
+          <div className="container-custom-screen">
+            <div
+              className="prose prose-sm prose-invert max-w-none text-slate-300 whitespace-pre-wrap"
+              // Use DOMPurify method for XSS sanitizeration
+              dangerouslySetInnerHTML={{ __html: withLinkRels(DOMPurify.sanitize(product?.description as string), { paid: !!product.isPaid }) }}
+            ></div>
+            {product?.product_categories.length ? (
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                {product?.product_categories.map((pc: any) => (
+                  <Link
+                    key={pc.name}
+                    href={`/tools/${pc.name.toLowerCase().replaceAll(' ', '-')}`}
+                    className="rounded-full border border-slate-800 px-3 py-1 text-xs text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
+                  >
+                    {pc.name}
+                  </Link>
                 ))}
-              </StatsWrapper>
+              </div>
+            ) : (
+              ''
+            )}
+            <ToolHighlights extras={extras} />
+            {profile && <ToolGlance profile={profile} paid={!!product.isPaid} />}
+          </div>
+          {product?.asset_urls?.length || usableVideoUrl(product?.demo_video_url) ? (
+            <div className="container-custom-screen mt-10">
+              <MediaGrid images={product?.asset_urls ?? []} video={product?.demo_video_url} alt={product.name} />
             </div>
           ) : null}
         </div>
-        <div className="container-custom-screen" id="launches">
+        {profile && (
+          <div className="container-custom-screen space-y-14">
+            <ToolFeatures profile={profile} name={cleanName(product.name)} />
+            <ToolPricing profile={profile} name={cleanName(product.name)} paid={!!product.isPaid} />
+            <ToolCompare
+              profile={profile}
+              self={{ name: product.name, slug: product.slug, logo_url: product.logo_url, votes_count: product.votes_count, launch_start: product.launch_start, pricing: pricingTitle }}
+            />
+            <ToolFaq profile={profile} name={cleanName(product.name)} />
+            <ProfileSource profile={profile} />
+          </div>
+        )}
+        {extras.some(e => e.kind === 'review' || e.kind === 'mention') && (
+          <div className="container-custom-screen space-y-14">
+            <ToolReviews extras={extras} />
+            <ToolMentions extras={extras} />
+          </div>
+        )}
+        <div className="container-custom-screen">
+          <ToolMaker tool={product as ProductType} owner={owned as Profile} />
+        </div>
+        <div className="container-custom-screen">
           <MonitizorAdCards />
         </div>
         <div className="container-custom-screen" id="launches">
-          <h3 className="text-slate-50 font-medium">Trending launches</h3>
-          <TrendingToolsList />
+          <SectionLabel title="Trending launches" />
+          <TrendingToolsList excludeId={product.id} />
         </div>
       </div>
     </section>

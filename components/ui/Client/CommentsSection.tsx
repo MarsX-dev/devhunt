@@ -1,6 +1,5 @@
 import type { Comment as CommentType } from '@/utils/supabase/types';
 import CommentSingle from './CommentSingle';
-import { Comments } from '../Comment';
 
 interface CommentTypeProp extends CommentType {
   profiles: {
@@ -10,12 +9,10 @@ interface CommentTypeProp extends CommentType {
   };
 }
 
-export default ({ comments, productId }: { comments: CommentTypeProp[]; productId: string }) => {
-  return (
-    <Comments>
-      {comments.map((comment: CommentTypeProp, idx) => (
-        <CommentSingle key={idx} comment={comment as CommentTypeProp} productId={productId} />
-      ))}
-    </Comments>
-  );
-};
+export default ({ comments, productId }: { comments: CommentTypeProp[]; productId: string }) => (
+  <ul>
+    {comments.map((comment: CommentTypeProp, idx) => (
+      <CommentSingle key={comment.id ?? idx} comment={comment as CommentTypeProp} productId={productId} />
+    ))}
+  </ul>
+);

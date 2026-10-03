@@ -1,8 +1,11 @@
 'use client';
 
-import { IconCodeBracket, IconLoading, IconPencilSquare, IconTrash } from '@/components/Icons';
+import PageHeader from '@/components/ui/PageHeader';
+import SectionLabel from '@/components/ui/SectionLabel';
+import moment from 'moment';
+
+import { IconCodeBracket, IconPencilSquare, IconTrash } from '@/components/Icons';
 import { useSupabase } from '@/components/supabase/provider';
-import LinkItem from '@/components/ui/Link/LinkItem';
 import ModalBannerCode from '@/components/ui/ModalBannerCode';
 
 import Logo from '@/components/ui/ToolCard/Tool.Logo';
@@ -14,33 +17,91 @@ import { type ProductType } from '@/type';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 import Link from 'next/link';
+import { trackStep } from '@/utils/funnelClient';
+import ConfirmDelete from '@/components/ui/ConfirmDelete';
+import DofollowUpsell from '@/components/ui/DofollowUpsell';
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+// Launch status of one of the owner's tools.
+function StatusChip({ tool }: { tool: ProductType }) {
+  const now = Date.now();
+  const start = tool.launch_start ? Date.parse(tool.launch_start) : NaN;
+  const end = tool.launch_end ? Date.parse(tool.launch_end as string) : NaN;
+  const chip = 'rounded-full border px-2 py-0.5 text-[11px] font-medium';
+  const status =
+    start <= now && end >= now ? (
+      <span className={`${chip} border-green-500/40 bg-green-500/10 text-green-300`}>Live now</span>
+    ) : start > now ? (
+      <span className={`${chip} border-slate-700 text-slate-400`}>Launching {moment.utc(start).format('MMM D, YYYY')}</span>
+    ) : (
+      <span className={`${chip} border-slate-700 text-slate-500`}>Launched {moment.utc(start).format('MMM D, YYYY')}</span>
+    );
+  return (
+    <>
+      {status}
+      {tool.isPaid && <span className={`${chip} border-orange-500/40 bg-orange-500/10 text-orange-300`}>Paid</span>}
+    </>
+  );
+}
 
 export default () => {
   const { session } = useSupabase();
   const user = session?.user;
   const browserService = createBrowserClient();
   const toolsService = new ProductsService(browserService);
-  const toolsList = new ProductsService(browserService).getUserProductsById(user?.id as string);
   const [isLoad, setLoad] = useState(true);
+  const [skeletonRows, setSkeletonRows] = useState(1);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('dh_my_tools');
+      setSkeletonRows(saved === null ? 1 : Math.min(6, Number(saved) || 0));
+    } catch {}
+  }, []);
   const [tools, setTools] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [toolSlug, setToolSlug] = useState('');
+  const router = useRouter();
+  // "Submit your Dev Tool" lands here with ?submit=1: makers without tools go straight to the URL step.
+  const fromSubmit = useSearchParams()?.get('submit') === '1';
+  // Known to have no tools: go to the form right away instead of waiting for the list.
+  useEffect(() => {
+    try {
+      if (fromSubmit && localStorage.getItem('dh_my_tools') === '0') router.replace('/account/tools/new');
+    } catch {}
+  }, [fromSubmit]);
 
   useEffect(() => {
-    toolsList.then(data => {
-      setTools([...(data as [])]);
+    if (!user?.id) return;
+    toolsService.getUserProductsById(user.id).then(data => {
+      if (fromSubmit && !data?.length) return router.replace('/account/tools/new');
+      setTools([...((data ?? []) as [])]);
+      try {
+        localStorage.setItem('dh_my_tools', String(data?.length ?? 0));
+      } catch {}
       setLoad(false);
     });
-  }, []);
+  }, [user?.id]);
 
-  const handleDeleteConfirm = (id: number, idx: number) => {
-    const confirm = window.confirm('Are you sure you want to delete this?');
-    if (confirm) {
-      toolsService.delete(id).then(() => {
-        setTools(tools.filter((_, i) => i !== idx));
-      });
-    }
+  // Deleting goes through the server (it checks ownership and keeps a restorable snapshot); the
+  // dialog asks for the tool name so nothing is deleted by accident.
+  const [toDelete, setToDelete] = useState<ProductType | null>(null);
+  const handleDeleteConfirm = (id: number) => setToDelete((tools as ProductType[]).find(t => t.id === id) ?? null);
+  const deleteTool = async (): Promise<string | null> => {
+    if (!toDelete) return null;
+    const res = await fetch(`/api/tools/${toDelete.id}/delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: toDelete.name }),
+    });
+    if (!res.ok) return (await res.json().catch(() => null))?.error ?? 'Could not delete the tool, please try again.';
+    const remaining = (tools as ProductType[]).filter(t => t.id !== toDelete.id);
+    setTools(remaining as []);
+    try {
+      localStorage.setItem('dh_my_tools', String(remaining.length));
+    } catch {}
+    setToDelete(null);
+    return null;
   };
 
   const copyDone = () => {
@@ -49,37 +110,70 @@ export default () => {
   };
 
   return (
-    <section className="container-custom-screen min-h-screen mt-14">
-      <div className="items-start justify-between py-4 md:flex">
-        <div className="max-w-lg">
-          <h1 className="text-slate-50 text-2xl font-bold">Tools</h1>
-          <p className="text-slate-300 mt-1">You can launch a new tool, or edit and delete.</p>
-        </div>
-        <div className="mt-4 md:mt-0">
-          <LinkItem href="/account/tools/new" className="text-sm shadow hover:bg-slate-700">
-            New tool
-          </LinkItem>
-        </div>
+    <section className="container-custom-screen min-h-screen mt-10 mb-24">
+      <div className="items-end justify-between gap-6 md:flex">
+        <PageHeader eyebrow="Dashboard" title="Your launches">
+          Edit your tools, pick launch dates and share your launch badge.
+        </PageHeader>
+        <Link
+          href="/account/tools/new"
+          onClick={() => trackStep('submit_click', { logged_in: true, from: 'dashboard' })}
+          className="mt-6 inline-flex flex-none rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-900 duration-150 hover:bg-white md:mt-0"
+        >
+          + Launch a tool
+        </Link>
       </div>
       <ul className="mt-6 divide-y divide-slate-800/60">
         {isLoad ? (
-          <div>
-            <IconLoading className="w-6 h-6 mx-auto text-orange-500" />
-          </div>
+          // Placeholder rows (as many as last time), so the page doesn't jump when the list arrives.
+          skeletonRows === 0 ? (
+            <div className="h-[178px] animate-pulse rounded-2xl border border-dashed border-slate-800" aria-hidden />
+          ) : (
+            Array.from({ length: skeletonRows }, (_, i) => (
+              <li key={i} className="flex items-start gap-x-4 py-3" aria-hidden>
+                <span className="h-14 w-14 flex-none animate-pulse rounded-xl bg-slate-800 sm:h-16 sm:w-16" />
+                <span className="flex-1 space-y-2.5 pt-1">
+                  <span className="block h-4 w-40 animate-pulse rounded bg-slate-800" />
+                  <span className="block h-3.5 w-72 max-w-full animate-pulse rounded bg-slate-800" />
+                  <span className="block h-3.5 w-56 max-w-full animate-pulse rounded bg-slate-800" />
+                  <span className="block h-4 w-80 max-w-full animate-pulse rounded bg-slate-800" />
+                </span>
+              </li>
+            ))
+          )
         ) : tools.length > 0 ? (
           tools.map((tool: ProductType, idx: number) => (
             <>
               <li key={idx} className="py-3">
-                <div className="p-2 flex items-start gap-x-4">
+                <div className="flex items-start gap-x-4">
                   <Logo src={tool.logo_url || ''} alt={tool.name} className="w-14 h-14 sm:w-16 sm:h-16" />
                   <div>
                     <Link href={`/tool/${tool.slug}`}>
-                      <Name>{tool.name}</Name>
+                      <span className="flex flex-wrap items-center gap-2">
+                        <Name>{tool.name}</Name>
+                        <StatusChip tool={tool} />
+                        {tool.site_status && tool.site_status !== 'ok' && (
+                          <span
+                            className="rounded-full border border-red-500/40 px-2 py-0.5 text-xs text-red-300"
+                            title={tool.site_status_reason ?? undefined}
+                          >
+                            Hidden: website {tool.site_status === 'hijacked' ? 'hijacked' : 'down'}
+                          </span>
+                        )}
+                      </span>
                       {/* {!tool.isPaid && (
                         <p className="text-slate-300 text-sm">
                           Status: <span className="text-orange-400">draft</span>
                         </p>
                       )} */}
+                      {tool.site_status && tool.site_status !== 'ok' && (
+                        <p className="mt-1 text-sm text-red-300/90">
+                          Hidden from DevHunt (its page is a 404) because the website looks{' '}
+                          {tool.site_status === 'hijacked' ? 'hijacked' : 'down'}
+                          {tool.site_status_reason ? ` (${tool.site_status_reason})` : ''}. It&apos;s restored automatically at the next
+                          check once the site is back.
+                        </p>
+                      )}
                       <Title className="line-clamp-2">{tool.slogan}</Title>
                       <Tags
                         items={[
@@ -88,26 +182,35 @@ export default () => {
                         ]}
                       />
                     </Link>
+                    <DofollowUpsell tool={tool as any} from="dashboard" compact />
                     <div className="mt-2.5 flex items-center gap-x-4">
-                      {!tool.isPaid && !(new Date(tool.launch_end as any).getTime() <= Date.now()) && (
-                        <Link
-                          href={`/account/tools/activate-launch/${tool.slug}`}
-                          className="text-sm inline-block bg-orange-500 px-2 py-1 rounded-md text-white font-medium hover:bg-orange-600 duration-150"
-                        >
-                          Skip the queue
-                        </Link>
-                      )}
                       <Link
                         href={`/account/tools/edit/${tool.id}`}
                         className="inline-flex items-center gap-x-2 text-orange-500 hover:text-orange-600 duration-150 font-medium"
                       >
                         <IconPencilSquare /> Edit your tool
                       </Link>
+                      <Link
+                        href={`/account/tools/profile/${tool.id}`}
+                        className="inline-flex items-center gap-x-1.5 text-sm text-slate-300 hover:text-slate-50 duration-150"
+                      >
+                        Fact sheet
+                      </Link>
+                      {tool.isPaid && (
+                        <Link
+                          href={`/account/tools/highlights/${tool.id}`}
+                          className="inline-flex items-center gap-x-1.5 text-sm text-slate-300 hover:text-slate-50 duration-150"
+                        >
+                          ✨ Awards &amp; reviews
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
-                          handleDeleteConfirm(tool.id, idx);
+                          handleDeleteConfirm(tool.id);
                         }}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                        aria-label="Delete tool"
+                        title="Delete tool"
                       >
                         <IconTrash />
                       </button>
@@ -117,6 +220,8 @@ export default () => {
                           setModalOpen(true);
                         }}
                         className="inline-block text-slate-400 hover:text-slate-500 duration-150"
+                        aria-label="Get launch banner code"
+                        title="Get launch banner code"
                       >
                         <IconCodeBracket />
                       </button>
@@ -135,31 +240,36 @@ export default () => {
             </>
           ))
         ) : (
-          <div className="font-medium text-slate-400">No launches found.</div>
+          <div className="rounded-2xl border border-dashed border-slate-700 p-8 text-center">
+            <p className="font-medium text-slate-200">No launches yet</p>
+            <p className="mt-1 text-sm text-slate-500">Submit your dev tool and pick a launch date in two steps.</p>
+            <Link
+              href="/account/tools/new"
+              onClick={() => trackStep('submit_click', { logged_in: true, from: 'dashboard_empty' })}
+              className="mt-4 inline-block rounded-full bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-400"
+            >
+              Launch your first tool
+            </Link>
+          </div>
         )}
       </ul>
-      <hr className="border-slate-700 mt-5" />
-      <p className="text-slate-300 mt-5 whitespace-pre-wrap">
-        <a className="text-orange-500 whitespace-pre-wrap" href="/the-story">
-          Read the Rules{' '}
-        </a>
-        for voting and what dev tools you can submit here
-      </p>
-
-      <p className="text-slate-300 mt-2 whitespace-pre-wrap">
-        See{' '}
-        <a className="text-orange-500 whitespace-pre-wrap" href="/the-story#ads">
-          Advertizing
-        </a>{' '}
-        and other premium options to grow your Dev Tool.
-      </p>
-      <p className="text-slate-300 mt-2 whitespace-pre-wrap">
-        Consider launching on{' '}
-        <a className="text-orange-500 whitespace-pre-wrap" href="https://uneed.best/?aff=A6pv1">
-          Uneed.best
-        </a>{' '}
-        to get even more traffic to your tool.
-      </p>
+      <div className="mt-14">
+        <SectionLabel title="Resources" />
+        <ul className="mt-3 space-y-2 text-sm text-slate-400">
+          <li>
+            <Link className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story">
+              Read the rules
+            </Link>{' '}
+            for voting and which dev tools you can submit.
+          </li>
+          <li>
+            <Link className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50" href="/the-story#ads">
+              Advertising
+            </Link>{' '}
+            and other premium options to grow your dev tool.
+          </li>
+        </ul>
+      </div>
 
       <ModalBannerCode
         isModalOpen={isModalOpen}
@@ -167,6 +277,24 @@ export default () => {
         setModalOpen={setModalOpen}
         setToolSlug={setToolSlug}
         copyDone={copyDone}
+      />
+      <ConfirmDelete
+        isActive={!!toDelete}
+        title={`Delete ${toDelete?.name ?? 'this tool'}?`}
+        consequences={[
+          'Its page, votes and comments disappear from DevHunt.',
+          ...(toDelete?.isPaid ? ['Paid launches are not refunded.'] : []),
+          'Changed your mind later? Contact us and we can restore it.',
+        ]}
+        confirmText={toDelete?.name ?? ''}
+        confirmLabel={
+          <>
+            Type <span className="font-mono text-slate-100">{toDelete?.name}</span> to confirm
+          </>
+        }
+        buttonLabel="Delete tool"
+        onConfirm={deleteTool}
+        onCancel={() => setToDelete(null)}
       />
     </section>
   );

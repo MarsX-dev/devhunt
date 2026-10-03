@@ -1,0 +1,291 @@
+import Link from 'next/link';
+import { type ReactNode } from 'react';
+import moment from 'moment';
+import { GitFork, Star } from 'lucide-react';
+import SectionLabel from '@/components/ui/SectionLabel';
+import { type CompareTool, type ToolProfileView } from '@/utils/toolProfileData';
+import { sectionShown } from '@/utils/toolProfile';
+import { comparePath } from '@/utils/compare';
+import { relFor } from '@/utils/links';
+
+type Self = { name: string; logo_url: string | null; votes_count: number; launch_start: string | null; pricing: string | null; slug: string };
+
+const hostOf = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+};
+// Tool names without leading emoji ("🪢 Langfuse" -> "Langfuse") for headings and tables.
+export const cleanName = (name: string) => name.replace(/^[^\p{L}\p{N}]+/u, '').trim() || name.trim();
+const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
+const logo = (url: string | null) => (url ?? '').replace(/w=\d+/g, 'w=64');
+
+// "At a glance": who it's for, pricing model, open source stats and integrations.
+// paid: the tool's own links (repo, releases) are followed only for paid launches (see utils/links.ts).
+export function ToolGlance({ profile, paid = false }: { profile: ToolProfileView; paid?: boolean }) {
+  const { data } = profile;
+  if (!sectionShown(data, 'glance')) return null;
+  const facts = [
+    data.audience && { label: 'for', value: data.audience },
+    data.pricing?.model && { label: 'pricing', value: `${data.pricing.model}${data.pricing.free_trial ? ' · free trial' : ''}` },
+    data.github && { label: 'license', value: data.github.license ?? 'open source' },
+  ].filter(Boolean) as { label: string; value: string }[];
+  return (
+    <div className="mt-8 overflow-hidden rounded-xl border border-slate-800">
+      <p className="border-b border-slate-800 px-4 py-3 text-sm leading-6 text-slate-200">{data.summary}</p>
+      {!!facts.length && (
+        <dl className={`grid gap-px bg-slate-800 ${['', '', 'sm:grid-cols-2', 'sm:grid-cols-3'][facts.length]}`}>
+          {facts.map(f => (
+            <div key={f.label} className="bg-slate-900 px-4 py-3">
+              <dt className="font-mono text-[11px] text-slate-500">{f.label}</dt>
+              <dd className="mt-1 text-[13px] leading-relaxed text-slate-300 first-letter:uppercase">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {data.github && (
+        <a
+          href={`https://github.com/${data.github.repo}`}
+          target="_blank"
+          rel={relFor(`https://github.com/${data.github.repo}`, { paid })}
+          className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-800 px-4 py-2.5 font-mono text-xs text-slate-400 hover:text-slate-200"
+        >
+          <span className="text-slate-300">{data.github.repo}</span>
+          <span className="inline-flex items-center gap-x-1">
+            <Star className="h-3.5 w-3.5 text-yellow-400" /> {compact(data.github.stars)}
+          </span>
+          <span className="inline-flex items-center gap-x-1">
+            <GitFork className="h-3.5 w-3.5" /> {compact(data.github.forks)}
+          </span>
+          {data.github.language && <span>{data.github.language}</span>}
+          {data.github.pushed_at && <span className="text-slate-500">updated {moment(data.github.pushed_at).fromNow()}</span>}
+        </a>
+      )}
+      {!!data.github?.releases?.length && (
+        <ul className="border-t border-slate-800 px-4 py-2.5 font-mono text-xs" aria-label="Latest releases">
+          {data.github.releases.map(rel => (
+            <li key={rel.tag} className="flex items-center gap-x-3 py-0.5">
+              <a href={rel.url} target="_blank" rel={relFor(rel.url, { paid })} className="text-slate-300 hover:text-white">
+                {rel.tag}
+              </a>
+              {rel.name && rel.name !== rel.tag && <span className="truncate text-slate-500">{rel.name}</span>}
+              <span className="ml-auto flex-none text-slate-600">{moment(rel.published_at).fromNow()}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {!!data.integrations.length && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-slate-800 px-4 py-3">
+          <span className="mr-1 font-mono text-[11px] text-slate-500">works with</span>
+          {data.integrations.map(i => (
+            <span key={i} className="rounded-md border border-slate-800 px-2 py-0.5 text-xs text-slate-300">
+              {i}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Terminal-style list line: a mono marker, the item, and a muted explanation on the same line.
+export function TermItem({ mark = '+', markClass = 'text-green-400/80', title, children }: { mark?: string; markClass?: string; title?: string; children?: ReactNode }) {
+  return (
+    <li className="flex gap-x-3 py-1.5 text-sm leading-6">
+      <span aria-hidden className={`flex-none font-mono ${markClass}`}>
+        {mark}
+      </span>
+      <span className="min-w-0">
+        {title && <span className="text-slate-100">{title}</span>}
+        {title && children ? <span className="text-slate-600"> — </span> : null}
+        {children && <span className="text-slate-400">{children}</span>}
+      </span>
+    </li>
+  );
+}
+
+export function ToolFeatures({ profile, name }: { profile: ToolProfileView; name: string }) {
+  const features = sectionShown(profile.data, 'features') ? profile.data.features : [];
+  const use_cases = sectionShown(profile.data, 'use_cases') ? profile.data.use_cases : [];
+  if (!features.length && !use_cases.length) return null;
+  return (
+    <div id="features" className="scroll-mt-32 space-y-10">
+      {!!features.length && (
+        <div>
+          <SectionLabel title="Key features" hint={`${features.length} features of ${name}`} />
+          <ul className="mt-3 grid gap-x-10 sm:grid-cols-2">
+            {features.map(f => (
+              <TermItem key={f.title} title={f.title}>
+                {f.description}
+              </TermItem>
+            ))}
+          </ul>
+        </div>
+      )}
+      {!!use_cases.length && (
+        <div>
+          <SectionLabel title="Use cases" />
+          <ul className="mt-3">
+            {use_cases.map(u => (
+              <TermItem key={u} mark="→" markClass="text-slate-600">
+                {u}
+              </TermItem>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Plans as rows: name, price, billing, highlights.
+export function ToolPricing({ profile, name, paid = false }: { profile: ToolProfileView; name: string; paid?: boolean }) {
+  const plans = profile.data.pricing?.plans ?? [];
+  if (plans.length < 2 || !sectionShown(profile.data, 'pricing')) return null;
+  const source = profile.sources.find(s => /pric|plan/i.test(s));
+  return (
+    <div id="pricing" className="scroll-mt-32">
+      <SectionLabel
+        title={`${name} pricing`}
+        hint={
+          source ? (
+            <a href={source} target="_blank" rel={relFor(source, { paid })} className="hover:text-slate-300">
+              from {hostOf(source)} ↗
+            </a>
+          ) : undefined
+        }
+      />
+      <ul className="mt-2 divide-y divide-slate-800/70">
+        {plans.map(p => (
+          <li key={p.name} className="grid gap-x-4 py-2.5 text-sm sm:grid-cols-[7rem_13rem_1fr]">
+            <span className="font-mono text-xs uppercase tracking-wider text-slate-400 sm:pt-0.5">{p.name}</span>
+            <span className="font-mono text-slate-50">
+              {p.price}
+              {p.billing && <span className="ml-1.5 text-[11px] text-slate-500">{p.billing.replace(/^per /, '/')}</span>}
+            </span>
+            <span className="text-slate-400">{p.highlights.join(' · ')}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Comparison with similar DevHunt tools: a table (best for, pricing, upvotes, launch) and how each differs.
+export function ToolCompare({ profile, self }: { profile: ToolProfileView; self: Self }) {
+  const alts = profile.compare;
+  if (!alts.length || !sectionShown(profile.data, 'compare')) return null;
+  const altInfo = new Map(profile.data.alternatives.map(a => [a.id, a]));
+  const columns: (CompareTool & { best_for: string | null; self?: boolean })[] = [
+    // The tool's own pricing model from its site is more precise than the maker's pricing label.
+    { id: 0, ...self, pricing: profile.data.pricing?.model ?? self.pricing, best_for: profile.data.best_for, self: true },
+    ...alts.map(a => ({ ...a, best_for: altInfo.get(a.id)?.best_for ?? null })),
+  ];
+  const rows: { label: string; value: (c: (typeof columns)[number]) => string }[] = [
+    { label: 'Best for', value: c => c.best_for ?? '—' },
+    { label: 'Pricing', value: c => (c.pricing ? c.pricing[0].toUpperCase() + c.pricing.slice(1) : '—') },
+    { label: 'DevHunt upvotes', value: c => c.votes_count.toLocaleString('en-US') },
+    { label: 'Launched', value: c => (c.launch_start ? moment.utc(c.launch_start).format('MMM YYYY') : '—') },
+  ];
+  return (
+    <div id="compare" className="scroll-mt-32">
+      <SectionLabel
+        title={`${cleanName(self.name)} vs alternatives`}
+        hint={
+          <Link href={`/tool/${self.slug}/alternatives`} className="hover:text-slate-300">
+            all alternatives →
+          </Link>
+        }
+      />
+      <div className="mt-4 overflow-x-auto rounded-xl border border-slate-800">
+        <table className="w-full min-w-[640px] text-left text-sm">
+          <thead>
+            <tr className="border-b border-slate-800">
+              <th className="sticky left-0 z-[1] w-32 bg-slate-900 px-4 py-3" />
+              {columns.map(c => (
+                <th key={c.id} scope="col" className={`px-4 py-3 align-top font-medium ${c.self ? 'bg-slate-800/40' : ''}`}>
+                  {c.self ? (
+                    <span className="flex items-center gap-x-2 text-slate-50">
+                      {c.logo_url && <img src={logo(c.logo_url)} alt="" className="h-6 w-6 rounded-md bg-slate-800 object-cover" />}
+                      {cleanName(c.name)}
+                    </span>
+                  ) : (
+                    <Link href={`/tool/${c.slug}`} className="flex items-center gap-x-2 text-slate-200 hover:text-white">
+                      {c.logo_url && <img src={logo(c.logo_url)} alt="" loading="lazy" className="h-6 w-6 rounded-md bg-slate-800 object-cover" />}
+                      {cleanName(c.name)}
+                    </Link>
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.label} className="border-b border-slate-800 last:border-0">
+                <th scope="row" className="sticky left-0 z-[1] whitespace-nowrap bg-slate-900 px-4 py-3 font-mono text-[11px] font-normal text-slate-500">
+                  {r.label}
+                </th>
+                {columns.map(c => (
+                  <td key={c.id} className={`px-4 py-3 align-top text-xs text-slate-300 ${c.self ? 'bg-slate-800/40' : ''}`}>
+                    {r.value(c)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <ul className="mt-4 space-y-2.5">
+        {alts.map(a => (
+          <li key={a.id} className="text-sm leading-relaxed text-slate-400">
+            <Link href={comparePath(self.slug, a.slug)} className="font-medium text-slate-200 hover:text-white">
+              {cleanName(self.name)} vs {cleanName(a.name)}:
+            </Link>{' '}
+            {altInfo.get(a.id)?.difference}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function ToolFaq({ profile, name }: { profile: ToolProfileView; name: string }) {
+  const { faq } = profile.data;
+  if (!faq.length || !sectionShown(profile.data, 'faq')) return null;
+  return (
+    <div id="faq" className="scroll-mt-32">
+      <SectionLabel title={`${name} FAQ`} />
+      <div className="mt-2 divide-y divide-slate-800">
+        {faq.map(f => (
+          <details key={f.q} className="group py-3.5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-x-4 text-sm font-medium text-slate-200 hover:text-white [&::-webkit-details-marker]:hidden">
+              {f.q}
+              <span className="font-mono text-slate-500 duration-150 group-open:rotate-45">+</span>
+            </summary>
+            <p className="mt-2 text-sm leading-relaxed text-slate-400">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function ProfileSource({ profile }: { profile: ToolProfileView }) {
+  return (
+    <p className="font-mono text-[11px] text-slate-600">
+      {profile.data.owner_edited_at ? 'Edited by the makers, based on ' : 'Summarized by DevHunt from '}{Array.from(new Set(profile.sources.map(hostOf))).join(', ')}
+      {profile.generated_at && ` · ${moment(profile.generated_at).format('MMM D, YYYY')}`}. Details may change; check the official site.
+    </p>
+  );
+}
+
+export const faqJsonLd = (profile: ToolProfileView) =>
+  profile.data.faq.length && sectionShown(profile.data, 'faq')
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: profile.data.faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+      }
+    : null;

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import BlurBackground from '../BlurBackground/BlurBackground';
 import mergeTW from '@/utils/mergeTW';
 import { createPortal } from 'react-dom';
@@ -26,7 +26,11 @@ export default ({
   classNameContainer,
   onCancel = () => {},
 }: Props) => {
-  return isActive ? (
+  // Portals need document.body, which doesn't exist during server rendering.
+  const [isMounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  return isActive && isMounted ? (
     createPortal(
       <>
         <div className="fixed w-full h-full inset-0 z-40 overflow-y-auto">

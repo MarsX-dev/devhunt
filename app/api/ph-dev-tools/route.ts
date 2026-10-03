@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { NextResponse } from 'next/server';
-import request from 'request';
 
 export async function GET() {
   const today = new Date();
@@ -42,12 +41,19 @@ export async function GET() {
     }`,
   };
 
-  const {
-    data: {
+  if (!PH_ACCESS_TOKEN) return NextResponse.json({ posts: [], error: 'Product Hunt is not configured' }, { status: 503 });
+
+  try {
+    const {
       data: {
-        posts: { edges },
+        data: {
+          posts: { edges },
+        },
       },
-    },
-  } = await axios.post('https://api.producthunt.com/v2/api/graphql', body, config);
-  return NextResponse.json({ posts: edges.slice(0, 10) });
+    } = await axios.post('https://api.producthunt.com/v2/api/graphql', body, config);
+    return NextResponse.json({ posts: edges.slice(0, 10) });
+  } catch (err) {
+    console.error('Product Hunt request failed:', (err as Error).message);
+    return NextResponse.json({ posts: [], error: 'Product Hunt request failed' }, { status: 502 });
+  }
 }

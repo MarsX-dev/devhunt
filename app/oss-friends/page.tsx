@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import PageHeader from '@/components/ui/PageHeader';
 import Link from 'next/link';
 import axios from 'axios';
 import Button from '@/components/ui/Button';
@@ -28,22 +29,22 @@ export default async () => {
   } = await axios.get('https://formbricks.com/api/oss-friends');
 
   return (
-    <section className="mt-24 max-w-6xl mx-auto px-4 md:px-8">
-      <h1 className="text-slate-50 text-3xl font-semibold text-center">Our Open-source Friends</h1>
-      <div className="mt-12 space-y-6 gap-4 grid-cols-2 sm:grid lg:grid-cols-3 sm:space-y-0">
+    <section className="mt-10 mb-24 max-w-6xl mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="Community" title="Our open-source friends">
+        Open-source projects we love and support.
+      </PageHeader>
+      <div className="mt-10 space-y-3 gap-3 grid-cols-2 sm:grid lg:grid-cols-3 sm:space-y-0">
         {data.map((item: OSSFriend, key: number) => (
           <Link
             href={item.href}
             key={key}
             target="_blank"
-            className="flex flex-col no-underline group relative space-y-3 w-full border border-slate-800 rounded-lg p-5 bg-[linear-gradient(179.23deg,_#1E293B_0.66%,_rgba(30,_41,_59,_0)_255.99%)] hover:bg-slate-800 duration-200"
+            className="flex flex-col no-underline group relative space-y-3 w-full border border-slate-800 rounded-2xl p-5 duration-150 hover:border-slate-600 hover:bg-slate-800/30"
           >
             <h2 className="text-base text-slate-100 font-semibold">{item.name}</h2>
             <p className="text-sm text-slate-300">{item.description}</p>
             <div className="flex-1 flex items-end">
-              <Button variant="shiny" className="text-xs border border-slate-700 hover:bg-orange-600">
-                Learn more
-              </Button>
+              <span className="text-sm text-slate-400 duration-150 group-hover:text-slate-100">Learn more →</span>
             </div>
           </Link>
         ))}
@@ -52,9 +53,9 @@ export default async () => {
         <LinkItem
           target="_blank"
           href="https://formbricks.com/clhys1p9r001cpr0hu65rwh17"
-          className="text-xs bg-orange-500 hover:bg-orange-600"
+          className="rounded-full border border-slate-700 bg-transparent text-sm text-slate-300 hover:border-slate-500 hover:bg-transparent hover:text-slate-50"
         >
-          Wanna join OSS Friends?
+          Want to join OSS Friends?
         </LinkItem>
       </div>
     </section>

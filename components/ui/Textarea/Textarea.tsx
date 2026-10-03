@@ -6,6 +6,7 @@ interface Props extends HTMLAttributes<HTMLTextAreaElement> {
   value?: string;
   validate?: {};
   required?: boolean;
+  maxLength?: number;
 }
 
 export default ({ className, validate, ...props }: Props) => (

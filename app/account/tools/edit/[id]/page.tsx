@@ -1,5 +1,8 @@
 'use client';
 
+import PageHeader from '@/components/ui/PageHeader';
+import DofollowUpsell, { type UpsellTool } from '@/components/ui/DofollowUpsell';
+import axios from 'axios';
 import { useSupabase } from '@/components/supabase/provider';
 import Button from '@/components/ui/Button/Button';
 import CategoryInput from '@/components/ui/CategoryInput';
@@ -22,7 +25,9 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
 import moment from 'moment';
+import { usableVideoUrl } from '@/utils/demoVideo';
 import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import { weekKey } from '@/utils/launchWeeks';
 
 interface Inputs {
   tool_name: string;
@@ -71,6 +76,7 @@ export default () => {
   const [isImagesLoad, setImagesLoad] = useState<boolean>(false);
   const [isUpdate, setUpdate] = useState<boolean>(false);
   const [isPaid, setPaid] = useState<boolean>(false);
+  const [upsellTool, setUpsellTool] = useState<UpsellTool | null>(null);
   const [slug, setSlug] = useState<string>('');
 
   const [weekValue, setWeekValue] = useState<string | number>('');
@@ -91,13 +97,15 @@ export default () => {
       setValue('slogan', data?.slogan);
       setValue('pricing_type', data?.pricing_type);
       setValue('github_repo', data?.github_url);
-      setValue('demo_video', data?.demo_video_url);
-      setValue('week', data?.week);
+      setValue('demo_video', usableVideoUrl(data?.demo_video_url) ?? '');
+      const currentWeekKey = data?.launch_start ? weekKey(data.launch_start) : '';
+      setValue('week', currentWeekKey);
       setSlug(data?.slug as string);
-      setWeekValue(data?.week as number);
+      setWeekValue(currentWeekKey);
       setCategory(data?.product_categories as ProductCategory[]);
       setImagePreview(data?.asset_urls as string[]);
       setPaid(data?.isPaid as boolean);
+      if (data) setUpsellTool(data as unknown as UpsellTool);
       setLaunchDate(data?.launch_end as string);
       setLaunchStart(data?.launch_start as string);
     });
@@ -106,7 +114,7 @@ export default () => {
   const handleUploadImages = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
-    if (file && file.type.includes('image') && imagePreviews.length < 5) {
+    if (file && file.type.includes('image') && imagePreviews.length < 3) {
       setImageFile([...(imageFiles as any), file]);
       setImagesLoad(true);
       fileUploader({ files: file as Blob, options: 'w=750' }).then(data => {
@@ -147,52 +155,49 @@ export default () => {
     if (validateImages()) {
       setUpdate(true);
       const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
-      const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
       const categoryIds: number[] = categories.map(category => category.id);
-      const launchWeek = typeof week === 'string' ? parseInt(week) : week;
-      const currentWeek = await productService.getWeekNumber(new Date(), 2);
-      const currentYear = new Date().getFullYear();
+      // Only touch the launch week when the user may change it (paid, not started yet)
+      // and actually picked a different week. Otherwise keep the stored dates as they are.
+      const canChangeWeek = isPaid && new Date(launchStart as string) > new Date();
+      const originalWeekKey = launchStart ? weekKey(launchStart) : '';
+      const weekChanged = canChangeWeek && week && week !== originalWeekKey;
 
-      const weeks = await productService.getWeeks(currentWeek > launchWeek ? currentYear + 1 : currentYear, 2);
-      const weekData = weeks.find(i => i.week === launchWeek);
-
-      let launchDateData: { launch_start?: string; launch_end?: string } = {};
-      if (new Date(launchEnd as string) > new Date()) {
-        launchDateData.launch_start = weekData?.startDate;
-        launchDateData.launch_end = weekData?.endDate;
-      }
-
-      await productService
-        .update(
-          +id,
-          {
-            asset_urls: imagePreviews,
-            name: tool_name,
-            demo_url: tool_website,
-            github_url: github_repo,
-            pricing_type,
-            slogan,
-            description: tool_description,
-            logo_url: logoPreview,
-            demo_video_url: demo_video || generatedVideoUrl,
-            launch_date: weekData?.startDate as string,
-            ...launchDateData,
-            week: launchWeek,
-          },
+      try {
+        // Saved (and re-moderated) on the server: the browser can't write tool rows directly.
+        await axios.patch(`/api/tools/${id}`, {
+          assetUrls: imagePreviews,
+          name: tool_name,
+          website: tool_website,
+          githubUrl: github_repo || null,
+          pricingType: Number(pricing_type),
+          slogan,
+          description: tool_description,
+          logoUrl: logoPreview,
+          demoVideoUrl: demo_video || null,
           categoryIds,
-        )
-        .then(res => {
-          window.alert('Your launch has been updated successfully');
-        })
-        .finally(() => {
-          setUpdate(false);
         });
+        // Launch dates can only be changed server-side (paid launches that haven't started).
+        if (weekChanged) {
+          const { data: res } = await axios.post(`/api/tools/${id}/reschedule`, { week });
+          setLaunchStart(res.launchStart);
+        }
+        window.alert('Your launch has been updated successfully');
+      } catch (err: any) {
+        window.alert(err?.response?.data?.error ?? 'Could not update your launch, please try again.');
+      } finally {
+        setUpdate(false);
+      }
     }
   };
 
   return (
-    <section className="container-custom-screen">
-      <h1 className="text-xl text-slate-50 font-semibold">Edit Launch</h1>
+    <section className="container-custom-screen mt-10 mb-24">
+      <PageHeader eyebrow="Dashboard" title="Edit your launch" />
+      {upsellTool && (
+        <div className="mt-8">
+          <DofollowUpsell tool={upsellTool} from="edit_page" />
+        </div>
+      )}
       <div className="mt-14">
         <FormLaunchWrapper onSubmit={handleSubmit(onSubmit as () => void)}>
           <FormLaunchSection
@@ -318,10 +323,10 @@ export default () => {
             <div>
               <Label>Tool screenshots</Label>
               <p className="text-sm text-slate-400">
-                Upload at least three screenshots showcasing different aspects of functionality. Note that the first image will be used as
+                Up to 3 screenshots showcasing different aspects of functionality. Note that the first image will be used as
                 social preview, so choose wisely!
               </p>
-              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={5} onChange={handleUploadImages}>
+              <ImagesUploader isLoad={isImagesLoad} className="mt-4" files={imagePreviews as []} max={3} onChange={handleUploadImages}>
                 {imagePreviews.map((src, idx) => (
                   <ImageUploaderItem
                     src={src}
@@ -359,9 +364,9 @@ export default () => {
                 </div>
                 {!isPaid && (
                   <div className="mt-3 text-sm text-slate-100 font-medium">
-                    *To edit your launch date you need to pay{' '}
-                    <a target="_blank" href={`/account/tools/activate-launch/${slug}`} className="underline text-orange-500">
-                      Pay to edit
+                    *To pick your launch week (and get a dofollow backlink) you need to pay{' '}
+                    <a href={`/account/tools/activate-launch/${slug}?from=edit_week`} className="underline text-orange-500">
+                      Upgrade for $49
                     </a>
                   </div>
                 )}

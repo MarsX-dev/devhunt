@@ -2,8 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  scroll-behavior: smooth;
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* Customize scrollbar */
@@ -19,17 +21,16 @@
   @apply bg-slate-700 rounded-full;
 }
 
-.custom-screen {
-  @apply max-w-screen-xl mx-auto px-4 md:px-8;
-}
+/* In the components layer so a max-w-* utility next to them still wins (e.g. max-w-2xl on a form page). */
+@layer components {
+  .custom-screen {
+    @apply max-w-screen-xl mx-auto px-4 md:px-8;
+  }
 
-.container-custom-screen {
-  max-width: 54rem;
-  @apply mx-auto px-4 md:px-8;
-}
-
-ul > li:last-child:last-of-type .comment-divided-bar {
-  display: none;
+  /* Same width as the list pages (max-w-4xl), so the content edge doesn't jump between pages. */
+  .container-custom-screen {
+    @apply max-w-4xl mx-auto px-4 md:px-8;
+  }
 }
 
 .btnshake {
@@ -60,7 +61,33 @@ ul > li:last-child:last-of-type .comment-divided-bar {
 }
 
 .animate-bottom-bannner {
-  animation: bounce 1s infinite;
+  animation: slideUp 600ms cubic-bezier(0.16, 1, 0.3, 1) 1.5s both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Faint dot grid that fades out towards the edges (home hero). */
+.bg-dot-grid {
+  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bottom-bannner,
+  .btnshake {
+    animation: none;
+  }
 }
 
 @keyframes bounce {

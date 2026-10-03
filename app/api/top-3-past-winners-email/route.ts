@@ -3,7 +3,10 @@ import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 import { renderTop3WinnersEmail } from '@/utils/email-templates/render-top-3-winners-email';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { isAuthorizedCron } from '@/app/api/new-tools-launch-reminder-email/route';
+import { isAuthorizedCron } from '@/utils/cronAuth';
+
+// Cron-triggered: never prerender at build time.
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   if (process.env.NODE_ENV === 'production') {

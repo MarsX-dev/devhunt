@@ -1,4 +1,8 @@
 User-Agent: *
 Allow: /
 Disallow: /private/
+Disallow: /account/
+Disallow: /api/
+# Share images (og:image) must be fetchable by X, LinkedIn, Facebook, Slack... crawlers.
+Allow: /api/og/
 Sitemap: https://devhunt.org/sitemap.xml

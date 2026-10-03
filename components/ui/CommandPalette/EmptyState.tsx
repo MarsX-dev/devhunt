@@ -1,4 +1,5 @@
-export default () => (
+import Link from 'next/link';
+export default ({ onNavigate }: { onNavigate?: () => void }) => (
   <div className="space-y-2 text-center text-sm py-10 text-slate-300">
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -16,8 +17,8 @@ export default () => (
     </svg>
     <h4 className="font-medium">No results found</h4>
     <p className="text-slate-400">No products found for this search term.</p>
-    <a href="/" className="inline-block bg-slate-800/70 hover:bg-slate-800 rounded-md px-4 py-2 duration-150">
+    <Link href="/" onClick={onNavigate} className="inline-block bg-slate-800/70 hover:bg-slate-800 rounded-md px-4 py-2 duration-150">
       Find more tools
-    </a>
+    </Link>
   </div>
 )

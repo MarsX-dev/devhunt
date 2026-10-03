@@ -1,10 +1,14 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import ApiService from '@/utils/supabase/services/api';
 import { simpleToolApiDtoFormatter } from '@/pages/api/api-formatters';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  let { week, limit = 3, year = new Date().getFullYear(), key } = req.query;
-  if (key !== process.env.API_KEY) {
+  let { week, limit = 3, year = new Date().getFullYear() } = req.query;
+  // The key may come as ?key= (existing callers) or the x-api-key header. No key configured = closed.
+  const key = String(req.headers['x-api-key'] ?? req.query.key ?? '');
+  const expected = process.env.API_KEY ?? '';
+  if (!expected || key.length !== expected.length || !timingSafeEqual(Buffer.from(key), Buffer.from(expected))) {
     return res.status(403).json({ message: 'Forbidden' });
   }
 

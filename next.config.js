@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // `next dev` builds into its own folder (NEXT_DIST_DIR=.next-dev, see .claude/launch.json) so it can
+  // run next to `next start` without overwriting the production build in .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -10,21 +13,15 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-  env: {
-    DISCOR_TOOL_WEBHOOK: process.env.DISCOR_TOOL_WEBHOOK,
-    DISCORD_USER_WEBHOOK: process.env.DISCORD_USER_WEBHOOK,
-    USER_MAVEN_KEY: process.env.USER_MAVEN_KEY,
-    WELCOME_EMAIL_API_KEY: process.env.WELCOME_EMAIL_API_KEY,
-    SIGNUP_FORM_ID: process.env.SIGNUP_FORM_ID,
-    NEWSLETTER_FORM_ID: process.env.NEWSLETTER_FORM_ID,
-    AUTH_TOKEN_PASSWORD: process.env.AUTH_TOKEN_PASSWORD,
-    AUTH_TOKEN_API_KEY: process.env.AUTH_TOKEN_API_KEY,
-    PH_ACCESS_TOKEN: process.env.PH_ACCESS_TOKEN,
-    WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
-    MARSX_MAILER_AUTH: process.env.MARSX_MAILER_AUTH,
-    MARSX_MAILER_AUDIENCE_ID: process.env.MARSX_MAILER_AUDIENCE_ID,
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
+  // The analytics page moved out of /account (it's DevHunt's analytics, admins only).
+  async redirects() {
+    return [
+      { source: '/account/analytics', destination: '/admin/analytics', permanent: true },
+      { source: '/about', destination: '/the-story', permanent: true },
+    ];
   },
+  // No `env` block: Next inlines those values into every bundle that references them, including
+  // browser code. Server code reads process.env at runtime; browser values must be NEXT_PUBLIC_*.
   images: {
     remotePatterns: [
       {

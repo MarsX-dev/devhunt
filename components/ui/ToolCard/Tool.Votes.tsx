@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import customDateFromNow from '@/utils/customDateFromNow';
 import LinkItem from '../Link/LinkItem';
 import Button from '../Button/Button';
-import ProfileService from '@/utils/supabase/services/profile';
+import { hasUserVoted } from '@/utils/userVotes';
 
 export default ({
   count,
@@ -19,8 +19,12 @@ export default ({
   launchEnd,
   productId = null,
   className = '',
+  pending = 0,
+  variant = 'stack',
 }: {
+  variant?: 'stack' | 'inline'; // inline: small horizontal pill for one-line rows
   count?: number;
+  pending?: number; // a real vote from today not shown yet; the live replay counts it up (home page)
   launchDate: string | number;
   launchEnd: string | number;
   productId?: number | null;
@@ -28,7 +32,6 @@ export default ({
 }) => {
   const { session } = useSupabase();
   const productsService = new ProductsService(createBrowserClient());
-  const profileService = new ProfileService(createBrowserClient());
   const isLaunchStarted = new Date(launchDate).getTime() <= Date.now();
   const isLaunchEnd = new Date(launchEnd).getTime() <= Date.now();
 
@@ -37,48 +40,63 @@ export default ({
   const [isUpvoted, setUpvoted] = useState(false);
   const [isModalActive, setModalActive] = useState(false);
   const [modalInfo, setMoadlInfo] = useState({ title: '', desc: '' });
+  const [touched, setTouched] = useState(false); // once the visitor votes, always show the real count
+  const shownCount = (votesCount ?? 0) - (touched ? 0 : pending);
 
   const toggleVote = async () => {
-    const profile = session && session.user ? await profileService.getByIdWithNoCache(session.user?.id) : null;
     if (session && session.user) {
       setMoadlInfo(
         new Date(launchEnd).getTime() >= Date.now()
           ? { title: 'Not Launched Yet!', desc: `Oops, this tool hasn't launched yet! Check back on ${customDateFromNow(launchDate)}.` }
-          : { title: 'This tool week is ends', desc: `Oops, you missed this tool week, it was launched ${customDateFromNow(launchDate)}.` },
+          : { title: 'Voting has ended', desc: `Voting for this tool closed at the end of its launch week. It launched ${customDateFromNow(launchDate)}.` },
       );
       if (isLaunchStarted && new Date(launchEnd).getTime() >= Date.now()) {
         const newVotesCount = await productsService.toggleVote(productId as number, session.user.id);
-        router.refresh();
         setUpvoted(!isUpvoted);
+        setTouched(true);
         setVotesCount(newVotesCount);
       } else setModalActive(true);
     } else if (!session) router.push('/login');
-    else if (profile && !profile?.social_url == null) window.location.reload();
   };
 
   useEffect(() => {
-    session && session.user
-      ? productsService.getUserVoteById(session.user.id, productId as number).then(data => {
-          if ((data as { user_id: string })?.user_id) setUpvoted(true);
-          else setUpvoted(false);
-        })
-      : null;
-  }, []);
+    if (session?.user && productId) void hasUserVoted(session.user.id, productId).then(setUpvoted);
+  }, [session?.user?.id, productId]); // the session loads in the browser after the first render
 
   return (
     <>
+      {variant === 'inline' ? (
+        <button
+          onClick={toggleVote}
+          id="vote-item"
+          aria-label={`Upvote ${shownCount}`}
+          className={mergeTW(
+            `flex h-8 items-center gap-x-1.5 rounded-lg border px-2.5 font-mono text-xs tabular-nums duration-150 ${
+              isUpvoted ? 'border-orange-500/70 bg-orange-500/10 text-orange-400' : 'border-slate-700 text-slate-300 hover:border-slate-500 hover:text-slate-50'
+            } ${className}`,
+          )}
+        >
+          <IconVote className="h-3.5 w-3.5 pointer-events-none" />
+          <span key={shownCount} className="pointer-events-none motion-safe:animate-tick">
+            {shownCount}
+          </span>
+        </button>
+      ) : (
       <button
         onClick={toggleVote}
         id="vote-item"
         className={mergeTW(
-          `px-4 py-1 text-center text-slate-400 active:scale-[1.5] duration-200 rounded-md border bg-[linear-gradient(180deg,_#1E293B_0%,_rgba(30,_41,_59,_0.00)_100%)] ${
-            isUpvoted ? 'text-orange-600 border-orange-600' : 'border-slate-700 hover:text-orange-300'
+          `w-14 py-1.5 text-center text-slate-300 active:scale-110 duration-200 rounded-xl border bg-slate-900 ${
+            isUpvoted ? 'text-orange-500 border-orange-500/70 bg-orange-500/10' : 'border-slate-800 hover:border-slate-600 hover:text-slate-50'
           } ${className} ${isLaunchEnd ? ' opacity-60' : ''}`,
         )}
       >
         <IconVote className="mt-1 w-4 h-4 mx-auto pointer-events-none" />
-        <span className="text-sm pointer-events-none">{votesCount}</span>
+        <span key={shownCount} className="block font-mono text-sm tabular-nums pointer-events-none motion-safe:animate-tick">
+          {shownCount}
+        </span>
       </button>
+      )}
       <Modal
         isActive={isModalActive}
         icon={<IconInformationCircle className="text-blue-500 w-6 h-6" />}
@@ -93,7 +111,7 @@ export default ({
           onClick={() => setModalActive(false)}
           className="flex-1 block w-full text-sm border border-slate-700 bg-transparent hover:bg-slate-900 mt-2 sm:mt-0"
         >
-          Continue
+          Close
         </Button>
       </Modal>
     </>

@@ -1,17 +1,43 @@
+import PageHeader from '@/components/ui/PageHeader';
 import Pricing from './pricing';
 import Stats from './stats';
 import Logos from './logos';
 
 export const metadata = {
-  title: 'The Story - Dev Hunt',
+  title: 'About DevHunt - the launchpad for dev tools',
+  description: 'Who builds DevHunt, how weekly launches and voting work, and which dev tools can launch here.',
+  alternates: { canonical: '/the-story' },
+};
+
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  url: 'https://devhunt.org/the-story',
+  name: 'About DevHunt',
+  about: {
+    '@type': 'Organization',
+    name: 'DevHunt',
+    url: 'https://devhunt.org',
+    sameAs: ['https://github.com/MarsX-dev/devhunt', 'https://x.com/johnrush'],
+    founder: {
+      '@type': 'Person',
+      name: 'John Rush',
+      url: 'https://johnrush.me',
+      jobTitle: 'Founder',
+      sameAs: ['https://x.com/johnrush', 'https://johnrush.me'],
+    },
+  },
 };
 
 // this way of writing static pages with content is not professional, we gonna use MDX later.
 export default () => {
   return (
     <div className="">
-      <article className="container-custom-screen mt-12 prose prose-invert">
-        <h1>About DevHunt</h1>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
+      <div className="container-custom-screen mt-10">
+        <PageHeader eyebrow="About" title="About DevHunt" />
+      </div>
+      <article className="container-custom-screen mt-8 prose prose-invert text-[15px] leading-7">
         <p>
           Welcome to <strong>DevHunt</strong>! We're a group of cool, young developers who came together with one mission: to create an
           awesome platform specifically for launching developer tools. We believe in collaboration and making the internet better for devs

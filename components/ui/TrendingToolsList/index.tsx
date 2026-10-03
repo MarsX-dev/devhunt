@@ -1,63 +1,46 @@
 'use client';
 
-import ToolName from '@/components/ui/ToolCard/Tool.Name';
-import Tags from '@/components/ui/ToolCard/Tool.Tags';
-import Title from '@/components/ui/ToolCard/Tool.Title';
-import ToolCard from '@/components/ui/ToolCard/ToolCard';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import ToolVotes from '@/components/ui/ToolCard/Tool.Votes';
-import ToolFooter from '@/components/ui/ToolCard/Tool.Footer';
-import ToolViews from '@/components/ui/ToolCard/Tool.views';
 import { useEffect, useState } from 'react';
-import { ProductType } from '@/type';
-import ProductsService from '@/utils/supabase/services/products';
-import ToolLogo from '@/components/ui/ToolCard/Tool.Logo';
-import Link from 'next/link';
+import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
+import { RowsSkeleton } from '@/components/ui/Skeletons/PageSkeletons';
+import { type ToolRowData } from '@/utils/toolRow';
 
-const getTrendingTools = async () => {
-  const today = new Date();
-  const productService = new ProductsService(createBrowserClient());
-  const week = await productService.getWeekNumber(today, 2);
-  return await productService.getPrevLaunchWeeks(today.getFullYear(), 2, week, 1);
-};
+const SHOWN = 8;
 
-export default () => {
-  const [trendingTools, setTrendingTools] = useState<[]>([]);
+// Fetched once per page load and shared: the tool modal re-mounts this list on every ←/→ step.
+let trending: Promise<ToolRowData[]> | null = null;
+const loadTrending = (): Promise<ToolRowData[]> =>
+  (trending ??= fetch('/api/trending')
+    .then(res => (res.ok ? res.json() : []))
+    .catch(() => {
+      trending = null;
+      return [];
+    }));
+
+// This week's leaders as compact ranked rows (tool page and preview modal).
+export default function TrendingToolsList({ excludeId }: { excludeId?: number }) {
+  const [tools, setTools] = useState<{ tool: ToolRowData; rank: number }[] | null>(null); // null while loading
 
   useEffect(() => {
-    getTrendingTools().then(tools => {
-      const allTools = tools?.map(tool => tool);
-      setTrendingTools(allTools as any);
+    let alive = true;
+    void loadTrending().then(list => {
+      const ranked = list.map((tool, idx) => ({ tool, rank: idx + 1 })); // real week ranks
+      if (alive) setTools(ranked.filter(({ tool }) => tool.id !== excludeId).slice(0, SHOWN));
     });
-  }, []);
+    return () => {
+      alive = false;
+    };
+  }, [excludeId]);
 
+  if (!tools) return <RowsSkeleton rows={SHOWN} className="mt-2" ranked />;
   return (
-    <ul className="mt-3 divide-y divide-slate-800/60">
-      {trendingTools?.map(group => (
-        <div>
-          {(group as { products: ProductType[] }).products.map((tool: ProductType, idx: number) => (
-            <>
-              {idx === 3 && <div id="TA_AD_CONTAINER"></div>}
-              <li key={idx} className="py-3">
-                <ToolCard tool={tool} href={'/tool/' + tool.slug}>
-                  <Link onClick={e => e.preventDefault()} href={'/tool/' + tool.slug} className="w-full flex items-center gap-x-4">
-                    <ToolLogo src={tool.logo_url || ''} alt={tool.name} />
-                    <div className="w-full space-y-1">
-                      <ToolName href={tool.demo_url as string}>{tool.name}</ToolName>
-                      <Title className="line-clamp-2">{tool.slogan}</Title>
-                      <ToolFooter>
-                        <Tags items={[tool.product_pricing_types?.title ?? 'Free', ...(tool.product_categories || []).map(c => c.name)]} />
-                        <ToolViews count={tool.views_count} />
-                      </ToolFooter>
-                    </div>
-                  </Link>
-                  <ToolVotes count={tool.votes_count} productId={tool?.id} launchDate={tool.launch_date} launchEnd={tool.launch_end} />
-                </ToolCard>
-              </li>
-            </>
-          ))}
-        </div>
-      ))}
-    </ul>
+    <ol className="mt-2">
+      {tools.map(({ tool, rank }, idx) => [
+        sponsorBefore(idx, tools.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, tools.length)} />,
+        <ToolRow key={tool.id} tool={tool} rank={rank} revealIndex={idx} />,
+      ])}
+    </ol>
   );
-};
+}

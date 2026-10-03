@@ -10,7 +10,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:better-supabase-types": "npx better-supabase-types -i ./utils/supabase/types.ts -f -s",
-    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > utils/supabase/types.ts && npm run format:better-supabase-types"
+    "fetch:types": "npx supabase gen types typescript --schema public --project-id=\"xpdhqqwgprlqmqaqmnyx\" > utils/supabase/types.ts && npm run format:better-supabase-types",
+    "test": "vitest run tests/unit",
+    "test:api": "vitest run tests/api",
+    "test:e2e": "playwright test --project=desktop --project=mobile --project=logged-in",
+    "test:all": "vitest run && playwright test --project=desktop --project=mobile --project=logged-in"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
@@ -23,7 +27,6 @@
     "@supabase/auth-helpers-nextjs": "^0.7.2",
     "@supabase/supabase-js": "^2.39.2",
     "@types/prismjs": "^1.26.0",
-    "@usermaven/sdk-js": "^1.2.2",
     "axios": "^1.4.0",
     "dompurify": "^3.0.3",
     "follow-redirects": "^1.15.5",
@@ -34,7 +37,7 @@
     "lucide-react": "^0.454.0",
     "mergent": "^1.6.0",
     "moment": "^2.29.4",
-    "next": "13.5.2",
+    "next": "14.2.35",
     "next-nprogress-bar": "^2.0.3",
     "node-cache": "^5.1.2",
     "prismjs": "^1.29.0",
@@ -42,14 +45,15 @@
     "react-cool-onclickoutside": "^1.7.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.44.2",
-    "request": "^2.88.2",
     "resend": "^6.12.2",
     "seobot": "^1.0.8",
     "standardwebhooks": "^1.0.0",
+    "stripe": "^22.6.2",
     "tailwind-merge": "^1.12.0",
     "waypoints": "^4.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.9",
     "@types/dompurify": "^3.0.2",
@@ -57,13 +61,12 @@
     "@types/node": "20.2.3",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
-    "@types/request": "^2.48.12",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "autoprefixer": "10.4.14",
     "better-supabase-types": "^2.7.3",
     "encoding": "^0.1.13",
     "eslint": "8.41.0",
-    "eslint-config-next": "13.4.3",
+    "eslint-config-next": "14.2.35",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard-with-typescript": "^34.0.1",
     "eslint-plugin-import": "^2.27.5",
@@ -74,6 +77,7 @@
     "prettier": "^2.8.8",
     "supabase": "^1.142.2",
     "tailwindcss": "3.3.2",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vitest": "^2.1.9"
   }
 }

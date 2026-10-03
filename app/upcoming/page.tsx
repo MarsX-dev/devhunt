@@ -1,28 +1,39 @@
+import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
+import { Fragment } from 'react';
 import ProductsService from '@/utils/supabase/services/products';
-import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
-import { ProductType } from '@/type';
+import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 // import { shuffleToolsBasedOnDate } from '@/utils/helpers';
 import { createBrowserClient } from '@/utils/supabase/browser';
+import { toToolRow } from '@/utils/toolRow';
+import { weekKey } from '@/utils/launchWeeks';
+import PageHeader from '@/components/ui/PageHeader';
+import SectionLabel from '@/components/ui/SectionLabel';
+import ScrollToHash from '@/components/ui/ScrollToHash';
 
 const { title, description, ogImage } = {
   title: 'Dev Hunt – The best new Dev Tools every day.',
   description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
-  ogImage: 'https://devhunt.org/devhuntog.png?v=2',
+  ogImage: 'https://devhunt.org/api/og/home',
 };
 
 export const metadata = {
-  title,
-  description,
+  title: 'Upcoming Dev Tools - Launching Next on DevHunt',
+  description: 'The next developer tools launching on DevHunt, week by week. New launches go live every Tuesday.',
+  metadataBase: new URL('https://devhunt.org'),
+  alternates: { canonical: '/upcoming' },
   openGraph: {
-    title,
-    description,
+    title: 'Upcoming Dev Tools - Launching Next on DevHunt',
+    description: 'The next developer tools launching on DevHunt, week by week.',
     images: [ogImage],
-    url: 'https://devhunt.org',
+    url: 'https://devhunt.org/upcoming',
   },
   twitter: {
     card: 'summary_large_image',
-    title,
-    description,
+    title: 'Upcoming Dev Tools - Launching Next on DevHunt',
+    description: 'The next developer tools launching on DevHunt, week by week.',
     images: [ogImage],
   },
 };
@@ -42,36 +53,84 @@ function getDate(weekStartDay: number): Date {
   return today;
 }
 
-export default async function Home() {
-  const weekStartDay = 2;
-  const today = getDate(weekStartDay);
-  const productService = new ProductsService(createBrowserClient());
-  const week = await productService.getWeekNumber(today, 2);
-  const launchWeeks = await productService.getNextLaunchWeeks(today.getFullYear(), 2, week, 5);
+// Weeks shown initially and added per "Show more" click.
+const WEEKS_PER_PAGE = 4;
+const MAX_WEEKS = 52;
+
+// The upcoming weeks, shared by all visitors and cached for 5 minutes: the page renders per request
+// (it reads ?weeks=), and get_next_launch_weeks builds JSON of every scheduled product.
+const getUpcoming = unstable_cache(
+  async (weeksToShow: number) => {
+    const supabase = createBrowserClient();
+    const productService = new ProductsService(supabase);
+    const today = getDate(2);
+    const week = await productService.getWeekNumber(today, 2);
+    const launchWeeks = await productService.getNextLaunchWeeks(today.getFullYear(), 2, week, weeksToShow);
+
+    // How many tools are scheduled after the last week shown (for the "Show more" button).
+    const lastShownEnd = launchWeeks.length ? launchWeeks[launchWeeks.length - 1].endDate : null;
+    const { count: laterCount } = lastShownEnd
+      ? await supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('deleted', false)
+          .gt('launch_start', lastShownEnd.toISOString())
+      : { count: 0 };
+
+    // Plain JSON (the cache doesn't keep Dates) with only the fields a tool row shows.
+    const weeks = launchWeeks.map(group => ({ start: group.startDate.toISOString(), products: group.products.map(toToolRow) }));
+    return { weeks, laterCount: laterCount ?? 0 };
+  },
+  ['upcoming-weeks'],
+  { revalidate: 300 },
+);
+
+export default async function Home({ searchParams }: { searchParams: { weeks?: string } }) {
+  const weeksToShow = Math.min(Math.max(Number(searchParams.weeks) || WEEKS_PER_PAGE, WEEKS_PER_PAGE), MAX_WEEKS);
+  const { weeks, laterCount } = await getUpcoming(weeksToShow);
+  const launchWeeks = weeks.map(group => ({ startDate: new Date(group.start), products: group.products }));
 
   return (
-    <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
-      <div>
-        <h1 className="text-slate-50 text-3xl font-semibold">The upcoming tools</h1>
-        <p className="text-slate-300 mt-3">Browse the upcoming tools, and be in update with the next.</p>
-      </div>
+    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="Coming up" title="The next dev tools to launch">
+        New launches go live every Tuesday. Here&apos;s who&apos;s next in line.{' '}
+        <Link href="/account/tools/new" className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-slate-50">
+          Launch yours
+        </Link>
+      </PageHeader>
 
       <div className="mt-10 mb-12">
-        {launchWeeks.map(group => (
-          <>
-            <div className="mt-3 text-slate-400 text-sm">
-              {group.startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        <ScrollToHash />
+        {launchWeeks.map((group, weekIdx) => (
+          <Fragment key={group.startDate.toISOString()}>
+            <div id={`week-${weekIdx + 1}`} className={`scroll-mt-24 ${weekIdx ? 'mt-14' : ''}`} data-week={weekKey(group.startDate)}>
+              <SectionLabel
+                title={`Week of ${group.startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' })}`}
+                hint={`${group.products.length} ${group.products.length === 1 ? 'tool' : 'tools'}${weekIdx === 0 ? ' · next Tuesday' : ''}`}
+              />
             </div>
-            <ul className="mt-3 divide-y divide-slate-800/60">
-              {/* {shuffleToolsBasedOnDate(group.products).map((product, idx) => (
-                <ToolCardEffect key={idx} tool={product as ProductType} />
-              ))} */}
-              {group.products.map((product, idx) => (
-                <ToolCardEffect key={idx} tool={product as ProductType} />
-              ))}
-            </ul>
-          </>
+            <ol className="mt-2">
+              {group.products.map((product, idx) => [
+                sponsorBefore(idx, group.products.length) >= 0 && (
+                  <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, group.products.length)} list={weekIdx} />
+                ),
+                <ToolRow key={product.id ?? idx} tool={product} revealIndex={idx} />,
+              ])}
+            </ol>
+          </Fragment>
         ))}
+        {!!laterCount && weeksToShow < MAX_WEEKS && (
+          <div className="mt-10 text-center">
+            {/* A plain link (full load): the client router kept showing the old weeks after the URL changed. The anchor
+                opens the page at the first newly added week. */}
+            <a
+              href={`/upcoming?weeks=${weeksToShow + WEEKS_PER_PAGE}#week-${weeksToShow + 1}`}
+              className="inline-block rounded-full border border-slate-800 px-4 py-2 text-sm text-slate-300 duration-150 hover:border-slate-600 hover:text-slate-50"
+            >
+              Show more ({laterCount.toLocaleString('en-US')} tools scheduled)
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );

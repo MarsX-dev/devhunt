@@ -27,11 +27,8 @@ export default ({ children, hash, href, sectionId, className = '', linkClassName
     const currentHash = window.location.hash;
 
     if (!currentHash) {
-      if (hash === '#') {
-        setLinkActive(true);
-      } else {
-        setLinkActive(false);
-      }
+      // No hash yet: the '#' tab, or the one passed as isActive, is the default.
+      setLinkActive(hash === '#' || !!isActive);
     } else {
       if (currentHash === hash) {
         setLinkActive(true);
@@ -91,7 +88,7 @@ export default ({ children, hash, href, sectionId, className = '', linkClassName
             {children}
           </Link>
         ) : (
-          <a {...props} href={`${window && window.location.pathname}${hash}`} className={customClassName}>
+          <a {...props} href={`${pathname}${hash}`} className={customClassName}>
             {children}
           </a>
         )

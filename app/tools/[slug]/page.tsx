@@ -1,76 +1,72 @@
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import categories from '@/utils/categories';
+import PageHeader from '@/components/ui/PageHeader';
+import ToolRow from '@/components/ui/ToolRow';
+import ListPagination from '@/components/ui/ListPagination';
+import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
 import { createBrowserClient } from '@/utils/supabase/browser';
-import ProductsService from '@/utils/supabase/services/products';
 import CategoryService from '@/utils/supabase/services/categories';
-import Page404 from '@/components/ui/Page404/Page404';
-import { Product } from '@/utils/supabase/types';
-import dynamic from 'next/dynamic';
-import MonitizorAdCards from "@/components/ui/MonitizerAdCards";
-const ToolCardEffect = dynamic(() => import('@/components/ui/ToolCardEffect/ToolCardEffect'), { ssr: true });
-// import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
+import { getLeaderboardPage, LIST_PAGE_SIZE, pageFromParam } from '@/utils/toolLists';
 
-const getOriginalSlug = (slug: string) => {
-  const getValidSlug = categories.filter(item => slug.replaceAll('-', ' ') == item.name.toLowerCase());
-  return getValidSlug[0].name;
-};
+type Params = { params: { slug: string }; searchParams: { page?: string } };
 
-export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
-  if (getOriginalSlug(slug))
-    return {
-      title: `Best ${getOriginalSlug(slug)} Tools`,
-      metadataBase: new URL('https://devhunt.org'),
-      alternates: {
-        canonical: `/tools/${slug}`,
-      },
-      openGraph: {
-        title: `Best ${getOriginalSlug(slug)} Tools`,
-      },
-      twitter: {
-        title: `Best ${getOriginalSlug(slug)} Tools`,
-      },
-    };
-  else
-    return {
-      title: '404: This page could not be found.',
-      description: '',
-    };
+const getOriginalSlug = (slug: string) => categories.find(item => slug.replaceAll('-', ' ') == item.name.toLowerCase())?.name;
+const categoryDescription = (name?: string) => categories.find(c => c.name === name)?.description ?? '';
+
+export async function generateMetadata({ params: { slug }, searchParams }: Params): Promise<Metadata> {
+  const name = getOriginalSlug(slug);
+  if (!name) return { title: '404: This page could not be found.', description: '' };
+  const page = pageFromParam(searchParams?.page);
+  const title = `Best ${name} Tools${page > 1 ? ` - Page ${page}` : ''} | DevHunt`;
+  const shareImage = { url: `https://devhunt.org/api/og/category/${slug}`, width: 1200, height: 630, alt: title };
+  const description = `${categoryDescription(name)} The best ${name} dev tools launched on DevHunt, ranked by developer upvotes.`;
+  return {
+    title,
+    description,
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: { canonical: page > 1 ? `/tools/${slug}?page=${page}` : `/tools/${slug}` },
+    openGraph: { title, description, images: [shareImage], url: `https://devhunt.org/tools/${slug}` },
+    twitter: { card: 'summary_large_image', title, description, images: [shareImage] },
+  };
 }
 
-export default async ({ params: { slug } }: { params: { slug: string } }) => {
-  const productService = new ProductsService(createBrowserClient());
-  const categoryService = new CategoryService(createBrowserClient());
-
+export default async function CategoryPage({ params: { slug }, searchParams }: Params) {
   const categoryName = getOriginalSlug(slug);
+  if (!categoryName) notFound();
 
-  // Fetch the category
-  const categories: any = await categoryService.search(categoryName);
-  if (categories.length == 0) return <Page404 />;
-  const category = categories.find((c: { name: string }) => c.name.toLowerCase() === categoryName.toLowerCase());
+  const found = (await new CategoryService(createBrowserClient()).search(categoryName)) as { id: number; name: string }[] | null;
+  const category = found?.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
+  if (!category) notFound();
 
-  // Fetch the products
-  const { data: products } = await productService.getProducts(
-    'votes_count',
-    false,
-    50,
-    1,
-    category.id,
-    productService.EXTENDED_PRODUCT_SELECT_WITH_CATEGORIES,
-  );
+  const page = pageFromParam(searchParams?.page);
+  const { rows, total } = await getLeaderboardPage(page, category.id);
+  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
+  if (page > totalPages) notFound();
 
   return (
-    <section className="max-w-4xl mt-5 lg:mt-10 mx-auto px-4 md:px-8">
-      <>
-        <>
-          <h1 className="text-xl text-slate-50 font-extrabold mb-10">Best {getOriginalSlug(slug)} tools</h1>
-          <MonitizorAdCards />
-          <ul className="mt-10 mb-12 divide-y divide-slate-800/60">
-            {products.map((product: Product, idx: number) => (
-              <ToolCardEffect key={idx} tool={product as any} />
-            ))}
-          </ul>
-        </>
-      </>
+    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="Category" title={`Best ${categoryName} tools`}>
+        {categoryDescription(categoryName)} {total.toLocaleString('en-US')} tools, ranked by upvotes from the community.
+      </PageHeader>
+      <MonitizorAdCards />
+      <ol className="mt-10 mb-4">
+        {rows.map((tool, idx) => [
+          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} />,
+          <ToolRow
+            key={tool.id}
+            tool={tool}
+            rank={(page - 1) * LIST_PAGE_SIZE + idx + 1}
+            rankDigits={String(page * LIST_PAGE_SIZE).length}
+            showDate
+            revealIndex={idx}
+          />,
+        ])}
+      </ol>
+      <ListPagination basePath={`/tools/${slug}`} page={page} totalPages={totalPages} />
+      <div className="mb-16" />
     </section>
   );
-};
+}

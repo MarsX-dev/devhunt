@@ -1,56 +1,54 @@
-import ProductsService from '@/utils/supabase/services/products';
-import ToolCardEffect from '@/components/ui/ToolCardEffect/ToolCardEffect';
-import { ProductType } from '@/type';
-// import { shuffleToolsBasedOnDate } from '@/utils/helpers';
-import { createBrowserClient } from '@/utils/supabase/browser';
-import Pagination from '@/components/ui/Blog/Pagination';
+import { type Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import PageHeader from '@/components/ui/PageHeader';
+import ToolRow from '@/components/ui/ToolRow';
+import InlineSponsor from '@/components/ui/Sponsors/InlineSponsor';
+import { sponsorBefore } from '@/utils/ads';
+import ListPagination from '@/components/ui/ListPagination';
+import { getLeaderboardPage, LIST_PAGE_SIZE, pageFromParam } from '@/utils/toolLists';
 
-const { title, description, ogImage } = {
-  title: 'Explore the best Dev Tools on Dev Hunt',
-  description: 'A launchpad for dev tools, built by developers for developers, open source, and fair.',
-  ogImage: 'https://devhunt.org/devhuntog.png?v=2',
-};
+const description = 'A launchpad for dev tools, built by developers for developers, open source, and fair.';
+const ogImage = 'https://devhunt.org/api/og/home';
 
-export const metadata = {
-  title,
-  description,
-  openGraph: {
+export async function generateMetadata({ searchParams }: { searchParams: { page?: string } }): Promise<Metadata> {
+  const page = pageFromParam(searchParams?.page);
+  const title = `Explore the best Dev Tools on Dev Hunt${page > 1 ? ` - Page ${page}` : ''}`;
+  return {
     title,
     description,
-    images: [ogImage],
-    url: 'https://devhunt.org',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title,
-    description,
-    images: [ogImage],
-  },
-};
+    metadataBase: new URL('https://devhunt.org'),
+    alternates: { canonical: page > 1 ? `/all-dev-tools?page=${page}` : '/all-dev-tools' },
+    openGraph: { title, description, images: [ogImage], url: 'https://devhunt.org/all-dev-tools' },
+    twitter: { card: 'summary_large_image', title, description, images: [ogImage] },
+  };
+}
 
-export default async function Page({ searchParams }: { searchParams: { page: number } }) {
-  const pageCount = Math.max((searchParams.page || 0) - 1, 0);
-  const productService = new ProductsService(createBrowserClient());
-  const products = await productService.getProducts('votes_count', false, 50, pageCount || 1);
-
-  const numberOfItems = products.count;
-  const numberPerPage = 50;
-  const numberOfPages = Math.ceil(numberOfItems / numberPerPage);
+export default async function Page({ searchParams }: { searchParams: { page?: string } }) {
+  const page = pageFromParam(searchParams?.page);
+  const { rows, total } = await getLeaderboardPage(page);
+  const totalPages = Math.max(1, Math.ceil(total / LIST_PAGE_SIZE));
+  if (page > totalPages) notFound();
 
   return (
-    <section className="max-w-4xl mt-20 mx-auto px-4 md:px-8">
-      <div>
-        <h1 className="text-slate-50 text-3xl font-semibold">All DevTools on Dev Hunt</h1>
-      </div>
-
-      <div className="mt-10 mb-12">
-        <ul className="mt-3 divide-y divide-slate-800/60">
-          {products.data.map((product: ProductType, idx: number) => (
-            <ToolCardEffect key={idx} tool={product as ProductType} />
-          ))}
-        </ul>
-      </div>
-      <Pagination slug="/all-dev-tools" pageNumber={pageCount || 0} lastPage={numberOfPages} />
+    <section className="max-w-4xl mt-10 mx-auto px-4 md:px-8">
+      <PageHeader eyebrow="All-time leaderboard" title="All dev tools on DevHunt">
+        {total.toLocaleString('en-US')} tools, ranked by upvotes from the community.
+      </PageHeader>
+      <ol className="mt-10 mb-4">
+        {rows.map((tool, idx) => [
+          sponsorBefore(idx, rows.length) >= 0 && <InlineSponsor key={`sponsor-${idx}`} n={sponsorBefore(idx, rows.length)} />,
+          <ToolRow
+            key={tool.id}
+            tool={tool}
+            rank={(page - 1) * LIST_PAGE_SIZE + idx + 1}
+            rankDigits={String(page * LIST_PAGE_SIZE).length}
+            showDate
+            revealIndex={idx}
+          />,
+        ])}
+      </ol>
+      <ListPagination basePath="/all-dev-tools" page={page} totalPages={totalPages} />
+      <div className="mb-16" />
     </section>
   );
 }

@@ -4,7 +4,8 @@ const stdTTL = 30;
 class CacheService {
   private _cache = new NodeCache({ stdTTL });
 
-  async get(key: string, asyncFetcher: () => Promise<any>, ttl: number = stdTTL) {
+  // shouldCache: return false for values that must not be shared between users (e.g. owner-only rows).
+  async get(key: string, asyncFetcher: () => Promise<any>, ttl: number = stdTTL, shouldCache: (value: any) => boolean = () => true) {
     const value = this._cache.get(key);
 
     if (value !== undefined && value !== null) {
@@ -13,7 +14,7 @@ class CacheService {
 
     const newValue = await asyncFetcher();
 
-    this._cache.set(key, newValue, ttl);
+    if (shouldCache(newValue)) this._cache.set(key, newValue, ttl);
     return newValue;
   }
 

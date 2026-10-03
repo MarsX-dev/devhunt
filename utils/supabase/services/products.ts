@@ -69,16 +69,31 @@ export default class ProductsService extends BaseDbService {
     }));
   }
 
-  async getWeeklyWinners(excludeWeek: number = 0): Promise<ExtendedProduct[]> {
-    const { data, error } = await this.supabase.from('weekly_winners').select();
+  // Weekly winners, newest first, one page of raw rows plus the total (the caller leaves out the
+  // week that is still running).
+  async getWeeklyWinnersPage(
+    offset: number,
+    limit: number,
+  ): Promise<{ total: number; rows: { week: number; year: number; product: ExtendedProduct }[] }> {
+    const { data, count, error } = await this.supabase
+      .from('weekly_winners')
+      .select('*', { count: 'exact' })
+      .order('year', { ascending: false })
+      .order('week', { ascending: false })
+      .range(offset, offset + limit - 1);
     if (error !== null) throw new Error(error.message);
-    return data
-      .filter(i => i.week !== excludeWeek)
-      .map(i => ({
-        ...i.product_data.product,
-        product_pricing_types: i.product_data.product_pricing_types,
-        product_categories: i.product_data.product_categories,
-      })) as ExtendedProduct[];
+    return {
+      total: count ?? 0,
+      rows: data.map(i => ({
+        week: i.week as number,
+        year: Number(i.year),
+        product: {
+          ...i.product_data.product,
+          product_pricing_types: i.product_data.product_pricing_types,
+          product_categories: i.product_data.product_categories,
+        } as ExtendedProduct,
+      })),
+    };
   }
 
   async getPrevLaunchWeeks(
@@ -144,18 +159,18 @@ export default class ProductsService extends BaseDbService {
     startWeek: number,
     endWeek: number,
     year: number,
+    moderation: 'ok' | 'not_a_fit' = 'ok', // which queue to count; 'not_a_fit' is server-only (get_launch_week_counts)
   ): Promise<{ week: number; startDate: Date; endDate: Date; count: number }[]> {
     const queryProductsCount = async (startWeek: number, endWeek: number, year: number) => {
-      const { data, error } = await this.supabase.rpc('get_products_count_by_week', {
-        start_week: startWeek,
-        end_week: endWeek,
-        year_in: year,
-        start_day: 2, // Tuesday
-      });
+      const args = { start_week: startWeek, end_week: endWeek, year_in: year, start_day: 2 }; // weeks start on Tuesday
+      const { data, error } =
+        moderation === 'ok'
+          ? await this.supabase.rpc('get_products_count_by_week', args)
+          : await this.supabase.rpc('get_launch_week_counts' as never, { ...args, _moderation: moderation } as never);
 
-      if (error !== null) throw new Error(error.message);
+      if (error !== null) throw new Error((error as { message: string }).message);
 
-      return data.map(i => ({
+      return (data as Array<{ week_number: number; start_date: string; end_date: string; product_count: number }>).map(i => ({
         week: i.week_number,
         startDate: new Date(i.start_date),
         endDate: new Date(i.end_date),
@@ -187,45 +202,10 @@ export default class ProductsService extends BaseDbService {
     return results;
   }
 
-  getProducts(
-    sortBy: string = 'votes_count',
-    ascending: boolean = false,
-    pageSize = 50,
-    pageNumber = 1,
-    categoryId?: number | null,
-    selectQuery = this.EXTENDED_PRODUCT_SELECT,
-    showAll: boolean = false,
-  ) {
-    const key = `products-${sortBy}-${ascending}-${categoryId}-${pageNumber}-${pageSize}-${selectQuery}`;
-
-    return cache.get(key, async () => {
-      // @ts-expect-error there is error in types? foreignTable is required for order options, while it's not
-      let products = this.supabase.from('products').select(selectQuery).eq('deleted', false);
-      const count = (await products).data?.length;
-      if (categoryId) {
-        products = products.eq('product_categories.id', categoryId);
-      }
-
-      if (!showAll) {
-        products = products.eq('isPaid', true);
-      }
-
-      const getProducts = await products.range(pageSize * (pageNumber - 1), pageSize * pageNumber - 1).order(sortBy, { ascending });
-
-      return { ...getProducts, count };
-    });
-  }
-
   async getSimilarProducts(productId: number): Promise<Product[]> {
     const { data, error } = await this.supabase.rpc('get_similar_products', { _product_id: productId });
     if (error !== null) throw new Error(error.message);
     return data;
-  }
-
-  async getTopProducts(sortBy: string, ascending: boolean): Promise<ExtendedProduct[]> {
-    const { data: products, error } = await this.getProducts(sortBy, ascending);
-    if (error) throw new Error(error.message);
-    return products as ExtendedProduct[];
   }
 
   async getMostDiscussedProducts(limit = 10): Promise<ExtendedProduct[]> {
@@ -238,26 +218,6 @@ export default class ProductsService extends BaseDbService {
 
     if (error !== null) throw new Error(error.message);
     return data as ExtendedProduct[];
-  }
-
-  async getRelatedProducts(
-    productId: number,
-    categoryNames: { name: string }[],
-    sortBy: string,
-    ascending: boolean,
-  ): Promise<ExtendedProduct[]> {
-    const { data: products, error } = await this.getProducts(sortBy, ascending).neq('id', productId);
-
-    if (error) {
-      console.error(error);
-      return [];
-    }
-
-    const filteredProducts = products
-      .filter(item => item.product_categories?.some(category => categoryNames.includes(category.name)))
-      .slice(0, 8);
-
-    return filteredProducts as ExtendedProduct[];
   }
 
   async getUserProductsById(userId: string) {
@@ -278,10 +238,13 @@ export default class ProductsService extends BaseDbService {
   }
 
   async getToolsByNameOrDescription(input: string, limit: number): Promise<ExtendedProduct[] | null> {
-    const key = `product-search-by-text-${input}-${limit}`;
+    // The text goes into a PostgREST filter string: drop the characters that have meaning there
+    // (commas, parentheses, quotes, wildcards) so a search can't add filters of its own.
+    const term = String(input ?? '').replace(/[,()*%\\"'.:]/g, ' ').trim().slice(0, 100);
+    const key = `product-search-by-text-${term}-${limit}`;
 
     return cache.get(key, async () => {
-      const query = `%${input}%`;
+      const query = `%${term}%`;
 
       const { data } = await this.supabase
         .from('products')
@@ -300,17 +263,17 @@ export default class ProductsService extends BaseDbService {
 
     return cache.get(key, async () => {
       return this._getOne('id', id);
-    });
+    }, undefined, (p: any) => !p || p.site_status === 'ok');
   }
 
   async getBySlug(slug: string, trackViews = false): Promise<ExtendedProduct | null> {
     const key = `product-details-slug-${slug}`;
 
     const product = await cache.get(key, async () => {
-      const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('slug', slug).single();
+      const { data } = await this.supabase.from('products').select(this.DEFULT_PRODUCT_SELECT).eq('slug', slug).maybeSingle();
 
       return data;
-    });
+    }, undefined, (p: any) => !p || p.site_status === 'ok'); // hidden tools are owner-only: never shared via the cache
 
     if (trackViews && product && !product.deleted) {
       this.viewed(product.id);
@@ -323,9 +286,19 @@ export default class ProductsService extends BaseDbService {
     const key = `product-id-${id}`;
 
     const votersList = await cache.get(key, async () => {
-      let { data } = await this.supabase.from('product_votes').select('*').eq('product_id', id);
-      const promises = data?.map(async item => this.getUserProfileById(item.user_id));
-      return await Promise.all(promises as []);
+      const { data } = await this.supabase
+        .from('product_votes')
+        .select('user_id')
+        .eq('product_id', id)
+        .order('created_at', { ascending: true });
+      const ids = (data ?? []).map(v => v.user_id);
+      // One request per 100 voters (not one per voter: a popular tool used to fire 300+ requests per view).
+      const chunks = Array.from({ length: Math.ceil(ids.length / 100) }, (_, i) => ids.slice(i * 100, i * 100 + 100));
+      const rows = (
+        await Promise.all(chunks.map(async chunk => (await this.supabase.from('profiles').select().in('id', chunk).is('deleted_at', null)).data ?? [])) // deleted accounts aren't shown
+      ).flat();
+      const byId = new Map(rows.map(p => [p.id, p]));
+      return ids.map(uid => byId.get(uid)).filter(Boolean) as Profile[];
     });
 
     return votersList;
@@ -429,13 +402,10 @@ export default class ProductsService extends BaseDbService {
     );
 
     return Promise.all(
-      Object.values(groups).map(async g => ({
-        product: g.ref,
-        voter_data: {
-          full_name: (await this.getUserProfileById(g.items[0].user_id))?.full_name,
-          id: (await this.getUserProfileById(g.items[0].user_id))?.id,
-        },
-      })),
+      Object.values(groups).map(async g => {
+        const voter = await this.getUserProfileById(g.items[0].user_id);
+        return { product: g.ref, voter_data: { full_name: voter?.full_name, id: voter?.id } };
+      }),
     );
   }
 

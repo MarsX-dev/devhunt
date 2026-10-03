@@ -1,8 +1,9 @@
 import CommentService from '@/utils/supabase/services/comments';
 import moment from 'moment';
 import { NextRequest, NextResponse } from 'next/server';
+import { isAuthorizedCron } from '@/utils/cronAuth';
 import { commentLogsService } from '@/utils/supabase/services/upvoteCommenLogs';
-import { createBrowserClient } from '@/utils/supabase/browser';
+import { supabase as serviceClient } from '@/utils/supabase/services/supabaseClient';
 import commentNotificationEmailTemplate from '@/utils/email-templates/comment-notification-email-template';
 import { Resend } from 'resend';
 
@@ -59,7 +60,9 @@ function buildCommentEmailHtml(params: {
     .replace(/\{\{unsubscribeUrl\}\}/g, 'https://devhunt.org/newsletter/unsubscribe');
 }
 
-export async function POST(_request: NextRequest) {
+export async function POST(request: NextRequest) {
+  if (!isAuthorizedCron(request)) return new NextResponse('Unauthorized', { status: 401 });
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error('comment-notification: RESEND_API_KEY is not set');
@@ -70,7 +73,7 @@ export async function POST(_request: NextRequest) {
 
   console.log('Comments notification Works');
 
-  const commentService = new CommentService(createBrowserClient());
+  const commentService = new CommentService(serviceClient as any);
   const initCommentLogsService = await commentLogsService();
 
   const dayAgo = moment().add(-2, 'day').toDate();

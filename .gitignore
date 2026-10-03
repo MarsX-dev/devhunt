@@ -10,6 +10,8 @@
 
 # next.js
 /.next/
+/.next-dev/
+/.next-dev-*/
 /out/
 
 # production
@@ -24,8 +26,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# env files (any variant: .env, .env.production, .env.local, ...); an example file may be committed
+.env*
+!.env.example
 
 # vercel
 .vercel
@@ -38,3 +41,11 @@ next-env.d.ts
 # IDE
 \.idea/
 .vscode
+
+# testing
+/tests/e2e/.auth/
+/test-results/
+/playwright-report/
+
+# backfill review output (user data)
+social-links-backfill.csv

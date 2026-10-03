@@ -1,18 +1,22 @@
+import { notFound } from 'next/navigation';
 import { type Metadata } from 'next';
-import Page404 from '@/components/ui/Page404';
 import Link from 'next/link';
 import Image from 'next/image';
 
 import HighlightCode from '@/components/ui/HighlightCode';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import { BlogClient } from 'seobot';
+import { followOwnProducts } from '@/utils/links';
+import { getArticle } from '@/utils/blog';
+
+// Blog posts are cached after their first visit (CDN) and refreshed hourly. Nothing is built ahead (empty
+// generateStaticParams); Next 14 caches a not-found page with its 404 status.
+export const revalidate = 3600;
+export async function generateStaticParams() {
+  return [];
+}
 
 async function getPost(slug: string) {
-  const key = process.env.SEOBOT_API_KEY;
-  if (!key) throw Error('SEOBOT_API_KEY enviroment variable must be set');
-
-  const client = new BlogClient(key);
-  return await client.getArticle(slug);
+  return await getArticle(slug);
 }
 
 export async function generateMetadata({ params: { slug } }: { params: { slug: string } }): Promise<Metadata> {
@@ -46,16 +50,46 @@ export async function generateMetadata({ params: { slug } }: { params: { slug: s
 
 export default async function Article({ params: { slug } }: { params: { slug: string } }) {
   const post = await getPost(slug);
-  if (!post) return <Page404 />;
+  if (!post) notFound();
+
+  const url = `https://devhunt.org/blog/${slug}`;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BlogPosting',
+        headline: post.headline,
+        description: post.metaDescription,
+        image: post.image ? [post.image] : undefined,
+        datePublished: post.publishedAt || post.createdAt,
+        dateModified: post.updatedAt || post.publishedAt || post.createdAt,
+        mainEntityOfPage: url,
+        author: { '@type': 'Organization', name: 'DevHunt', url: 'https://devhunt.org' },
+        publisher: { '@type': 'Organization', name: 'DevHunt', url: 'https://devhunt.org', logo: { '@type': 'ImageObject', url: 'https://devhunt.org/devhuntog.png?v=2' } },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://devhunt.org/' },
+          { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://devhunt.org/blog' },
+          ...(post.category
+            ? [{ '@type': 'ListItem', position: 3, name: post.category.title, item: `https://devhunt.org/blog/category/${post.category.slug}` }]
+            : []),
+          { '@type': 'ListItem', position: post.category ? 4 : 3, name: post.headline, item: url },
+        ],
+      },
+    ],
+  };
 
   return (
     <section className="max-w-3xl mt-20 mx-auto px-4 md:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
       {post.category
         ? (
         <div className="flex flex-wrap items-center gap-2 mb-1 w-full text-sm">
-          <a className="text-orange-500 hover:text-orange-400 duration-200" href="/">
+          <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/">
             Home
-          </a>
+          </Link>
           <ChevronRightIcon className="w-4 h-4 text-slate-500" />
           <Link className="text-orange-500 hover:text-orange-400 duration-200" href="/blog/">
             Blog
@@ -84,8 +118,8 @@ export default async function Article({ params: { slug } }: { params: { slug: st
           : null
       }
       <div
-        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8"
-        dangerouslySetInnerHTML={{ __html: post.html }}
+        className="prose prose-a:text-orange-500 hover:prose-a:text-orange-400 prose-invert mt-8 text-[15px] leading-7"
+        dangerouslySetInnerHTML={{ __html: followOwnProducts(post.html ?? '') }} // John's products followed; other links as SEObot wrote them
       ></div>
       <div className="flex flex-wrap gap-2 justify-start w-full">
         {(post.tags || []).map((t: any, ix: number) => (
@@ -100,14 +134,14 @@ export default async function Article({ params: { slug } }: { params: { slug: st
       </div>
       {post.relatedPosts?.length
         ? (
-        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert">
+        <div className="mt-8 prose prose-a:no-underline hover:prose-a:underline hover:prose-a:text-orange-500 prose-invert text-[15px] leading-7">
           <h2>Related posts</h2>
-          <ul className="text-base">
+          <ul>
             {post.relatedPosts.map((p: any, ix: number) => (
               <li key={ix}>
-                <a className="duration-200" href={`/blog/${p.slug}`}>
+                <Link className="duration-200" href={`/blog/${p.slug}`}>
                   {p.headline}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

@@ -6,6 +6,10 @@ import { type HTMLAttributes } from 'react';
 import { createBrowserClient } from '@/utils/supabase/browser';
 import ProductsService from '@/utils/supabase/services/products';
 
+import { weekKey } from '@/utils/launchWeeks';
+
+export { weekKey };
+
 interface Props extends HTMLAttributes<HTMLSelectElement> {
   label: string;
   value?: string | number;
@@ -13,9 +17,10 @@ interface Props extends HTMLAttributes<HTMLSelectElement> {
   validate?: {};
   setAllWeeks?: (val: { week: number; startDate: Date; endDate: Date; count: number }[]) => void;
   disabled?: boolean;
+  weeksAhead?: number;
 }
 
-export default ({ label, value, className = '', validate, setAllWeeks = () => {}, ...props }: Props) => {
+export default ({ label, value, className = '', validate, setAllWeeks = () => {}, weeksAhead = 104, ...props }: Props) => {
   const [weeks, setWeeks] = useState<{ week: number; startDate: Date; endDate: Date; count: number }[]>([]);
 
   useEffect(() => {
@@ -26,7 +31,7 @@ export default ({ label, value, className = '', validate, setAllWeeks = () => {}
 
       const productsService = new ProductsService(createBrowserClient());
       const startWeek = await productsService.getWeekNumber(startDate, 2);
-      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + 104, startDate.getFullYear());
+      const result = await productsService.getProductsCountByWeek(startWeek + 1, startWeek + weeksAhead, startDate.getFullYear());
       setWeeks(result);
       setAllWeeks(result);
       // const x = weeks.filter(item => item.week == 11)
@@ -47,8 +52,11 @@ export default ({ label, value, className = '', validate, setAllWeeks = () => {}
         <option value="" disabled selected>
           {label}
         </option>
+        {value && weeks.length > 0 && !weeks.some(i => weekKey(i.startDate) === value) && (
+          <option value={value}>{moment.utc(value).format('LL')}</option>
+        )}
         {weeks.map(i => (
-          <option value={i.week}>{`${moment(i.startDate).format('LL')} - ${moment(i.endDate).format('LL')} (${i.count} tools) ${
+          <option key={weekKey(i.startDate)} value={weekKey(i.startDate)}>{`${moment.utc(i.startDate).format('LL')} - ${moment.utc(i.endDate).format('LL')} (${i.count} tools) ${
             i.count < 15 ? '- Free' : '- $49'
           }`}</option>
         ))}

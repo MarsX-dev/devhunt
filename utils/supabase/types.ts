@@ -572,6 +572,7 @@ export type Database = {
           full_name: string | null;
           headline: string | null;
           id: string;
+          social_links: Json | null;
           social_url: string | null;
           twitter: string | null;
           updated_at: string | null;
@@ -584,6 +585,7 @@ export type Database = {
           full_name?: string | null;
           headline?: string | null;
           id: string;
+          social_links?: Json | null;
           social_url?: string | null;
           twitter?: string | null;
           updated_at?: string | null;
@@ -596,6 +598,7 @@ export type Database = {
           full_name?: string | null;
           headline?: string | null;
           id?: string;
+          social_links?: Json | null;
           social_url?: string | null;
           twitter?: string | null;
           updated_at?: string | null;

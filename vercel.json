@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["dub1"],
+  "crons": [
+    { "path": "/api/cron/daily-report", "schedule": "0 7 * * *" },
+    { "path": "/api/top-3-winners-email", "schedule": "0 8-10 * * 2" },
+    { "path": "/api/winners-personal-congrats-email", "schedule": "0 8-10 * * 2" },
+    { "path": "/api/new-tools-launch-reminder-email", "schedule": "0 8-10 * * 3" },
+    { "path": "/api/cron/dofollow-upsell-email", "schedule": "0 14-16 * * *" }
+  ]
+}
