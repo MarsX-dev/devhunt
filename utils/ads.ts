@@ -80,6 +80,8 @@ export const isAdKind = (k: unknown): k is AdKind => typeof k === 'string' && k 
 // Refund the latest payment (and stop the ads it paid for) within this many hours of the charge; after that, no refunds.
 export const REFUND_HOURS = 24;
 export const REFUND_MS = REFUND_HOURS * 3600_000;
+// Refunds return the payment minus Stripe's processing fee, which Stripe doesn't give back to us.
+export const REFUND_FEE_NOTE = "Refunds return your payment minus Stripe's processing fee (usually 3-5%), which Stripe keeps and doesn't return to us.";
 
 // Where inline sponsor rows go in a tool list (components/ui/Sponsors/InlineSponsor): before the
 // 4th item, then every 8 items. Lists shorter than 4 items get none. Tune placement here.

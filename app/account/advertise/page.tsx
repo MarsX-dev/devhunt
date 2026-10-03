@@ -9,7 +9,7 @@ import { ListPageSkeleton, RowsSkeleton } from '@/components/ui/Skeletons/PageSk
 import { ImagePick } from '@/components/ui/Sponsors/AdBuilder';
 import fileUploader from '@/utils/supabase/fileUploader';
 import { trackStep } from '@/utils/funnelClient';
-import { AD_PRODUCTS, REFUND_HOURS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_PRODUCTS, REFUND_FEE_NOTE, REFUND_HOURS, isRecurring, planPrice, type AdKind, type AdPlan } from '@/utils/ads';
 
 const INVOICE_URL = 'https://zenvoice.io/p/65d6370232047df47b4c142b';
 
@@ -82,7 +82,7 @@ function AdvertisePage() {
   async function manage(ad: MyAd, action: 'cancel' | 'resume' | 'refund') {
     const ask = {
       cancel: `Cancel future months for ${ad.name}?\n\nThis only stops future charges. You've paid for the current month, so your ads (everything bought in the same checkout) stay live until ${fmt(ad.current_period_end)}, then stop. Nothing is refunded; for a refund use "Cancel and refund" within ${REFUND_HOURS} hours of a payment.`,
-      refund: `Cancel ${ad.name} now and refund your last payment?\n\nEvery ad paid for with it comes down right away and nothing renews.`,
+      refund: `Cancel ${ad.name} now and refund your last payment?\n\nEvery ad paid for with it comes down right away and nothing renews.\n\n${REFUND_FEE_NOTE}`,
       resume: '',
     }[action];
     if (ask && !confirm(ask)) return;
@@ -90,7 +90,7 @@ function AdvertisePage() {
     const d = await post('/api/ads/cancel', { adId: ad.id, resume: action === 'resume', refund: action === 'refund' });
     setBusy('');
     if (!d.ok) alert(d.error ?? 'Something went wrong.');
-    else if (action === 'refund') setNotice(`Refunded $${((d.refunded ?? 0) / 100).toFixed(2)}. It can take 5-10 days to show on your card.`);
+    else if (action === 'refund') setNotice(`Refunded $${((d.refunded ?? 0) / 100).toFixed(2)} (your payment minus Stripe's processing fee, which Stripe keeps). It can take 5-10 days to show on your card.`);
     load();
   }
 
@@ -201,7 +201,7 @@ function AdvertisePage() {
                   <button
                     onClick={() => manage(ad, 'refund')}
                     disabled={busy === ad.id}
-                    title={`Available until ${fmt(ad.refundable_until)}`}
+                    title={`Available until ${fmt(ad.refundable_until)}. Refunds your payment minus Stripe's processing fee.`}
                     className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:border-red-500/60 hover:text-red-300"
                   >
                     Cancel and refund

@@ -326,6 +326,21 @@ export async function syncAdSubscription(sub: Stripe.Subscription) {
   }
 }
 
+// Refunds a payment minus the processing fee Stripe charged on it (Stripe keeps that fee on refunds,
+// so a full refund would cost us the fee). The fee is in our balance currency; converted back to the
+// charge currency with the transaction's exchange rate.
+async function refundMinusFee(intentId: string, metadata: Record<string, string>) {
+  const intent = await stripe().paymentIntents.retrieve(intentId, { expand: ['latest_charge.balance_transaction'] });
+  const charge = intent.latest_charge as Stripe.Charge | null;
+  const tx = charge?.balance_transaction as Stripe.BalanceTransaction | null | undefined;
+  if (!charge || !tx || typeof tx === 'string') throw new Error('payment has no balance transaction yet');
+  const fee = Math.ceil(tx.fee / (tx.exchange_rate ?? 1));
+  const amount = charge.amount - charge.amount_refunded - fee;
+  if (amount <= 0) return { refunded: 0 };
+  const refund = await stripe().refunds.create({ payment_intent: intentId, amount, metadata: { ...metadata, fee_kept: String(fee) } });
+  return { refunded: refund.amount };
+}
+
 // "Cancel and refund": within REFUND_HOURS of the latest charge, refunds it and ends the subscription
 // (every ad in it) now. Returns null when the latest payment is too old (a normal cancel still works).
 export async function refundSubscription(subscriptionId: string, label: string) {
@@ -338,8 +353,7 @@ export async function refundSubscription(subscriptionId: string, label: string) 
     const intent = payments[0]?.payment?.payment_intent;
     const intentId = typeof intent === 'string' ? intent : intent?.id;
     if (!intentId) throw new Error('no payment to refund');
-    const refund = await stripe().refunds.create({ payment_intent: intentId, metadata: { subscription: subscriptionId } });
-    refunded = refund.amount;
+    refunded = (await refundMinusFee(intentId, { subscription: subscriptionId })).refunded;
   }
   const sub = await stripe().subscriptions.cancel(subscriptionId);
   // The refund covered everything on that invoice, including weekly items bought with it.
@@ -361,11 +375,11 @@ export async function refundOneTime(ad: { id: number; name: string; status: stri
   const session = await stripe().checkout.sessions.retrieve(ad.stripe_session_id);
   const intentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
   if (!intentId) throw new Error('no payment to refund');
-  const refund = await stripe().refunds.create({ payment_intent: intentId, metadata: { ad_id: String(ad.id) } });
+  const refund = await refundMinusFee(intentId, { ad_id: String(ad.id) });
   await serviceClient.from('ad_slots' as any).update({ status: 'ended', refunded_at: new Date().toISOString(), canceled_at: new Date().toISOString() }).eq('stripe_session_id', ad.stripe_session_id);
   refreshAdPages();
-  await notifyAdDiscord(`↩️ Sponsor refunded $${(refund.amount / 100).toFixed(2)} (weekly, one-time) and ended: ${ad.name}`);
-  return { refunded: refund.amount };
+  await notifyAdDiscord(`↩️ Sponsor refunded $${(refund.refunded / 100).toFixed(2)} (weekly, one-time) and ended: ${ad.name}`);
+  return { refunded: refund.refunded };
 }
 
 // The refund window for an ad's latest charge (for the "Cancel and refund" button).

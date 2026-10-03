@@ -112,7 +112,7 @@ export default async function AdvertisePitch() {
         </div>
         <div>
           <h3 className="font-semibold text-slate-100">Refund within {REFUND_HOURS} hours</h3>
-          <p className="mt-1">Not happy? Get your money back. Weekly ads never renew.</p>
+          <p className="mt-1">Not happy? Get your money back, minus Stripe&apos;s processing fee (usually 3-5%), which Stripe doesn&apos;t return to us. Weekly ads never renew.</p>
         </div>
       </div>
     </section>

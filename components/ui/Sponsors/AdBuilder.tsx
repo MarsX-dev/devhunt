@@ -9,7 +9,7 @@ import ProgressTerminal from '@/components/ui/ProgressTerminal';
 import { PENDING_KEY, type PendingAd } from '@/components/ui/Sponsors/AdResume';
 import fileUploader from '@/utils/supabase/fileUploader';
 import { trackStep } from '@/utils/funnelClient';
-import { AD_KINDS, AD_PRODUCTS, REFUND_HOURS, isAdKind, isRecurring, monthlySaving, planPrice, spotsLeft, viewsEstimate, weeklyPlan, type AdKind, type AdPlan } from '@/utils/ads';
+import { AD_KINDS, AD_PRODUCTS, REFUND_FEE_NOTE, REFUND_HOURS, isAdKind, isRecurring, monthlySaving, planPrice, spotsLeft, viewsEstimate, weeklyPlan, type AdKind, type AdPlan } from '@/utils/ads';
 
 // The ad builder at the top of /advertise: enter a URL, all three ads get written, switch on the ones
 // to buy (right column), edit, pay. Anyone can fill it in; signing in is asked for at "Generate", and the choices survive
@@ -359,7 +359,7 @@ export default function AdBuilder({ free }: { free: Record<AdKind, number> | nul
                 ) : (
                   'One-time payment, nothing renews.'
                 )}{' '}
-                Not satisfied? Full refund within {REFUND_HOURS} hours for sidebar card and inline listing ads.
+                Not satisfied? Refund within {REFUND_HOURS} hours for sidebar card and inline listing ads (not newsletter ads once sent). {REFUND_FEE_NOTE}
               </p>
             </div>
           </div>
