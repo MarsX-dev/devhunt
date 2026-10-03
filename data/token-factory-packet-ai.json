@@ -1,0 +1,8 @@
+{
+  "name": "Token Factory",
+  "slogan": "OpenAI-compatible LLM inference API on B200 GPU infrastructure. Per-token billing, no idle cost.",
+  "description": "Token Factory is a managed LLM inference API serving DeepSeek V4 Flash, GLM-5.3, Kimi K3, and Qwen3.8 Max on packet.ai's owned B200 fleet. OpenAI-compatible endpoint, per-token billing, no GPU-hour minimums. Change your base URL, change your model name, ship.",
+  "url": "https://packet.ai/token-factory",
+  "logo": "https://packet.ai/logo.png",
+  "tags": ["API", "AI", "Infrastructure", "LLM", "GPU"]
+}
