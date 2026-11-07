@@ -31,6 +31,7 @@ import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
 import { IconXmark } from '@/components/Icons';
 import { DEMO_PROVIDERS_LABEL, resolveDemoEmbed } from '@/utils/demoEmbed';
+import { DemoProviderLinks } from '@/components/ui/DemoEmbed';
 
 interface Inputs {
   tool_name: string;
@@ -530,7 +531,9 @@ export default () => {
               </div>
               <div>
                 <Label>Interactive demo (optional)</Label>
-                <p className="text-sm text-slate-400">Paste a share link or embed code from {DEMO_PROVIDERS_LABEL}.</p>
+                <p className="text-sm text-slate-400">
+                  Paste a share link or embed code from <DemoProviderLinks />.
+                </p>
                 <Input
                   placeholder="Share link or embed code"
                   className="w-full mt-2"

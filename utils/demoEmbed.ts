@@ -35,6 +35,8 @@ interface ProviderUrls {
 interface Provider {
   id: DemoProviderId;
   name: string;
+  /** Linked from the launch form. */
+  homepage: string;
   hosts: string[];
   allow: string;
   aspectRatio: string;
@@ -85,6 +87,7 @@ const PROVIDERS: Provider[] = [
   {
     id: 'arcade',
     name: 'Arcade',
+    homepage: 'https://www.arcade.software/',
     hosts: ['app.arcade.software', 'demo.arcade.software'],
     allow: 'clipboard-write; fullscreen',
     aspectRatio: '16 / 9',
@@ -98,6 +101,8 @@ const PROVIDERS: Provider[] = [
   {
     id: 'atriumkit',
     name: 'AtriumKit',
+    // www: the bare domain's redirect drops the query string, and with it ref=devhunt.
+    homepage: 'https://www.atriumkit.com/',
     hosts: ['atriumkit.com', 'www.atriumkit.com'],
     allow: 'autoplay; fullscreen; clipboard-write',
     aspectRatio: '16 / 9',
@@ -119,6 +124,7 @@ const PROVIDERS: Provider[] = [
   {
     id: 'navattic',
     name: 'Navattic',
+    homepage: 'https://www.navattic.com/',
     hosts: ['capture.navattic.com'],
     allow: 'fullscreen',
     aspectRatio: '16 / 10',
@@ -132,6 +138,7 @@ const PROVIDERS: Provider[] = [
   {
     id: 'storylane',
     name: 'Storylane',
+    homepage: 'https://www.storylane.io/',
     hosts: ['app.storylane.io'],
     allow: 'fullscreen',
     aspectRatio: '16 / 9',
@@ -145,6 +152,7 @@ const PROVIDERS: Provider[] = [
   {
     id: 'supademo',
     name: 'Supademo',
+    homepage: 'https://supademo.com/',
     hosts: ['app.supademo.com'],
     allow: 'clipboard-write; fullscreen',
     aspectRatio: '16 / 9',
@@ -156,6 +164,8 @@ const PROVIDERS: Provider[] = [
     },
   },
 ];
+
+export const DEMO_PROVIDERS: Array<{ name: string; homepage: string }> = PROVIDERS.map(({ name, homepage }) => ({ name, homepage }));
 
 export const DEMO_PROVIDER_NAMES: string[] = PROVIDERS.map(p => p.name);
 

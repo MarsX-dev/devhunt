@@ -1,7 +1,7 @@
 // Run with `npm test` (Node's built-in test runner; Node 22.18+ runs the .ts module without a build step).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveDemoEmbed, extractDemoUrl, DEMO_PROVIDERS_LABEL } from './demoEmbed.ts';
+import { resolveDemoEmbed, extractDemoUrl, DEMO_PROVIDERS, DEMO_PROVIDERS_LABEL } from './demoEmbed.ts';
 
 const embedOf = input => resolveDemoEmbed(input)?.embedUrl ?? null;
 
@@ -135,4 +135,19 @@ test('rejects anything that is not a supported demo', () => {
 
 test('provider label lists providers alphabetically', () => {
   assert.equal(DEMO_PROVIDERS_LABEL, 'Arcade, AtriumKit, Navattic, Storylane or Supademo');
+});
+
+test('every provider has an https homepage with a path, so ref=devhunt appends cleanly', () => {
+  assert.deepEqual(
+    DEMO_PROVIDERS.map(p => p.name),
+    ['Arcade', 'AtriumKit', 'Navattic', 'Storylane', 'Supademo'],
+  );
+  for (const { name, homepage } of DEMO_PROVIDERS) {
+    const url = new URL(homepage);
+    assert.equal(url.protocol, 'https:', name);
+    assert.equal(url.pathname, '/', name);
+    assert.equal(url.search, '', name);
+  }
+  // The bare atriumkit.com redirects to www and drops the query string.
+  assert.equal(DEMO_PROVIDERS.find(p => p.name === 'AtriumKit').homepage, 'https://www.atriumkit.com/');
 });
