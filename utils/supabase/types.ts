@@ -411,6 +411,7 @@ export type Database = {
           description: string | null;
           github_url: string | null;
           id: number;
+          interactive_demo_url: string | null;
           is_draft: boolean;
           launch_date: string;
           launch_description: string | null;
@@ -444,6 +445,7 @@ export type Database = {
           description?: string | null;
           github_url?: string | null;
           id?: number;
+          interactive_demo_url?: string | null;
           is_draft: boolean;
           launch_date: string;
           launch_description?: string | null;
@@ -477,6 +479,7 @@ export type Database = {
           description?: string | null;
           github_url?: string | null;
           id?: number;
+          interactive_demo_url?: string | null;
           is_draft?: boolean;
           launch_date?: string;
           launch_description?: string | null;
@@ -1169,6 +1172,7 @@ export type Database = {
           description: string | null;
           github_url: string | null;
           id: number;
+          interactive_demo_url: string | null;
           is_draft: boolean;
           launch_date: string;
           launch_description: string | null;

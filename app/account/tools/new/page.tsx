@@ -30,6 +30,7 @@ import moment from 'moment';
 import Modal from '@/components/ui/Modal';
 import { IconGlobeAlt } from '@/components/Icons/IconGlobeAlt';
 import { IconXmark } from '@/components/Icons';
+import { DEMO_PROVIDERS_LABEL, resolveDemoEmbed } from '@/utils/demoEmbed';
 
 interface Inputs {
   tool_name: string;
@@ -39,6 +40,7 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
+  interactive_demo: string;
   week: number;
   launch_date: Date;
   launch_start: Date;
@@ -227,7 +229,18 @@ export default () => {
     try {
       scrollToErroView();
       if (validateImages() && (await validateToolName())) {
-        const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week, submitType } = data;
+        const {
+          tool_name,
+          tool_website,
+          tool_description,
+          slogan,
+          pricing_type,
+          github_repo,
+          demo_video,
+          interactive_demo,
+          week,
+          submitType,
+        } = data;
         const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
 
         const categoryIds = categories.map(item => item.id);
@@ -305,6 +318,7 @@ export default () => {
               comments_count: 0,
               votes_count: 0,
               demo_video_url: demo_video || generatedVideoUrl,
+              interactive_demo_url: resolveDemoEmbed(interactive_demo)?.sourceUrl ?? null,
               ...launchData,
               isPaid: false,
               paid_launch_date: submitType == 'paid' ? weekData : null,
@@ -513,6 +527,23 @@ export default () => {
                   }}
                 />
                 <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
+              </div>
+              <div>
+                <Label>Interactive demo (optional)</Label>
+                <p className="text-sm text-slate-400">Paste a share link or embed code from {DEMO_PROVIDERS_LABEL}.</p>
+                <Input
+                  placeholder="Share link or embed code"
+                  className="w-full mt-2"
+                  validate={{
+                    ...register('interactive_demo', {
+                      required: false,
+                      validate: value => !value?.trim() || resolveDemoEmbed(value) !== null,
+                    }),
+                  }}
+                />
+                <LabelError className="mt-2">
+                  {errors.interactive_demo && `Please paste a share link or embed code from ${DEMO_PROVIDERS_LABEL}`}
+                </LabelError>
               </div>
               <div id="tool-screenshots-container">
                 <Label>Tool screenshots</Label>

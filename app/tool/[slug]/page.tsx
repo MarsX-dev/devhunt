@@ -31,6 +31,7 @@ import handleURLQuery from '@/utils/handleURLQuery';
 import VoterAvatarsList from '@/components/ui/VoterAvatarsList';
 import { Profile } from '@/utils/supabase/types';
 import MonitizorAdCards from '@/components/ui/MonitizerAdCards';
+import DemoEmbed from '@/components/ui/DemoEmbed';
 
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
@@ -212,6 +213,7 @@ export default async function Page({ params: { slug } }: { params: { slug: strin
                 ''
               )}
             </div>
+            <DemoEmbed url={product.interactive_demo_url} name={product.name} className="relative mt-10" />
             {product?.asset_urls?.length && (
               <div
                 className={`max-w-screen-2xl ${product?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}
