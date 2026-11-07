@@ -30,6 +30,7 @@ import TrendingToolsList from './TrendingToolsList';
 import WinnerBadge from '../WinnerBadge';
 import handleURLQuery from '@/utils/handleURLQuery';
 import VoterAvatarsList from '../VoterAvatarsList';
+import DemoEmbed from '../DemoEmbed';
 
 export default ({ href, tool, close }: { href: string; tool: ProductType; close: () => void }) => {
   // const window = new JSDOM('').window;
@@ -179,6 +180,7 @@ export default ({ href, tool, close }: { href: string; tool: ProductType; close:
                   ''
                 )}
               </div>
+              <DemoEmbed url={tool?.interactive_demo_url} name={tool?.name} className="relative mt-10" />
               {tool?.asset_urls?.length && (
                 <div
                   className={`max-w-screen-2xl ${tool?.asset_urls?.length === 1 ? 'container-custom-screen' : ''} mt-10 mx-auto sm:px-8`}

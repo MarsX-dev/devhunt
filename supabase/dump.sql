@@ -989,7 +989,8 @@ CREATE TABLE public.products (
     launch_description text,
     demo_video_url text,
     views_count bigint DEFAULT '0'::bigint NOT NULL,
-    week integer
+    week integer,
+    interactive_demo_url text
 );
 
 

@@ -23,6 +23,8 @@ import { useParams, useRouter } from 'next/navigation';
 import SelectmenuDate from '@/components/ui/SelectmenuDate/SelectmenuDate';
 import moment from 'moment';
 import SelectLaunchDate from '@/components/ui/SelectLaunchDate';
+import { DEMO_PROVIDERS_LABEL, resolveDemoEmbed } from '@/utils/demoEmbed';
+import { DemoProviderLinks } from '@/components/ui/DemoEmbed';
 
 interface Inputs {
   tool_name: string;
@@ -32,6 +34,7 @@ interface Inputs {
   pricing_type: number;
   github_repo: string;
   demo_video: string;
+  interactive_demo: string;
   week: number | string;
 }
 
@@ -92,6 +95,7 @@ export default () => {
       setValue('pricing_type', data?.pricing_type);
       setValue('github_repo', data?.github_url);
       setValue('demo_video', data?.demo_video_url);
+      setValue('interactive_demo', data?.interactive_demo_url ?? '');
       setValue('week', data?.week);
       setSlug(data?.slug as string);
       setWeekValue(data?.week as number);
@@ -146,7 +150,7 @@ export default () => {
   const onSubmit: SubmitHandler<Inputs> = async data => {
     if (validateImages()) {
       setUpdate(true);
-      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, week } = data;
+      const { tool_name, tool_website, tool_description, slogan, pricing_type, github_repo, demo_video, interactive_demo, week } = data;
       const generatedVideoUrl = `https://app.paracast.io/api/getPromoVideoFromSiteUrl/?project_url=${tool_website}`;
       const categoryIds: number[] = categories.map(category => category.id);
       const launchWeek = typeof week === 'string' ? parseInt(week) : week;
@@ -175,6 +179,7 @@ export default () => {
             description: tool_description,
             logo_url: logoPreview,
             demo_video_url: demo_video || generatedVideoUrl,
+            interactive_demo_url: resolveDemoEmbed(interactive_demo)?.sourceUrl ?? null,
             launch_date: weekData?.startDate as string,
             ...launchDateData,
             week: launchWeek,
@@ -314,6 +319,25 @@ export default () => {
                 }}
               />
               <LabelError className="mt-2">{errors.demo_video && 'Please enter a valid demo video url'}</LabelError>
+            </div>
+            <div>
+              <Label>Interactive demo (optional)</Label>
+              <p className="text-sm text-slate-400">
+                Paste a share link or embed code from <DemoProviderLinks />.
+              </p>
+              <Input
+                placeholder="Share link or embed code"
+                className="w-full mt-2"
+                validate={{
+                  ...register('interactive_demo', {
+                    required: false,
+                    validate: (value: string) => !value?.trim() || resolveDemoEmbed(value) !== null,
+                  }),
+                }}
+              />
+              <LabelError className="mt-2">
+                {errors.interactive_demo && `Please paste a share link or embed code from ${DEMO_PROVIDERS_LABEL}`}
+              </LabelError>
             </div>
             <div>
               <Label>Tool screenshots</Label>
